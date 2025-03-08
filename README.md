@@ -24,6 +24,9 @@ Apa hayo
 3. Untuk melakukan development, jalankan command berikut pada terminal:
 
     ```bash
+    # Command untuk menjalankan database
+    docker-compose up -d db
+
     # Command untuk menjalankan backend
     cd backend
     npm run dev:local
@@ -52,6 +55,9 @@ Apa hayo
 3. Untuk melakukan development, jalankan command berikut pada terminal:
 
     ```bash
+    # Command untuk menjalankan database
+    docker-compose up -d db
+
     # Command untuk menjalankan backend
     cd backend
     npm run dev:local
