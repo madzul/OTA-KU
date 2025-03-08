@@ -13,12 +13,11 @@ services:
     networks:
       - app-network
     healthcheck:
-      # TODO: Nanti ganti urlnya
-      test: "curl -f http://localhost:3000/health"
-      interval: 30s
-      timeout: 10s
+      test: "curl -f http://localhost:3000/health || exit 1"
+      interval: 5s
+      timeout: 3s
       retries: 3
-
+      start_period: 10s
   frontend:
     build:
       context: ./frontend
@@ -31,14 +30,13 @@ services:
     networks:
       - app-network
     healthcheck:
-      # TODO: Nanti ganti urlnya
-      test: "curl -f http://localhost:5173/"
-      interval: 30s
-      timeout: 10s
+      test: "curl -f http://localhost:3000/ || exit 1"
+      interval: 5s
+      timeout: 3s
       retries: 3
-
+      start_period: 5s
   db:
-    build: 
+    build:
       context: ./backend/src/db
       dockerfile: Dockerfile
     env_file:
@@ -46,18 +44,19 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     networks:
       - app-network
     healthcheck:
-      test: "pg_isready -U $POSTGRES_USER"
-      interval: 30s
-      timeout: 10s
+      test: "pg_isready -U $${POSTGRES_USER}"
+      interval: 5s
+      timeout: 3s
       retries: 5
-
+      start_period: 5s
 volumes:
   pgdata:
-
 networks:
   app-network:
     driver: bridge
+
+# TODO: Nanti ganti semua waktu healthcheck lebih lama buat production
