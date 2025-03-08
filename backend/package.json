@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "dev:local": "env-cmd -f ./.env.local tsx watch src/index.ts",
     "build": "tsc",
     "drizzle-kit:generate": "drizzle-kit generate",
     "drizzle-kit:migrate": "env-cmd -f ./.env.local drizzle-kit migrate"

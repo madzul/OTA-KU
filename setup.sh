@@ -38,8 +38,7 @@ elif [ "$mode" == "2" ]; then
 
     # Run Docker Compose
     export COMPOSE_PROJECT_NAME=prod
-    docker-compose -f "$DOCKER_COMPOSE_FILE" up --build -d
-    docker-compose up -d
+    sudo docker-compose -f "$DOCKER_COMPOSE_FILE" up --build -d
 
     echo "Production setup complete!"
 else

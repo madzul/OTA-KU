@@ -5,11 +5,11 @@ echo "Starting database migration..."
 
 # Step 1: Start the database container
 echo "Starting the database container..."
-docker-compose up -d db
+sudo docker-compose up -d db
 
 # Step 2: Wait for the database to be ready
 echo "Waiting for the database to be ready..."
-while ! docker ps -q --filter "name=db" | grep -q .; do
+while ! sudo docker ps -q --filter "name=db" | grep -q .; do
     sleep 2
 done
 
