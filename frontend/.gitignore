@@ -26,3 +26,9 @@ dist-ssr
 # Env
 .env
 .env.local
+
+# Cypress
+cypress/screenshots
+cypress/videos
+.nyc_output
+coverage
