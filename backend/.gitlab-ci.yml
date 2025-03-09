@@ -5,18 +5,24 @@ stages:
 
 backend-build-job:
   stage: build
+  variables:
+    GIT_STRATEGY: "clone"
   script:
     - echo "Building backend with Hono..."
     # Add backend build commands here
 
 backend-test-job:
   stage: test
+  variables:
+    GIT_STRATEGY: "clone"
   script:
     - echo "Testing backend..."
     # Add backend test commands here
 
 backend-deploy-job:
   stage: deploy
+  variables:
+    GIT_STRATEGY: "clone"
   script:
     - echo "Deploying backend..."
     # Add backend deployment commands here
