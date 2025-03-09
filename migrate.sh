@@ -25,3 +25,7 @@ else
     echo "Migration failed! Please check the logs."
     exit 1
 fi
+
+# Step 4: Stop the database container
+echo "Stopping the database container..."
+sudo docker-compose down

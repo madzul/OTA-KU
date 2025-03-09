@@ -1,4 +1,4 @@
-import { queryClient } from "@/lib/query-client";
+import { queryClient } from "@/api/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";

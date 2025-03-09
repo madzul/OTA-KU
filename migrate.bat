@@ -27,3 +27,7 @@ if %errorlevel%==0 (
 ) else (
     echo Migration failed! Please check the logs.
 )
+
+:: Step 4: Stop the database container
+echo Stopping the database container...
+docker-compose down db
