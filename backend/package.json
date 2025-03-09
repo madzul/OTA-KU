@@ -9,20 +9,25 @@
     "drizzle-kit:generate": "drizzle-kit generate",
     "drizzle-kit:migrate": "env-cmd -f ./.env.local drizzle-kit migrate",
     "test": "vitest run",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "db:seed": "env-cmd -f ./.env.local tsx src/db/seed.ts",
+    "db:reset": "env-cmd -f ./.env.local tsx src/db/reset.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.2",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",
     "env-cmd": "^10.1.0",
     "hono": "^4.7.4",
-    "pg": "^8.13.3"
+    "pg": "^8.13.3",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20.11.17",
     "@types/pg": "^8.11.11",
     "@vitest/coverage-v8": "^3.0.8",
