@@ -15,7 +15,7 @@ function Index() {
   console.log(data);
 
   return (
-    <div className="p-2">
+    <div className="p-2 text-4xl text-succeed">
       <h3>Welcome Home!</h3>
     </div>
   );
