@@ -4,7 +4,6 @@ stages:
   - deploy
 
 variables:
-  GIT_FETCH_EXTRA_FLAGS: "--retry 5" # Add retry flags
   GIT_STRATEGY: "clone" # Force fresh clone instead of fetch
 
 include:
