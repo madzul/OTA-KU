@@ -1,0 +1,22 @@
+stages:
+  - build
+  - test
+  - deploy
+
+frontend-build-job:
+  stage: build
+  script:
+    - echo "Building frontend with Vite and React..."
+    # Add frontend build commands here
+
+frontend-test-job:
+  stage: test
+  script:
+    - echo "Testing frontend..."
+    # Add frontend test commands here
+
+frontend-deploy-job:
+  stage: deploy
+  script:
+    - echo "Deploying frontend..."
+    # Add frontend deployment commands here
