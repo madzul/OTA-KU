@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+// @ts-expect-error // Ignore TS error for importing Cypress
 import React from "react";
 
 describe("<Input />", () => {

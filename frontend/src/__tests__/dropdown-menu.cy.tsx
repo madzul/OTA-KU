@@ -13,6 +13,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+// @ts-expect-error // Ignore TS error for importing Cypress
 import React from "react";
 
 describe("<DropdownMenu />", () => {

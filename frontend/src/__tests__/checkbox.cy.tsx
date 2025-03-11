@@ -1,4 +1,5 @@
 import { Checkbox } from "@/components/ui/checkbox";
+// @ts-expect-error // Ignore TS error for importing Cypress
 import React from "react";
 
 describe("<Checkbox />", () => {
