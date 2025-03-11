@@ -1,28 +1,70 @@
-stages:
-  - build
-  - test
-  - deploy
+.backend-base:
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-backend
+    paths:
+      - backend/node_modules/
+    policy: pull-push
+  before_script:
+    - |
+      echo "Cleaning up potential Git locks..."
+      if [ -f .git/shallow.lock ]; then
+        rm -f .git/shallow.lock
+      fi
+      if [ -f .git/index.lock ]; then
+        rm -f .git/index.lock
+      fi
 
 backend-build-job:
+  extends: .backend-base
   stage: build
-  variables:
-    GIT_STRATEGY: "clone"
   script:
     - echo "Building backend with Hono..."
-    # Add backend build commands here
+    - cd backend
+    - cp "$BACKEND_ENV_FILE" .env
+    # CI/CD optimization: only install if node_modules doesn't exist or package.json has changed
+    - |
+      if [ ! -d "node_modules" ] || [ "$(stat -c %Y package.json)" -gt "$(stat -c %Y node_modules 2>/dev/null || echo 0)" ]; then
+        echo "Installing dependencies..."
+        npm ci
+      else
+        echo "Using cached node_modules"
+      fi
+    - npm run build
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - backend/.env
+      - backend/dist/
 
 backend-test-job:
+  extends: .backend-base
   stage: test
-  variables:
-    GIT_STRATEGY: "clone"
+  needs:
+    - backend-build-job
   script:
     - echo "Testing backend..."
-    # Add backend test commands here
+    - cd backend
+    - cp "$BACKEND_ENV_FILE" .env
+    # Ensure required environment variables are available
+    - |
+      if ! grep -q "DATABASE_URL" .env || ! grep -q "JWT_SECRET" .env; then
+        echo "ERROR: Required environment variables missing in .env"
+        exit 1
+      fi
+    - npm ci --prefer-offline
+    - npm run test
+  cache:
+    policy: pull
 
 backend-deploy-job:
+  extends: .backend-base
   stage: deploy
-  variables:
-    GIT_STRATEGY: "clone"
+  needs:
+    - backend-test-job
   script:
     - echo "Deploying backend..."
     # Add backend deployment commands here
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  cache:
+    policy: pull

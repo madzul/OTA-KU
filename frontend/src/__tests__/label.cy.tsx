@@ -1,4 +1,5 @@
 import { Label } from "@/components/ui/label";
+// @ts-expect-error // Ignore TS error for importing Cypress
 import React from "react";
 
 describe("<Label />", () => {

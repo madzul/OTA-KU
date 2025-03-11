@@ -1,28 +1,97 @@
-stages:
-  - build
-  - test
-  - deploy
+.frontend-base:
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-frontend
+    paths:
+      - frontend/node_modules/
+    policy: pull-push
+  before_script:
+    - |
+      echo "Cleaning up potential Git locks..."
+      if [ -f .git/shallow.lock ]; then
+        rm -f .git/shallow.lock
+      fi
+      if [ -f .git/index.lock ]; then
+        rm -f .git/index.lock
+      fi
+
+.frontend-cypress-base:
+  extends: .frontend-base
+  image: node:20-bookworm
+  before_script:
+    - |
+      echo "Cleaning up potential Git locks..."
+      if [ -f .git/shallow.lock ]; then
+        rm -f .git/shallow.lock
+      fi
+      if [ -f .git/index.lock ]; then
+        rm -f .git/index.lock
+      fi
+    - cd frontend
+    - |
+      if [ ! -d "/var/lib/apt/lists" ] || [ "$(ls -A /var/lib/apt/lists)" = "" ]; then
+        echo "Installing Cypress dependencies..."
+        apt-get update
+        apt-get install -y --no-install-recommends libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
+        rm -rf /var/lib/apt/lists/*
+      fi
+    # Use npm ci instead of install --force for more reliable builds
+    - npm ci --force
 
 frontend-build-job:
+  extends: .frontend-base
   stage: build
-  variables:
-    GIT_STRATEGY: "clone"
   script:
     - echo "Building frontend with Vite and React..."
-    # Add frontend build commands here
+    - cd frontend
+    - npm ci --force
+    - npm run build
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - frontend/dist/
 
-frontend-test-job:
+frontend-e2e-test-job:
+  extends: .frontend-cypress-base
   stage: test
-  variables:
-    GIT_STRATEGY: "clone"
+  needs:
+    - frontend-build-job
   script:
-    - echo "Testing frontend..."
-    # Add frontend test commands here
+    - echo "Testing frontend E2E..."
+    - npm run dev &
+    - sleep 5
+    - npm run cy:run-e2e
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - frontend/cypress/screenshots/
+      - frontend/cypress/videos/
+
+frontend-component-test-job:
+  extends: .frontend-cypress-base
+  stage: test
+  needs:
+    - frontend-build-job
+  script:
+    - echo "Testing frontend components..."
+    - npm run cy:run-unit
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - frontend/cypress/screenshots/
+      - frontend/cypress/videos/
 
 frontend-deploy-job:
+  extends: .frontend-base
   stage: deploy
-  variables:
-    GIT_STRATEGY: "clone"
+  needs:
+    - frontend-e2e-test-job
+    - frontend-component-test-job
   script:
     - echo "Deploying frontend..."
     # Add frontend deployment commands here
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  cache:
+    policy: pull

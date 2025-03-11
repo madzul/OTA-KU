@@ -4,6 +4,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+// @ts-expect-error // Ignore TS error for importing Cypress
 import React from "react";
 
 describe("<Popover />", () => {

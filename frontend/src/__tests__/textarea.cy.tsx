@@ -1,4 +1,5 @@
 import { Textarea } from "@/components/ui/textarea";
+// @ts-expect-error // Ignore TS error for importing Cypress
 import React from "react";
 
 describe("<Textarea />", () => {
