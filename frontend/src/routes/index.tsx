@@ -1,5 +1,6 @@
 import { api } from "@/api/client";
 import Navbar from "@/components/ui/navbar";
+import Footer from "@/components/ui/footer";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
@@ -23,6 +24,7 @@ function Index() {
         isNavBarActive={isNavBarActive}
         setIsNavBarActive={setIsNavBarActive}
       />
+      <Footer />
     </div>
   );
 }
