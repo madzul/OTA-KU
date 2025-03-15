@@ -1,9 +1,12 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 
-import { testRouter } from "./test.controller.js";
+import { loginRouter, regisRouter, verifRouter, logoutRouter } from "./test.controller.js";
 
 const unprotectedApiRouter = new OpenAPIHono();
-unprotectedApiRouter.route("/test", testRouter);
+unprotectedApiRouter.route("/login", loginRouter);
+unprotectedApiRouter.route("/register", regisRouter);
+unprotectedApiRouter.route("/verify", verifRouter);
+unprotectedApiRouter.route("/logout", logoutRouter);
 
 const protectedApiRouter = new OpenAPIHono();
 

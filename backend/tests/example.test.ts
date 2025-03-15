@@ -13,8 +13,8 @@ describe("Example", () => {
     });
   });
 
-  test("GET /api/test", async () => {
-    const res = await app.request("/api/test");
+  test("GET /api/login", async () => {
+    const res = await app.request("/api/login");
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ message: "Unprotected API" });
   });

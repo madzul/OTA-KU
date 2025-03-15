@@ -8,7 +8,6 @@ import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
 import path from "path";
 import { fileURLToPath } from "url";
-
 import { env } from "./config/env.config.js";
 import { apiRouter } from "./controllers/api.controller.js";
 
@@ -28,7 +27,6 @@ app.onError((err, c) => {
   if (err instanceof HTTPException) {
     return err.getResponse();
   }
-
   return c.json({ error: "Something went wrong!" }, 500);
 });
 
@@ -40,21 +38,14 @@ app.use(
   }),
 );
 
+// Base routes
 app.get("/", (c) => c.json({ message: "Server runs successfully" }));
+app.get("/health", (c) => c.json({ success: true, message: "Server is running" }, 200));
 
-app.get("/health", (c) => {
-  return c.json(
-    {
-      success: true,
-      message: "Server is running",
-      body: { message: "Server is running" },
-    },
-    200,
-  );
-});
-
+// API routes
 app.route("/api", apiRouter);
 
+// OpenAPI documentation
 app.doc("/doc", {
   openapi: "3.1.0",
   info: {
@@ -63,12 +54,15 @@ app.doc("/doc", {
   },
   tags: [
     {
-      name: "Test",
-      description: "Testing",
+      name: "API Docs",
+      description: "Documentation for the numerous existing APIs",
     },
   ],
 });
 
-app.get("/swagger", swaggerUI({ url: "/doc" }));
+app.use("/swagger", swaggerUI({ url: "/doc" }));
+
+//http://localhost:3000/swagger utk swagger
+//http://localhost:3000/doc utk raw JSON
 
 export default app;
