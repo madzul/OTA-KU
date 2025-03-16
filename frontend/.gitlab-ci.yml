@@ -50,7 +50,6 @@ frontend-build-job:
     expire_in: 1 day
     paths:
       - frontend/dist/
-      - frontend/node_modules/
 
 frontend-e2e-test-job:
   extends: .frontend-cypress-base
