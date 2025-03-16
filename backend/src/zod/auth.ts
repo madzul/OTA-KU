@@ -105,3 +105,10 @@ export const LogoutSuccessfulResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Logout successful" }),
 });
+
+export const JWTPayloadSchema = z.object({
+  id: z.string().openapi({ example: "1" }),
+  email: z.string().openapi({ example: "johndoe@example.com" }),
+  phoneNumber: z.string().openapi({ example: "081234567890" }),
+  type: z.enum(["mahasiswa", "ota"]).openapi({ example: "mahasiswa" }),
+});
