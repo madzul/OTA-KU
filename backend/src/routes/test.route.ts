@@ -1,13 +1,14 @@
 import { createRoute, z } from "@hono/zod-openapi";
 
+// TODO: Pindahin ke folder baru di src/zod/nama-file.ts biar lebih modular
 const UserLoginRequestSchema = z.object({
   username: z.string().min(3).openapi({
     example: "johndoe",
-    description: "The user's username."
+    description: "The user's username.",
   }),
   password: z.string().min(6).openapi({
     example: "secret123",
-    description: "The user's password."
+    description: "The user's password.",
   }),
 });
 
@@ -17,7 +18,7 @@ const SuccessfulLoginResponse = z.object({
   body: z.object({
     token: z.string().openapi({
       example: "eyJhbGciOiJIUzI1...",
-      description: "JWT token for authentication."
+      description: "JWT token for authentication.",
     }),
   }),
 });
@@ -25,28 +26,28 @@ const SuccessfulLoginResponse = z.object({
 const InvalidLoginResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "Invalid credentials" }),
-  error: z.string().openapi({ example: "Password comparison failed" })
+  error: z.string().openapi({ example: "Password comparison failed" }),
 });
 
 const NotFoundLoginResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "User not found" }),
-  error: z.string().openapi({ example: "Failed to get user" })
+  error: z.string().openapi({ example: "Failed to get user" }),
 });
 
 const BadRequestLoginResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "Missing required fields" }),
-  error: z.string().openapi({ example: "Username and password are required" })
+  error: z.string().openapi({ example: "Username and password are required" }),
 });
 
 const UserRegisRequestSchema = z.object({
   username: z.string().min(3).openapi({
     example: "johndoe",
-    description: "created username"
+    description: "created username",
   }),
-  email: z.string().email()
-})
+  email: z.string().email(),
+});
 
 const SuccessfulRegisResponse = z.object({
   success: z.boolean().openapi({ example: true }),
@@ -54,21 +55,21 @@ const SuccessfulRegisResponse = z.object({
   body: z.object({
     token: z.string().openapi({
       example: "eyJhbGciOiJIUzI1...",
-      description: "JWT token for authentication."
-    })
-  })
+      description: "JWT token for authentication.",
+    }),
+  }),
 });
 
 const BadRequestRegisResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "Missing password" }),
-  error: z.object({})
+  error: z.object({}),
 });
 
 const InternalServerErrorResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "Internal server error" }),
-  error: z.object({})
+  error: z.object({}),
 });
 
 const UserAuthenticatedResponse = z.object({
@@ -76,31 +77,31 @@ const UserAuthenticatedResponse = z.object({
   message: z.string().openapi({ example: "Authenticated" }),
   body: z.object({
     id: z.string().openapi({
-      example: "1"
+      example: "1",
     }),
     username: z.string().openapi({
-      example: "johndoe"
+      example: "johndoe",
     }),
     email: z.string().email().openapi({
-      example: "johndoe@example.com"
+      example: "johndoe@example.com",
     }),
     full_name: z.string().openapi({
-      example: "John Doe"
+      example: "John Doe",
     }),
     profile_photo_path: z.string().openapi({
-      example: "public/profile_pic.png"
-    })
-  })
+      example: "public/profile_pic.png",
+    }),
+  }),
 });
 
 const UserNotAuthenticatedResponse = z.object({
   success: z.boolean().openapi({ example: false }),
-  message: z.string().openapi({ example: "Unauthenticated" })
+  message: z.string().openapi({ example: "Unauthenticated" }),
 });
 
 const LogoutSuccessfulResponse = z.object({
   success: z.boolean().openapi({ example: true }),
-  message: z.string().openapi({ example: "Logout successful" })
+  message: z.string().openapi({ example: "Logout successful" }),
 });
 
 export const loginRoute = createRoute({
@@ -122,8 +123,8 @@ export const loginRoute = createRoute({
     200: {
       description: "Successful login.",
       content: {
-        "application/json": { schema: SuccessfulLoginResponse }
-      }
+        "application/json": { schema: SuccessfulLoginResponse },
+      },
     },
     400: {
       description: "Bad request - missing fields.",
@@ -134,22 +135,22 @@ export const loginRoute = createRoute({
     401: {
       description: "Invalid credentials.",
       content: {
-        "application/json": { schema: InvalidLoginResponse }
-      }
+        "application/json": { schema: InvalidLoginResponse },
+      },
     },
     404: {
       description: "User not found.",
       content: {
-        "application/json": { schema: NotFoundLoginResponse }
+        "application/json": { schema: NotFoundLoginResponse },
       },
     },
     500: {
       description: "Internal server error",
       content: {
-        "application/json": { schema: InternalServerErrorResponse }
-      }
-    }
-  }
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
 });
 
 export const regisRoute = createRoute({
@@ -162,30 +163,30 @@ export const regisRoute = createRoute({
     body: {
       content: {
         "application/json": {
-          schema: UserRegisRequestSchema
+          schema: UserRegisRequestSchema,
         },
-      }
-    }
+      },
+    },
   },
   responses: {
     200: {
       description: "Successful registration",
       content: {
-        "application/json": { schema: SuccessfulRegisResponse }
-      }
+        "application/json": { schema: SuccessfulRegisResponse },
+      },
     },
     400: {
       description: "Bad request (e.g., missing fields).",
       content: {
-        "application/json": { schema:  BadRequestRegisResponse }
-      }
+        "application/json": { schema: BadRequestRegisResponse },
+      },
     },
     500: {
       description: "Internal server error",
       content: {
-        "application/json": { schema: InternalServerErrorResponse }
-      }
-    }
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
   },
 });
 
@@ -205,15 +206,15 @@ export const verifRoute = createRoute({
     401: {
       description: "User is not authenticated.",
       content: {
-        "application/json": { schema: UserNotAuthenticatedResponse }
-      }
+        "application/json": { schema: UserNotAuthenticatedResponse },
+      },
     },
     500: {
       description: "Internal server error",
       content: {
-        "application/json": { schema: InternalServerErrorResponse }
-      }
-    }
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
   },
 });
 
@@ -227,14 +228,14 @@ export const logoutRoute = createRoute({
     200: {
       description: "Successful logout.",
       content: {
-        "application/json": { schema: LogoutSuccessfulResponse }
-      }
+        "application/json": { schema: LogoutSuccessfulResponse },
+      },
     },
     500: {
       description: "Internal server error.",
       content: {
-        "application/json": { schema: InternalServerErrorResponse }
-      }
-    }
-  }
-})
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});

@@ -1,6 +1,15 @@
-import { loginRoute, regisRoute, verifRoute, logoutRoute } from "../routes/test.route.js";
+import {
+  loginRoute,
+  logoutRoute,
+  regisRoute,
+  verifRoute,
+} from "../routes/test.route.js";
 import { createRouter } from "./router-factory.js";
 
+// TODO: Sesuai sama yang di api.controller.ts, nanti jadiin jadi cuma 1 authRouter. Satu router bisa punya banyak openapi kok, misal:
+// authRouter.openapi(loginRoute, async (c) ...)
+// authRouter.openapi(regisRoute, async (c) ...)
+// dst
 export const loginRouter = createRouter();
 export const regisRouter = createRouter();
 export const verifRouter = createRouter();
@@ -15,29 +24,30 @@ loginRouter.openapi(loginRoute, async (c) => {
       {
         success: false,
         message: "Missing required fields",
-        error: "Username and password are required"
+        error: "Username and password are required",
       },
-      400
+      400,
     );
   }
 
+  // TODO: Make sure nanti pake data asli, yang sekarang gw liat masih pake data dummy
   if (username === "johndoe" && password === "secret123") {
     return c.json(
       {
         success: true,
         message: "Login successful",
-        body: { token: "eyJhbGciOiJIUzI1..." }
+        body: { token: "eyJhbGciOiJIUzI1..." },
       },
-      200
+      200,
     );
   } else {
     return c.json(
       {
         success: false,
         message: "Invalid credentials",
-        error: "Password comparison failed"
+        error: "Password comparison failed",
       },
-      401
+      401,
     );
   }
 });
@@ -52,9 +62,9 @@ regisRouter.openapi(regisRoute, async (c) => {
         {
           success: false,
           message: "Missing required fields",
-          error: {}
+          error: {},
         },
-        400
+        400,
       );
     }
 
@@ -63,20 +73,19 @@ regisRouter.openapi(regisRoute, async (c) => {
         success: true,
         message: "User registered successfully",
         body: {
-          token: "eyJhbGciOiJIUzI1..."
+          token: "eyJhbGciOiJIUzI1...",
         },
       },
-      200
+      200,
     );
-
   } catch (error) {
     return c.json(
       {
         success: false,
         message: "Internal server error",
-        error: {}
+        error: {},
       },
-      500
+      500,
     );
   }
 });
@@ -90,9 +99,9 @@ verifRouter.openapi(verifRoute, async (c) => {
         {
           success: false,
           message: "User is not authenticated",
-          error: {}
+          error: {},
         },
-        401
+        401,
       );
     }
 
@@ -105,20 +114,19 @@ verifRouter.openapi(verifRoute, async (c) => {
           username: "johndoe",
           email: "johndoe@example.com",
           full_name: "John Doe",
-          profile_photo_path: "public/profile_pic.png"
+          profile_photo_path: "public/profile_pic.png",
         },
       },
-      200
+      200,
     );
-
   } catch (error) {
     return c.json(
       {
         success: false,
         message: "Internal server error",
-        error: {}
+        error: {},
       },
-      500
+      500,
     );
   }
 });
@@ -128,18 +136,18 @@ logoutRouter.openapi(logoutRoute, async (c) => {
     return c.json(
       {
         success: true,
-        message: "Logout successful"
+        message: "Logout successful",
       },
-      200
+      200,
     );
   } catch (error) {
     return c.json(
       {
         success: false,
         message: "Internal server error",
-        error: {}
+        error: {},
       },
-      500
+      500,
     );
   }
 });
