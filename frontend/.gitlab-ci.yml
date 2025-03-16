@@ -57,6 +57,7 @@ frontend-e2e-test-job:
     - frontend-build-job
   script:
     - echo "Testing frontend E2E..."
+    - npm ci --prefer-offline
     - npm run dev &
     - sleep 5
     - npm run cy:run-e2e
@@ -74,6 +75,7 @@ frontend-component-test-job:
     - frontend-build-job
   script:
     - echo "Testing frontend components..."
+    - npm ci --prefer-offline
     - npm run cy:run-unit
   artifacts:
     when: on_failure
