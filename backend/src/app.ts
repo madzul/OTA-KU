@@ -42,7 +42,14 @@ app.use(
 // Base routes
 app.get("/", (c) => c.json({ message: "Server runs successfully" }));
 app.get("/health", (c) =>
-  c.json({ success: true, message: "Server is running" }, 200),
+  c.json(
+    {
+      success: true,
+      message: "Server is running",
+      body: { message: "Server is running" },
+    },
+    200,
+  ),
 );
 
 // API routes
