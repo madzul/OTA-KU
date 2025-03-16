@@ -36,7 +36,6 @@
       fi
     # Use npm ci instead of install --force for more reliable builds
     - npm ci --force
-    - npm install --save-dev @cypress/code-coverage
 
 frontend-build-job:
   extends: .frontend-base
