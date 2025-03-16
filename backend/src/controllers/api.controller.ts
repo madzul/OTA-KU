@@ -1,18 +1,9 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 
-import {
-  loginRouter,
-  logoutRouter,
-  regisRouter,
-  verifRouter,
-} from "./test.controller.js";
+import { authRouter } from "./auth.controller.js";
 
 const unprotectedApiRouter = new OpenAPIHono();
-// TODO: Bikin jadi satu route aja, misal jadi unprotectedApiRouter.route("/auth", authRouter);
-unprotectedApiRouter.route("/login", loginRouter);
-unprotectedApiRouter.route("/register", regisRouter);
-unprotectedApiRouter.route("/verify", verifRouter);
-unprotectedApiRouter.route("/logout", logoutRouter);
+unprotectedApiRouter.route("/auth", authRouter);
 
 const protectedApiRouter = new OpenAPIHono();
 

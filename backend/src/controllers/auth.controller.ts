@@ -3,19 +3,12 @@ import {
   logoutRoute,
   regisRoute,
   verifRoute,
-} from "../routes/test.route.js";
+} from "../routes/auth.route.js";
 import { createRouter } from "./router-factory.js";
 
-// TODO: Sesuai sama yang di api.controller.ts, nanti jadiin jadi cuma 1 authRouter. Satu router bisa punya banyak openapi kok, misal:
-// authRouter.openapi(loginRoute, async (c) ...)
-// authRouter.openapi(regisRoute, async (c) ...)
-// dst
-export const loginRouter = createRouter();
-export const regisRouter = createRouter();
-export const verifRouter = createRouter();
-export const logoutRouter = createRouter();
+export const authRouter = createRouter();
 
-loginRouter.openapi(loginRoute, async (c) => {
+authRouter.openapi(loginRoute, async (c) => {
   const body = await c.req.json();
   const { username, password } = body;
 
@@ -52,7 +45,7 @@ loginRouter.openapi(loginRoute, async (c) => {
   }
 });
 
-regisRouter.openapi(regisRoute, async (c) => {
+authRouter.openapi(regisRoute, async (c) => {
   try {
     const body = await c.req.json();
     const { username, email } = body;
@@ -90,7 +83,7 @@ regisRouter.openapi(regisRoute, async (c) => {
   }
 });
 
-verifRouter.openapi(verifRoute, async (c) => {
+authRouter.openapi(verifRoute, async (c) => {
   try {
     const isAuthenticated = true;
 
@@ -111,10 +104,9 @@ verifRouter.openapi(verifRoute, async (c) => {
         message: "Authenticated",
         body: {
           id: "1",
-          username: "johndoe",
           email: "johndoe@example.com",
-          full_name: "John Doe",
-          profile_photo_path: "public/profile_pic.png",
+          phoneNumber: "081234567890",
+          type: "mahasiswa" as const,
         },
       },
       200,
@@ -131,7 +123,7 @@ verifRouter.openapi(verifRoute, async (c) => {
   }
 });
 
-logoutRouter.openapi(logoutRoute, async (c) => {
+authRouter.openapi(logoutRoute, async (c) => {
   try {
     return c.json(
       {

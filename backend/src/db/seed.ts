@@ -9,6 +9,7 @@ import {
   connectionTable,
 } from "./schema.js";
 
+// TODO: Fix seed logic to fit the schema
 export async function seed() {
   try {
     console.log("Starting database seeding...");

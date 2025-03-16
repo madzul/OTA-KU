@@ -9,6 +9,7 @@ import {
   connectionTable,
 } from "./schema.js";
 
+// TODO: Fix reset logic to fit the schema
 async function resetDatabase() {
   try {
     console.log("Starting database reset...");

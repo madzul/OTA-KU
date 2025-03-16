@@ -8,6 +8,7 @@ import { requestId } from "hono/request-id";
 import { secureHeaders } from "hono/secure-headers";
 import path from "path";
 import { fileURLToPath } from "url";
+
 import { env } from "./config/env.config.js";
 import { apiRouter } from "./controllers/api.controller.js";
 
@@ -40,7 +41,9 @@ app.use(
 
 // Base routes
 app.get("/", (c) => c.json({ message: "Server runs successfully" }));
-app.get("/health", (c) => c.json({ success: true, message: "Server is running" }, 200));
+app.get("/health", (c) =>
+  c.json({ success: true, message: "Server is running" }, 200),
+);
 
 // API routes
 app.route("/api", apiRouter);
@@ -52,12 +55,12 @@ app.doc("/doc", {
     version: packageJson.version,
     title: packageJson.name,
   },
-  tags: [
-    {
-      name: "API Docs",
-      description: "Documentation for the numerous existing APIs",
-    },
-  ],
+  // tags: [
+  //   {
+  //     name: "API Docs",
+  //     description: "Documentation for the numerous existing APIs",
+  //   },
+  // ],
 });
 
 app.use("/swagger", swaggerUI({ url: "/doc" }));
