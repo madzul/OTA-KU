@@ -5,6 +5,7 @@ export const Route = createFileRoute("/auth/register/")({
   component: RouteComponent,
 });
 
+// TODO: Nanti sesuaiin page register jadi yang terbaru sesuai figma
 function RouteComponent() {
   return (
     <div className="md:px-auto min-h-[100vh] bg-[#F3F4F6] px-9 pt-16 pb-16">

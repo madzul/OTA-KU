@@ -1,6 +1,8 @@
-import FirstRegister from "@/components/auth/register/mahasiswa/FirstRegister";
-import SecondRegister from "@/components/auth/register/mahasiswa/SecondRegister";
 import { createFileRoute } from "@tanstack/react-router";
+
+import FirstRegister from "./-components/FirstRegister";
+
+// import SecondRegister from "./-components/SecondRegister";
 
 export const Route = createFileRoute("/auth/register/mahasiswa/")({
   component: RouteComponent,
