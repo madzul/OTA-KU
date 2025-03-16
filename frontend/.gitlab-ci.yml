@@ -36,6 +36,7 @@
       fi
     # Use npm ci instead of install --force for more reliable builds
     - npm ci --force
+    - npm install --save-dev @cypress/code-coverage
 
 frontend-build-job:
   extends: .frontend-base
@@ -49,6 +50,7 @@ frontend-build-job:
     expire_in: 1 day
     paths:
       - frontend/dist/
+      - frontend/node_modules/
 
 frontend-e2e-test-job:
   extends: .frontend-cypress-base
@@ -57,7 +59,6 @@ frontend-e2e-test-job:
     - frontend-build-job
   script:
     - echo "Testing frontend E2E..."
-    - npm ci --prefer-offline
     - npm run dev &
     - sleep 5
     - npm run cy:run-e2e
@@ -75,7 +76,6 @@ frontend-component-test-job:
     - frontend-build-job
   script:
     - echo "Testing frontend components..."
-    - npm ci --prefer-offline
     - npm run cy:run-unit
   artifacts:
     when: on_failure
