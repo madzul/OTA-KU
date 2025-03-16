@@ -37,6 +37,7 @@ export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
 export const accountTable = pgTable("account", {
   id: uuid("id").defaultRandom().primaryKey().unique().notNull(),
   email: varchar({ length: 255 }).unique().notNull(),
+  phoneNumber: varchar({ length: 32 }).unique().notNull(),
   password: varchar({ length: 255 }).notNull(),
   type: accountTypeEnum("type").notNull(),
 });
@@ -49,7 +50,6 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
       onDelete: "cascade",
     }),
   name: varchar({ length: 255 }).notNull(),
-  phoneNumber: varchar({ length: 32 }).unique().notNull(),
   nim: varchar({ length: 8 }).unique().notNull(),
   status: verificationStatusEnum("status").notNull().default("unverified"),
   mahasiswaStatus: mahasiswaStatusEnum("mahasiswa_status")
@@ -65,7 +65,6 @@ export const accountOtaDetailTable = pgTable("account_ota_detail", {
       onDelete: "cascade",
     }),
   name: varchar({ length: 255 }).notNull(),
-  phoneNumber: varchar({ length: 32 }).unique().notNull(),
   job: varchar({ length: 255 }).notNull(),
   address: varchar({ length: 255 }).notNull(),
   linkage: linkageEnum("linkage").notNull(),
