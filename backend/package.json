@@ -17,6 +17,7 @@
     "@hono/node-server": "^1.13.8",
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.2",
+    "backend": "file:",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",
