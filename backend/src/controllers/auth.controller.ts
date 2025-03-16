@@ -4,9 +4,10 @@ import {
   regisRoute,
   verifRoute,
 } from "../routes/auth.route.js";
-import { createRouter } from "./router-factory.js";
+import { createAuthRouter, createRouter } from "./router-factory.js";
 
 export const authRouter = createRouter();
+export const authProtectedRouter = createAuthRouter();
 
 authRouter.openapi(loginRoute, async (c) => {
   const body = await c.req.json();
@@ -123,7 +124,7 @@ authRouter.openapi(verifRoute, async (c) => {
   }
 });
 
-authRouter.openapi(logoutRoute, async (c) => {
+authProtectedRouter.openapi(logoutRoute, async (c) => {
   try {
     return c.json(
       {
