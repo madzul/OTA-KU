@@ -9,7 +9,6 @@ import {
   connectionTable,
 } from "./schema.js";
 
-// TODO: Fix seed logic to fit the schema
 export async function seed() {
   try {
     console.log("Starting database seeding...");
@@ -30,6 +29,7 @@ export async function seed() {
       .values({
         id: adminId,
         email: "admin@example.com",
+        phoneNumber: "08123456789",
         password: hashedPassword,
         type: "admin",
       })
@@ -44,12 +44,14 @@ export async function seed() {
         {
           id: mahasiswa1Id,
           email: "mahasiswa1@example.com",
+          phoneNumber: "08123456789",
           password: hashedPassword,
           type: "mahasiswa",
         },
         {
           id: mahasiswa2Id,
           email: "mahasiswa2@example.com",
+          phoneNumber: "08198765432",
           password: hashedPassword,
           type: "mahasiswa",
         },
@@ -65,7 +67,6 @@ export async function seed() {
         {
           accountId: mahasiswa1Id,
           name: "Mahasiswa One",
-          phoneNumber: "08123456789",
           nim: "12345678",
           status: "verified",
           mahasiswaStatus: "active",
@@ -73,7 +74,6 @@ export async function seed() {
         {
           accountId: mahasiswa2Id,
           name: "Mahasiswa Two",
-          phoneNumber: "08198765432",
           nim: "87654321",
           status: "unverified",
           mahasiswaStatus: "inactive",
@@ -90,12 +90,14 @@ export async function seed() {
         {
           id: ota1Id,
           email: "ota1@example.com",
+          phoneNumber: "08111222333",
           password: hashedPassword,
           type: "ota",
         },
         {
           id: ota2Id,
           email: "ota2@example.com",
+          phoneNumber: "08444555666",
           password: hashedPassword,
           type: "ota",
         },
@@ -111,7 +113,6 @@ export async function seed() {
         {
           accountId: ota1Id,
           name: "OTA Organization One",
-          phoneNumber: "08111222333",
           job: "Scholarship Provider",
           address: "Jl. Example No. 1, Jakarta",
           linkage: "otm",
@@ -126,7 +127,6 @@ export async function seed() {
         {
           accountId: ota2Id,
           name: "OTA Organization Two",
-          phoneNumber: "08444555666",
           job: "Education Foundation",
           address: "Jl. Example No. 2, Bandung",
           linkage: "alumni",
