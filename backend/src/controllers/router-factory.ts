@@ -1,5 +1,9 @@
-import { type Hook, OpenAPIHono } from "@hono/zod-openapi";
+import { type Hook, OpenAPIHono, z } from "@hono/zod-openapi";
+import { jwt } from "hono/jwt";
 import type { RequestIdVariables } from "hono/request-id";
+
+import { env } from "../config/env.config.js";
+import { JWTPayloadSchema } from "../zod/auth.js";
 
 const defaultHook: Hook<any, any, any, any> = (result, c) => {
   if (!result.success) {
@@ -17,32 +21,31 @@ export function createRouter() {
   }>({ defaultHook });
 }
 
-// TODO: Implement createAuthRouter function
 /**
  * For router that use this function, it will have user object in `c.var.user`.
  * @returns router with auth middleware.
  */
-// export function createAuthRouter() {
-//   const authRouter = new OpenAPIHono<{
-//     Variables: {
-//       user: z.infer<typeof JWTPayloadSchema>;
-//     } & RequestIdVariables;
-//   }>({ defaultHook });
+export function createAuthRouter() {
+  const authRouter = new OpenAPIHono<{
+    Variables: {
+      user: z.infer<typeof JWTPayloadSchema>;
+    } & RequestIdVariables;
+  }>({ defaultHook });
 
-//   // JWT Hono Middleware
-//   authRouter.use(
-//     jwt({
-//       secret: env.JWT_SECRET,
-//       cookie: "hmif-app.access-cookie",
-//     }),
-//   );
+  // JWT Hono Middleware
+  authRouter.use(
+    jwt({
+      secret: env.JWT_SECRET,
+      cookie: "ota-ku.access-cookie",
+    }),
+  );
 
-//   // Set user middleware
-//   authRouter.use(async (c, next) => {
-//     const payload = JWTPayloadSchema.parse(c.var.jwtPayload);
-//     c.set("user", payload);
-//     await next();
-//   });
+  // Set user middleware
+  authRouter.use(async (c, next) => {
+    const payload = JWTPayloadSchema.parse(c.var.jwtPayload);
+    c.set("user", payload);
+    await next();
+  });
 
-//   return authRouter;
-// }
+  return authRouter;
+}

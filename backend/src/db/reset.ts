@@ -50,6 +50,7 @@ async function resetDatabase() {
     await db.insert(accountTable).values({
       id: adminId,
       email: "admin@example.com",
+      phoneNumber: "08123456789",
       password: hashedPassword,
       type: "admin",
     });
@@ -59,12 +60,14 @@ async function resetDatabase() {
       {
         id: mahasiswa1Id,
         email: "mahasiswa1@example.com",
+        phoneNumber: "08123456789",
         password: hashedPassword,
         type: "mahasiswa",
       },
       {
         id: mahasiswa2Id,
         email: "mahasiswa2@example.com",
+        phoneNumber: "08198765432",
         password: hashedPassword,
         type: "mahasiswa",
       },
@@ -75,7 +78,6 @@ async function resetDatabase() {
       {
         accountId: mahasiswa1Id,
         name: "Mahasiswa One",
-        phoneNumber: "08123456789",
         nim: "12345678",
         status: "verified",
         mahasiswaStatus: "active",
@@ -83,7 +85,6 @@ async function resetDatabase() {
       {
         accountId: mahasiswa2Id,
         name: "Mahasiswa Two",
-        phoneNumber: "08198765432",
         nim: "87654321",
         status: "unverified",
         mahasiswaStatus: "inactive",
@@ -95,12 +96,14 @@ async function resetDatabase() {
       {
         id: ota1Id,
         email: "ota1@example.com",
+        phoneNumber: "08987654321",
         password: hashedPassword,
         type: "ota",
       },
       {
         id: ota2Id,
         email: "ota2@example.com",
+        phoneNumber: "08912345678",
         password: hashedPassword,
         type: "ota",
       },
@@ -111,7 +114,6 @@ async function resetDatabase() {
       {
         accountId: ota1Id,
         name: "OTA Organization One",
-        phoneNumber: "08111222333",
         job: "Scholarship Provider",
         address: "Jl. Example No. 1, Jakarta",
         linkage: "otm",
@@ -126,7 +128,6 @@ async function resetDatabase() {
       {
         accountId: ota2Id,
         name: "OTA Organization Two",
-        phoneNumber: "08444555666",
         job: "Education Foundation",
         address: "Jl. Example No. 2, Bandung",
         linkage: "alumni",
