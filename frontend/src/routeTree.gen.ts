@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as VerifOtpImport } from './routes/verif-otp'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthRegisterIndexImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexImport } from './routes/auth/login/index'
@@ -18,6 +19,12 @@ import { Route as AuthRegisterOrangTuaIndexImport } from './routes/auth/register
 import { Route as AuthRegisterMahasiswaIndexImport } from './routes/auth/register/mahasiswa/index'
 
 // Create/Update Routes
+
+const VerifOtpRoute = VerifOtpImport.update({
+  id: '/verif-otp',
+  path: '/verif-otp',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -62,6 +69,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/verif-otp': {
+      id: '/verif-otp'
+      path: '/verif-otp'
+      fullPath: '/verif-otp'
+      preLoaderRoute: typeof VerifOtpImport
+      parentRoute: typeof rootRoute
+    }
     '/auth/login/': {
       id: '/auth/login/'
       path: '/auth/login'
@@ -97,6 +111,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/verif-otp': typeof VerifOtpRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
@@ -105,6 +120,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/verif-otp': typeof VerifOtpRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
@@ -114,6 +130,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/verif-otp': typeof VerifOtpRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
   '/auth/register/mahasiswa/': typeof AuthRegisterMahasiswaIndexRoute
@@ -124,6 +141,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/verif-otp'
     | '/auth/login'
     | '/auth/register'
     | '/auth/register/mahasiswa'
@@ -131,6 +149,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/verif-otp'
     | '/auth/login'
     | '/auth/register'
     | '/auth/register/mahasiswa'
@@ -138,6 +157,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/verif-otp'
     | '/auth/login/'
     | '/auth/register/'
     | '/auth/register/mahasiswa/'
@@ -147,6 +167,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  VerifOtpRoute: typeof VerifOtpRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthRegisterIndexRoute: typeof AuthRegisterIndexRoute
   AuthRegisterMahasiswaIndexRoute: typeof AuthRegisterMahasiswaIndexRoute
@@ -155,6 +176,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  VerifOtpRoute: VerifOtpRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthRegisterIndexRoute: AuthRegisterIndexRoute,
   AuthRegisterMahasiswaIndexRoute: AuthRegisterMahasiswaIndexRoute,
@@ -172,6 +194,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/verif-otp",
         "/auth/login/",
         "/auth/register/",
         "/auth/register/mahasiswa/",
@@ -180,6 +203,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/verif-otp": {
+      "filePath": "verif-otp.tsx"
     },
     "/auth/login/": {
       "filePath": "auth/login/index.tsx"
