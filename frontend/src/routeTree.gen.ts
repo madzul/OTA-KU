@@ -14,6 +14,8 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthRegisterIndexImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexImport } from './routes/auth/login/index'
+import { Route as AuthRegisterOrangTuaIndexImport } from './routes/auth/register/orang-tua/index'
+import { Route as AuthRegisterMahasiswaIndexImport } from './routes/auth/register/mahasiswa/index'
 
 // Create/Update Routes
 
@@ -34,6 +36,20 @@ const AuthLoginIndexRoute = AuthLoginIndexImport.update({
   path: '/auth/login/',
   getParentRoute: () => rootRoute,
 } as any)
+
+const AuthRegisterOrangTuaIndexRoute = AuthRegisterOrangTuaIndexImport.update({
+  id: '/auth/register/orang-tua/',
+  path: '/auth/register/orang-tua/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthRegisterMahasiswaIndexRoute = AuthRegisterMahasiswaIndexImport.update(
+  {
+    id: '/auth/register/mahasiswa/',
+    path: '/auth/register/mahasiswa/',
+    getParentRoute: () => rootRoute,
+  } as any,
+)
 
 // Populate the FileRoutesByPath interface
 
@@ -60,6 +76,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegisterIndexImport
       parentRoute: typeof rootRoute
     }
+    '/auth/register/mahasiswa/': {
+      id: '/auth/register/mahasiswa/'
+      path: '/auth/register/mahasiswa'
+      fullPath: '/auth/register/mahasiswa'
+      preLoaderRoute: typeof AuthRegisterMahasiswaIndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth/register/orang-tua/': {
+      id: '/auth/register/orang-tua/'
+      path: '/auth/register/orang-tua'
+      fullPath: '/auth/register/orang-tua'
+      preLoaderRoute: typeof AuthRegisterOrangTuaIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -69,12 +99,16 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
+  '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
+  '/auth/register/orang-tua': typeof AuthRegisterOrangTuaIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
+  '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
+  '/auth/register/orang-tua': typeof AuthRegisterOrangTuaIndexRoute
 }
 
 export interface FileRoutesById {
@@ -82,14 +116,32 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
+  '/auth/register/mahasiswa/': typeof AuthRegisterMahasiswaIndexRoute
+  '/auth/register/orang-tua/': typeof AuthRegisterOrangTuaIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/login' | '/auth/register'
+  fullPaths:
+    | '/'
+    | '/auth/login'
+    | '/auth/register'
+    | '/auth/register/mahasiswa'
+    | '/auth/register/orang-tua'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/login' | '/auth/register'
-  id: '__root__' | '/' | '/auth/login/' | '/auth/register/'
+  to:
+    | '/'
+    | '/auth/login'
+    | '/auth/register'
+    | '/auth/register/mahasiswa'
+    | '/auth/register/orang-tua'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth/login/'
+    | '/auth/register/'
+    | '/auth/register/mahasiswa/'
+    | '/auth/register/orang-tua/'
   fileRoutesById: FileRoutesById
 }
 
@@ -97,12 +149,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthRegisterIndexRoute: typeof AuthRegisterIndexRoute
+  AuthRegisterMahasiswaIndexRoute: typeof AuthRegisterMahasiswaIndexRoute
+  AuthRegisterOrangTuaIndexRoute: typeof AuthRegisterOrangTuaIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthRegisterIndexRoute: AuthRegisterIndexRoute,
+  AuthRegisterMahasiswaIndexRoute: AuthRegisterMahasiswaIndexRoute,
+  AuthRegisterOrangTuaIndexRoute: AuthRegisterOrangTuaIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -117,7 +173,9 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/auth/login/",
-        "/auth/register/"
+        "/auth/register/",
+        "/auth/register/mahasiswa/",
+        "/auth/register/orang-tua/"
       ]
     },
     "/": {
@@ -128,6 +186,12 @@ export const routeTree = rootRoute
     },
     "/auth/register/": {
       "filePath": "auth/register/index.tsx"
+    },
+    "/auth/register/mahasiswa/": {
+      "filePath": "auth/register/mahasiswa/index.tsx"
+    },
+    "/auth/register/orang-tua/": {
+      "filePath": "auth/register/orang-tua/index.tsx"
     }
   }
 }
