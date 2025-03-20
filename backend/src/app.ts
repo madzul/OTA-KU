@@ -2,6 +2,7 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import fs from "fs";
 import { cors } from "hono/cors";
+import { csrf } from "hono/csrf";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { requestId } from "hono/request-id";
@@ -35,6 +36,13 @@ app.use(
   "/api/*",
   cors({
     credentials: true,
+    origin: env.ALLOWED_ORIGINS,
+  }),
+);
+
+app.use(
+  "/api/*",
+  csrf({
     origin: env.ALLOWED_ORIGINS,
   }),
 );

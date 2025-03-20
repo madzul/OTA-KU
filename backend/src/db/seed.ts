@@ -44,7 +44,7 @@ export async function seed() {
         {
           id: mahasiswa1Id,
           email: "mahasiswa1@example.com",
-          phoneNumber: "08123456789",
+          phoneNumber: "08123456780",
           password: hashedPassword,
           type: "mahasiswa",
         },
