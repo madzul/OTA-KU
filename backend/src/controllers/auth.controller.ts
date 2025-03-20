@@ -201,58 +201,17 @@ authRouter.openapi(regisRoute, async (c) => {
   }
 });
 
-authRouter.openapi(verifRoute, async (c) => {
-  const token = getCookie(c, "ota-ku.access-cookie") as string;
-  if (!token) {
-    return c.json(
-      {
-        success: false,
-        message: "User is not authenticated",
-        error: {},
-      },
-      401,
-    );
-  }
-
-  const isVerified = await verify(token, env.JWT_SECRET);
-  if (!isVerified) {
-    return c.json(
-      {
-        success: false,
-        message: "User is not authenticated",
-        error: {},
-      },
-      401,
-    );
-  }
-
-  try {
-    const user = await db
-      .select()
-      .from(accountTable)
-      .where(eq(accountTable.id, (isVerified as { id: string }).id));
-
-    const { password, ...privateUser } = user[0];
-
-    return c.json(
-      {
-        success: true,
-        message: "Authenticated",
-        body: privateUser,
-      },
-      200,
-    );
-  } catch (error) {
-    console.error(error);
-    return c.json(
-      {
-        success: false,
-        message: "Internal server error",
-        error: {},
-      },
-      500,
-    );
-  }
+authProtectedRouter.openapi(verifRoute, async (c) => {
+  const user = c.var.user;
+  // TODO: Update user session
+  return c.json(
+    {
+      success: true,
+      message: "User is authenticated",
+      body: user,
+    },
+    200,
+  );
 });
 
 authProtectedRouter.openapi(logoutRoute, async (c) => {
