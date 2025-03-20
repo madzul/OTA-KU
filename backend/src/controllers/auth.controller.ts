@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt";
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { sign, verify } from "hono/jwt";
 
@@ -33,13 +33,18 @@ authRouter.openapi(loginRoute, async (c) => {
     );
   }
 
-  const { email, password } = zodParseResult.data;
+  const { identifier, password } = zodParseResult.data;
 
   try {
     const account = await db
       .select()
       .from(accountTable)
-      .where(eq(accountTable.email, email))
+      .where(
+        or(
+          eq(accountTable.email, identifier),
+          eq(accountTable.phoneNumber, identifier),
+        ),
+      )
       .limit(1);
 
     if (!account || account.length === 0) {
