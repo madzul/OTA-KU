@@ -85,6 +85,12 @@ export const regisRoute = createRoute({
         "application/json": { schema: BadRequestRegisResponse },
       },
     },
+    401: {
+      description: "Invalid credentials.",
+      content: {
+        "application/json": { schema: InvalidLoginResponse },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {

@@ -10,6 +10,9 @@ const EnvSchema = z.object({
     .transform((value) => JSON.parse(value))
     .pipe(z.array(z.string().url())),
   JWT_SECRET: z.string(),
+  NODE_ENV: z
+    .enum(["development", "production", "test"])
+    .default("development"),
 });
 
 const result = EnvSchema.safeParse(process.env);
