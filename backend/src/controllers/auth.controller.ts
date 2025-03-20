@@ -1,4 +1,9 @@
+import { compare, hash } from "bcrypt";
 import { eq } from "drizzle-orm";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
+import { sign, verify } from "hono/jwt";
+
+import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import { accountTable } from "../db/schema.js";
 import {
@@ -7,18 +12,17 @@ import {
   regisRoute,
   verifRoute,
 } from "../routes/auth.route.js";
+import { UserLoginRequestSchema, UserRegisRequestSchema } from "../zod/auth.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
-import { compare, hash } from "bcrypt";
-
 
 export const authRouter = createRouter();
 export const authProtectedRouter = createAuthRouter();
 
 authRouter.openapi(loginRoute, async (c) => {
   const body = await c.req.json();
-  const { email, password } = body;
 
-  if (!email || !password) {
+  const zodParseResult = UserLoginRequestSchema.safeParse(body);
+  if (!zodParseResult.success) {
     return c.json(
       {
         success: false,
@@ -29,19 +33,22 @@ authRouter.openapi(loginRoute, async (c) => {
     );
   }
 
-  try{
+  const { email, password } = zodParseResult.data;
+
+  try {
     const account = await db
-    .select()
-    .from(accountTable)
-    .where(eq(accountTable.email, email))
-    .limit(1);
+      .select()
+      .from(accountTable)
+      .where(eq(accountTable.email, email))
+      .limit(1);
 
     if (!account || account.length === 0) {
+      console.error("Invalid email");
       return c.json(
         {
           success: false,
-          message: "Account not found",
-          error: "Invalid email",
+          message: "Invalid credentials",
+          error: "Invalid email or password",
         },
         401,
       );
@@ -53,30 +60,47 @@ authRouter.openapi(loginRoute, async (c) => {
     const isPasswordValid = await compare(password, foundAccount.password);
 
     if (!isPasswordValid) {
+      console.error("Invalid password");
       return c.json(
         {
           success: false,
           message: "Invalid credentials",
-          error: "Password comparison failed",
+          error: "Invalid email or password",
         },
         401,
       );
     }
+
+    const accessToken = await sign(
+      {
+        id: account[0].id,
+        email: account[0].email,
+        phoneNumber: account[0].phoneNumber,
+        type: account[0].type,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+      },
+      env.JWT_SECRET,
+    );
+
+    setCookie(c, "iom-token", accessToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24,
+      path: "/",
+    });
 
     return c.json(
       {
         success: true,
         message: "Login successful",
         body: {
-          accountId: foundAccount.id,
-          email: foundAccount.email,
-          type: foundAccount.type,
-          token: "eyJhbGciOiJIUzI1...",
+          token: accessToken,
         },
       },
       200,
     );
-
   } catch (error) {
     console.error(error);
     return c.json(
@@ -91,63 +115,73 @@ authRouter.openapi(loginRoute, async (c) => {
 });
 
 authRouter.openapi(regisRoute, async (c) => {
+  const body = await c.req.json();
+
+  const zodParseResult = UserRegisRequestSchema.safeParse(body);
+  if (!zodParseResult.success) {
+    return c.json(
+      {
+        success: false,
+        message: "Missing required fields",
+        error: "Email, phone number, password, and type are required",
+      },
+      400,
+    );
+  }
+
+  const { email, phoneNumber, password, confirmPassword, type } =
+    zodParseResult.data;
+
+  if (password !== confirmPassword) {
+    return c.json(
+      {
+        success: false,
+        message: "Invalid credentials",
+        error: "Password confirmation failed!",
+      },
+      401,
+    );
+  }
+
+  const hashedPassword = await hash(password, 10);
+
   try {
-    const body = await c.req.json();
-    const { type, email, phoneNumber, password, confirmPassword } = body;
+    const newUser = await db
+      .insert(accountTable)
+      .values({
+        email,
+        phoneNumber,
+        password: hashedPassword,
+        type,
+      })
+      .returning();
 
-    if (!type || !email || !phoneNumber || !password || !confirmPassword) {
-      return c.json(
-        {
-          success: false,
-          message: "Missing required fields",
-          error: {},
-        },
-        400
-      );
-    }
+    const accessToken = await sign(
+      {
+        id: newUser[0].id,
+        email: newUser[0].email,
+        phoneNumber: newUser[0].phoneNumber,
+        type: newUser[0].type,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+      },
+      env.JWT_SECRET,
+    );
 
-    if(password !== confirmPassword){
-      return c.json(
-        {
-          success: false,
-          message: "Invalid credentials",
-          error: "Password confirmation failed!",
-        },
-        401
-      )
-    }
-
-    const existingUser = await db
-      .select()
-      .from(accountTable)
-      .where(eq(accountTable.email, email));
-
-    if (existingUser.length > 0) {
-      return c.json(
-        {
-          success: false,
-          message: "Invalid credentials",
-          error: "Email is already in use",
-        }, 
-        401
-      );
-    }
-
-    const hashedPassword = await hash(password, 10);
-
-    const newUser = await db.insert(accountTable).values({
-      email,
-      phoneNumber,
-      password: hashedPassword,
-      type,
-    }).returning();
+    setCookie(c, "iom-token", accessToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24,
+      path: "/",
+    });
 
     return c.json(
       {
         success: true,
         message: "User registered successfully",
         body: {
-          token: "eyJhbGciOiJIUzI1...",
+          token: accessToken,
           id: newUser[0].id,
           email: newUser[0].email,
         },
@@ -168,50 +202,62 @@ authRouter.openapi(regisRoute, async (c) => {
 });
 
 authRouter.openapi(verifRoute, async (c) => {
-  try {
-    const userId = c.get("requestId"); // Assuming you store this from middleware/JWT verification
+  const token = getCookie(c, "iom-token") as string;
+  if (!token) {
+    return c.json(
+      {
+        success: false,
+        message: "User is not authenticated",
+        error: {},
+      },
+      401,
+    );
+  }
 
+  const isVerified = await verify(token, env.JWT_SECRET);
+  if (!isVerified) {
+    return c.json(
+      {
+        success: false,
+        message: "User is not authenticated",
+        error: {},
+      },
+      401,
+    );
+  }
+
+  try {
     const user = await db
       .select()
       .from(accountTable)
-      .where(eq(accountTable.id, userId));
+      .where(eq(accountTable.id, (isVerified as { id: string }).id));
 
-    if (!user.length) {
-      return c.json(
-        {
-          success: false,
-          message: "User not found",
-          error: {},
-        }, 
-        401
-      );
-    }
+    const { password, ...privateUser } = user[0];
 
     return c.json(
       {
         success: true,
         message: "Authenticated",
-        body: {
-          id: user[0].id,
-          email: user[0].email,
-          phoneNumber: user[0].phoneNumber,
-          type: user[0].type,
-        },
-      }, 
-      200
+        body: privateUser,
+      },
+      200,
     );
   } catch (error) {
     console.error(error);
-    return c.json({
-      success: false,
-      message: "Internal server error",
-      error: {},
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
   }
 });
 
 authProtectedRouter.openapi(logoutRoute, async (c) => {
   try {
+    deleteCookie(c, "iom-token");
     return c.json(
       {
         success: true,
