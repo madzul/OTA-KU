@@ -83,7 +83,7 @@ authRouter.openapi(loginRoute, async (c) => {
       env.JWT_SECRET,
     );
 
-    setCookie(c, "iom-token", accessToken, {
+    setCookie(c, "ota-ku.access-cookie", accessToken, {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
       sameSite: "strict",
@@ -168,7 +168,7 @@ authRouter.openapi(regisRoute, async (c) => {
       env.JWT_SECRET,
     );
 
-    setCookie(c, "iom-token", accessToken, {
+    setCookie(c, "ota-ku.access-cookie", accessToken, {
       httpOnly: true,
       secure: env.NODE_ENV === "production",
       sameSite: "strict",
@@ -202,7 +202,7 @@ authRouter.openapi(regisRoute, async (c) => {
 });
 
 authRouter.openapi(verifRoute, async (c) => {
-  const token = getCookie(c, "iom-token") as string;
+  const token = getCookie(c, "ota-ku.access-cookie") as string;
   if (!token) {
     return c.json(
       {
@@ -257,7 +257,7 @@ authRouter.openapi(verifRoute, async (c) => {
 
 authProtectedRouter.openapi(logoutRoute, async (c) => {
   try {
-    deleteCookie(c, "iom-token");
+    deleteCookie(c, "ota-ku.access-cookie");
     return c.json(
       {
         success: true,
