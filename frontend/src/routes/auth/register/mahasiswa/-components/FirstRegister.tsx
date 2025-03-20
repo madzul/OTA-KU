@@ -50,7 +50,7 @@ export default function FirstRegister() {
           <Button type="submit" className="w-full">
             Masuk
           </Button>
-          <Button type="submit" className="w-full" variant={"secondary"}>
+          <Button type="button" className="w-full" variant={"secondary"}>
             Kembali
           </Button>
         </form>

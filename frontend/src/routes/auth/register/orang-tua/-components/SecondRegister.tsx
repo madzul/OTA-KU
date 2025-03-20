@@ -107,7 +107,7 @@ export default function SecondRegister() {
           <Button type="submit" className="w-full">
             Selanjutnya
           </Button>
-          <Button type="submit" className="w-full" variant={"secondary"}>
+          <Button type="button" className="w-full" variant={"secondary"}>
             Kembali
           </Button>
         </form>
