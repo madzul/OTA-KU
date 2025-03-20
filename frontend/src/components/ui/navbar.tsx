@@ -11,6 +11,7 @@ import {
   SheetTrigger,
 } from "./sheet";
 
+// TODO: Nanti sesuaiin lagi sama design figma yang terbaru
 export default function NavBar() {
   return (
     <nav

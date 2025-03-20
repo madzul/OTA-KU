@@ -10,4 +10,8 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
-export { TestService } from './services/TestService';
+export type { UserLoginRequestSchema } from './models/UserLoginRequestSchema';
+export type { UserRegisRequestSchema } from './models/UserRegisRequestSchema';
+export type { UserSchema } from './models/UserSchema';
+
+export { AuthService } from './services/AuthService';
