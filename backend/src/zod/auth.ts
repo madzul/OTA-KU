@@ -1,15 +1,17 @@
 import { z } from "@hono/zod-openapi";
 
-export const UserLoginRequestSchema = z.object({
-  email: z.string().email().openapi({
-    example: "johndoe@example.com",
-    description: "The user's email.",
-  }),
-  password: z.string().min(8).openapi({
-    example: "secret123",
-    description: "The user's password.",
-  }),
-});
+export const UserLoginRequestSchema = z
+  .object({
+    email: z.string().email().openapi({
+      example: "johndoe@example.com",
+      description: "The user's email.",
+    }),
+    password: z.string().min(8).openapi({
+      example: "secret123",
+      description: "The user's password.",
+    }),
+  })
+  .openapi("UserLoginRequestSchema");
 
 export const SuccessfulLoginResponse = z.object({
   success: z.boolean().openapi({ example: true }),
@@ -60,7 +62,8 @@ export const UserRegisRequestSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  });
+  })
+  .openapi("UserRegisRequestSchema");
 
 export const SuccessfulRegisResponse = z.object({
   success: z.boolean().openapi({ example: true }),
@@ -77,7 +80,7 @@ export const SuccessfulRegisResponse = z.object({
     email: z.string().openapi({
       example: "johndoe@example.com",
       description: "The user's email.",
-    })
+    }),
   }),
 });
 
@@ -96,12 +99,16 @@ export const InternalServerErrorResponse = z.object({
 export const UserAuthenticatedResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Authenticated" }),
-  body: z.object({
-    id: z.string().openapi({ example: "1" }),
-    email: z.string().openapi({ example: "johndoe@example.com" }),
-    phoneNumber: z.string().openapi({ example: "081234567890" }),
-    type: z.enum(["mahasiswa", "ota", "admin"]).openapi({ example: "mahasiswa" }),
-  }),
+  body: z
+    .object({
+      id: z.string().openapi({ example: "1" }),
+      email: z.string().openapi({ example: "johndoe@example.com" }),
+      phoneNumber: z.string().openapi({ example: "081234567890" }),
+      type: z
+        .enum(["mahasiswa", "ota", "admin"])
+        .openapi({ example: "mahasiswa" }),
+    })
+    .openapi("UserSchema"),
 });
 
 export const UserNotAuthenticatedResponse = z.object({
@@ -114,9 +121,13 @@ export const LogoutSuccessfulResponse = z.object({
   message: z.string().openapi({ example: "Logout successful" }),
 });
 
-export const JWTPayloadSchema = z.object({
-  id: z.string().openapi({ example: "1" }),
-  email: z.string().openapi({ example: "johndoe@example.com" }),
-  phoneNumber: z.string().openapi({ example: "081234567890" }),
-  type: z.enum(["mahasiswa", "ota"]).openapi({ example: "mahasiswa" }),
-});
+export const JWTPayloadSchema = z
+  .object({
+    id: z.string().openapi({ example: "1" }),
+    email: z.string().openapi({ example: "johndoe@example.com" }),
+    phoneNumber: z.string().openapi({ example: "081234567890" }),
+    type: z
+      .enum(["mahasiswa", "ota", "admin"])
+      .openapi({ example: "mahasiswa" }),
+  })
+  .openapi("JWTPayloadSchema");
