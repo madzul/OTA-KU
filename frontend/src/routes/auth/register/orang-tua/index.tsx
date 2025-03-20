@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// import FirstRegister from "./-components/FirstRegister";
-// import SecondRegister from "./-components/SecondRegister";
+import FirstRegister from "./-components/FirstRegister";
+import SecondRegister from "./-components/SecondRegister";
 import ThirdRegister from "./-components/ThirdRegister";
 
 // import FirstRegister from "./components/first-register";
