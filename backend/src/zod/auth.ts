@@ -70,6 +70,14 @@ export const SuccessfulRegisResponse = z.object({
       example: "eyJhbGciOiJIUzI1...",
       description: "JWT token for authentication.",
     }),
+    id: z.string().openapi({
+      example: "3762d870-158e-4832-804c-f0be220d40c0",
+      description: "Unique account ID",
+    }),
+    email: z.string().openapi({
+      example: "johndoe@example.com",
+      description: "The user's email.",
+    })
   }),
 });
 
@@ -92,7 +100,7 @@ export const UserAuthenticatedResponse = z.object({
     id: z.string().openapi({ example: "1" }),
     email: z.string().openapi({ example: "johndoe@example.com" }),
     phoneNumber: z.string().openapi({ example: "081234567890" }),
-    type: z.enum(["mahasiswa", "ota"]).openapi({ example: "mahasiswa" }),
+    type: z.enum(["mahasiswa", "ota", "admin"]).openapi({ example: "mahasiswa" }),
   }),
 });
 
