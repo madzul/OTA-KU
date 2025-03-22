@@ -1,31 +1,55 @@
-import { X } from "lucide-react";
-import React, { useState } from "react";
+"use client"
 
-function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true);
-  const name = "Yusuf Ardian Sandi";
-  const email = "13522015@std.stei.itb.ac.id";
+import { X } from "lucide-react"
+import { useEffect } from "react"
 
-  const handleClose = () => {
-    setIsOpen(false);
-  };
+interface SidebarProps {
+  isOpen: boolean
+  onClose: () => void
+}
 
-  if (!isOpen) return null;
+function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const name = "Yusuf Ardian Sandi"
+  const email = "13522015@std.stei.itb.ac.id"
+
+  // Use useEffect to handle ESC key press to close sidebar
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose()
+      }
+    }
+
+    if (isOpen) {
+      window.addEventListener("keydown", handleEscKey)
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleEscKey)
+    }
+  }, [isOpen, onClose])
 
   return (
     <>
-      {/* Overlay */}
-      <div
-        className="fixed inset-0 z-40 bg-black/20 backdrop-blur-xs"
-        onClick={handleClose}
-      />
+      {/* Overlay - with fade animation */}
+      {isOpen && (
+        <div
+          className={`fixed inset-0 z-30 bg-black/20 backdrop-blur-xs lg:hidden transition-opacity duration-300 ${
+            isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
+          style={{ top: "70px" }} // Position below navbar on mobile
+          onClick={onClose}
+        />
+      )}
 
-      {/* Sidebar */}
-      <div className="fixed top-0 left-0 z-50 mt-3 mb-3 flex h-[calc(100vh-24px)] max-w-[255px] flex-col justify-between rounded-r-[12px] bg-white px-5 py-6 shadow-[0_0_4px_rgba(0,0,0,0.4)]">
-        <button
-          className="text-dark absolute top-4 right-4"
-          onClick={handleClose}
-        >
+      {/* Sidebar - with slide animation */}
+      <div
+        className={`fixed top-0 -left-4 z-40 mt-[82px] mb-3 flex h-[calc(100vh-24px-70px)] lg:h-[calc(100vh-24px-96px)] max-w-[255px] flex-col justify-between rounded-r-[12px] bg-white px-5 py-6 shadow-[0_0_4px_rgba(0,0,0,0.4)] lg:mt-27 lg:ml-3 lg:rounded-l-[12px] transition-transform duration-300 ease-in-out ${
+          isOpen ? "translate-x-4" : "-translate-x-full"
+        }`}
+        data-sidebar="true"
+      >
+        <button className="text-dark absolute top-4 right-4" onClick={onClose} aria-label="Close sidebar">
           <X size={24} />
         </button>
 
@@ -35,45 +59,23 @@ function Sidebar() {
           <div className="flex flex-col gap-3">
             {/* Dashbor */}
             <div className="flex cursor-pointer gap-3 hover:opacity-80">
-              <img
-                src="/icon/Type=dashboard.svg"
-                alt="icon dashboard"
-                className="h-4 w-4"
-              />
+              <img src="/icon/Type=dashboard.svg" alt="icon dashboard" className="h-4 w-4" />
               <span className="text-dark text-sm font-medium">Dasbor</span>
             </div>
             {/* Daftar Mahasiswa */}
             <div className="flex cursor-pointer gap-3 hover:opacity-80">
-              <img
-                src="/icon/Type=student-list.svg"
-                alt="icon dashboard"
-                className="h-4 w-4"
-              />
-              <span className="text-dark text-sm font-medium">
-                Daftar Mahasiswa
-              </span>
+              <img src="/icon/Type=student-list.svg" alt="icon dashboard" className="h-4 w-4" />
+              <span className="text-dark text-sm font-medium">Daftar Mahasiswa</span>
             </div>
             {/* Mahasiswa Asuh Saya */}
             <div className="flex cursor-pointer gap-3 hover:opacity-80">
-              <img
-                src="/icon/Type=student.svg"
-                alt="icon dashboard"
-                className="h-4 w-4"
-              />
-              <span className="text-dark text-sm font-medium">
-                Mahasiswa Asuh Saya
-              </span>
+              <img src="/icon/Type=student.svg" alt="icon dashboard" className="h-4 w-4" />
+              <span className="text-dark text-sm font-medium">Mahasiswa Asuh Saya</span>
             </div>
             {/* Terminasi */}
             <div className="flex cursor-pointer gap-3 hover:opacity-80">
-              <img
-                src="/icon/Type=remove-student.svg"
-                alt="icon dashboard"
-                className="h-4 w-4"
-              />
-              <span className="text-destructive text-sm font-medium">
-                Terminasi
-              </span>
+              <img src="/icon/Type=remove-student.svg" alt="icon dashboard" className="h-4 w-4" />
+              <span className="text-destructive text-sm font-medium">Terminasi</span>
             </div>
           </div>
           {/* Line Separator */}
@@ -82,21 +84,16 @@ function Sidebar() {
 
         {/* User Info */}
         <div className="flex items-center gap-5">
-          <img
-            src="https://randomuser.me/api/portraits/men/1.jpg"
-            alt="user avatar"
-            className="h-8 w-8 rounded-full"
-          />
-          <div className="flex flex-col gap-2">
+          <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="user avatar" className="h-8 w-8 rounded-full" />
+          <div className="flex flex-col gap-1">
             <span className="text-dark text-sm font-bold">{name}</span>
-            <span className="text-dark text-xs font-normal opacity-80">
-              {email}
-            </span>
+            <span className="text-dark text-xs font-normal opacity-80">{email}</span>
           </div>
         </div>
       </div>
     </>
-  );
+  )
 }
 
-export default Sidebar;
+export default Sidebar
+
