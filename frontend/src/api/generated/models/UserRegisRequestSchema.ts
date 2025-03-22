@@ -12,7 +12,7 @@ export type UserRegisRequestSchema = {
    */
   email: string;
   /**
-   * The user's phone number.
+   * The user phone number.
    */
   phoneNumber: string;
   /**
@@ -20,7 +20,7 @@ export type UserRegisRequestSchema = {
    */
   password: string;
   /**
-   * The user's password confirmation.
+   * The user's password.
    */
   confirmPassword: string;
 };
