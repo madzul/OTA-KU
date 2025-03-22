@@ -11,13 +11,20 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as AppImport } from './routes/_app'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthRegisterIndexImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexImport } from './routes/auth/login/index'
+import { Route as AppProtectedExampleIndexImport } from './routes/_app/protected-example/index'
 import { Route as AuthRegisterOrangTuaIndexImport } from './routes/auth/register/orang-tua/index'
 import { Route as AuthRegisterMahasiswaIndexImport } from './routes/auth/register/mahasiswa/index'
 
 // Create/Update Routes
+
+const AppRoute = AppImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -35,6 +42,12 @@ const AuthLoginIndexRoute = AuthLoginIndexImport.update({
   id: '/auth/login/',
   path: '/auth/login/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AppProtectedExampleIndexRoute = AppProtectedExampleIndexImport.update({
+  id: '/protected-example/',
+  path: '/protected-example/',
+  getParentRoute: () => AppRoute,
 } as any)
 
 const AuthRegisterOrangTuaIndexRoute = AuthRegisterOrangTuaIndexImport.update({
@@ -61,6 +74,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
+    }
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AppImport
+      parentRoute: typeof rootRoute
+    }
+    '/_app/protected-example/': {
+      id: '/_app/protected-example/'
+      path: '/protected-example'
+      fullPath: '/protected-example'
+      preLoaderRoute: typeof AppProtectedExampleIndexImport
+      parentRoute: typeof AppImport
     }
     '/auth/login/': {
       id: '/auth/login/'
@@ -95,8 +122,20 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
+interface AppRouteChildren {
+  AppProtectedExampleIndexRoute: typeof AppProtectedExampleIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppProtectedExampleIndexRoute: AppProtectedExampleIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '': typeof AppRouteWithChildren
+  '/protected-example': typeof AppProtectedExampleIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
@@ -105,6 +144,8 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '': typeof AppRouteWithChildren
+  '/protected-example': typeof AppProtectedExampleIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
@@ -114,6 +155,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_app/protected-example/': typeof AppProtectedExampleIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
   '/auth/register/mahasiswa/': typeof AuthRegisterMahasiswaIndexRoute
@@ -124,6 +167,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | ''
+    | '/protected-example'
     | '/auth/login'
     | '/auth/register'
     | '/auth/register/mahasiswa'
@@ -131,6 +176,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | ''
+    | '/protected-example'
     | '/auth/login'
     | '/auth/register'
     | '/auth/register/mahasiswa'
@@ -138,6 +185,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_app'
+    | '/_app/protected-example/'
     | '/auth/login/'
     | '/auth/register/'
     | '/auth/register/mahasiswa/'
@@ -147,6 +196,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthRegisterIndexRoute: typeof AuthRegisterIndexRoute
   AuthRegisterMahasiswaIndexRoute: typeof AuthRegisterMahasiswaIndexRoute
@@ -155,6 +205,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthRegisterIndexRoute: AuthRegisterIndexRoute,
   AuthRegisterMahasiswaIndexRoute: AuthRegisterMahasiswaIndexRoute,
@@ -172,6 +223,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/_app",
         "/auth/login/",
         "/auth/register/",
         "/auth/register/mahasiswa/",
@@ -180,6 +232,16 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/_app": {
+      "filePath": "_app.tsx",
+      "children": [
+        "/_app/protected-example/"
+      ]
+    },
+    "/_app/protected-example/": {
+      "filePath": "_app/protected-example/index.tsx",
+      "parent": "/_app"
     },
     "/auth/login/": {
       "filePath": "auth/login/index.tsx"
