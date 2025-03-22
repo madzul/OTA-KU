@@ -1,5 +1,6 @@
 import { createRoute } from "@hono/zod-openapi";
 
+import { AuthorizationErrorResponse } from "../types/response.js";
 import {
   BadRequestLoginResponse,
   BadRequestRegisResponse,
@@ -113,12 +114,7 @@ export const verifRoute = createRoute({
         "application/json": { schema: UserAuthenticatedResponse },
       },
     },
-    401: {
-      description: "User is not authenticated.",
-      content: {
-        "application/json": { schema: UserNotAuthenticatedResponse },
-      },
-    },
+    401: AuthorizationErrorResponse,
     500: {
       description: "Internal server error",
       content: {
@@ -131,7 +127,7 @@ export const verifRoute = createRoute({
 export const logoutRoute = createRoute({
   operationId: "logout",
   tags: ["Auth"],
-  method: "get",
+  method: "post",
   path: "/logout",
   description: "Logs out the user by clearing the JWT cookie.",
   responses: {
@@ -141,6 +137,7 @@ export const logoutRoute = createRoute({
         "application/json": { schema: LogoutSuccessfulResponse },
       },
     },
+    401: AuthorizationErrorResponse,
     500: {
       description: "Internal server error.",
       content: {

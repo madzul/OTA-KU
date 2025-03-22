@@ -147,7 +147,7 @@ export default function ThirdRegister() {
           <Button type="submit" className="w-full">
             Selesai
           </Button>
-          <Button type="submit" className="w-full" variant={"secondary"}>
+          <Button type="button" className="w-full" variant={"secondary"}>
             Kembali
           </Button>
         </form>
