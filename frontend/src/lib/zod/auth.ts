@@ -39,3 +39,31 @@ export const UserLoginRequestSchema = z.object({
   }),
   password: PasswordSchema,
 });
+
+export const UserRegisRequestSchema = z
+  .object({
+    type: z.enum(["mahasiswa", "ota"], {
+      message: "Tipe tidak valid",
+    }),
+    email: EmailSchema,
+    phoneNumber: PhoneNumberSchema,
+    password: PasswordSchema,
+    confirmPassword: PasswordSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Konfirmasi password gagal",
+    path: ["confirmPassword"],
+  })
+  .refine(
+    (data) => {
+      if (data.type === "mahasiswa") {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@mahasiswa.itb.ac.id$/;
+        return emailRegex.test(data.email);
+      }
+      return true;
+    },
+    {
+      message: "Email harus berdomain mahasiswa.itb.ac.id",
+      path: ["email"],
+    },
+  );

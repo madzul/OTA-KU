@@ -112,7 +112,7 @@ function RouteComponent() {
                     </FormLabel>
                     <FormControl>
                       <PasswordInput
-                        placeholder="Masukkan password Anda"
+                        placeholder="Masukkan kata sandi Anda"
                         {...field}
                       />
                     </FormControl>
@@ -123,10 +123,12 @@ function RouteComponent() {
 
               {/* TODO: Ganti ke route aslinya nanti */}
               <Link to="." className="text-primary underline">
-                Lupa password?
+                Lupa kata sandi?
               </Link>
 
-              <Button type="submit">Masuk</Button>
+              <Button type="submit" disabled={loginCallbackMutation.isPending}>
+                Masuk
+              </Button>
 
               {/* TODO: Add microsoft azure OAuth2 */}
 

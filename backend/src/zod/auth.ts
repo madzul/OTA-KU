@@ -100,6 +100,19 @@ export const UserRegisRequestSchema = z
     message: "Konfirmasi password gagal",
     path: ["confirmPassword"],
   })
+  .refine(
+    (data) => {
+      if (data.type === "mahasiswa") {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@mahasiswa.itb.ac.id$/;
+        return emailRegex.test(data.email);
+      }
+      return true;
+    },
+    {
+      message: "Email harus berdomain mahasiswa.itb.ac.id",
+      path: ["email"],
+    },
+  )
   .openapi("UserRegisRequestSchema");
 
 export const SuccessfulRegisResponse = z.object({
