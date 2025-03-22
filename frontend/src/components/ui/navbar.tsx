@@ -1,18 +1,19 @@
 "use client";
 
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 import Sidebar from "../sidebar";
 import { Button } from "./button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "./sheet";
 
 export default function NavBar() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
@@ -83,7 +84,7 @@ export default function NavBar() {
             </Link>
           </div>
 
-          <div className="hidden items-center space-x-8 lg:flex">
+          <div className="flex items-center space-x-8">
             {!isLoggedIn && (
               <Link className="w-fit" to="/auth/login">
                 <Button size="lg" variant={"outline"} className="w-[90px]">
@@ -108,17 +109,33 @@ export default function NavBar() {
               </Link>
             )}
             {isLoggedIn && (
-              <Link className="w-fit" to="/auth/login">
-                <img
-                  src="/icon/Type=profile-icon.svg"
-                  alt="Profile"
-                  className="h-6 w-6"
-                />
-              </Link>
+              <Menubar className="border-none p-0 shadow-none">
+                <MenubarMenu>
+                  <MenubarTrigger className="cursor-pointer border-none bg-transparent p-0 shadow-none outline-none hover:bg-transparent focus:bg-transparent">
+                    <img
+                      src="/icon/Type=profile-icon.svg"
+                      alt="Profile"
+                      className="h-6 w-6"
+                    />
+                  </MenubarTrigger>
+                  <MenubarContent
+                    className="z-[70]"
+                    align="end"
+                    alignOffset={-10}
+                    sideOffset={5}
+                  >
+                    <MenubarItem className="text-dark">Akun Saya</MenubarItem>
+                    <MenubarSeparator />
+                    <MenubarItem className="text-destructive">
+                      Keluar
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
             )}
           </div>
 
-          <div className="flex gap-6 lg:hidden">
+          {/* <div className="flex gap-6 lg:hidden">
             <Sheet>
               <SheetTrigger>
                 <img
@@ -211,7 +228,7 @@ export default function NavBar() {
                 </SheetHeader>
               </SheetContent>
             </Sheet>
-          </div>
+          </div> */}
         </div>
       </nav>
     </>
