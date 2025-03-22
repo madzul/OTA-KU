@@ -3,10 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type UserLoginRequestSchema = {
-  /**
-   * The user's email.
-   */
-  email: string;
+  identifier: string;
   /**
    * The user's password.
    */

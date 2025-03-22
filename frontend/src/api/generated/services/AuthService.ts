@@ -93,7 +93,7 @@ export class AuthService {
       method: 'GET',
       url: '/api/auth/verify',
       errors: {
-        401: `User is not authenticated.`,
+        401: `Bad request: authorization (not logged in) error`,
         500: `Internal server error`,
       },
     });
@@ -108,9 +108,10 @@ export class AuthService {
     message: string;
   }> {
     return this.httpRequest.request({
-      method: 'GET',
+      method: 'POST',
       url: '/api/auth/logout',
       errors: {
+        401: `Bad request: authorization (not logged in) error`,
         500: `Internal server error.`,
       },
     });
