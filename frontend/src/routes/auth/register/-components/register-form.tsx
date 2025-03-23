@@ -1,4 +1,4 @@
-import { api } from "@/api/client";
+import { api, queryClient } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -33,6 +33,8 @@ export default function RegisterForm({ role }: { role: string }) {
       toast.success("Berhasil melakukan registrasi", {
         description: "Silakan cek email Anda untuk verifikasi",
       });
+
+      queryClient.invalidateQueries({ queryKey: ["verify"] });
 
       setTimeout(() => {
         navigate({ to: "/auth/verification" });

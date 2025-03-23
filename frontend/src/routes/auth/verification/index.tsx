@@ -1,4 +1,4 @@
-import { api } from "@/api/client";
+import { api, queryClient } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -46,6 +46,8 @@ function RouteComponent() {
       toast.success("Berhasil melakukan verifikasi", {
         description: "Selamat datang kembali!",
       });
+
+      queryClient.invalidateQueries({ queryKey: ["verify"] });
 
       setTimeout(() => {
         navigate({ to: "/profile" });
