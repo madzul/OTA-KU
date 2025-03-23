@@ -11,7 +11,7 @@ import {
   SuccessfulRegisResponse,
   UserAuthenticatedResponse,
   UserLoginRequestSchema,
-  UserNotAuthenticatedResponse,
+  UserOAuthLoginRequestSchema,
   UserRegisRequestSchema,
 } from "../zod/auth.js";
 
@@ -140,6 +140,49 @@ export const logoutRoute = createRoute({
     401: AuthorizationErrorResponse,
     500: {
       description: "Internal server error.",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const oauthRoute = createRoute({
+  operationId: "oauth",
+  tags: ["Auth"],
+  method: "post",
+  path: "/oauth",
+  description: "Authenticates a user using Azure OAuth2.",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: UserOAuthLoginRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Successful login.",
+      content: {
+        "application/json": { schema: SuccessfulLoginResponse },
+      },
+    },
+    400: {
+      description: "Bad request - missing fields.",
+      content: {
+        "application/json": { schema: BadRequestLoginResponse },
+      },
+    },
+    401: {
+      description: "Invalid credentials.",
+      content: {
+        "application/json": { schema: InvalidLoginResponse },
+      },
+    },
+    500: {
+      description: "Internal server error",
       content: {
         "application/json": { schema: InternalServerErrorResponse },
       },

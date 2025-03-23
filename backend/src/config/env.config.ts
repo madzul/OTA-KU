@@ -13,6 +13,9 @@ const EnvSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
+  AZURE_CLIENT_ID: z.string(),
+  AZURE_CLIENT_SECRET: z.string(),
+  VITE_PUBLIC_URL: z.string().url(),
 });
 
 const result = EnvSchema.safeParse(process.env);

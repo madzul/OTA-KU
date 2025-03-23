@@ -58,6 +58,13 @@ export const UserLoginRequestSchema = z
   })
   .openapi("UserLoginRequestSchema");
 
+export const UserOAuthLoginRequestSchema = z.object({
+  code: z.string().openapi({
+    example: "1.AXIAgxFu22VM...",
+    description: "OAuth code for authentication.",
+  }),
+});
+
 export const SuccessfulLoginResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Login successful" }),
@@ -153,7 +160,7 @@ export const UserAuthenticatedResponse = z.object({
     .object({
       id: z.string().openapi({ example: "1" }),
       email: z.string().openapi({ example: "johndoe@example.com" }),
-      phoneNumber: z.string().openapi({ example: "081234567890" }),
+      phoneNumber: z.string().nullable().openapi({ example: "081234567890" }),
       type: z
         .enum(["mahasiswa", "ota", "admin"])
         .openapi({ example: "mahasiswa" }),
@@ -175,10 +182,13 @@ export const JWTPayloadSchema = z
   .object({
     id: z.string().openapi({ example: "1" }),
     email: z.string().openapi({ example: "johndoe@example.com" }),
-    phoneNumber: z.string().openapi({ example: "081234567890" }),
+    phoneNumber: z.string().nullable().openapi({ example: "081234567890" }),
     type: z
       .enum(["mahasiswa", "ota", "admin"])
       .openapi({ example: "mahasiswa" }),
+    provider: z
+      .enum(["credentials", "azure"])
+      .openapi({ example: "credentials" }),
     iat: z.number().openapi({ example: 1630000000 }),
     exp: z.number().openapi({ example: 1630000000 }),
   })

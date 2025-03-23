@@ -14,6 +14,7 @@ import { UserRegisRequestSchema } from "@/lib/zod/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -21,6 +22,8 @@ import { z } from "zod";
 type UserRegisterFormValues = z.infer<typeof UserRegisRequestSchema>;
 
 export default function RegisterForm({ role }: { role: string }) {
+  const [state, setState] = useState<string | null>(null);
+  const [clientId, setClientId] = useState<string | null>(null);
   const navigate = useNavigate();
   const registerCallbackMutation = useMutation({
     mutationFn: (data: UserRegisterFormValues) =>
@@ -60,6 +63,17 @@ export default function RegisterForm({ role }: { role: string }) {
   async function onSubmit(values: UserRegisterFormValues) {
     registerCallbackMutation.mutate(values);
   }
+
+  useEffect(() => {
+    const state = crypto.getRandomValues(new Uint32Array(1))[0].toString(16);
+    localStorage.setItem("state", state);
+    setState(state);
+  }, []);
+
+  const azureClientId = import.meta.env.VITE_AZURE_CLIENT_ID;
+  useEffect(() => {
+    setClientId(azureClientId);
+  }, [azureClientId]);
 
   return (
     <div className="flex flex-col items-center gap-9">
@@ -165,7 +179,13 @@ export default function RegisterForm({ role }: { role: string }) {
               </Button>
             </div>
 
-            {/* TODO: Add microsoft azure OAuth2 */}
+            <Button type="button" asChild>
+              <a
+                href={`https://login.microsoftonline.com/db6e1183-4c65-405c-82ce-7cd53fa6e9dc/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${window.location.origin}/integrations/azure-key-vault/oauth2/callback&response_mode=query&scope=https://vault.azure.net/.default openid offline_access&state=${state}&prompt=select_account`}
+              >
+                Masuk dengan akun Mahasiswa
+              </a>
+            </Button>
           </form>
         </Form>
       </section>

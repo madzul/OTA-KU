@@ -5,7 +5,7 @@
 export type UserSchema = {
   id: string;
   email: string;
-  phoneNumber: string;
+  phoneNumber: string | null;
   type: 'mahasiswa' | 'ota' | 'admin';
 };
 

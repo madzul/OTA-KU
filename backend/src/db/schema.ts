@@ -34,12 +34,15 @@ export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
   "inactive",
 ]);
 
+export const providerEnum = pgEnum("provider", ["credentials", "azure"]);
+
 export const accountTable = pgTable("account", {
   id: uuid("id").defaultRandom().primaryKey().unique().notNull(),
   email: varchar({ length: 255 }).unique().notNull(),
-  phoneNumber: varchar({ length: 32 }).unique().notNull(),
+  phoneNumber: varchar({ length: 32 }).unique(),
   password: varchar({ length: 255 }).notNull(),
   type: accountTypeEnum("type").notNull(),
+  provider: providerEnum("provider").notNull().default("credentials"),
 });
 
 export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {

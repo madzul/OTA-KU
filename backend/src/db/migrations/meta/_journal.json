@@ -22,6 +22,34 @@
       "when": 1742532706308,
       "tag": "0002_bouncy_thunderball",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1742707136809,
+      "tag": "0003_smart_the_captain",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1742710698764,
+      "tag": "0004_chubby_fenris",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1742711173596,
+      "tag": "0005_overconfident_husk",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1742711816148,
+      "tag": "0006_wide_hellfire_club",
+      "breakpoints": true
     }
   ]
 }
