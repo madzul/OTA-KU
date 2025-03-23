@@ -164,6 +164,12 @@ export const UserAuthenticatedResponse = z.object({
       type: z
         .enum(["mahasiswa", "ota", "admin"])
         .openapi({ example: "mahasiswa" }),
+      provider: z
+        .enum(["credentials", "azure"])
+        .openapi({ example: "credentials" }),
+      status: z
+        .enum(["verified", "unverified"])
+        .openapi({ example: "verified" }),
     })
     .openapi("UserSchema"),
 });
@@ -194,3 +200,20 @@ export const JWTPayloadSchema = z
     exp: z.number().openapi({ example: 1630000000 }),
   })
   .openapi("JWTPayloadSchema");
+
+export const OTPVerificationRequestSchema = z.object({
+  pin: z.string().min(6, {
+    message: "Kode OTP harus terdiri dari 6 karakter.",
+  }),
+});
+
+export const SuccessfulOTPVerificationResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "OTP verification successful" }),
+  body: z.object({
+    token: z.string().openapi({
+      example: "eyJhbGciOiJIUzI1...",
+      description: "JWT token for authentication.",
+    }),
+  }),
+});

@@ -1,3 +1,4 @@
+import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -11,31 +12,66 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { OTPVerificationRequestSchema } from "@/lib/zod/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
-
-const FormSchema = z.object({
-  pin: z.string().min(6, {
-    message: "Kode OTP harus terdiri dari 6 karakter.",
-  }),
-});
 
 export const Route = createFileRoute("/auth/verification/")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const user = await api.auth.verif().catch(() => null);
+    if (!user?.success) {
+      throw redirect({ to: "/" });
+    }
+
+    if (user.body.status === "verified") {
+      throw redirect({ to: "/profile" });
+    }
+  },
 });
 
+type OTPVerificationFormValues = z.infer<typeof OTPVerificationRequestSchema>;
+
 function RouteComponent() {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues: {
-      pin: "",
+  const navigate = useNavigate();
+  const otpCallbackMutation = useMutation({
+    mutationFn: (data: OTPVerificationFormValues) =>
+      api.auth.otp({ requestBody: data }),
+    onSuccess: (_data, _variables, context) => {
+      toast.dismiss(context);
+      toast.success("Berhasil melakukan verifikasi", {
+        description: "Selamat datang kembali!",
+      });
+
+      setTimeout(() => {
+        navigate({ to: "/profile" });
+      }, 1500); // 1.5 seconds delay
+    },
+    onError: (_error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal melakukan verifikasi", {
+        description: "Silakan coba lagi",
+      });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang melakukan verifikasi...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log("OTP submitted:", data.pin);
+  const form = useForm<OTPVerificationFormValues>({
+    resolver: zodResolver(OTPVerificationRequestSchema),
+  });
+
+  function onSubmit(data: OTPVerificationFormValues) {
+    otpCallbackMutation.mutate(data);
   }
 
   // const handleResend = () => {
@@ -97,7 +133,11 @@ function RouteComponent() {
                 )}
               />
 
-              <Button type="submit" className="w-4/5">
+              <Button
+                type="submit"
+                className="w-4/5"
+                disabled={otpCallbackMutation.isPending}
+              >
                 Lanjutkan
               </Button>
             </form>
@@ -106,7 +146,7 @@ function RouteComponent() {
 
         <div className="flex flex-col pt-0 text-sm xl:text-base">
           <div className="mt-4 flex justify-center">
-            <span>Kirim ulang kode dalam 30 detik / Belum menerima kode? </span>
+            <span>Belum menerima kode? </span>
             <button onClick={handleChangeNumber} className="ml-1 underline">
               Kirim ulang
             </button>

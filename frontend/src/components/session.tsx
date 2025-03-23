@@ -22,6 +22,10 @@ export default function SessionProvider({
     return <div>Loading...</div>;
   }
 
+  if (data.body.status === "unverified") {
+    return <Navigate to="/auth/verification" />;
+  }
+
   if (!data.body.phoneNumber) {
     return <Navigate to="/profile" />;
   }

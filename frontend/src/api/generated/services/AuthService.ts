@@ -152,4 +152,37 @@ export class AuthService {
       },
     });
   }
+  /**
+   * Authenticates a user using OTP.
+   * @returns any Valid OTP.
+   * @throws ApiError
+   */
+  public otp({
+    requestBody,
+  }: {
+    requestBody?: {
+      pin: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * JWT token for authentication.
+       */
+      token: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/auth/otp',
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        400: `Invalid OTP.`,
+        404: `Invalid OTP.`,
+        500: `Internal server error`,
+      },
+    });
+  }
 }

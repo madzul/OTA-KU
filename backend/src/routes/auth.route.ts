@@ -7,7 +7,9 @@ import {
   InternalServerErrorResponse,
   InvalidLoginResponse,
   LogoutSuccessfulResponse,
+  OTPVerificationRequestSchema,
   SuccessfulLoginResponse,
+  SuccessfulOTPVerificationResponse,
   SuccessfulRegisResponse,
   UserAuthenticatedResponse,
   UserLoginRequestSchema,
@@ -179,6 +181,49 @@ export const oauthRoute = createRoute({
       description: "Invalid credentials.",
       content: {
         "application/json": { schema: InvalidLoginResponse },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const otpRoute = createRoute({
+  operationId: "otp",
+  tags: ["Auth"],
+  method: "post",
+  path: "/otp",
+  description: "Authenticates a user using OTP.",
+  request: {
+    body: {
+      content: {
+        "application/json": {
+          schema: OTPVerificationRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Valid OTP.",
+      content: {
+        "application/json": { schema: SuccessfulOTPVerificationResponse },
+      },
+    },
+    400: {
+      description: "Invalid OTP.",
+      content: {
+        "application/json": { schema: BadRequestLoginResponse },
+      },
+    },
+    404: {
+      description: "Invalid OTP.",
+      content: {
+        "application/json": { schema: BadRequestLoginResponse },
       },
     },
     500: {
