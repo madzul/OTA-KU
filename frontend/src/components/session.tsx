@@ -1,40 +1,34 @@
-// // TODO: Fix all error after implementing auth
-// import { api } from "@/api/client";
-// import { UserWithRoles } from "@/api/generated";
-// import { saveUserCache } from "@/lib/session";
-// import { useQuery } from "@tanstack/react-query";
-// import { Navigate } from "@tanstack/react-router";
-// import { createContext, useEffect } from "react";
+import { api } from "@/api/client";
+import { SessionContext } from "@/context/session";
+import { useQuery } from "@tanstack/react-query";
+import { Navigate } from "@tanstack/react-router";
 
-// export const SessionContext = createContext<UserWithRoles>(
-//   null as unknown as UserWithRoles,
-// );
+export default function SessionProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { data } = useQuery({
+    queryKey: ["verify"],
+    queryFn: () => api.auth.verif().catch(() => null),
+  });
 
-// export default function SessionProvider({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   const { data } = useQuery({
-//     queryKey: ["me"],
-//     queryFn: () => api.auth.getMe().catch(() => null),
-//   });
+  if (data === null) {
+    return <Navigate to="/auth/login" />;
+  }
 
-//   useEffect(() => {
-//     if (data !== undefined) {
-//       saveUserCache(data);
-//     }
-//   }, [data]);
+  // TODO: Handle loading state
+  if (!data) {
+    return <div>Loading...</div>;
+  }
 
-//   if (data === null) {
-//     return <Navigate to="/auth/login" />;
-//   }
+  if (!data.body.phoneNumber) {
+    return <Navigate to="/profile" />;
+  }
 
-//   if (!data) {
-//     // TODO: loading UI
-//     return <div>Loading...</div>;
-//   }
-//   return (
-//     <SessionContext.Provider value={data}>{children}</SessionContext.Provider>
-//   );
-// }
+  return (
+    <SessionContext.Provider value={data.body}>
+      {children}
+    </SessionContext.Provider>
+  );
+}

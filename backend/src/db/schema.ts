@@ -34,12 +34,15 @@ export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
   "inactive",
 ]);
 
+export const providerEnum = pgEnum("provider", ["credentials", "azure"]);
+
 export const accountTable = pgTable("account", {
   id: uuid("id").defaultRandom().primaryKey().unique().notNull(),
   email: varchar({ length: 255 }).unique().notNull(),
-  phoneNumber: varchar({ length: 32 }).unique().notNull(),
+  phoneNumber: varchar({ length: 32 }).unique(),
   password: varchar({ length: 255 }).notNull(),
   type: accountTypeEnum("type").notNull(),
+  provider: providerEnum("provider").notNull().default("credentials"),
 });
 
 export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
@@ -94,7 +97,21 @@ export const connectionTable = pgTable(
   (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
 );
 
-export const accountRelations = relations(accountTable, ({ one }) => ({
+export const otpTable = pgTable(
+  "otp",
+  {
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accountTable.id, {
+        onDelete: "cascade",
+      }),
+    code: varchar({ length: 6 }).notNull(),
+    expiredAt: timestamp("expired_at").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.accountId, table.code] })],
+);
+
+export const accountRelations = relations(accountTable, ({ one, many }) => ({
   accountMahasiswaDetail: one(accountMahasiswaDetailTable, {
     fields: [accountTable.id],
     references: [accountMahasiswaDetailTable.accountId],
@@ -103,6 +120,7 @@ export const accountRelations = relations(accountTable, ({ one }) => ({
     fields: [accountTable.id],
     references: [accountOtaDetailTable.accountId],
   }),
+  otps: many(otpTable),
 }));
 
 export const accountMahasiswaDetailRelations = relations(
@@ -141,5 +159,12 @@ export const connectionRelations = relations(connectionTable, ({ one }) => ({
   ota: one(accountOtaDetailTable, {
     fields: [connectionTable.otaId],
     references: [accountOtaDetailTable.accountId],
+  }),
+}));
+
+export const otpRelations = relations(otpTable, ({ one }) => ({
+  account: one(accountTable, {
+    fields: [otpTable.accountId],
+    references: [accountTable.id],
   }),
 }));
