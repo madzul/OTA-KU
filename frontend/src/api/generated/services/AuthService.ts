@@ -80,6 +80,42 @@ export class AuthService {
     });
   }
   /**
+   * Authenticates a user using Azure OAuth2.
+   * @returns any Successful login.
+   * @throws ApiError
+   */
+  public oauth({
+    requestBody,
+  }: {
+    requestBody?: {
+      /**
+       * OAuth code for authentication.
+       */
+      code: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * JWT token for authentication.
+       */
+      token: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/auth/oauth',
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        400: `Bad request - missing fields.`,
+        401: `Invalid credentials.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
    * Verifies if the user is authenticated by checking the JWT.
    * @returns any Success
    * @throws ApiError
@@ -113,6 +149,39 @@ export class AuthService {
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         500: `Internal server error.`,
+      },
+    });
+  }
+  /**
+   * Authenticates a user using OTP.
+   * @returns any Valid OTP.
+   * @throws ApiError
+   */
+  public otp({
+    requestBody,
+  }: {
+    requestBody?: {
+      pin: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * JWT token for authentication.
+       */
+      token: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/auth/otp',
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        400: `Invalid OTP.`,
+        404: `Invalid OTP.`,
+        500: `Internal server error`,
       },
     });
   }

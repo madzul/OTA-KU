@@ -34,12 +34,16 @@ export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
   "inactive",
 ]);
 
+export const providerEnum = pgEnum("provider", ["credentials", "azure"]);
+
 export const accountTable = pgTable("account", {
   id: uuid("id").defaultRandom().primaryKey().unique().notNull(),
   email: varchar({ length: 255 }).unique().notNull(),
-  phoneNumber: varchar({ length: 32 }).unique().notNull(),
+  phoneNumber: varchar({ length: 32 }).unique(),
   password: varchar({ length: 255 }).notNull(),
   type: accountTypeEnum("type").notNull(),
+  provider: providerEnum("provider").notNull().default("credentials"),
+  status: verificationStatusEnum("status").notNull().default("unverified"),
 });
 
 export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
@@ -51,7 +55,6 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
     }),
   name: varchar({ length: 255 }).notNull(),
   nim: varchar({ length: 8 }).unique().notNull(),
-  status: verificationStatusEnum("status").notNull().default("unverified"),
   mahasiswaStatus: mahasiswaStatusEnum("mahasiswa_status")
     .notNull()
     .default("inactive"),
@@ -74,7 +77,6 @@ export const accountOtaDetailTable = pgTable("account_ota_detail", {
   maxSemester: integer("max_semester").notNull(),
   transferDate: integer("transfer_date").notNull(),
   criteria: text("criteria").notNull(),
-  status: verificationStatusEnum("status").notNull().default("unverified"),
 });
 
 export const connectionTable = pgTable(

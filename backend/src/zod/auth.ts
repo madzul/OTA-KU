@@ -58,6 +58,13 @@ export const UserLoginRequestSchema = z
   })
   .openapi("UserLoginRequestSchema");
 
+export const UserOAuthLoginRequestSchema = z.object({
+  code: z.string().openapi({
+    example: "1.AXIAgxFu22VM...",
+    description: "OAuth code for authentication.",
+  }),
+});
+
 export const SuccessfulLoginResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Login successful" }),
@@ -153,10 +160,16 @@ export const UserAuthenticatedResponse = z.object({
     .object({
       id: z.string().openapi({ example: "1" }),
       email: z.string().openapi({ example: "johndoe@example.com" }),
-      phoneNumber: z.string().openapi({ example: "081234567890" }),
+      phoneNumber: z.string().nullable().openapi({ example: "081234567890" }),
       type: z
         .enum(["mahasiswa", "ota", "admin"])
         .openapi({ example: "mahasiswa" }),
+      provider: z
+        .enum(["credentials", "azure"])
+        .openapi({ example: "credentials" }),
+      status: z
+        .enum(["verified", "unverified"])
+        .openapi({ example: "verified" }),
     })
     .openapi("UserSchema"),
 });
@@ -175,11 +188,32 @@ export const JWTPayloadSchema = z
   .object({
     id: z.string().openapi({ example: "1" }),
     email: z.string().openapi({ example: "johndoe@example.com" }),
-    phoneNumber: z.string().openapi({ example: "081234567890" }),
+    phoneNumber: z.string().nullable().openapi({ example: "081234567890" }),
     type: z
       .enum(["mahasiswa", "ota", "admin"])
       .openapi({ example: "mahasiswa" }),
+    provider: z
+      .enum(["credentials", "azure"])
+      .openapi({ example: "credentials" }),
+    status: z.enum(["verified", "unverified"]).openapi({ example: "verified" }),
     iat: z.number().openapi({ example: 1630000000 }),
     exp: z.number().openapi({ example: 1630000000 }),
   })
   .openapi("JWTPayloadSchema");
+
+export const OTPVerificationRequestSchema = z.object({
+  pin: z.string().min(6, {
+    message: "Kode OTP harus terdiri dari 6 karakter.",
+  }),
+});
+
+export const SuccessfulOTPVerificationResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "OTP verification successful" }),
+  body: z.object({
+    token: z.string().openapi({
+      example: "eyJhbGciOiJIUzI1...",
+      description: "JWT token for authentication.",
+    }),
+  }),
+});

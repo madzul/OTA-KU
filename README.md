@@ -2,8 +2,7 @@
 
 ## Deskripsi
 
-<!-- TODO: Nanti isi -->
-Apa hayo
+OTA-ku adalah sistem berbasis web yang dirancang untuk mengelola program Orang Tua Asuh (OTA) di Institut Teknologi Bandung (ITB), yang merupakan salah satu bentuk bantuan dari Ikatan Orang Tua Mahasiswa ITB (IOM-ITB). Sistem ini memfasilitasi proses pencocokan antara Orang Tua Mahasiswa (OTM) yang ingin menjadi donatur dengan mahasiswa ITB yang membutuhkan dukungan finansial. Mahasiswa yang membutuhkan bantuan dapat mendaftar dengan mengisi formulir pengajuan, sementara OTM yang ingin menjadi Orang Tua Asuh dapat mendaftar melalui formulir khusus dan mendapatkan akses ke dashboard untuk memilih mahasiswa yang akan diasuh. Sistem ini memiliki tiga jenis pengguna utama, yaitu Mahasiswa, Orang Tua Asuh, dan Pengurus. Aplikasi ini bekerja secara online sehingga pengguna perlu melakukan login untuk melakukan autentikasi terlebih dahulu untuk menjalankan website.
 
 ## Instalasi dan Cara Menjalankan Program
 
