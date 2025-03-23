@@ -6,9 +6,9 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
-  MenubarShortcut,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { useSidebar } from "@/context/sidebar";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -16,8 +16,8 @@ import Sidebar from "../sidebar";
 import { Button } from "./button";
 
 export default function NavBar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+  const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
 
   // Close sidebar when clicking outside
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function NavBar() {
         !navbar.contains(event.target as Node) &&
         !sidebar.contains(event.target as Node)
       ) {
-        setIsSidebarOpen(false);
+        closeSidebar();
       }
     };
 
@@ -44,15 +44,7 @@ export default function NavBar() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isSidebarOpen]);
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen((prevState) => !prevState);
-  };
-
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
-  };
+  }, [isSidebarOpen, closeSidebar]);
 
   return (
     <>
@@ -70,8 +62,8 @@ export default function NavBar() {
             >
               <img
                 src="/icon/Type=list-icon.svg"
-                alt="Toggle sidebar"
-                className="transition-transform duration-200 ease-in-out"
+                alt="sidebar-button"
+                className="transform transition-transform duration-200 ease-in-out hover:scale-125"
               />
             </button>
             <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
@@ -104,7 +96,7 @@ export default function NavBar() {
                 <img
                   src="/icon/Type=notification.svg"
                   alt="Notifications"
-                  className="h-6 w-6"
+                  className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
                 />
               </Link>
             )}
@@ -115,7 +107,7 @@ export default function NavBar() {
                     <img
                       src="/icon/Type=profile-icon.svg"
                       alt="Profile"
-                      className="h-6 w-6"
+                      className="h-6 w-6 hover:scale-125 transform transition-transform duration-200 ease-in-out"
                     />
                   </MenubarTrigger>
                   <MenubarContent
@@ -134,101 +126,6 @@ export default function NavBar() {
               </Menubar>
             )}
           </div>
-
-          {/* <div className="flex gap-6 lg:hidden">
-            <Sheet>
-              <SheetTrigger>
-                <img
-                  src="/icon/Type=notification.svg"
-                  alt="Notifications"
-                  className="h-6 w-6"
-                />
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
-                  <SheetDescription>
-                    <div className="mt-4 flex flex-col space-y-4">
-                      <Link
-                        to="/"
-                        className="text-primary hover:text-primary/80"
-                      >
-                        Beranda
-                      </Link>
-                      <Link
-                        to="/"
-                        className="text-primary hover:text-primary/80"
-                      >
-                        Tentang
-                      </Link>
-                      <Link className="w-full" to="/auth/login">
-                        <Button
-                          size="lg"
-                          className="bg-primary hover:bg-primary/90 w-full text-base text-white"
-                        >
-                          Masuk
-                        </Button>
-                      </Link>
-                      <Link className="w-full" to="/auth/register">
-                        <Button
-                          size="lg"
-                          className="bg-secondary hover:bg-secondary/90 w-full text-base text-white"
-                        >
-                          Daftar
-                        </Button>
-                      </Link>
-                    </div>
-                  </SheetDescription>
-                </SheetHeader>
-              </SheetContent>
-            </Sheet>
-            <Sheet>
-              <SheetTrigger>
-                <img
-                  src="/icon/Type=profile-icon.svg"
-                  alt="Profile"
-                  className="h-6 w-6"
-                />
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
-                  <SheetDescription>
-                    <div className="mt-4 flex flex-col space-y-4">
-                      <Link
-                        to="/"
-                        className="text-primary hover:text-primary/80"
-                      >
-                        Beranda
-                      </Link>
-                      <Link
-                        to="/"
-                        className="text-primary hover:text-primary/80"
-                      >
-                        Tentang
-                      </Link>
-                      <Link className="w-full" to="/auth/login">
-                        <Button
-                          size="lg"
-                          className="bg-primary hover:bg-primary/90 w-full text-base text-white"
-                        >
-                          Masuk
-                        </Button>
-                      </Link>
-                      <Link className="w-full" to="/auth/register">
-                        <Button
-                          size="lg"
-                          className="bg-secondary hover:bg-secondary/90 w-full text-base text-white"
-                        >
-                          Daftar
-                        </Button>
-                      </Link>
-                    </div>
-                  </SheetDescription>
-                </SheetHeader>
-              </SheetContent>
-            </Sheet>
-          </div> */}
         </div>
       </nav>
     </>
