@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as AppImport } from './routes/_app'
 import { Route as IndexImport } from './routes/index'
+import { Route as AuthVerificationIndexImport } from './routes/auth/verification/index'
 import { Route as AuthRegisterIndexImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexImport } from './routes/auth/login/index'
 import { Route as AppProtectedExampleIndexImport } from './routes/_app/protected-example/index'
@@ -31,6 +32,12 @@ const AppRoute = AppImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthVerificationIndexRoute = AuthVerificationIndexImport.update({
+  id: '/auth/verification/',
+  path: '/auth/verification/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -125,6 +132,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRegisterIndexImport
       parentRoute: typeof rootRoute
     }
+    '/auth/verification/': {
+      id: '/auth/verification/'
+      path: '/auth/verification'
+      fullPath: '/auth/verification'
+      preLoaderRoute: typeof AuthVerificationIndexImport
+      parentRoute: typeof rootRoute
+    }
     '/auth/register/mahasiswa/': {
       id: '/auth/register/mahasiswa/'
       path: '/auth/register/mahasiswa'
@@ -170,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/protected-example': typeof AppProtectedExampleIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
+  '/auth/verification': typeof AuthVerificationIndexRoute
   '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
   '/auth/register/orang-tua': typeof AuthRegisterOrangTuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -182,6 +197,7 @@ export interface FileRoutesByTo {
   '/protected-example': typeof AppProtectedExampleIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
+  '/auth/verification': typeof AuthVerificationIndexRoute
   '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
   '/auth/register/orang-tua': typeof AuthRegisterOrangTuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -195,6 +211,7 @@ export interface FileRoutesById {
   '/_app/protected-example/': typeof AppProtectedExampleIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
+  '/auth/verification/': typeof AuthVerificationIndexRoute
   '/auth/register/mahasiswa/': typeof AuthRegisterMahasiswaIndexRoute
   '/auth/register/orang-tua/': typeof AuthRegisterOrangTuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback/': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -209,6 +226,7 @@ export interface FileRouteTypes {
     | '/protected-example'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/verification'
     | '/auth/register/mahasiswa'
     | '/auth/register/orang-tua'
     | '/integrations/azure-key-vault/oauth2/callback'
@@ -220,6 +238,7 @@ export interface FileRouteTypes {
     | '/protected-example'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/verification'
     | '/auth/register/mahasiswa'
     | '/auth/register/orang-tua'
     | '/integrations/azure-key-vault/oauth2/callback'
@@ -231,6 +250,7 @@ export interface FileRouteTypes {
     | '/_app/protected-example/'
     | '/auth/login/'
     | '/auth/register/'
+    | '/auth/verification/'
     | '/auth/register/mahasiswa/'
     | '/auth/register/orang-tua/'
     | '/integrations/azure-key-vault/oauth2/callback/'
@@ -242,6 +262,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthRegisterIndexRoute: typeof AuthRegisterIndexRoute
+  AuthVerificationIndexRoute: typeof AuthVerificationIndexRoute
   AuthRegisterMahasiswaIndexRoute: typeof AuthRegisterMahasiswaIndexRoute
   AuthRegisterOrangTuaIndexRoute: typeof AuthRegisterOrangTuaIndexRoute
   IntegrationsAzureKeyVaultOauth2CallbackIndexRoute: typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -252,6 +273,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthRegisterIndexRoute: AuthRegisterIndexRoute,
+  AuthVerificationIndexRoute: AuthVerificationIndexRoute,
   AuthRegisterMahasiswaIndexRoute: AuthRegisterMahasiswaIndexRoute,
   AuthRegisterOrangTuaIndexRoute: AuthRegisterOrangTuaIndexRoute,
   IntegrationsAzureKeyVaultOauth2CallbackIndexRoute:
@@ -272,6 +294,7 @@ export const routeTree = rootRoute
         "/_app",
         "/auth/login/",
         "/auth/register/",
+        "/auth/verification/",
         "/auth/register/mahasiswa/",
         "/auth/register/orang-tua/",
         "/integrations/azure-key-vault/oauth2/callback/"
@@ -300,6 +323,9 @@ export const routeTree = rootRoute
     },
     "/auth/register/": {
       "filePath": "auth/register/index.tsx"
+    },
+    "/auth/verification/": {
+      "filePath": "auth/verification/index.tsx"
     },
     "/auth/register/mahasiswa/": {
       "filePath": "auth/register/mahasiswa/index.tsx"

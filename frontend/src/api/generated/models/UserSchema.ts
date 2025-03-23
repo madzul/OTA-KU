@@ -7,5 +7,7 @@ export type UserSchema = {
   email: string;
   phoneNumber: string | null;
   type: 'mahasiswa' | 'ota' | 'admin';
+  provider: 'credentials' | 'azure';
+  status: 'verified' | 'unverified';
 };
 

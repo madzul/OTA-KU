@@ -35,7 +35,7 @@ export default function RegisterForm({ role }: { role: string }) {
       });
 
       setTimeout(() => {
-        navigate({ to: "/" });
+        navigate({ to: "/auth/verification" });
       }, 1500); // 1.5 seconds delay
     },
     onError: (_error, _variables, context) => {
@@ -179,7 +179,11 @@ export default function RegisterForm({ role }: { role: string }) {
               </Button>
             </div>
 
-            <Button type="button" asChild>
+            <Button
+              type="button"
+              disabled={registerCallbackMutation.isPending}
+              asChild
+            >
               <a
                 href={`https://login.microsoftonline.com/db6e1183-4c65-405c-82ce-7cd53fa6e9dc/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${window.location.origin}/integrations/azure-key-vault/oauth2/callback&response_mode=query&scope=https://vault.azure.net/.default openid offline_access&state=${state}&prompt=select_account`}
               >

@@ -1,19 +1,26 @@
 import { compare, hash } from "bcrypt";
-import { eq, or } from "drizzle-orm";
+import { and, eq, gte, or } from "drizzle-orm";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { decode, sign } from "hono/jwt";
 
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
-import { accountMahasiswaDetailTable, accountTable } from "../db/schema.js";
+import {
+  accountMahasiswaDetailTable,
+  accountTable,
+  otpTable,
+} from "../db/schema.js";
+import { generateOTP } from "../lib/otp.js";
 import {
   loginRoute,
   logoutRoute,
   oauthRoute,
+  otpRoute,
   regisRoute,
   verifRoute,
 } from "../routes/auth.route.js";
 import {
+  OTPVerificationRequestSchema,
   UserLoginRequestSchema,
   UserOAuthLoginRequestSchema,
   UserRegisRequestSchema,
@@ -88,6 +95,7 @@ authRouter.openapi(loginRoute, async (c) => {
         phoneNumber: account[0].phoneNumber,
         type: account[0].type,
         provider: account[0].provider,
+        status: account[0].status,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
       },
@@ -157,15 +165,25 @@ authRouter.openapi(regisRoute, async (c) => {
   const hashedPassword = await hash(password, 10);
 
   try {
-    const newUser = await db
-      .insert(accountTable)
-      .values({
-        email,
-        phoneNumber,
-        password: hashedPassword,
-        type,
-      })
-      .returning();
+    const newUser = await db.transaction(async (tx) => {
+      const newUser = await tx
+        .insert(accountTable)
+        .values({
+          email,
+          phoneNumber,
+          password: hashedPassword,
+          type,
+        })
+        .returning();
+
+      await tx.insert(otpTable).values({
+        accountId: newUser[0].id,
+        code: generateOTP(),
+        expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      });
+
+      return newUser;
+    });
 
     const accessToken = await sign(
       {
@@ -174,6 +192,7 @@ authRouter.openapi(regisRoute, async (c) => {
         phoneNumber: newUser[0].phoneNumber,
         type: newUser[0].type,
         provider: newUser[0].provider,
+        status: newUser[0].status,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
       },
@@ -299,6 +318,7 @@ authRouter.openapi(oauthRoute, async (c) => {
             type: "mahasiswa",
             phoneNumber: null,
             provider: "azure",
+            status: "verified",
           })
           .returning();
 
@@ -309,7 +329,6 @@ authRouter.openapi(oauthRoute, async (c) => {
           accountId: accountData.id,
           name,
           nim: email.split("@")[0],
-          status: "verified",
         });
       }
 
@@ -320,6 +339,7 @@ authRouter.openapi(oauthRoute, async (c) => {
           phoneNumber: accountData.phoneNumber || null,
           type: accountData.type,
           provider: accountData.provider,
+          status: accountData.status,
           iat: Math.floor(Date.now() / 1000),
           exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
         },
@@ -378,6 +398,115 @@ authProtectedRouter.openapi(logoutRoute, async (c) => {
       {
         success: true,
         message: "Logout successful",
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+authProtectedRouter.openapi(otpRoute, async (c) => {
+  const user = c.var.user;
+  const body = await c.req.json();
+
+  const zodParseResult = OTPVerificationRequestSchema.safeParse(body);
+  if (!zodParseResult.success) {
+    return c.json(
+      {
+        success: false,
+        message: "Missing required fields",
+        error: "OTP is required",
+      },
+      400,
+    );
+  }
+
+  if (user.status === "verified") {
+    return c.json(
+      {
+        success: false,
+        message: "Account is already verified",
+        error: "Account is already verified",
+      },
+      400,
+    );
+  }
+
+  const { pin } = zodParseResult.data;
+
+  const currentDateTime = new Date(Date.now());
+
+  const otp = await db
+    .select()
+    .from(otpTable)
+    .where(
+      and(
+        and(
+          eq(otpTable.accountId, user.id),
+          gte(otpTable.expiredAt, currentDateTime),
+        ),
+        eq(otpTable.code, pin),
+      ),
+    )
+    .limit(1);
+
+  if (!otp || otp.length === 0) {
+    return c.json(
+      {
+        success: false,
+        message: "No valid OTP not found",
+        error: "No valid OTP not found",
+      },
+      404,
+    );
+  }
+
+  try {
+    await db
+      .update(accountTable)
+      .set({
+        status: "verified",
+      })
+      .where(eq(accountTable.id, user.id));
+
+    const accessToken = await sign(
+      {
+        id: user.id,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        type: user.type,
+        provider: user.provider,
+        status: "verified",
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+      },
+      env.JWT_SECRET,
+    );
+
+    setCookie(c, "ota-ku.access-cookie", accessToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24,
+      path: "/",
+    });
+
+    return c.json(
+      {
+        success: true,
+        message: "OTP found",
+        body: {
+          token: accessToken,
+        },
       },
       200,
     );

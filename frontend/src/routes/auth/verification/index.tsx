@@ -1,0 +1,165 @@
+import { api } from "@/api/client";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { OTPVerificationRequestSchema } from "@/lib/zod/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+export const Route = createFileRoute("/auth/verification/")({
+  component: RouteComponent,
+  beforeLoad: async () => {
+    const user = await api.auth.verif().catch(() => null);
+    if (!user?.success) {
+      throw redirect({ to: "/" });
+    }
+
+    if (user.body.status === "verified") {
+      throw redirect({ to: "/profile" });
+    }
+  },
+});
+
+type OTPVerificationFormValues = z.infer<typeof OTPVerificationRequestSchema>;
+
+function RouteComponent() {
+  const navigate = useNavigate();
+  const otpCallbackMutation = useMutation({
+    mutationFn: (data: OTPVerificationFormValues) =>
+      api.auth.otp({ requestBody: data }),
+    onSuccess: (_data, _variables, context) => {
+      toast.dismiss(context);
+      toast.success("Berhasil melakukan verifikasi", {
+        description: "Selamat datang kembali!",
+      });
+
+      setTimeout(() => {
+        navigate({ to: "/profile" });
+      }, 1500); // 1.5 seconds delay
+    },
+    onError: (_error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal melakukan verifikasi", {
+        description: "Silakan coba lagi",
+      });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang melakukan verifikasi...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
+    },
+  });
+
+  const form = useForm<OTPVerificationFormValues>({
+    resolver: zodResolver(OTPVerificationRequestSchema),
+  });
+
+  function onSubmit(data: OTPVerificationFormValues) {
+    otpCallbackMutation.mutate(data);
+  }
+
+  // const handleResend = () => {
+  //   console.log("Resending OTP...")
+  //   console.log("OTP resent!")
+  // }
+
+  const handleChangeNumber = () => {
+    console.log("Changing number...");
+  };
+
+  return (
+    <main className="text-primary flex min-h-screen flex-col items-center justify-center p-8">
+      <div className="w-full md:w-3/5 lg:w-1/2 xl:w-1/3">
+        <div className="text-center">
+          <div className="mb-4 flex justify-center">
+            <img src="/logo-iom-icon.svg" alt="IOM-ITB Logo" className="h-16" />
+          </div>
+          <h1 className="text-3xl font-bold md:text-4xl xl:text-5xl">
+            Verifikasi Kode OTP
+          </h1>
+          <p className="my-6 text-xl md:text-2xl xl:text-3xl">
+            Cek WhatsApp Anda
+          </p>
+        </div>
+
+        <div className="text-center text-sm md:text-base xl:text-lg">
+          <div className="mb-6">
+            <p className="">
+              Kami telah mengirimkan kode 6 digit ke nomor WhatsApp Anda:
+            </p>
+            <p className="mt-1 font-medium">+62 8999-9999-999</p>
+            <p className="mt-1">
+              Silahkan masukkan kode tersebut untuk melanjutkan
+            </p>
+          </div>
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="pin"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col items-center">
+                    <FormControl>
+                      <InputOTP maxLength={6} {...field}>
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </FormControl>
+                    <FormMessage className="text-destructive mt-2 text-sm" />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="w-4/5"
+                disabled={otpCallbackMutation.isPending}
+              >
+                Lanjutkan
+              </Button>
+            </form>
+          </Form>
+        </div>
+
+        <div className="flex flex-col pt-0 text-sm xl:text-base">
+          <div className="mt-4 flex justify-center">
+            <span>Belum menerima kode? </span>
+            <button onClick={handleChangeNumber} className="ml-1 underline">
+              Kirim ulang
+            </button>
+          </div>
+
+          <div className="mt-2 flex justify-center">
+            <span>Nomor salah? </span>
+            <button onClick={handleChangeNumber} className="ml-1 underline">
+              Ubah nomor
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
