@@ -101,13 +101,13 @@ export default function SecondRegister() {
               Keterkaitan dengan ITB
             </label>
             {/* BELUM ADA DROPDOWN YANG SESUAI */}
-            <Input />
+            <Input  />
           </div>
 
           <Button type="submit" className="w-full">
             Selanjutnya
           </Button>
-          <Button type="submit" className="w-full" variant={"secondary"}>
+          <Button type="button" className="w-full" variant={"secondary"}>
             Kembali
           </Button>
         </form>
