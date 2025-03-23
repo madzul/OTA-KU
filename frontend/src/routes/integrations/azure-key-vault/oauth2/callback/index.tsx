@@ -1,4 +1,4 @@
-import { api } from "@/api/client";
+import { api, queryClient } from "@/api/client";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
@@ -27,6 +27,7 @@ function RouteComponent() {
           requestBody: { code },
         })
         .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["verify"] });
           navigate({ to: "/" });
         })
         .catch((error) => {

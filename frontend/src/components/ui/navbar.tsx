@@ -1,5 +1,4 @@
-"use client";
-
+import { api } from "@/api/client";
 import {
   Menubar,
   MenubarContent,
@@ -9,15 +8,28 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { useSidebar } from "@/context/sidebar";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import Sidebar from "../sidebar";
 import { Button } from "./button";
 
 export default function NavBar() {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
+
+  // Only fetch authentication status when component mounts
+  // Enable refetching on window focus and set a stale time
+  const { data, isLoading } = useQuery({
+    queryKey: ["verify"],
+    queryFn: () => api.auth.verif().catch(() => null),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
+  });
+
+  const isLoggedIn = !!data;
 
   // Close sidebar when clicking outside
   useEffect(() => {
@@ -56,7 +68,7 @@ export default function NavBar() {
           <div className="relative flex items-center gap-6">
             <button
               onClick={toggleSidebar}
-              className="flex items-center justify-center focus:outline-none"
+              className="flex items-center justify-center hover:cursor-pointer focus:outline-none"
               aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
               aria-expanded={isSidebarOpen}
             >
@@ -77,21 +89,22 @@ export default function NavBar() {
           </div>
 
           <div className="flex items-center space-x-8">
-            {!isLoggedIn && (
+            {!isLoading && !isLoggedIn && (
               <Link className="w-fit" to="/auth/login">
                 <Button size="lg" variant={"outline"} className="w-[90px]">
                   Masuk
                 </Button>
               </Link>
             )}
-            {!isLoggedIn && (
+            {!isLoading && !isLoggedIn && (
               <Link className="w-fit" to="/auth/register">
                 <Button size="lg" className="w-[90px]">
                   Daftar
                 </Button>
               </Link>
             )}
-            {isLoggedIn && (
+            {/* TODO: Nanti ganti linknya */}
+            {!isLoading && isLoggedIn && (
               <Link className="w-fit" to="/auth/login">
                 <img
                   src="/icon/Type=notification.svg"
@@ -100,8 +113,8 @@ export default function NavBar() {
                 />
               </Link>
             )}
-            {isLoggedIn && (
-              <Menubar className="border-none p-0 shadow-none bg-transparent">
+            {!isLoading && isLoggedIn && (
+              <Menubar className="border-none bg-transparent p-0 shadow-none">
                 <MenubarMenu>
                   <MenubarTrigger className="cursor-pointer border-none bg-transparent p-0 shadow-none outline-none hover:bg-transparent focus:bg-transparent">
                     <img

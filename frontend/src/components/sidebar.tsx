@@ -1,5 +1,3 @@
-"use client";
-
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -58,7 +56,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
           onClick={onClose}
           aria-label="Close sidebar"
         >
-          <X size={24} className="hover:scale-125 transition-all" />
+          <X size={24} className="transition-all hover:scale-125" />
         </button>
 
         {/* Content */}
@@ -139,7 +137,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         {/* User Info */}
-        <div className="hover:scale-105 transition-all  flex items-center gap-5 ">
+        <div className="flex items-center gap-5 transition-all hover:scale-105">
           <img
             src="https://randomuser.me/api/portraits/men/1.jpg"
             alt="user avatar"
