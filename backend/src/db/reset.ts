@@ -53,6 +53,7 @@ async function resetDatabase() {
       phoneNumber: "08123456789",
       password: hashedPassword,
       type: "admin",
+      status: "verified",
     });
 
     // Seed mahasiswa accounts
@@ -63,6 +64,7 @@ async function resetDatabase() {
         phoneNumber: "08123456780",
         password: hashedPassword,
         type: "mahasiswa",
+        status: "verified",
       },
       {
         id: mahasiswa2Id,
@@ -79,14 +81,12 @@ async function resetDatabase() {
         accountId: mahasiswa1Id,
         name: "Mahasiswa One",
         nim: "12345678",
-        status: "verified",
         mahasiswaStatus: "active",
       },
       {
         accountId: mahasiswa2Id,
         name: "Mahasiswa Two",
         nim: "87654321",
-        status: "unverified",
         mahasiswaStatus: "inactive",
       },
     ]);
@@ -99,6 +99,7 @@ async function resetDatabase() {
         phoneNumber: "08987654321",
         password: hashedPassword,
         type: "ota",
+        status: "verified",
       },
       {
         id: ota2Id,
@@ -123,7 +124,6 @@ async function resetDatabase() {
         maxSemester: 8,
         transferDate: 10, // 10th day of month
         criteria: "GPA minimum 3.5, active in organizations",
-        status: "verified",
       },
       {
         accountId: ota2Id,
@@ -137,7 +137,6 @@ async function resetDatabase() {
         maxSemester: 6,
         transferDate: 15, // 15th day of month
         criteria: "From underprivileged family, GPA minimum 3.0",
-        status: "unverified",
       },
     ]);
 
