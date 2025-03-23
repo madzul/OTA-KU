@@ -189,6 +189,7 @@ export const JWTPayloadSchema = z
     provider: z
       .enum(["credentials", "azure"])
       .openapi({ example: "credentials" }),
+    status: z.enum(["verified", "unverified"]).openapi({ example: "verified" }),
     iat: z.number().openapi({ example: 1630000000 }),
     exp: z.number().openapi({ example: 1630000000 }),
   })

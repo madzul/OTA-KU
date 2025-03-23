@@ -88,6 +88,7 @@ authRouter.openapi(loginRoute, async (c) => {
         phoneNumber: account[0].phoneNumber,
         type: account[0].type,
         provider: account[0].provider,
+        status: account[0].status,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
       },
@@ -174,6 +175,7 @@ authRouter.openapi(regisRoute, async (c) => {
         phoneNumber: newUser[0].phoneNumber,
         type: newUser[0].type,
         provider: newUser[0].provider,
+        status: newUser[0].status,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
       },
@@ -299,6 +301,7 @@ authRouter.openapi(oauthRoute, async (c) => {
             type: "mahasiswa",
             phoneNumber: null,
             provider: "azure",
+            status: "verified",
           })
           .returning();
 
@@ -309,7 +312,6 @@ authRouter.openapi(oauthRoute, async (c) => {
           accountId: accountData.id,
           name,
           nim: email.split("@")[0],
-          status: "verified",
         });
       }
 
@@ -320,6 +322,7 @@ authRouter.openapi(oauthRoute, async (c) => {
           phoneNumber: accountData.phoneNumber || null,
           type: accountData.type,
           provider: accountData.provider,
+          status: accountData.status,
           iat: Math.floor(Date.now() / 1000),
           exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
         },
