@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -11,6 +11,7 @@ interface SidebarProps {
 function Sidebar({ isOpen, onClose }: SidebarProps) {
   const name = "Yusuf Ardian Sandi";
   const email = "13522015@std.stei.itb.ac.id";
+  const [activeItem, setActiveItem] = useState<string>("dashboard");
 
   // Use useEffect to handle ESC key press to close sidebar
   useEffect(() => {
@@ -29,18 +30,21 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
     };
   }, [isOpen, onClose]);
 
+  // Function to handle menu item click
+  const handleItemClick = (itemId: string) => {
+    setActiveItem(itemId);
+  };
+
   return (
     <>
       {/* Overlay - with fade animation */}
-      {isOpen && (
-        <div
-          className={`fixed inset-0 z-30 bg-black/20 backdrop-blur-xs transition-all duration-300 lg:hidden ${
-            isOpen ? "opacity-100" : "pointer-events-none opacity-0"
-          }`}
-          style={{ top: "70px" }} // Position below navbar on mobile
-          onClick={onClose}
-        />
-      )}
+      <div
+        className={`fixed inset-0 z-30 bg-black/20 backdrop-blur-xs transition-all duration-300 lg:hidden ${
+          isOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        style={{ top: "70px" }} // Position below navbar on mobile
+        onClick={onClose}
+      />
 
       {/* Sidebar - with slide animation */}
       <div
@@ -50,11 +54,11 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
         data-sidebar="true"
       >
         <button
-          className="text-dark absolute top-4 right-4"
+          className="text-dark absolute top-4 right-4 cursor-pointer"
           onClick={onClose}
           aria-label="Close sidebar"
         >
-          <X size={24} />
+          <X size={24} className="hover:scale-125 transition-all" />
         </button>
 
         {/* Content */}
@@ -62,7 +66,13 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
           <h4 className="text-dark text-sm font-medium">UTAMA</h4>
           <div className="flex flex-col gap-3">
             {/* Dashbor */}
-            <div className="flex cursor-pointer gap-3 hover:opacity-80">
+            <div
+              className={`flex cursor-pointer gap-3 transition-all duration-200 ease-linear hover:scale-105 focus:rounded-md focus:p-2 ${
+                activeItem === "dashboard" ? "bg-dark/10 rounded-md p-2" : ""
+              }`}
+              onClick={() => handleItemClick("dashboard")}
+              tabIndex={0}
+            >
               <img
                 src="/icon/Type=dashboard.svg"
                 alt="icon dashboard"
@@ -71,7 +81,13 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
               <span className="text-dark text-sm font-medium">Dasbor</span>
             </div>
             {/* Daftar Mahasiswa */}
-            <div className="flex cursor-pointer gap-3 hover:opacity-80">
+            <div
+              className={`flex cursor-pointer gap-3 transition-all duration-200 ease-linear hover:scale-105 focus:rounded-md focus:p-2 ${
+                activeItem === "student-list" ? "bg-dark/10 rounded-md p-2" : ""
+              }`}
+              onClick={() => handleItemClick("student-list")}
+              tabIndex={0}
+            >
               <img
                 src="/icon/Type=student-list.svg"
                 alt="icon dashboard"
@@ -82,7 +98,13 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
               </span>
             </div>
             {/* Mahasiswa Asuh Saya */}
-            <div className="flex cursor-pointer gap-3 hover:opacity-80">
+            <div
+              className={`flex cursor-pointer gap-3 transition-all duration-200 ease-linear hover:scale-105 focus:rounded-md focus:p-2 ${
+                activeItem === "my-students" ? "bg-dark/10 rounded-md p-2" : ""
+              }`}
+              onClick={() => handleItemClick("my-students")}
+              tabIndex={0}
+            >
               <img
                 src="/icon/Type=student.svg"
                 alt="icon dashboard"
@@ -93,7 +115,15 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
               </span>
             </div>
             {/* Terminasi */}
-            <div className="flex cursor-pointer gap-3 hover:opacity-80">
+            <div
+              className={`flex cursor-pointer gap-3 transition-all duration-200 ease-linear hover:scale-105 focus:rounded-md focus:p-2 ${
+                activeItem === "termination"
+                  ? "bg-destructive/10 rounded-md p-2"
+                  : ""
+              }`}
+              onClick={() => handleItemClick("termination")}
+              tabIndex={0}
+            >
               <img
                 src="/icon/Type=remove-student.svg"
                 alt="icon dashboard"
@@ -109,7 +139,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         {/* User Info */}
-        <div className="flex items-center gap-5">
+        <div className="hover:scale-105 transition-all  flex items-center gap-5 ">
           <img
             src="https://randomuser.me/api/portraits/men/1.jpg"
             alt="user avatar"

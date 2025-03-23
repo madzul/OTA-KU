@@ -33,7 +33,7 @@ function TestComponent() {
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {/* Buttons Section */}
-        <div className="rounded-lg border p-6">
+        <div className="-lg border  p-6">
           <h2 className="mb-2 text-xl font-semibold">Buttons</h2>
           <p className="text-muted-foreground mb-4 text-sm">
             Various button styles and variants
@@ -91,7 +91,7 @@ function TestComponent() {
         </div>
 
         {/* Form Inputs Section */}
-        <div className="rounded-lg border p-6">
+        <div className="rounded-lg border  p-6">
           <h2 className="mb-2 text-xl font-semibold">Form Inputs</h2>
           <p className="text-muted-foreground mb-4 text-sm">
             Text inputs and form controls
@@ -139,7 +139,7 @@ function TestComponent() {
         </div>
 
         {/* Date & Time Section */}
-        <div className="rounded-lg border p-6">
+        <div className="rounded-lg border  p-6">
           <h2 className="mb-2 text-xl font-semibold">Date & Time</h2>
           <p className="text-muted-foreground mb-4 text-sm">
             Date pickers and calendars
@@ -177,7 +177,7 @@ function TestComponent() {
         </div>
 
         {/* Verification Section */}
-        <div className="rounded-lg border p-6">
+        <div className="rounded-lg border  p-6">
           <h2 className="mb-2 text-xl font-semibold">Verification</h2>
           <p className="text-muted-foreground mb-4 text-sm">
             OTP and verification inputs

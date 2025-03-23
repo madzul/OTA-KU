@@ -49,7 +49,7 @@ export default function NavBar() {
   return (
     <>
       <nav
-        className="font-anderson bg-background sticky top-0 right-0 left-0 z-[60] flex w-full flex-col shadow-md"
+        className="font-anderson sticky top-0 right-0 left-0 z-[60] flex w-full flex-col bg-white shadow-md"
         id="navbar"
       >
         <div className="flex h-[70px] flex-row items-center justify-between px-7 lg:h-24 xl:px-14">
@@ -101,13 +101,13 @@ export default function NavBar() {
               </Link>
             )}
             {isLoggedIn && (
-              <Menubar className="border-none p-0 shadow-none">
+              <Menubar className="border-none p-0 shadow-none bg-transparent">
                 <MenubarMenu>
                   <MenubarTrigger className="cursor-pointer border-none bg-transparent p-0 shadow-none outline-none hover:bg-transparent focus:bg-transparent">
                     <img
                       src="/icon/Type=profile-icon.svg"
                       alt="Profile"
-                      className="h-6 w-6 hover:scale-125 transform transition-transform duration-200 ease-in-out"
+                      className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
                     />
                   </MenubarTrigger>
                   <MenubarContent

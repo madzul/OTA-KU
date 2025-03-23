@@ -36,7 +36,7 @@ const RootComponent = () => {
 
   return (
     <>
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient} >
         <NavBar />
         <motion.div
           className="px-11 py-8"
