@@ -80,6 +80,42 @@ export class AuthService {
     });
   }
   /**
+   * Authenticates a user using Azure OAuth2.
+   * @returns any Successful login.
+   * @throws ApiError
+   */
+  public oauth({
+    requestBody,
+  }: {
+    requestBody?: {
+      /**
+       * OAuth code for authentication.
+       */
+      code: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * JWT token for authentication.
+       */
+      token: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/auth/oauth',
+      body: requestBody,
+      mediaType: 'application/json',
+      errors: {
+        400: `Bad request - missing fields.`,
+        401: `Invalid credentials.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
    * Verifies if the user is authenticated by checking the JWT.
    * @returns any Success
    * @throws ApiError

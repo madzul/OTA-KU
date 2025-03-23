@@ -1,12 +1,19 @@
+import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 
 import RegisterForm from "./-components/register-form";
 
 export const Route = createFileRoute("/auth/register/")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const user = await api.auth.verif().catch(() => null);
+    if (user?.success) {
+      throw redirect({ to: "/" });
+    }
+  },
 });
 
 // TODO: Nanti sesuaiin page register jadi yang terbaru sesuai figma
