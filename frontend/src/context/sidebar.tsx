@@ -1,5 +1,5 @@
 // src/contexts/SidebarContext.tsx
-import React, { ReactNode, createContext, useContext, useState } from "react";
+import { ReactNode, createContext, useContext, useState } from "react";
 
 interface SidebarContextType {
   isSidebarOpen: boolean;
