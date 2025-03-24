@@ -39,7 +39,7 @@ const RootComponent = () => {
       <QueryClientProvider client={queryClient} >
         <NavBar />
         <motion.div
-          className="px-11 py-8"
+          className="px-4 lg:px-11 lg:py-8"
           animate={{
             marginLeft: isLargeScreen && isSidebarOpen ? "255px" : "0px",
           }}
