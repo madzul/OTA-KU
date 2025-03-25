@@ -12,9 +12,9 @@ export class ProfileService {
    * @throws ApiError
    */
   public pendaftaranMahasiswa({
-    requestBody,
+    formData,
   }: {
-    requestBody?: {
+    formData?: {
       /**
        * Nama mahasiswa
        */
@@ -57,8 +57,8 @@ export class ProfileService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/profile/mahasiswa',
-      body: requestBody,
-      mediaType: 'application/json',
+      formData: formData,
+      mediaType: 'multipart/form-data',
       errors: {
         400: `Gagal mendaftar.`,
         401: `Bad request: authorization (not logged in) error`,
@@ -72,9 +72,9 @@ export class ProfileService {
    * @throws ApiError
    */
   public pendaftaranOrangTua({
-    requestBody,
+    formData,
   }: {
-    requestBody?: {
+    formData?: {
       /**
        * Nama orang tua
        */
@@ -159,8 +159,8 @@ export class ProfileService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/profile/orang-tua',
-      body: requestBody,
-      mediaType: 'application/json',
+      formData: formData,
+      mediaType: 'multipart/form-data',
       errors: {
         400: `Gagal mendaftar.`,
         401: `Bad request: authorization (not logged in) error`,

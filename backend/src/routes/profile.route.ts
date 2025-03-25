@@ -20,7 +20,7 @@ export const pendaftaranMahasiswaRoute = createRoute({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: MahasiswaRegistrationFormSchema,
         },
       },
@@ -58,7 +58,7 @@ export const pendaftaranOrangTuaRoute = createRoute({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: OrangTuaRegistrationSchema,
         },
       },
