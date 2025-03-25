@@ -55,6 +55,8 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
     }),
   name: varchar({ length: 255 }).notNull(),
   nim: varchar({ length: 8 }).unique().notNull(),
+  description: text("description").notNull(),
+  file: text("file").notNull(),
   mahasiswaStatus: mahasiswaStatusEnum("mahasiswa_status")
     .notNull()
     .default("inactive"),
