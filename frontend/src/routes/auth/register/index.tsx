@@ -16,7 +16,6 @@ export const Route = createFileRoute("/auth/register/")({
   },
 });
 
-// TODO: Nanti sesuaiin page register jadi yang terbaru sesuai figma
 function RouteComponent() {
   const [role, setRole] = useState<string>("");
   const [isClicked, setIsClicked] = useState<boolean>(false);

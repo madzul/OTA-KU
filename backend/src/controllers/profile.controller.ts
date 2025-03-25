@@ -63,7 +63,7 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
       {
         success: true,
         message: "Berhasil mendaftar.",
-        data: {
+        body: {
           name,
           nim,
           description,
@@ -134,7 +134,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
       {
         success: true,
         message: "Berhasil mendaftar.",
-        data: {
+        body: {
           name,
           address,
           criteria,

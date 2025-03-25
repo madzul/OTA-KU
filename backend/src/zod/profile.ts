@@ -1,31 +1,8 @@
 import { z } from "@hono/zod-openapi";
 
-const allowedPdfTypes = ["application/pdf"];
-const maxPdfSize = 5242880; // 5 MB
+import { NIMSchema, PDFSchema } from "./atomic.js";
 
-export const pdfSchema = z
-  .instanceof(File, { message: "File harus berupa PDF" })
-  .refine((file) => {
-    return file.size <= maxPdfSize;
-  }, "PDF file size should be less than 5 MB")
-  .refine((file) => {
-    return allowedPdfTypes.includes(file.type);
-  }, "Only PDF files are allowed")
-  .openapi({ description: "PDF file", format: "binary" });
-
-export const NIMSchema = z
-  .string({
-    invalid_type_error: "NIM harus berupa string",
-    required_error: "NIM harus diisi",
-  })
-  .length(8, {
-    message: "NIM harus 8 karakter",
-  })
-  .regex(/\d{8}$/, {
-    message: "Format NIM tidak valid",
-  })
-  .openapi({ example: "13522005", description: "Nomor Induk Mahasiswa" });
-
+// Mahasiswa Registration
 export const MahasiwaRegistrationSchema = z.object({
   name: z
     .string({
@@ -89,7 +66,7 @@ export const MahasiswaRegistrationFormSchema = z.object({
       message: "Deskripsi terlalu pendek",
     })
     .openapi({ example: "Mahasiswa baru", description: "Deskripsi mahasiswa" }),
-  file: pdfSchema.openapi({
+  file: PDFSchema.openapi({
     description: "Foto mahasiswa",
   }),
 });
@@ -97,7 +74,7 @@ export const MahasiswaRegistrationFormSchema = z.object({
 export const MahasiswaRegistrationSuccessfulResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mendaftar" }),
-  data: MahasiwaRegistrationSchema,
+  body: MahasiwaRegistrationSchema,
 });
 
 export const MahasiswaRegistrationFailedResponse = z.object({
@@ -106,12 +83,7 @@ export const MahasiswaRegistrationFailedResponse = z.object({
   error: z.object({}),
 });
 
-export const InternalServerErrorResponse = z.object({
-  success: z.boolean().openapi({ example: false }),
-  message: z.string().openapi({ example: "Internal server error" }),
-  error: z.object({}),
-});
-
+// Orang Tua Registration
 export const OrangTuaRegistrationSchema = z.object({
   name: z
     .string({
@@ -217,7 +189,7 @@ export const OrangTuaRegistrationSchema = z.object({
 export const OrangTuaRegistrationSuccessfulResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mendaftar" }),
-  data: OrangTuaRegistrationSchema,
+  body: OrangTuaRegistrationSchema,
 });
 
 export const OrangTuaRegistrationFailedResponse = z.object({

@@ -443,7 +443,7 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
         message: "Account is already verified",
         error: "Account is already verified",
       },
-      400,
+      401,
     );
   }
 

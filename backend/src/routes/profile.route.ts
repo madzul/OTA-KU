@@ -2,7 +2,6 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
-  InternalServerErrorResponse,
   MahasiswaRegistrationFailedResponse,
   MahasiswaRegistrationFormSchema,
   MahasiswaRegistrationSuccessfulResponse,
@@ -10,6 +9,7 @@ import {
   OrangTuaRegistrationSchema,
   OrangTuaRegistrationSuccessfulResponse,
 } from "../zod/profile.js";
+import { InternalServerErrorResponse } from "../zod/response.js";
 
 export const pendaftaranMahasiswaRoute = createRoute({
   operationId: "pendaftaranMahasiswa",
