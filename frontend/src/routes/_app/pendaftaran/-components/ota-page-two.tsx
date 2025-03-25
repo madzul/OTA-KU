@@ -14,7 +14,7 @@ import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import * as React from "react";
 
-export default function ThirdRegister() {
+export default function OTAPageTwo() {
   const [valueAnakAsuh, setValueAnakAsuh] = useState("");
   const [valueSemester, setValueSemester] = useState("");
   const [date, setDate] = React.useState<Date>();

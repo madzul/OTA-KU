@@ -26,9 +26,10 @@ export default function SessionProvider({
     return <Navigate to="/auth/verification" />;
   }
 
-  if (!data.body.phoneNumber) {
-    return <Navigate to="/profile" />;
-  }
+  // TODO: Should not be needed anymore, but just in case I just comment it out
+  // if (!data.body.phoneNumber) {
+  //   return <Navigate to="/profile" />;
+  // }
 
   return (
     <SessionContext.Provider value={data.body}>

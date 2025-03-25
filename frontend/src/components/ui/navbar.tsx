@@ -8,6 +8,7 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { useSidebar } from "@/context/sidebar";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
@@ -68,7 +69,10 @@ export default function NavBar() {
           <div className="relative flex items-center gap-6">
             <button
               onClick={toggleSidebar}
-              className="flex items-center justify-center hover:cursor-pointer focus:outline-none"
+              className={cn(
+                "flex items-center justify-center hover:cursor-pointer focus:outline-none",
+                !isLoggedIn && "hidden",
+              )}
               aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
               aria-expanded={isSidebarOpen}
             >

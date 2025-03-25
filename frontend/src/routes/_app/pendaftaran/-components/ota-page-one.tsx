@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 
-export default function SecondRegister() {
+export default function OTAPageOne() {
   const [isExpanded, setIsExpanded] = useState(true);
 
   const toggleExpand = () => {
@@ -101,7 +101,7 @@ export default function SecondRegister() {
               Keterkaitan dengan ITB
             </label>
             {/* BELUM ADA DROPDOWN YANG SESUAI */}
-            <Input  />
+            <Input />
           </div>
 
           <Button type="submit" className="w-full">

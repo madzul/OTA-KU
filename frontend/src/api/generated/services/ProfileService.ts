@@ -20,6 +20,10 @@ export class ProfileService {
        */
       name: string;
       /**
+       * The user phone number.
+       */
+      phoneNumber: string;
+      /**
        * Nomor Induk Mahasiswa
        */
       nim: string;
@@ -35,7 +39,7 @@ export class ProfileService {
   }): CancelablePromise<{
     success: boolean;
     message: string;
-    data: {
+    body: {
       /**
        * Nama mahasiswa
        */
@@ -116,7 +120,7 @@ export class ProfileService {
   }): CancelablePromise<{
     success: boolean;
     message: string;
-    data: {
+    body: {
       /**
        * Nama orang tua
        */

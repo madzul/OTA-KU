@@ -110,7 +110,6 @@ export class AuthService {
       mediaType: 'multipart/form-data',
       errors: {
         400: `Bad request - missing fields.`,
-        401: `Invalid credentials.`,
         500: `Internal server error`,
       },
     });
@@ -180,6 +179,7 @@ export class AuthService {
       mediaType: 'multipart/form-data',
       errors: {
         400: `Invalid OTP.`,
+        401: `Account is already verified.`,
         404: `Invalid OTP.`,
         500: `Internal server error`,
       },

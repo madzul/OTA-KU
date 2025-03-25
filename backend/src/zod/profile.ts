@@ -1,6 +1,6 @@
 import { z } from "@hono/zod-openapi";
 
-import { NIMSchema, PDFSchema } from "./atomic.js";
+import { NIMSchema, PDFSchema, PhoneNumberSchema } from "./atomic.js";
 
 // Mahasiswa Registration
 export const MahasiwaRegistrationSchema = z.object({
@@ -56,6 +56,7 @@ export const MahasiswaRegistrationFormSchema = z.object({
       message: "Nama terlalu panjang",
     })
     .openapi({ example: "John Doe", description: "Nama mahasiswa" }),
+  phoneNumber: PhoneNumberSchema,
   nim: NIMSchema,
   description: z
     .string({

@@ -1,9 +1,11 @@
+import { eq } from "drizzle-orm";
 import { v4 as uuid } from "uuid";
 
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
+  accountTable,
 } from "../db/schema.js";
 import cloudinary from "../lib/cloudinary.js";
 import {
@@ -36,10 +38,11 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
     );
   }
 
-  const { name, nim, description, file } = zodParseResult.data;
+  const { name, nim, description, file, phoneNumber } = zodParseResult.data;
 
   try {
     const fileUuid = uuid();
+    const uuidFile = `${fileUuid}.pdf`;
 
     const fileBuffer = await file.arrayBuffer();
     const fileBase64 = Buffer.from(fileBuffer).toString("base64");
@@ -47,16 +50,34 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
 
     const result = await cloudinary.uploader.upload(base64DataUri, {
       folder: "profile",
-      public_id: fileUuid,
+      public_id: uuidFile,
       resource_type: "raw",
     });
 
-    await db.insert(accountMahasiswaDetailTable).values({
-      accountId: user.id,
-      name,
-      nim,
-      description,
-      file: result.secure_url,
+    await db.transaction(async (tx) => {
+      await tx
+        .update(accountTable)
+        .set({ phoneNumber })
+        .where(eq(accountTable.id, user.id));
+
+      await tx
+        .insert(accountMahasiswaDetailTable)
+        .values({
+          accountId: user.id,
+          name,
+          nim,
+          description,
+          file: result.secure_url,
+        })
+        .onConflictDoUpdate({
+          target: [accountMahasiswaDetailTable.accountId],
+          set: {
+            name,
+            nim,
+            description,
+            file: result.secure_url,
+          },
+        });
     });
 
     return c.json(
