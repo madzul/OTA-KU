@@ -1,0 +1,7 @@
+import { z } from "@hono/zod-openapi";
+
+export const InternalServerErrorResponse = z.object({
+  success: z.boolean().openapi({ example: false }),
+  message: z.string().openapi({ example: "Internal server error" }),
+  error: z.object({}),
+});

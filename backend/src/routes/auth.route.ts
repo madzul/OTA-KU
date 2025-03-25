@@ -3,9 +3,11 @@ import { createRoute } from "@hono/zod-openapi";
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
   BadRequestLoginResponse,
+  BadRequestOAuthLoginResponse,
+  BadRequestOTPVerificationResponse,
   BadRequestRegisResponse,
-  InternalServerErrorResponse,
   InvalidLoginResponse,
+  InvalidRegisResponse,
   LogoutSuccessfulResponse,
   OTPVerificationRequestSchema,
   SuccessfulLoginResponse,
@@ -16,6 +18,7 @@ import {
   UserOAuthLoginRequestSchema,
   UserRegisRequestSchema,
 } from "../zod/auth.js";
+import { InternalServerErrorResponse } from "../zod/response.js";
 
 export const loginRoute = createRoute({
   operationId: "login",
@@ -26,7 +29,7 @@ export const loginRoute = createRoute({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: UserLoginRequestSchema,
         },
       },
@@ -69,7 +72,7 @@ export const regisRoute = createRoute({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: UserRegisRequestSchema,
         },
       },
@@ -91,7 +94,7 @@ export const regisRoute = createRoute({
     401: {
       description: "Invalid credentials.",
       content: {
-        "application/json": { schema: InvalidLoginResponse },
+        "application/json": { schema: InvalidRegisResponse },
       },
     },
     500: {
@@ -158,7 +161,7 @@ export const oauthRoute = createRoute({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: UserOAuthLoginRequestSchema,
         },
       },
@@ -174,13 +177,7 @@ export const oauthRoute = createRoute({
     400: {
       description: "Bad request - missing fields.",
       content: {
-        "application/json": { schema: BadRequestLoginResponse },
-      },
-    },
-    401: {
-      description: "Invalid credentials.",
-      content: {
-        "application/json": { schema: InvalidLoginResponse },
+        "application/json": { schema: BadRequestOAuthLoginResponse },
       },
     },
     500: {
@@ -201,7 +198,7 @@ export const otpRoute = createRoute({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: OTPVerificationRequestSchema,
         },
       },
@@ -217,13 +214,19 @@ export const otpRoute = createRoute({
     400: {
       description: "Invalid OTP.",
       content: {
-        "application/json": { schema: BadRequestLoginResponse },
+        "application/json": { schema: BadRequestOTPVerificationResponse },
+      },
+    },
+    401: {
+      description: "Account is already verified.",
+      content: {
+        "application/json": { schema: BadRequestOTPVerificationResponse },
       },
     },
     404: {
       description: "Invalid OTP.",
       content: {
-        "application/json": { schema: BadRequestLoginResponse },
+        "application/json": { schema: BadRequestOTPVerificationResponse },
       },
     },
     500: {

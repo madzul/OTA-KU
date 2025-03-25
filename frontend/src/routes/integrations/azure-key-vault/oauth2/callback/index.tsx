@@ -24,7 +24,7 @@ function RouteComponent() {
       localStorage.removeItem("state");
       api.auth
         .oauth({
-          requestBody: { code },
+          formData: { code },
         })
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["verify"] });

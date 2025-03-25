@@ -38,7 +38,7 @@ function RouteComponent() {
   const navigate = useNavigate();
   const loginCallbackMutation = useMutation({
     mutationFn: (data: UserLoginFormValues) =>
-      api.auth.login({ requestBody: data }),
+      api.auth.login({ formData: data }),
     onSuccess: (_data, _variables, context) => {
       toast.dismiss(context);
       toast.success("Berhasil melakukan login", {

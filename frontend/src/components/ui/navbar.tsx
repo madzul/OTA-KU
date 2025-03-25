@@ -1,4 +1,4 @@
-import { api } from "@/api/client";
+import { api, queryClient } from "@/api/client";
 import {
   Menubar,
   MenubarContent,
@@ -8,8 +8,9 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { useSidebar } from "@/context/sidebar";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 import Sidebar from "../sidebar";
@@ -17,6 +18,7 @@ import { Button } from "./button";
 
 export default function NavBar() {
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
+  const navigate = useNavigate();
 
   // Only fetch authentication status when component mounts
   // Enable refetching on window focus and set a stale time
@@ -68,7 +70,10 @@ export default function NavBar() {
           <div className="relative flex items-center gap-6">
             <button
               onClick={toggleSidebar}
-              className="flex items-center justify-center hover:cursor-pointer focus:outline-none"
+              className={cn(
+                "flex items-center justify-center hover:cursor-pointer focus:outline-none",
+                !isLoggedIn && "hidden",
+              )}
               aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
               aria-expanded={isSidebarOpen}
             >
@@ -131,7 +136,18 @@ export default function NavBar() {
                   >
                     <MenubarItem className="text-dark">Akun Saya</MenubarItem>
                     <MenubarSeparator />
-                    <MenubarItem className="text-destructive">
+                    <MenubarItem
+                      className="text-destructive"
+                      onClick={() => {
+                        api.auth.logout();
+                        queryClient.invalidateQueries({ queryKey: ["verify"] });
+                        navigate({
+                          to: "/",
+                          replace: true,
+                          reloadDocument: true,
+                        });
+                      }}
+                    >
                       Keluar
                     </MenubarItem>
                   </MenubarContent>

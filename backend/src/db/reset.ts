@@ -81,12 +81,16 @@ async function resetDatabase() {
         accountId: mahasiswa1Id,
         name: "Mahasiswa One",
         nim: "12345678",
+        description: "Mahasiswa One is an active student.",
+        file: "https://example.com/mahasiswa1.pdf",
         mahasiswaStatus: "active",
       },
       {
         accountId: mahasiswa2Id,
         name: "Mahasiswa Two",
         nim: "87654321",
+        description: "Mahasiswa Two is an inactive student.",
+        file: "https://example.com/mahasiswa2.pdf",
         mahasiswaStatus: "inactive",
       },
     ]);
