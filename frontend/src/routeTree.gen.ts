@@ -19,8 +19,6 @@ import { Route as AuthLoginIndexImport } from './routes/auth/login/index'
 import { Route as AppProtectedExampleIndexImport } from './routes/_app/protected-example/index'
 import { Route as AppProfileIndexImport } from './routes/_app/profile/index'
 import { Route as AppPendaftaranIndexImport } from './routes/_app/pendaftaran/index'
-import { Route as AuthRegisterOrangTuaIndexImport } from './routes/auth/register/orang-tua/index'
-import { Route as AuthRegisterMahasiswaIndexImport } from './routes/auth/register/mahasiswa/index'
 import { Route as IntegrationsAzureKeyVaultOauth2CallbackIndexImport } from './routes/integrations/azure-key-vault/oauth2/callback/index'
 
 // Create/Update Routes
@@ -71,20 +69,6 @@ const AppPendaftaranIndexRoute = AppPendaftaranIndexImport.update({
   path: '/pendaftaran/',
   getParentRoute: () => AppRoute,
 } as any)
-
-const AuthRegisterOrangTuaIndexRoute = AuthRegisterOrangTuaIndexImport.update({
-  id: '/auth/register/orang-tua/',
-  path: '/auth/register/orang-tua/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AuthRegisterMahasiswaIndexRoute = AuthRegisterMahasiswaIndexImport.update(
-  {
-    id: '/auth/register/mahasiswa/',
-    path: '/auth/register/mahasiswa/',
-    getParentRoute: () => rootRoute,
-  } as any,
-)
 
 const IntegrationsAzureKeyVaultOauth2CallbackIndexRoute =
   IntegrationsAzureKeyVaultOauth2CallbackIndexImport.update({
@@ -153,20 +137,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthVerificationIndexImport
       parentRoute: typeof rootRoute
     }
-    '/auth/register/mahasiswa/': {
-      id: '/auth/register/mahasiswa/'
-      path: '/auth/register/mahasiswa'
-      fullPath: '/auth/register/mahasiswa'
-      preLoaderRoute: typeof AuthRegisterMahasiswaIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/auth/register/orang-tua/': {
-      id: '/auth/register/orang-tua/'
-      path: '/auth/register/orang-tua'
-      fullPath: '/auth/register/orang-tua'
-      preLoaderRoute: typeof AuthRegisterOrangTuaIndexImport
-      parentRoute: typeof rootRoute
-    }
     '/integrations/azure-key-vault/oauth2/callback/': {
       id: '/integrations/azure-key-vault/oauth2/callback/'
       path: '/integrations/azure-key-vault/oauth2/callback'
@@ -202,8 +172,6 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/auth/verification': typeof AuthVerificationIndexRoute
-  '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
-  '/auth/register/orang-tua': typeof AuthRegisterOrangTuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -216,8 +184,6 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/auth/verification': typeof AuthVerificationIndexRoute
-  '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
-  '/auth/register/orang-tua': typeof AuthRegisterOrangTuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -231,8 +197,6 @@ export interface FileRoutesById {
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
   '/auth/verification/': typeof AuthVerificationIndexRoute
-  '/auth/register/mahasiswa/': typeof AuthRegisterMahasiswaIndexRoute
-  '/auth/register/orang-tua/': typeof AuthRegisterOrangTuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback/': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -247,8 +211,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/verification'
-    | '/auth/register/mahasiswa'
-    | '/auth/register/orang-tua'
     | '/integrations/azure-key-vault/oauth2/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -260,8 +222,6 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/register'
     | '/auth/verification'
-    | '/auth/register/mahasiswa'
-    | '/auth/register/orang-tua'
     | '/integrations/azure-key-vault/oauth2/callback'
   id:
     | '__root__'
@@ -273,8 +233,6 @@ export interface FileRouteTypes {
     | '/auth/login/'
     | '/auth/register/'
     | '/auth/verification/'
-    | '/auth/register/mahasiswa/'
-    | '/auth/register/orang-tua/'
     | '/integrations/azure-key-vault/oauth2/callback/'
   fileRoutesById: FileRoutesById
 }
@@ -285,8 +243,6 @@ export interface RootRouteChildren {
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthRegisterIndexRoute: typeof AuthRegisterIndexRoute
   AuthVerificationIndexRoute: typeof AuthVerificationIndexRoute
-  AuthRegisterMahasiswaIndexRoute: typeof AuthRegisterMahasiswaIndexRoute
-  AuthRegisterOrangTuaIndexRoute: typeof AuthRegisterOrangTuaIndexRoute
   IntegrationsAzureKeyVaultOauth2CallbackIndexRoute: typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -296,8 +252,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthRegisterIndexRoute: AuthRegisterIndexRoute,
   AuthVerificationIndexRoute: AuthVerificationIndexRoute,
-  AuthRegisterMahasiswaIndexRoute: AuthRegisterMahasiswaIndexRoute,
-  AuthRegisterOrangTuaIndexRoute: AuthRegisterOrangTuaIndexRoute,
   IntegrationsAzureKeyVaultOauth2CallbackIndexRoute:
     IntegrationsAzureKeyVaultOauth2CallbackIndexRoute,
 }
@@ -317,8 +271,6 @@ export const routeTree = rootRoute
         "/auth/login/",
         "/auth/register/",
         "/auth/verification/",
-        "/auth/register/mahasiswa/",
-        "/auth/register/orang-tua/",
         "/integrations/azure-key-vault/oauth2/callback/"
       ]
     },
@@ -353,12 +305,6 @@ export const routeTree = rootRoute
     },
     "/auth/verification/": {
       "filePath": "auth/verification/index.tsx"
-    },
-    "/auth/register/mahasiswa/": {
-      "filePath": "auth/register/mahasiswa/index.tsx"
-    },
-    "/auth/register/orang-tua/": {
-      "filePath": "auth/register/orang-tua/index.tsx"
     },
     "/integrations/azure-key-vault/oauth2/callback/": {
       "filePath": "integrations/azure-key-vault/oauth2/callback/index.tsx"
