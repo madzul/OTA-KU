@@ -26,7 +26,7 @@ export const loginRoute = createRoute({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: UserLoginRequestSchema,
         },
       },
@@ -69,7 +69,7 @@ export const regisRoute = createRoute({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: UserRegisRequestSchema,
         },
       },
@@ -158,7 +158,7 @@ export const oauthRoute = createRoute({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: UserOAuthLoginRequestSchema,
         },
       },
@@ -201,7 +201,7 @@ export const otpRoute = createRoute({
   request: {
     body: {
       content: {
-        "application/json": {
+        "multipart/form-data": {
           schema: OTPVerificationRequestSchema,
         },
       },

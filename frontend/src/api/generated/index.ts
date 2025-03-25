@@ -15,3 +15,4 @@ export type { UserRegisRequestSchema } from './models/UserRegisRequestSchema';
 export type { UserSchema } from './models/UserSchema';
 
 export { AuthService } from './services/AuthService';
+export { ProfileService } from './services/ProfileService';

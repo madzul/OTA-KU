@@ -15,9 +15,9 @@ export class AuthService {
    * @throws ApiError
    */
   public login({
-    requestBody,
+    formData,
   }: {
-    requestBody?: UserLoginRequestSchema,
+    formData?: UserLoginRequestSchema,
   }): CancelablePromise<{
     success: boolean;
     message: string;
@@ -31,8 +31,8 @@ export class AuthService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/auth/login',
-      body: requestBody,
-      mediaType: 'application/json',
+      formData: formData,
+      mediaType: 'multipart/form-data',
       errors: {
         400: `Bad request - missing fields.`,
         401: `Invalid credentials.`,
@@ -46,9 +46,9 @@ export class AuthService {
    * @throws ApiError
    */
   public regis({
-    requestBody,
+    formData,
   }: {
-    requestBody?: UserRegisRequestSchema,
+    formData?: UserRegisRequestSchema,
   }): CancelablePromise<{
     success: boolean;
     message: string;
@@ -70,8 +70,8 @@ export class AuthService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/auth/register',
-      body: requestBody,
-      mediaType: 'application/json',
+      formData: formData,
+      mediaType: 'multipart/form-data',
       errors: {
         400: `Bad request (e.g., missing fields).`,
         401: `Invalid credentials.`,
@@ -85,9 +85,9 @@ export class AuthService {
    * @throws ApiError
    */
   public oauth({
-    requestBody,
+    formData,
   }: {
-    requestBody?: {
+    formData?: {
       /**
        * OAuth code for authentication.
        */
@@ -106,8 +106,8 @@ export class AuthService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/auth/oauth',
-      body: requestBody,
-      mediaType: 'application/json',
+      formData: formData,
+      mediaType: 'multipart/form-data',
       errors: {
         400: `Bad request - missing fields.`,
         401: `Invalid credentials.`,
@@ -158,9 +158,9 @@ export class AuthService {
    * @throws ApiError
    */
   public otp({
-    requestBody,
+    formData,
   }: {
-    requestBody?: {
+    formData?: {
       pin: string;
     },
   }): CancelablePromise<{
@@ -176,8 +176,8 @@ export class AuthService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/auth/otp',
-      body: requestBody,
-      mediaType: 'application/json',
+      formData: formData,
+      mediaType: 'multipart/form-data',
       errors: {
         400: `Invalid OTP.`,
         404: `Invalid OTP.`,

@@ -31,9 +31,10 @@ export const authRouter = createRouter();
 export const authProtectedRouter = createAuthRouter();
 
 authRouter.openapi(loginRoute, async (c) => {
-  const body = await c.req.json();
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = UserLoginRequestSchema.safeParse(body);
+  const zodParseResult = UserLoginRequestSchema.safeParse(data);
   if (!zodParseResult.success) {
     return c.json(
       {
@@ -134,9 +135,10 @@ authRouter.openapi(loginRoute, async (c) => {
 });
 
 authRouter.openapi(regisRoute, async (c) => {
-  const body = await c.req.json();
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = UserRegisRequestSchema.safeParse(body);
+  const zodParseResult = UserRegisRequestSchema.safeParse(data);
   if (!zodParseResult.success) {
     return c.json(
       {
@@ -233,8 +235,10 @@ authRouter.openapi(regisRoute, async (c) => {
 });
 
 authRouter.openapi(oauthRoute, async (c) => {
-  const body = await c.req.json();
-  const zodParseResult = UserOAuthLoginRequestSchema.safeParse(body);
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+
+  const zodParseResult = UserOAuthLoginRequestSchema.safeParse(data);
   if (!zodParseResult.success) {
     return c.json(
       {
@@ -245,6 +249,7 @@ authRouter.openapi(oauthRoute, async (c) => {
       400,
     );
   }
+
   const { code } = zodParseResult.data;
   const res = await fetch(
     "https://login.microsoftonline.com/db6e1183-4c65-405c-82ce-7cd53fa6e9dc/oauth2/v2.0/token",
@@ -273,8 +278,8 @@ authRouter.openapi(oauthRoute, async (c) => {
       500,
     );
   }
-  const data = await res.json();
-  const azureToken = data.access_token as string;
+  const resData = await res.json();
+  const azureToken = resData.access_token as string;
   const { payload } = decode(azureToken);
   const email = payload.upn as string;
   const name = payload.name as string;
@@ -416,9 +421,10 @@ authProtectedRouter.openapi(logoutRoute, async (c) => {
 
 authProtectedRouter.openapi(otpRoute, async (c) => {
   const user = c.var.user;
-  const body = await c.req.json();
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = OTPVerificationRequestSchema.safeParse(body);
+  const zodParseResult = OTPVerificationRequestSchema.safeParse(data);
   if (!zodParseResult.success) {
     return c.json(
       {

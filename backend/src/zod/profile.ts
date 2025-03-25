@@ -4,13 +4,14 @@ const allowedPdfTypes = ["application/pdf"];
 const maxPdfSize = 5242880; // 5 MB
 
 export const pdfSchema = z
-  .custom<File>()
+  .instanceof(File, { message: "File harus berupa PDF" })
   .refine((file) => {
     return file.size <= maxPdfSize;
   }, "PDF file size should be less than 5 MB")
   .refine((file) => {
     return allowedPdfTypes.includes(file.type);
-  }, "Only PDF files are allowed");
+  }, "Only PDF files are allowed")
+  .openapi({ description: "PDF file", format: "binary" });
 
 export const NIMSchema = z
   .string({
