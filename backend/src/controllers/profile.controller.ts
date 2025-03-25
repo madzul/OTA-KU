@@ -1,10 +1,19 @@
 import { v4 as uuid } from "uuid";
 
 import { db } from "../db/drizzle.js";
-import { accountMahasiswaDetailTable } from "../db/schema.js";
+import {
+  accountMahasiswaDetailTable,
+  accountOtaDetailTable,
+} from "../db/schema.js";
 import cloudinary from "../lib/cloudinary.js";
-import { pendaftaranMahasiswaRoute } from "../routes/profile.route.js";
-import { MahasiswaRegistrationFormSchema } from "../zod/profile.js";
+import {
+  pendaftaranMahasiswaRoute,
+  pendaftaranOrangTuaRoute,
+} from "../routes/profile.route.js";
+import {
+  MahasiswaRegistrationFormSchema,
+  OrangTuaRegistrationSchema,
+} from "../zod/profile.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
 export const profileRouter = createRouter();
@@ -59,6 +68,83 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
           nim,
           description,
           file: result.secure_url,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
+  const user = c.var.user;
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+
+  const zodParseResult = OrangTuaRegistrationSchema.safeParse(data);
+  if (!zodParseResult.success) {
+    return c.json(
+      {
+        success: false,
+        message: "Gagal mendaftar.",
+        error: zodParseResult.error.errors,
+      },
+      400,
+    );
+  }
+
+  const {
+    name,
+    address,
+    criteria,
+    funds,
+    job,
+    linkage,
+    maxCapacity,
+    maxSemester,
+    startDate,
+    transferDate,
+  } = zodParseResult.data;
+
+  try {
+    await db.insert(accountOtaDetailTable).values({
+      accountId: user.id,
+      address,
+      criteria,
+      funds,
+      job,
+      linkage,
+      maxCapacity,
+      maxSemester,
+      startDate,
+      name,
+      transferDate,
+    });
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil mendaftar.",
+        data: {
+          name,
+          address,
+          criteria,
+          funds,
+          job,
+          linkage,
+          maxCapacity,
+          maxSemester,
+          startDate,
+          transferDate,
         },
       },
       200,

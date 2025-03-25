@@ -110,3 +110,117 @@ export const InternalServerErrorResponse = z.object({
   message: z.string().openapi({ example: "Internal server error" }),
   error: z.object({}),
 });
+
+export const OrangTuaRegistrationSchema = z.object({
+  name: z
+    .string({
+      invalid_type_error: "Nama harus berupa string",
+      required_error: "Nama harus diisi",
+    })
+    .min(3, {
+      message: "Nama terlalu pendek",
+    })
+    .max(255, {
+      message: "Nama terlalu panjang",
+    })
+    .openapi({ example: "John Doe", description: "Nama orang tua" }),
+  job: z
+    .string({
+      invalid_type_error: "Pekerjaan harus berupa string",
+      required_error: "Pekerjaan harus diisi",
+    })
+    .min(3, {
+      message: "Pekerjaan terlalu pendek",
+    })
+    .max(255, {
+      message: "Pekerjaan terlalu panjang",
+    })
+    .openapi({ example: "Guru", description: "Pekerjaan orang tua" }),
+  address: z
+    .string({
+      invalid_type_error: "Alamat harus berupa string",
+      required_error: "Alamat harus diisi",
+    })
+    .min(3, {
+      message: "Alamat terlalu pendek",
+    })
+    .max(255, {
+      message: "Alamat terlalu panjang",
+    })
+    .openapi({ example: "Jl. Merdeka No. 1", description: "Alamat orang tua" }),
+  linkage: z.enum(["otm", "dosen", "alumni", "lainnya", "none"]).openapi({
+    example: "otm",
+    description: "Hubungan dengan mahasiswa",
+  }),
+  funds: z.coerce
+    .number({
+      invalid_type_error: "Dana harus berupa angka",
+      required_error: "Dana harus diisi",
+      message: "Dana harus berupa angka",
+    })
+    .nonnegative({
+      message: "Dana harus lebih dari 0",
+    })
+    .openapi({ example: 1000000, description: "Dana yang disediakan" }),
+  maxCapacity: z.coerce
+    .number({
+      invalid_type_error: "Kapasitas maksimal harus berupa angka",
+      required_error: "Kapasitas maksimal harus diisi",
+      message: "Kapasitas maksimal harus berupa angka",
+    })
+    .nonnegative({
+      message: "Kapasitas maksimal harus lebih dari 0",
+    })
+    .openapi({ example: 10, description: "Kapasitas maksimal" }),
+  startDate: z
+    .date({
+      invalid_type_error: "Tanggal invalid",
+      required_error: "Tanggal harus diisi",
+      message: "Tanggal harus berupa string",
+    })
+    .openapi({ example: "2022-01-01", description: "Tanggal mulai" }),
+  maxSemester: z.coerce
+    .number({
+      invalid_type_error: "Semester maksimal harus berupa angka",
+      required_error: "Semester maksimal harus diisi",
+      message: "Semester maksimal harus berupa angka",
+    })
+    .nonnegative({
+      message: "Semester maksimal harus lebih dari 0",
+    })
+    .openapi({ example: 8, description: "Semester maksimal" }),
+  transferDate: z.coerce
+    .number({
+      invalid_type_error: "Tanggal transfer harus berupa angka",
+      required_error: "Tanggal transfer harus diisi",
+      message: "Tanggal transfer harus berupa angka",
+    })
+    .nonnegative({
+      message: "Tanggal transfer harus lebih dari 0",
+    })
+    .max(31, {
+      message: "Tanggal transfer tidak valid",
+    })
+    .openapi({ example: 1, description: "Tanggal transfer" }),
+  criteria: z
+    .string({
+      invalid_type_error: "Kriteria harus berupa string",
+      required_error: "Kriteria harus diisi",
+    })
+    .min(3, {
+      message: "Kriteria terlalu pendek",
+    })
+    .openapi({ example: "Kriteria orang tua" }),
+});
+
+export const OrangTuaRegistrationSuccessfulResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Berhasil mendaftar" }),
+  data: OrangTuaRegistrationSchema,
+});
+
+export const OrangTuaRegistrationFailedResponse = z.object({
+  success: z.boolean().openapi({ example: false }),
+  message: z.string().openapi({ example: "Gagal mendaftar" }),
+  error: z.object({}),
+});
