@@ -110,7 +110,7 @@ export const UserRegisRequestSchema = z
   .refine(
     (data) => {
       if (data.type === "mahasiswa") {
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@mahasiswa.itb.ac.id$/;
+        const emailRegex = /^\d{8}\@mahasiswa.itb.ac.id$/;
         return emailRegex.test(data.email);
       }
       return true;
@@ -122,6 +122,7 @@ export const UserRegisRequestSchema = z
   )
   .openapi("UserRegisRequestSchema");
 
+// TODO: Pisahin response ke file terpisah
 export const SuccessfulRegisResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Authenticated" }),
