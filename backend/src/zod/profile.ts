@@ -135,6 +135,9 @@ export const OrangTuaRegistrationSchema = z.object({
     .nonnegative({
       message: "Dana harus lebih dari 0",
     })
+    .min(300000, {
+      message: "Dana harus lebih dari Rp 300.000",
+    })
     .openapi({ example: 1000000, description: "Dana yang disediakan" }),
   maxCapacity: z.coerce
     .number({
@@ -147,11 +150,21 @@ export const OrangTuaRegistrationSchema = z.object({
     })
     .openapi({ example: 10, description: "Kapasitas maksimal" }),
   startDate: z
-    .date({
+    .string({
       invalid_type_error: "Tanggal invalid",
       required_error: "Tanggal harus diisi",
       message: "Tanggal harus berupa string",
     })
+    .refine(
+      (value) => {
+        const date = new Date(value);
+        return date instanceof Date && !isNaN(date.getTime());
+      },
+      {
+        message: "Tanggal tidak valid",
+        path: ["startDate"],
+      },
+    )
     .openapi({ example: "2022-01-01", description: "Tanggal mulai" }),
   maxSemester: z.coerce
     .number({
@@ -172,7 +185,7 @@ export const OrangTuaRegistrationSchema = z.object({
     .nonnegative({
       message: "Tanggal transfer harus lebih dari 0",
     })
-    .max(31, {
+    .max(28, {
       message: "Tanggal transfer tidak valid",
     })
     .openapi({ example: 1, description: "Tanggal transfer" }),

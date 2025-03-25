@@ -146,7 +146,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
       linkage,
       maxCapacity,
       maxSemester,
-      startDate,
+      startDate: new Date(startDate),
       name,
       transferDate,
     });

@@ -98,7 +98,7 @@ export class ProfileService {
       /**
        * Dana yang disediakan
        */
-      funds: number | null;
+      funds: number;
       /**
        * Kapasitas maksimal
        */
@@ -140,7 +140,7 @@ export class ProfileService {
       /**
        * Dana yang disediakan
        */
-      funds: number | null;
+      funds: number;
       /**
        * Kapasitas maksimal
        */

@@ -1,14 +1,63 @@
 import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandGroup,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { OrangTuaPageOneSchema } from "@/lib/zod/profile";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Check, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { UseFormReturn, useForm } from "react-hook-form";
+import { z } from "zod";
 
-export default function OTAPageOne() {
-  const [isExpanded, setIsExpanded] = useState(true);
+import { linkages } from "./data";
+import { OrangTuaRegistrationFormValues } from "./pendaftaran-orang-tua";
+
+interface OTAPageOneProps {
+  setPage: (page: number) => void;
+  mainForm: UseFormReturn<OrangTuaRegistrationFormValues>;
+}
+
+export type OrangTuaRegistrationOneFormValues = z.infer<
+  typeof OrangTuaPageOneSchema
+>;
+
+export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const form = useForm<OrangTuaRegistrationOneFormValues>({
+    resolver: zodResolver(OrangTuaPageOneSchema),
+  });
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
+
+  async function onSubmit(data: OrangTuaRegistrationOneFormValues) {
+    mainForm.setValue("name", data.name);
+    mainForm.setValue("job", data.job);
+    mainForm.setValue("address", data.address);
+    mainForm.setValue("linkage", data.linkage);
+    setPage(2);
+  }
 
   return (
     <div className="flex flex-col items-center gap-4 md:px-[34px]">
@@ -66,51 +115,123 @@ export default function OTAPageOne() {
         Data Diri:
       </h2>
       <section className="w-[100%] md:max-w-[640px]">
-        <form action="" className="flex w-[100%] flex-col gap-[20px]">
-          {/* Nama  */}
-          <div>
-            <label htmlFor="text" className="text-dark text-base">
-              Nama Lengkap
-            </label>
-            <Input type="text" placeholder="Nama Lengkap" />
-          </div>
-          {/* Nomor HP  */}
-          <div>
-            <label htmlFor="number" className="text-dark text-base">
-              Nomor HP (Whatsapp)
-            </label>
-            <Input type="number" placeholder="Nomor HP (Whatsapp)" />
-          </div>
-          {/* Pekerjaan  */}
-          <div>
-            <label htmlFor="text" className="text-dark text-base">
-              Pekerjaan
-            </label>
-            <Input type="text" placeholder="Pekerjaan" />
-          </div>
-          {/* Alamat */}
-          <div>
-            <label htmlFor="text" className="text-dark text-base">
-              Alamat
-            </label>
-            <Textarea placeholder="Alamat" />
-          </div>
-          {/* Keterkaitan dengan ITB */}
-          <div>
-            <label htmlFor="text" className="text-dark text-base">
-              Keterkaitan dengan ITB
-            </label>
-            {/* BELUM ADA DROPDOWN YANG SESUAI */}
-            <Input />
-          </div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex w-full flex-col gap-5"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary text-sm">
+                    Nama Lengkap
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan nama Anda" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Button type="submit" className="w-full">
-            Selanjutnya
-          </Button>
-          <Button type="button" className="w-full" variant={"secondary"}>
-            Kembali
-          </Button>
-        </form>
+            <FormField
+              control={form.control}
+              name="job"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary text-sm">
+                    Pekerjaan
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan pekerjaan Anda" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary text-sm">Alamat</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Masukkan alamat Anda" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="linkage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary text-sm">
+                    Keterkaitan dengan ITB
+                  </FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "justify-between rounded-md",
+                            !field.value && "text-muted-foreground",
+                          )}
+                        >
+                          {field.value
+                            ? linkages.find(
+                                (linkage) => linkage.value === field.value,
+                              )?.label
+                            : "Select linkage"}
+                          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                      <Command>
+                        <CommandList>
+                          <CommandGroup>
+                            {linkages.map((linkage) => (
+                              <CommandItem
+                                value={linkage.label}
+                                key={linkage.value}
+                                onSelect={() => {
+                                  form.setValue("linkage", linkage.value);
+                                }}
+                              >
+                                {linkage.label}
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    linkage.value === field.value
+                                      ? "opacity-100"
+                                      : "opacity-0",
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full">
+              Selanjutnya
+            </Button>
+          </form>
+        </Form>
       </section>
     </div>
   );
