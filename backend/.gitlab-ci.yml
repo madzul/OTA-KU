@@ -59,8 +59,6 @@ backend-test-job:
       fi
     - export $(grep -v '^#' .env | xargs)
     - echo "Waiting for PostgreSQL to be ready..."
-    - printenv
-    - until pg_isready -h db -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do sleep 2; done
     - echo "Database is ready!"
     - npm ci --prefer-offline
     - npm run drizzle-kit:migrate
