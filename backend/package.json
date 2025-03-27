@@ -7,7 +7,7 @@
     "dev:local": "env-cmd -f ./.env.local tsx watch src/index.ts",
     "build": "tsc",
     "drizzle-kit:generate": "drizzle-kit generate",
-    "drizzle-kit:migrate:local": "env-cmd -f ./.env.local drizzle-kit migrate",
+    "drizzle-kit:migrate": "env-cmd -f ./.env.local drizzle-kit migrate",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "test:local": "env-cmd -f ./.env.local vitest run",
