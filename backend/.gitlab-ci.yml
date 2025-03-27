@@ -51,7 +51,6 @@ backend-test-job:
     - echo "Testing backend..."
     - cd backend
     - cp "$BACKEND_ENV_FILE" .env
-    - cp "$BACKEND_LOCAL_ENV_FILE" .env.local
     # Ensure required environment variables are available
     - |
       if ! grep -q "DATABASE_URL" .env || ! grep -q "JWT_SECRET" .env; then
@@ -60,6 +59,8 @@ backend-test-job:
       fi
     - export $(grep -v '^#' .env | xargs)
     - echo "Waiting for PostgreSQL to be ready..."
+    - printenv
+    - until pg_isready -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do sleep 2; done
     - echo "Database is ready!"
     - npm ci --prefer-offline
     - npm run drizzle-kit:migrate
