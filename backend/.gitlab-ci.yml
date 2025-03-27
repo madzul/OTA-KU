@@ -45,8 +45,13 @@ backend-test-job:
   services:
     - name: postgres:16
       alias: db
+      variables:
+        POSTGRES_USER: "$POSTGRES_USER"
+        POSTGRES_PASSWORD: "$POSTGRES_PASSWORD"
+        POSTGRES_DB: "$POSTGRES_DB"
   before_script:
     - apt-get update && apt-get install -y postgresql-client
+    - export $(grep -v '^#' "$BACKEND_ENV_FILE" | xargs)
   script:
     - echo "Testing backend..."
     - cd backend
