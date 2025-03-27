@@ -51,6 +51,7 @@ backend-test-job:
     - echo "Testing backend..."
     - cd backend
     - cp "$BACKEND_ENV_FILE" .env
+    - cp "$BACKEND_LOCAL_ENV_FILE" .env.local
     # Ensure required environment variables are available
     - |
       if ! grep -q "DATABASE_URL" .env || ! grep -q "JWT_SECRET" .env; then
