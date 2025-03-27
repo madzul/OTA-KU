@@ -10,6 +10,8 @@
     "drizzle-kit:migrate": "env-cmd -f ./.env.local drizzle-kit migrate",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
+    "test:local": "env-cmd -f ./.env.local vitest run",
+    "coverage:local": "env-cmd -f ./.env.local vitest run --coverage",
     "db:seed": "env-cmd -f ./.env.local tsx src/db/seed.ts",
     "db:reset": "env-cmd -f ./.env.local tsx src/db/reset.ts"
   },

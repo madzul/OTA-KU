@@ -170,7 +170,7 @@ export const JWTPayloadSchema = z
 
 // OTP
 export const OTPVerificationRequestSchema = z.object({
-  pin: z.string().min(6, {
+  pin: z.string().length(6, {
     message: "Kode OTP harus terdiri dari 6 karakter.",
   }),
 });
