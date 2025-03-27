@@ -46,16 +46,18 @@ backend-test-job:
     - name: postgres:16
       alias: db
       variables:
-        POSTGRES_USER: "$POSTGRES_USER"
-        POSTGRES_PASSWORD: "$POSTGRES_PASSWORD"
-        POSTGRES_DB: "$POSTGRES_DB"
+        POSTGRES_USER: dbuser
+        POSTGRES_PASSWORD: dbpassword
+        POSTGRES_DB: maindb
+        POSTGRES_HOST: db
+        POSTGRES_PORT: 5432
+        DATABASE_URL: postgresql://dbuser:dbpassword@db:5432/maindb
   before_script:
     - apt-get update && apt-get install -y postgresql-client
-    - export $(grep -v '^#' "$BACKEND_ENV_FILE" | xargs)
   script:
     - echo "Testing backend..."
     - cd backend
-    - cp "$BACKEND_ENV_FILE" .env
+    - cp "$BACKEND_LOCAL_ENV_FILE" .env
     # Ensure required environment variables are available
     - |
       if ! grep -q "DATABASE_URL" .env || ! grep -q "JWT_SECRET" .env; then
