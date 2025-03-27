@@ -1,7 +1,7 @@
 import React from "react";
 
+import { Input } from "../../../../../components/ui/input";
 import MahasiswaCard from "./card";
-import { Input } from "./ui/input";
 
 function DaftarMahasiswa() {
   const DataMahasiswa = [

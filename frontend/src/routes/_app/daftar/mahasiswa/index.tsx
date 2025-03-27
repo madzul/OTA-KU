@@ -1,5 +1,6 @@
-import MahasiswaCard from "@/components/card";
 import { createFileRoute } from "@tanstack/react-router";
+
+import DaftarMahasiswa from "./-components.tsx/DaftarMahasiswa";
 
 export const Route = createFileRoute("/_app/daftar/mahasiswa/")({
   component: RouteComponent,
@@ -8,13 +9,7 @@ export const Route = createFileRoute("/_app/daftar/mahasiswa/")({
 function RouteComponent() {
   return (
     <div>
-      <MahasiswaCard
-        name="michael"
-        smt={1}
-        faculty="fik"
-        money={100000}
-        link="/_app/profile/"
-      />
+      <DaftarMahasiswa />
     </div>
   );
 }
