@@ -41,6 +41,9 @@ backend-test-job:
   stage: test
   needs:
     - backend-build-job
+  services:
+    - name: postgres:16
+      alias: db
   script:
     - echo "Testing backend..."
     - cd backend
@@ -51,7 +54,11 @@ backend-test-job:
         echo "ERROR: Required environment variables missing in .env"
         exit 1
       fi
+    - echo "Waiting for PostgreSQL to be ready..."
+    - until pg_isready -h db -p 5432 -U "$POSTGRES_USER"; do sleep 2; done
+    - echo "Database is ready!"
     - npm ci --prefer-offline
+    - npm run drizzle-kit:migrate
     - npm run test
   cache:
     policy: pull
