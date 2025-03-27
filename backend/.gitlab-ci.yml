@@ -41,9 +41,12 @@ backend-test-job:
   stage: test
   needs:
     - backend-build-job
+  image: node:20-bookworm
   services:
     - name: postgres:16
       alias: db
+  before_script:
+    - apt-get update && apt-get install -y postgresql-client
   script:
     - echo "Testing backend..."
     - cd backend
