@@ -87,7 +87,7 @@ const ProfileForm: React.FC = () => {
 
   const [date, setDate] = React.useState<Date>();
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="mx-auto w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Tabs defaultValue="personalInfo" className="w-full">
@@ -321,10 +321,10 @@ const ProfileForm: React.FC = () => {
           </Tabs>
 
           <div className="flex justify-end space-x-2 p-4">
-            <Button type="button" variant="outline">
+            <Button type="button" className="w-24 xl:w-40" variant="outline">
               Batal
             </Button>
-            <Button type="submit">Simpan</Button>
+            <Button type="submit" className="w-24 xl:w-40">Simpan</Button>
           </div>
         </form>
       </Form>

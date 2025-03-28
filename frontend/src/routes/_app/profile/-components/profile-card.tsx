@@ -20,6 +20,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   avatarSrc
 }) => {
   return (
+    <div>
     <Card className="max-w-sm w-full mx-auto">
       <CardHeader className="flex flex-col items-center justify-center pt-6 pb-4">
         <div className="w-24 h-24 rounded-full overflow-hidden mb-4">
@@ -36,12 +37,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
           )}
         </div>
         <div className="text-center">
-          <h2 className="text-xl font-bold">{name}</h2>
+          <h2 className="text-lg xl:text-xl font-bold">{name}</h2>
           <p className="text-muted-foreground rounded-xl border-2 px-6 py-1 mt-4">{role}</p>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3 text-primary">
+        <div className="space-y-3 text-primary text-sm xl:text-base">
           <div className="flex items-center space-x-3">
             <Mail className="h-5 w-5 text-muted-foreground" />
             <span>{email}</span>
@@ -57,6 +58,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         </div>
       </CardContent>
     </Card>
+    </div>
   )
 }
 
