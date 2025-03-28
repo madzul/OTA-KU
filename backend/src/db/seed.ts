@@ -11,153 +11,155 @@ import {
 
 export async function seed() {
   try {
-    console.log("Starting database seeding...");
+    await db.transaction(async (tx) => {
+      console.log("Starting database seeding...");
 
-    // Hash passwords - adjust salt rounds as needed
-    const hashedPassword = await hash("password123", 10);
+      // Hash passwords - adjust salt rounds as needed
+      const hashedPassword = await hash("password123", 10);
 
-    // Generate UUIDs
-    const adminId = uuidv4();
-    const mahasiswa1Id = uuidv4();
-    const mahasiswa2Id = uuidv4();
-    const ota1Id = uuidv4();
-    const ota2Id = uuidv4();
+      // Generate UUIDs
+      const adminId = uuidv4();
+      const mahasiswa1Id = uuidv4();
+      const mahasiswa2Id = uuidv4();
+      const ota1Id = uuidv4();
+      const ota2Id = uuidv4();
 
-    // Seed admin account
-    await db
-      .insert(accountTable)
-      .values({
-        id: adminId,
-        email: "admin@example.com",
-        phoneNumber: "08123456789",
-        password: hashedPassword,
-        type: "admin",
-        status: "verified",
-      })
-      .onConflictDoNothing();
-
-    console.log("Admin account seeded");
-
-    // Seed mahasiswa accounts
-    await db
-      .insert(accountTable)
-      .values([
-        {
-          id: mahasiswa1Id,
-          email: "mahasiswa1@example.com",
-          phoneNumber: "08123456780",
+      // Seed admin account
+      await tx
+        .insert(accountTable)
+        .values({
+          id: adminId,
+          email: "admin@example.com",
+          phoneNumber: "08123456789",
           password: hashedPassword,
-          type: "mahasiswa",
+          type: "admin",
           status: "verified",
-        },
-        {
-          id: mahasiswa2Id,
-          email: "mahasiswa2@example.com",
-          phoneNumber: "08198765432",
-          password: hashedPassword,
-          type: "mahasiswa",
-        },
-      ])
-      .onConflictDoNothing();
+        })
+        .onConflictDoNothing();
 
-    console.log("Mahasiswa accounts seeded");
+      console.log("Admin account seeded");
 
-    // Seed mahasiswa details
-    await db
-      .insert(accountMahasiswaDetailTable)
-      .values([
-        {
-          accountId: mahasiswa1Id,
-          name: "Mahasiswa One",
-          nim: "12345678",
-          description: "Mahasiswa One is an active student.",
-          file: "https://example.com/mahasiswa1.pdf",
-          mahasiswaStatus: "active",
-        },
-        {
-          accountId: mahasiswa2Id,
-          name: "Mahasiswa Two",
-          nim: "87654321",
-          description: "Mahasiswa Two is an inactive student.",
-          file: "https://example.com/mahasiswa2.pdf",
-          mahasiswaStatus: "inactive",
-        },
-      ])
-      .onConflictDoNothing();
+      // Seed mahasiswa accounts
+      await tx
+        .insert(accountTable)
+        .values([
+          {
+            id: mahasiswa1Id,
+            email: "mahasiswa1@example.com",
+            phoneNumber: "08123456780",
+            password: hashedPassword,
+            type: "mahasiswa",
+            status: "verified",
+          },
+          {
+            id: mahasiswa2Id,
+            email: "mahasiswa2@example.com",
+            phoneNumber: "08198765432",
+            password: hashedPassword,
+            type: "mahasiswa",
+          },
+        ])
+        .onConflictDoNothing();
 
-    console.log("Mahasiswa details seeded");
+      console.log("Mahasiswa accounts seeded");
 
-    // Seed OTA accounts
-    await db
-      .insert(accountTable)
-      .values([
-        {
-          id: ota1Id,
-          email: "ota1@example.com",
-          phoneNumber: "08111222333",
-          password: hashedPassword,
-          type: "ota",
-          status: "verified",
-        },
-        {
-          id: ota2Id,
-          email: "ota2@example.com",
-          phoneNumber: "08444555666",
-          password: hashedPassword,
-          type: "ota",
-        },
-      ])
-      .onConflictDoNothing();
+      // Seed mahasiswa details
+      await tx
+        .insert(accountMahasiswaDetailTable)
+        .values([
+          {
+            accountId: mahasiswa1Id,
+            name: "Mahasiswa One",
+            nim: "12345678",
+            description: "Mahasiswa One is an active student.",
+            file: "https://example.com/mahasiswa1.pdf",
+            mahasiswaStatus: "active",
+          },
+          {
+            accountId: mahasiswa2Id,
+            name: "Mahasiswa Two",
+            nim: "87654321",
+            description: "Mahasiswa Two is an inactive student.",
+            file: "https://example.com/mahasiswa2.pdf",
+            mahasiswaStatus: "inactive",
+          },
+        ])
+        .onConflictDoNothing();
 
-    console.log("OTA accounts seeded");
+      console.log("Mahasiswa details seeded");
 
-    // Seed OTA details
-    await db
-      .insert(accountOtaDetailTable)
-      .values([
-        {
-          accountId: ota1Id,
-          name: "OTA Organization One",
-          job: "Scholarship Provider",
-          address: "Jl. Example No. 1, Jakarta",
-          linkage: "otm",
-          funds: 50000000,
-          maxCapacity: 10,
-          startDate: new Date(),
-          maxSemester: 8,
-          transferDate: 10, // 10th day of month
-          criteria: "GPA minimum 3.5, active in organizations",
-        },
-        {
-          accountId: ota2Id,
-          name: "OTA Organization Two",
-          job: "Education Foundation",
-          address: "Jl. Example No. 2, Bandung",
-          linkage: "alumni",
-          funds: 75000000,
-          maxCapacity: 15,
-          startDate: new Date(),
-          maxSemester: 6,
-          transferDate: 15, // 15th day of month
-          criteria: "From underprivileged family, GPA minimum 3.0",
-        },
-      ])
-      .onConflictDoNothing();
+      // Seed OTA accounts
+      await tx
+        .insert(accountTable)
+        .values([
+          {
+            id: ota1Id,
+            email: "ota1@example.com",
+            phoneNumber: "08111222333",
+            password: hashedPassword,
+            type: "ota",
+            status: "verified",
+          },
+          {
+            id: ota2Id,
+            email: "ota2@example.com",
+            phoneNumber: "08444555666",
+            password: hashedPassword,
+            type: "ota",
+          },
+        ])
+        .onConflictDoNothing();
 
-    console.log("OTA details seeded");
+      console.log("OTA accounts seeded");
 
-    // Seed connections between mahasiswa and OTA
-    await db
-      .insert(connectionTable)
-      .values({
-        mahasiswaId: mahasiswa1Id,
-        otaId: ota1Id,
-      })
-      .onConflictDoNothing();
+      // Seed OTA details
+      await tx
+        .insert(accountOtaDetailTable)
+        .values([
+          {
+            accountId: ota1Id,
+            name: "OTA Organization One",
+            job: "Scholarship Provider",
+            address: "Jl. Example No. 1, Jakarta",
+            linkage: "otm",
+            funds: 50000000,
+            maxCapacity: 10,
+            startDate: new Date(),
+            maxSemester: 8,
+            transferDate: 10, // 10th day of month
+            criteria: "GPA minimum 3.5, active in organizations",
+          },
+          {
+            accountId: ota2Id,
+            name: "OTA Organization Two",
+            job: "Education Foundation",
+            address: "Jl. Example No. 2, Bandung",
+            linkage: "alumni",
+            funds: 75000000,
+            maxCapacity: 15,
+            startDate: new Date(),
+            maxSemester: 6,
+            transferDate: 15, // 15th day of month
+            criteria: "From underprivileged family, GPA minimum 3.0",
+          },
+        ])
+        .onConflictDoNothing();
 
-    console.log("Connections seeded");
+      console.log("OTA details seeded");
 
-    console.log("Database seeding completed successfully!");
+      // Seed connections between mahasiswa and OTA
+      await tx
+        .insert(connectionTable)
+        .values({
+          mahasiswaId: mahasiswa1Id,
+          otaId: ota1Id,
+        })
+        .onConflictDoNothing();
+
+      console.log("Connections seeded");
+
+      console.log("Database seeding completed successfully!");
+    });
   } catch (error) {
     console.error("Error seeding database:", error);
   } finally {
