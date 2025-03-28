@@ -58,7 +58,7 @@ const profileFormSchema = z.object({
 
 type ProfileFormData = z.infer<typeof profileFormSchema>;
 
-const ProfileForm: React.FC = () => {
+const ProfileFormOTA: React.FC = () => {
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
@@ -332,4 +332,4 @@ const ProfileForm: React.FC = () => {
   );
 };
 
-export default ProfileForm;
+export default ProfileFormOTA;
