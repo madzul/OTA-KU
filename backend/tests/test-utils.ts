@@ -22,7 +22,6 @@ export function createTestRequest(
     method: options.method || "GET",
     body: options.body,
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
       Origin: env.ALLOWED_ORIGINS[0],
       ...options.headers,
     },

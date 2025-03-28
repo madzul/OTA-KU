@@ -1,0 +1,409 @@
+import { hash } from "bcrypt";
+import { eq } from "drizzle-orm";
+import FormData from "form-data";
+import { readFileSync } from "fs";
+import { join } from "path";
+import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
+
+import app from "../src/app.js";
+import { db } from "../src/db/drizzle.js";
+import { accountTable } from "../src/db/schema.js";
+import cloudinary from "../src/lib/cloudinary.js";
+import { testUsers } from "./constants/user.js";
+import { createTestRequest } from "./test-utils.js";
+
+describe("Pendaftaran Mahasiswa", () => {
+  beforeEach(async () => {
+    const hashedUsers = await Promise.all(
+      testUsers.map(async (user) => ({
+        ...user,
+        password: await hash(user.password, 10),
+      })),
+    );
+    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
+  });
+
+  afterAll(async () => {
+    await Promise.all(
+      testUsers.map((user) =>
+        db.delete(accountTable).where(eq(accountTable.email, user.email)),
+      ),
+    );
+  });
+
+  test("POST 200 /api/profile/mahasiswa", async () => {
+    const params = new URLSearchParams();
+    params.append("identifier", testUsers[0].email);
+    params.append("password", testUsers[0].password);
+
+    const loginRes = await app.request(
+      createTestRequest("/api/auth/login", {
+        method: "POST",
+        body: params,
+      }),
+    );
+
+    const loginBody = await loginRes.json();
+    expect(loginBody.success).toBe(true);
+    expect(loginBody.message).toBe("Login successful");
+
+    const token = loginBody.body.token;
+
+    const filePath = join(__dirname, "./constants/sample.pdf");
+    const fileData = readFileSync(filePath);
+
+    const formData = new FormData();
+    formData.append("name", "John Doe");
+    formData.append("nim", "99922999");
+    formData.append("description", "Test description");
+    formData.append("phoneNumber", testUsers[0].phoneNumber);
+    formData.append("file", fileData, {
+      filename: "sample.pdf",
+      contentType: "application/pdf",
+    });
+
+    const headers = formData.getHeaders();
+    headers["Authorization"] = `Bearer ${token}`;
+
+    vi.spyOn(cloudinary.uploader, "upload").mockResolvedValue({
+      public_id: "sample",
+      version: 1,
+      signature: "sample_signature",
+      width: 100,
+      height: 100,
+      format: "pdf",
+      resource_type: "raw",
+      created_at: new Date().toISOString(),
+      tags: [],
+      bytes: 12345,
+      type: "upload",
+      etag: "sample_etag",
+      placeholder: false,
+      url: "http://res.cloudinary.com/sample.pdf",
+      secure_url: "https://cloudinary.com/sample.pdf",
+      access_mode: "public",
+      original_filename: "sample",
+      pages: 1,
+      moderation: [],
+      access_control: [],
+      context: {},
+      metadata: {},
+    });
+
+    const res = await app.request(
+      createTestRequest("/api/profile/mahasiswa", {
+        method: "POST",
+        headers: headers,
+        body: formData.getBuffer(),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
+    expect(body.message).toBe("Berhasil mendaftar.");
+    expect(body.body.name).toBe("John Doe");
+    expect(body.body.nim).toBe("99922999");
+    expect(body.body.file).toBe("https://cloudinary.com/sample.pdf");
+  });
+
+  test("POST 400 /api/profile/mahasiswa", async () => {
+    const params = new URLSearchParams();
+    params.append("identifier", testUsers[0].email);
+    params.append("password", testUsers[0].password);
+
+    const loginRes = await app.request(
+      createTestRequest("/api/auth/login", {
+        method: "POST",
+        body: params,
+      }),
+    );
+
+    const loginBody = await loginRes.json();
+    expect(loginBody.success).toBe(true);
+    expect(loginBody.message).toBe("Login successful");
+
+    const token = loginBody.body.token;
+
+    const filePath = join(__dirname, "./constants/sample.pdf");
+    const fileData = readFileSync(filePath);
+
+    const formData = new FormData();
+    formData.append("name", "John Doe");
+    formData.append("nim", "99922999");
+    formData.append("description", "Test description");
+    formData.append("file", fileData, {
+      filename: "sample.pdf",
+      contentType: "application/pdf",
+    });
+
+    const headers = formData.getHeaders();
+    headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await app.request(
+      createTestRequest("/api/profile/mahasiswa", {
+        method: "POST",
+        headers: headers,
+        body: formData.getBuffer(),
+      }),
+    );
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.errors.fieldErrors.phoneNumber[0]).toBe(
+      "Nomor telepon harus diisi",
+    );
+  });
+
+  test("POST 500 /api/profile/mahasiswa (Database Error)", async () => {
+    vi.spyOn(db, "transaction").mockImplementationOnce(() => {
+      throw new Error("Database connection failed");
+    });
+
+    // Login first
+    const params = new URLSearchParams();
+    params.append("identifier", testUsers[0].email);
+    params.append("password", testUsers[0].password);
+
+    const loginRes = await app.request(
+      createTestRequest("/api/auth/login", {
+        method: "POST",
+        body: params,
+      }),
+    );
+
+    const loginBody = await loginRes.json();
+    expect(loginBody.success).toBe(true);
+    expect(loginBody.message).toBe("Login successful");
+
+    const token = loginBody.body.token;
+
+    // Prepare form data
+    const filePath = join(__dirname, "./constants/sample.pdf");
+    const fileData = readFileSync(filePath);
+
+    const formData = new FormData();
+    formData.append("name", "John Doe");
+    formData.append("nim", "99922999");
+    formData.append("description", "Test description");
+    formData.append("phoneNumber", testUsers[0].phoneNumber);
+    formData.append("file", fileData, {
+      filename: "sample.pdf",
+      contentType: "application/pdf",
+    });
+
+    const headers = formData.getHeaders();
+    headers["Authorization"] = `Bearer ${token}`;
+
+    // Mock cloudinary upload
+    vi.spyOn(cloudinary.uploader, "upload").mockResolvedValue({
+      public_id: "sample",
+      version: 1,
+      signature: "sample_signature",
+      width: 100,
+      height: 100,
+      format: "pdf",
+      resource_type: "raw",
+      created_at: new Date().toISOString(),
+      tags: [],
+      bytes: 12345,
+      type: "upload",
+      etag: "sample_etag",
+      placeholder: false,
+      url: "http://res.cloudinary.com/sample.pdf",
+      secure_url: "https://cloudinary.com/sample.pdf",
+      access_mode: "public",
+      original_filename: "sample",
+      pages: 1,
+      moderation: [],
+      access_control: [],
+      context: {},
+      metadata: {},
+    });
+
+    // Send request
+    const res = await app.request(
+      createTestRequest("/api/profile/mahasiswa", {
+        method: "POST",
+        headers: headers,
+        body: formData.getBuffer(),
+      }),
+    );
+
+    // Check response
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.message).toBe("Internal server error");
+  });
+});
+
+describe("Pendaftaran Orang Tua Asuh", () => {
+  beforeEach(async () => {
+    const hashedUsers = await Promise.all(
+      testUsers.map(async (user) => ({
+        ...user,
+        password: await hash(user.password, 10),
+      })),
+    );
+    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
+  });
+
+  afterAll(async () => {
+    await Promise.all(
+      testUsers.map((user) =>
+        db.delete(accountTable).where(eq(accountTable.email, user.email)),
+      ),
+    );
+  });
+
+  test("POST 200 /api/profile/orang-tua", async () => {
+    const params = new URLSearchParams();
+    params.append("identifier", testUsers[1].email);
+    params.append("password", testUsers[1].password);
+
+    const loginRes = await app.request(
+      createTestRequest("/api/auth/login", {
+        method: "POST",
+        body: params,
+      }),
+    );
+
+    const loginBody = await loginRes.json();
+    expect(loginBody.success).toBe(true);
+    expect(loginBody.message).toBe("Login successful");
+
+    const token = loginBody.body.token;
+
+    const formData = new FormData();
+    formData.append("name", "John Doe");
+    formData.append("address", "Test address");
+    formData.append("criteria", "Test criteria");
+    formData.append("funds", 300000);
+    formData.append("job", "Test job");
+    formData.append("linkage", "otm");
+    formData.append("maxCapacity", 5);
+    formData.append("maxSemester", 8);
+    formData.append("startDate", new Date().toISOString());
+    formData.append("transferDate", 25);
+
+    const headers = formData.getHeaders();
+    headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await app.request(
+      createTestRequest("/api/profile/orang-tua", {
+        method: "POST",
+        headers: headers,
+        body: formData.getBuffer(),
+      }),
+    );
+
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.success).toBe(true);
+    expect(body.message).toBe("Berhasil mendaftar.");
+    expect(body.body.name).toBe("John Doe");
+  });
+
+  test("POST 400 /api/profile/orang-tua", async () => {
+    const params = new URLSearchParams();
+    params.append("identifier", testUsers[1].email);
+    params.append("password", testUsers[1].password);
+
+    const loginRes = await app.request(
+      createTestRequest("/api/auth/login", {
+        method: "POST",
+        body: params,
+      }),
+    );
+
+    const loginBody = await loginRes.json();
+    expect(loginBody.success).toBe(true);
+    expect(loginBody.message).toBe("Login successful");
+
+    const token = loginBody.body.token;
+
+    const formData = new FormData();
+    formData.append("name", "John Doe");
+    formData.append("address", "Test address");
+    formData.append("criteria", "Test criteria");
+    formData.append("funds", 300000);
+    formData.append("job", "Test job");
+    formData.append("linkage", "otm");
+    formData.append("maxCapacity", 5);
+    formData.append("maxSemester", 8);
+    formData.append("startDate", new Date().toISOString());
+
+    const headers = formData.getHeaders();
+    headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await app.request(
+      createTestRequest("/api/profile/orang-tua", {
+        method: "POST",
+        headers: headers,
+        body: formData.getBuffer(),
+      }),
+    );
+
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.errors.fieldErrors.transferDate[0]).toBe(
+      "Tanggal transfer harus berupa angka",
+    );
+  });
+
+  test("POST 500 /api/profile/orang-tua (Database Error)", async () => {
+    vi.spyOn(db, "insert").mockImplementationOnce(() => {
+      throw new Error("Database connection failed");
+    });
+
+    // Login first
+    const params = new URLSearchParams();
+    params.append("identifier", testUsers[1].email);
+    params.append("password", testUsers[1].password);
+
+    const loginRes = await app.request(
+      createTestRequest("/api/auth/login", {
+        method: "POST",
+        body: params,
+      }),
+    );
+
+    const loginBody = await loginRes.json();
+    expect(loginBody.success).toBe(true);
+    expect(loginBody.message).toBe("Login successful");
+
+    const token = loginBody.body.token;
+
+    // Prepare form data
+    const formData = new FormData();
+    formData.append("name", "John Doe");
+    formData.append("address", "Test address");
+    formData.append("criteria", "Test criteria");
+    formData.append("funds", 300000);
+    formData.append("job", "Test job");
+    formData.append("linkage", "otm");
+    formData.append("maxCapacity", 5);
+    formData.append("maxSemester", 8);
+    formData.append("startDate", new Date().toISOString());
+    formData.append("transferDate", 25);
+
+    const headers = formData.getHeaders();
+    headers["Authorization"] = `Bearer ${token}`;
+
+    // Send request
+    const res = await app.request(
+      createTestRequest("/api/profile/orang-tua", {
+        method: "POST",
+        headers: headers,
+        body: formData.getBuffer(),
+      }),
+    );
+
+    // Check response
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.message).toBe("Internal server error");
+  });
+});

@@ -1,9 +1,7 @@
-import { v4 as uuid } from "uuid";
-
 export const testUsers = [
   {
-    id: uuid(),
-    email: "user1@test.com",
+    id: "da7a126a-4c35-43e3-b2fd-3531c26c88ad",
+    email: "99922999@mahasiswa.itb.ac.id",
     phoneNumber: "081234567890",
     password: "testuser123",
     type: "mahasiswa" as const,
@@ -11,7 +9,7 @@ export const testUsers = [
     status: "unverified" as const,
   },
   {
-    id: uuid(),
+    id: "cd22db2d-fe89-45e2-b6fe-76fc23bbd8d1",
     email: "user2@test.com",
     phoneNumber: "081234567891",
     password: "testuser123",
@@ -20,7 +18,7 @@ export const testUsers = [
     status: "verified" as const,
   },
   {
-    id: uuid(),
+    id: "9c4dde84-b662-4066-8048-c7beac56d22d",
     email: "user3@test.com",
     phoneNumber: "081234567892",
     password: "testuser123",
@@ -34,16 +32,16 @@ export const testRegisterUsers = [
   // Valid
   {
     type: "ota",
-    email: "user1@test.com",
-    phoneNumber: "081234567890",
+    email: "user4@test.com",
+    phoneNumber: "081234567893",
     password: "testuser123",
     confirmPassword: "testuser123",
   },
   // Invalid
   {
     type: "mahasiswa",
-    email: "user2@test.com",
-    phoneNumber: "081234567891",
+    email: "user5@test.com",
+    phoneNumber: "081234567894",
     password: "testuser123",
     confirmPassword: "testuser123",
   },

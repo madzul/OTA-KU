@@ -1,14 +1,6 @@
 import { hash } from "bcrypt";
 import { eq } from "drizzle-orm";
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  describe,
-  expect,
-  test,
-  vi,
-} from "vitest";
+import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
 
 import app from "../src/app.js";
 import { db } from "../src/db/drizzle.js";
@@ -17,14 +9,14 @@ import { otpDatas, testRegisterUsers, testUsers } from "./constants/user.js";
 import { createTestRequest } from "./test-utils.js";
 
 describe("Login", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     const hashedUsers = await Promise.all(
       testUsers.map(async (user) => ({
         ...user,
         password: await hash(user.password, 10),
       })),
     );
-    await db.insert(accountTable).values(hashedUsers);
+    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
   });
 
   afterAll(async () => {
@@ -235,14 +227,14 @@ describe("Register", () => {
 });
 
 describe("Verify", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     const hashedUsers = await Promise.all(
       testUsers.map(async (user) => ({
         ...user,
         password: await hash(user.password, 10),
       })),
     );
-    await db.insert(accountTable).values(hashedUsers);
+    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
   });
 
   afterAll(async () => {
@@ -295,14 +287,14 @@ describe("Verify", () => {
 });
 
 describe("Logout", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     const hashedUsers = await Promise.all(
       testUsers.map(async (user) => ({
         ...user,
         password: await hash(user.password, 10),
       })),
     );
-    await db.insert(accountTable).values(hashedUsers);
+    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
   });
 
   afterAll(async () => {
@@ -348,15 +340,15 @@ describe("Logout", () => {
 });
 
 describe("OTP", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     const hashedUsers = await Promise.all(
       testUsers.map(async (user) => ({
         ...user,
         password: await hash(user.password, 10),
       })),
     );
-    await db.insert(accountTable).values(hashedUsers);
-    await db.insert(otpTable).values(otpDatas);
+    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
+    await db.insert(otpTable).values(otpDatas).onConflictDoNothing();
   });
 
   afterAll(async () => {
@@ -365,13 +357,6 @@ describe("OTP", () => {
         db.delete(accountTable).where(eq(accountTable.email, user.email)),
       ),
     );
-  });
-
-  afterEach(async () => {
-    await db
-      .update(accountTable)
-      .set({ status: "unverified" })
-      .where(eq(accountTable.email, testUsers[0].email));
   });
 
   test("POST 200 /api/auth/otp", async () => {
@@ -411,6 +396,11 @@ describe("OTP", () => {
     const otpBody = await otpRes.json();
     expect(otpBody.success).toBe(true);
     expect(otpBody.message).toBe("OTP found");
+
+    await db
+      .update(accountTable)
+      .set({ status: "unverified" })
+      .where(eq(accountTable.email, testUsers[0].email));
   });
 
   test("POST 400 /api/auth/otp", async () => {
