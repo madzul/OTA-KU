@@ -15,14 +15,14 @@ interface DetailCardsOrangTuaAsuhProps {
 }
 
 const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
-  name = "Budi Santoso",
-  role = "Orang Tua Asuh",
-  email = "Email@example.com",
-  phone = "08129130321321",
-  joinDate = "Bergabung di Maret 2024",
+  name,
+  role,
+  email,
+  phone,
+  joinDate,
   avatarSrc,
-  occupation = "Software Engineer",
-  beneficiary = 5,
+  occupation,
+  beneficiary,
 }) => {
   return (
     <div className="grid gap-6 md:grid-cols-[300px_1fr]">
@@ -79,10 +79,16 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
           {/* Personal Info Tab */}
           <TabsContent value="personalInfo">
             <div className="space-y-3 p-4">
-              <h3 className="text-lg xl:text-xl font-bold mb-8">Data Diri</h3>
+              <h3 className="mb-8 text-lg font-bold xl:text-xl">Data Diri</h3>
               <div className="xl:text-md space-y-2">
-                <p><span className="font-bold">Pekerjaan:</span> {occupation}</p>
-                <p><span className="font-bold">Jumlah Mahasiswa Asuh:</span> {beneficiary}</p>
+                <div className="flex items-center space-x-3">
+                  <span className="font-semibold">Pekerjaan:</span>
+                  <span>{occupation}</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="font-semibold">Jumlah Mahasiswa Asuh:</span>
+                  <span>{beneficiary}</span>
+                </div>
               </div>
             </div>
           </TabsContent>
@@ -90,12 +96,23 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
           {/* Sponsorship Details Tab */}
           <TabsContent value="sponsorshipDetails">
             <div className="space-y-3 p-4">
-                <h3 className="text-lg xl:text-xl font-bold mb-8">Detail Pendaftaran</h3>
-                <div className="xl:text-md space-y-2">
-                    <p><span className="font-bold">Tanggal Pendaftaran:</span> 1 Januari 2024</p>
-                    <p><span className="font-bold">Status:</span> Aktif</p>
-                    <p><span className="font-bold">Jumlah Mahasiswa Asuh:</span> {beneficiary}</p>
+              <h3 className="mb-8 text-lg font-bold xl:text-xl">
+                Detail Pendaftaran
+              </h3>
+              <div className="xl:text-md space-y-2">
+                <div className="flex items-center space-x-3">
+                  <span className="font-semibold">Status Pendaftaran:</span>
+                  <span>Aktif</span>
                 </div>
+                <div className="flex items-center space-x-3">
+                  <span className="font-semibold">Tanggal Pendaftaran:</span>
+                  <span>1 Januari 2024</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="font-semibold">Tanggal Pembaruan:</span>
+                  <span>1 Maret 2024</span>
+                </div>
+              </div>
             </div>
           </TabsContent>
         </Card>
