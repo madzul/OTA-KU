@@ -16,7 +16,7 @@ function MahasiswaCard({
   link: string;
 }) {
   return (
-    <div className="flex w-[150px] flex-col gap-2 rounded-[12px] bg-white px-3 py-3 shadow-[0_0_4px_rgba(0,0,0,0.2)] md:h-[220px] md:w-[330px] md:gap-[18px] md:px-6 md:py-6">
+    <div className="flex w-[150px] flex-col gap-2 rounded-[12px] bg-white px-3 py-3 shadow-[0_0_6px_rgba(0,0,0,0.4)] md:h-[220px] md:w-[330px] md:gap-[18px] md:px-6 md:py-6">
       <div className="flex flex-col gap-2">
         {/* Name and smt */}
         <div className="flex flex-col justify-center md:flex-row md:items-center md:justify-between">
@@ -54,9 +54,6 @@ function MahasiswaCard({
           className="h-8 w-full text-[12px] md:h-10 md:max-w-[130px] md:text-sm"
         >
           Lihat Profil
-        </Button>
-        <Button className="h-8 w-full text-[12px] md:h-10 md:max-w-[130px] md:text-sm">
-          Bantu
         </Button>
       </div>
     </div>
