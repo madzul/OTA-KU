@@ -99,7 +99,7 @@ const MahasiswaService = {
 
     // Filter the data based on the search query
     const filteredData = data.filter((mahasiswa) =>
-      mahasiswa.name.toLowerCase().includes(query.toLowerCase())
+      mahasiswa.name.toLowerCase().includes(query.toLowerCase()),
     );
 
     return filteredData;
@@ -112,7 +112,7 @@ const MahasiswaService = {
 
     // Filter the data based on the search query
     const filteredData = data.filter((mahasiswa) =>
-      mahasiswa.name.toLowerCase().includes(query.toLowerCase())
+      mahasiswa.name.toLowerCase().includes(query.toLowerCase()),
     );
 
     return filteredData;
@@ -236,25 +236,30 @@ function DaftarMahasiswaSaya() {
   // Handle tab change
   const handleTabChange = (value) => {
     setActiveTab(value);
-    setSearchQuery(""); // Reset search when changing tabs
+    setSearchQuery(""); 
   };
 
   // Get current data based on active tab
-  const currentData = activeTab === "aktif" ? mahasiswaAktif : mahasiswaNonAktif;
+  const currentData =
+    activeTab === "aktif" ? mahasiswaAktif : mahasiswaNonAktif;
 
   return (
     <div className="flex flex-col gap-4 text-[32px] md:gap-8">
       <h1 className="text-dark font-bold">Mahasiswa Asuh Saya</h1>
-      <Tabs defaultValue="aktif" className="w-full" onValueChange={handleTabChange}>
+      <Tabs
+        defaultValue="aktif"
+        className="w-full"
+        onValueChange={handleTabChange}
+      >
         <TabsList className="w-full bg-black/10">
-          <TabsTrigger 
-            value="aktif" 
+          <TabsTrigger
+            value="aktif"
             className="data-[state=active]:text-dark data-[state=inactive]:text-white"
           >
             Aktif
           </TabsTrigger>
-          <TabsTrigger 
-            value="non-aktif" 
+          <TabsTrigger
+            value="non-aktif"
             className="data-[state=active]:text-dark data-[state=inactive]:text-white"
           >
             Non-Aktif
@@ -272,7 +277,9 @@ function DaftarMahasiswaSaya() {
           {error && <p className="text-base text-red-500">{error}</p>}
 
           {!isLoading && mahasiswaAktif.length === 0 && (
-            <p className="text-base">Tidak ada mahasiswa aktif yang ditemukan</p>
+            <p className="text-dark mt-[125px] text-center text-[24px] font-bold md:text-[32px]">
+              Tidak ada mahasiswa aktif yang ditemukan
+            </p>
           )}
 
           <section className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
@@ -300,7 +307,9 @@ function DaftarMahasiswaSaya() {
           {error && <p className="text-base text-red-500">{error}</p>}
 
           {!isLoading && mahasiswaNonAktif.length === 0 && (
-            <p className="text-base">Tidak ada mahasiswa non-aktif yang ditemukan</p>
+            <p className="text-dark mt-[125px] text-center text-[24px] font-bold md:text-[32px]">
+              Tidak ada mahasiswa aktif yang ditemukan
+            </p>
           )}
 
           <section className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
