@@ -3,6 +3,7 @@ import React, { JSX, useEffect, useState } from "react";
 
 import { Input } from "../../../../../components/ui/input";
 import MahasiswaCard from "./card";
+import { LoaderCircle } from "lucide-react";
 
 // Interface untuk data mahasiswa
 interface Mahasiswa {
@@ -316,7 +317,16 @@ function DaftarMahasiswaSaya(): JSX.Element {
             onChange={handleInputChange}
           />
 
-          {isLoading && <p className="text-base">Memuat data...</p>}
+          {isLoading && (
+            <div className="flex flex-col gap-4">
+              <div className="flex animate-spin items-center justify-center">
+                <LoaderCircle />
+              </div>
+              <p className="text-dark text-center text-base font-medium">
+                Sedang Memuat Data...
+              </p>
+            </div>
+          )}
 
           {error && <p className="text-base text-red-500">{error}</p>}
 
