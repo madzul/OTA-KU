@@ -1,14 +1,25 @@
-import React, { useEffect, useState } from "react";
+import { LoaderCircle } from "lucide-react";
+import React, { JSX, useEffect, useState } from "react";
 
 import { Input } from "../../../../../components/ui/input";
 import MahasiswaCard from "./card";
-import { LoaderCircle } from "lucide-react";
 
-// API service mock - This would be in a separate file in a real app
+// Interface untuk data mahasiswa
+interface Mahasiswa {
+  id: string;
+  name: string;
+  smt: number;
+  faculty: string;
+  money: number;
+  link: string;
+}
+
+// Layanan API untuk mengelola data mahasiswa
+// Catatan: Pada implementasi sebenarnya, ini akan dipisahkan ke file terpisah
 const MahasiswaService = {
-  // Mock function to simulate fetching data from an API
-  getMahasiswaList: async () => {
-    // This would be a real API call in production
+  // Fungsi simulasi untuk mengambil data dari API
+  getMahasiswaList: async (): Promise<Mahasiswa[]> => {
+    // Pada implementasi sebenarnya, ini akan memanggil API backend
     return Promise.resolve([
       {
         id: "m001",
@@ -85,13 +96,13 @@ const MahasiswaService = {
     ]);
   },
 
-  // Search function that would call an API endpoint with search params
-  searchMahasiswa: async (query) => {
-    // This would be a real API call with search parameters in production
-    // For now, we'll just get the full list and filter it
+  // Fungsi pencarian yang akan memanggil endpoint API dengan parameter pencarian
+  searchMahasiswa: async (query: string): Promise<Mahasiswa[]> => {
+    // Pada implementasi sebenarnya, ini akan memanggil API dengan parameter pencarian
+    // Untuk saat ini, kita akan mengambil daftar lengkap dan memfilternya
     const data = await MahasiswaService.getMahasiswaList();
 
-    // Filter the data based on the search query
+    // Filter data berdasarkan query pencarian
     const filteredData = data.filter((mahasiswa) =>
       mahasiswa.name.toLowerCase().includes(query.toLowerCase()),
     );
@@ -100,63 +111,63 @@ const MahasiswaService = {
   },
 };
 
-function DaftarMahasiswa() {
-  const [mahasiswaList, setMahasiswaList] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+function DaftarMahasiswa(): JSX.Element {
+  const [mahasiswaList, setMahasiswaList] = useState<Mahasiswa[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Load data when component mounts
+  // Memuat data saat komponen pertama kali ditampilkan
   useEffect(() => {
     fetchMahasiswaData();
   }, []);
 
-  // Effect for handling search
+  // Effect untuk menangani pencarian
   useEffect(() => {
-    // Debounce search to avoid too many API calls
+    // Debounce pencarian untuk mengurangi panggilan API yang berlebihan
     const timeoutId = setTimeout(() => {
       if (searchQuery.trim()) {
         handleSearch(searchQuery);
       } else {
-        fetchMahasiswaData(); // Reset to full list when search is empty
+        fetchMahasiswaData(); // Reset ke daftar lengkap ketika pencarian kosong
       }
     }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
-  // Function to fetch all mahasiswa data
-  const fetchMahasiswaData = async () => {
+  // Fungsi untuk mengambil semua data mahasiswa
+  const fetchMahasiswaData = async (): Promise<void> => {
     setIsLoading(true);
     try {
       const data = await MahasiswaService.getMahasiswaList();
       setMahasiswaList(data);
       setError(null);
     } catch (err) {
-      console.error("Error fetching mahasiswa data:", err);
+      console.error("Gagal mengambil data mahasiswa:", err);
       setError("Gagal memuat data mahasiswa");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Function to handle search
-  const handleSearch = async (query) => {
+  // Fungsi untuk menangani pencarian
+  const handleSearch = async (query: string): Promise<void> => {
     setIsLoading(true);
     try {
       const results = await MahasiswaService.searchMahasiswa(query);
       setMahasiswaList(results);
       setError(null);
     } catch (err) {
-      console.error("Error searching mahasiswa:", err);
+      console.error("Gagal mencari mahasiswa:", err);
       setError("Gagal mencari mahasiswa");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle input change
-  const handleInputChange = (e) => {
+  // Menangani perubahan input
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setSearchQuery(e.target.value);
   };
 
@@ -172,7 +183,7 @@ function DaftarMahasiswa() {
 
       {isLoading && (
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-center animate-spin">
+          <div className="flex animate-spin items-center justify-center">
             <LoaderCircle />
           </div>
           <p className="text-dark text-center text-base font-medium">
@@ -184,13 +195,15 @@ function DaftarMahasiswa() {
       {error && <p className="text-base text-red-500">{error}</p>}
 
       {!isLoading && mahasiswaList.length === 0 && (
-        <p className="text-base">Tidak ada mahasiswa yang ditemukan</p>
+        <p className="text-dark mt-[125px] text-center text-[24px] font-bold md:text-[32px]">
+          Tidak ada mahasiswa yang ditemukan
+        </p>
       )}
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
-        {mahasiswaList.map((mahasiswa, index) => (
+        {mahasiswaList.map((mahasiswa) => (
           <MahasiswaCard
-            key={mahasiswa.id || index}
+            key={mahasiswa.id}
             name={mahasiswa.name}
             smt={mahasiswa.smt}
             faculty={mahasiswa.faculty}

@@ -1,14 +1,25 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import React, { useEffect, useState } from "react";
+import React, { JSX, useEffect, useState } from "react";
 
 import { Input } from "../../../../../components/ui/input";
 import MahasiswaCard from "./card";
 
-// API service mock - This would be in a separate file in a real app
+// Interface untuk data mahasiswa
+interface Mahasiswa {
+  id: string;
+  name: string;
+  smt: number;
+  faculty: string;
+  money: number;
+  link: string;
+}
+
+// Layanan API untuk mengelola data mahasiswa
+// Catatan: Pada implementasi sebenarnya, ini akan dipisahkan ke file terpisah
 const MahasiswaService = {
-  // Mock function to fetch active students
-  getMahasiswaAktifList: async () => {
-    // This would be a real API call in production
+  // Fungsi untuk mengambil daftar mahasiswa aktif
+  getMahasiswaAktifList: async (): Promise<Mahasiswa[]> => {
+    // Pada implementasi sebenarnya, ini akan memanggil API backend
     return Promise.resolve([
       {
         id: "m001",
@@ -16,7 +27,7 @@ const MahasiswaService = {
         smt: 5,
         faculty: "STEI-K Teknik Informatika",
         money: 1000000,
-        link: "/_app/profile/m001",
+        link: "/mahasiswa/profile/m001",
       },
       {
         id: "m002",
@@ -24,7 +35,7 @@ const MahasiswaService = {
         smt: 3,
         faculty: "STEI-K Teknik Informatika",
         money: 950000,
-        link: "/_app/profile/m002",
+        link: "/mahasiswa/profile/m002",
       },
       {
         id: "m003",
@@ -32,7 +43,7 @@ const MahasiswaService = {
         smt: 7,
         faculty: "FTTM Teknik Pertambangan",
         money: 1200000,
-        link: "/_app/profile/m003",
+        link: "/mahasiswa/profile/m003",
       },
       {
         id: "m004",
@@ -40,7 +51,7 @@ const MahasiswaService = {
         smt: 4,
         faculty: "FTSL Teknik Lingkungan",
         money: 875000,
-        link: "/_app/profile/m004",
+        link: "/mahasiswa/profile/m004",
       },
       {
         id: "m005",
@@ -48,14 +59,14 @@ const MahasiswaService = {
         smt: 2,
         faculty: "FTI Teknik Kimia",
         money: 1150000,
-        link: "/_app/profile/m005",
+        link: "/mahasiswa/profile/m005",
       },
     ]);
   },
 
-  // Mock function to fetch non-active students
-  getMahasiswaNonAktifList: async () => {
-    // This would be a real API call in production
+  // Fungsi untuk mengambil daftar mahasiswa non-aktif
+  getMahasiswaNonAktifList: async (): Promise<Mahasiswa[]> => {
+    // Pada implementasi sebenarnya, ini akan memanggil API backend
     return Promise.resolve([
       {
         id: "m006",
@@ -63,7 +74,7 @@ const MahasiswaService = {
         smt: 6,
         faculty: "FMIPA Matematika",
         money: 925000,
-        link: "/_app/profile/m006",
+        link: "/mahasiswa/profile/m006",
       },
       {
         id: "m007",
@@ -71,7 +82,7 @@ const MahasiswaService = {
         smt: 5,
         faculty: "FTMD Teknik Mesin",
         money: 1050000,
-        link: "/_app/profile/m007",
+        link: "/mahasiswa/profile/m007",
       },
       {
         id: "m008",
@@ -79,7 +90,7 @@ const MahasiswaService = {
         smt: 3,
         faculty: "FSRD Desain Interior",
         money: 980000,
-        link: "/_app/profile/m008",
+        link: "/mahasiswa/profile/m008",
       },
       {
         id: "m009",
@@ -87,17 +98,17 @@ const MahasiswaService = {
         smt: 1,
         faculty: "STEI-K Teknik Elektro",
         money: 900000,
-        link: "/_app/profile/m009",
+        link: "/mahasiswa/profile/m009",
       },
     ]);
   },
 
-  // Search function for active students
-  searchMahasiswaAktif: async (query) => {
-    // This would be a real API call with search parameters in production
+  // Fungsi pencarian untuk mahasiswa aktif
+  searchMahasiswaAktif: async (query: string): Promise<Mahasiswa[]> => {
+    // Pada implementasi sebenarnya, ini akan memanggil API backend dengan parameter pencarian
     const data = await MahasiswaService.getMahasiswaAktifList();
 
-    // Filter the data based on the search query
+    // Filter data berdasarkan query pencarian
     const filteredData = data.filter((mahasiswa) =>
       mahasiswa.name.toLowerCase().includes(query.toLowerCase()),
     );
@@ -105,12 +116,12 @@ const MahasiswaService = {
     return filteredData;
   },
 
-  // Search function for non-active students
-  searchMahasiswaNonAktif: async (query) => {
-    // This would be a real API call with search parameters in production
+  // Fungsi pencarian untuk mahasiswa non-aktif
+  searchMahasiswaNonAktif: async (query: string): Promise<Mahasiswa[]> => {
+    // Pada implementasi sebenarnya, ini akan memanggil API backend dengan parameter pencarian
     const data = await MahasiswaService.getMahasiswaNonAktifList();
 
-    // Filter the data based on the search query
+    // Filter data berdasarkan query pencarian
     const filteredData = data.filter((mahasiswa) =>
       mahasiswa.name.toLowerCase().includes(query.toLowerCase()),
     );
@@ -119,23 +130,23 @@ const MahasiswaService = {
   },
 };
 
-function DaftarMahasiswaSaya() {
-  const [activeTab, setActiveTab] = useState("aktif");
-  const [mahasiswaAktif, setMahasiswaAktif] = useState([]);
-  const [mahasiswaNonAktif, setMahasiswaNonAktif] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
+function DaftarMahasiswaSaya(): JSX.Element {
+  const [activeTab, setActiveTab] = useState<"aktif" | "non-aktif">("aktif");
+  const [mahasiswaAktif, setMahasiswaAktif] = useState<Mahasiswa[]>([]);
+  const [mahasiswaNonAktif, setMahasiswaNonAktif] = useState<Mahasiswa[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Load data when component mounts
+  // Memuat data saat komponen pertama kali ditampilkan
   useEffect(() => {
     fetchMahasiswaAktif();
     fetchMahasiswaNonAktif();
   }, []);
 
-  // Effect for handling search
+  // Effect untuk menangani pencarian
   useEffect(() => {
-    // Debounce search to avoid too many API calls
+    // Debounce pencarian untuk mengurangi panggilan API yang berlebihan
     const timeoutId = setTimeout(() => {
       if (searchQuery.trim()) {
         if (activeTab === "aktif") {
@@ -144,7 +155,7 @@ function DaftarMahasiswaSaya() {
           handleSearchNonAktif(searchQuery);
         }
       } else {
-        // Reset to full list when search is empty
+        // Reset ke daftar lengkap ketika pencarian kosong
         if (activeTab === "aktif") {
           fetchMahasiswaAktif();
         } else {
@@ -156,8 +167,8 @@ function DaftarMahasiswaSaya() {
     return () => clearTimeout(timeoutId);
   }, [searchQuery, activeTab]);
 
-  // Function to fetch active mahasiswa data
-  const fetchMahasiswaAktif = async () => {
+  // Fungsi untuk mengambil data mahasiswa aktif
+  const fetchMahasiswaAktif = async (): Promise<void> => {
     if (activeTab === "aktif") {
       setIsLoading(true);
     }
@@ -166,7 +177,7 @@ function DaftarMahasiswaSaya() {
       setMahasiswaAktif(data);
       setError(null);
     } catch (err) {
-      console.error("Error fetching active mahasiswa data:", err);
+      console.error("Gagal mengambil data mahasiswa aktif:", err);
       if (activeTab === "aktif") {
         setError("Gagal memuat data mahasiswa aktif");
       }
@@ -177,8 +188,8 @@ function DaftarMahasiswaSaya() {
     }
   };
 
-  // Function to fetch non-active mahasiswa data
-  const fetchMahasiswaNonAktif = async () => {
+  // Fungsi untuk mengambil data mahasiswa non-aktif
+  const fetchMahasiswaNonAktif = async (): Promise<void> => {
     if (activeTab === "non-aktif") {
       setIsLoading(true);
     }
@@ -187,7 +198,7 @@ function DaftarMahasiswaSaya() {
       setMahasiswaNonAktif(data);
       setError(null);
     } catch (err) {
-      console.error("Error fetching non-active mahasiswa data:", err);
+      console.error("Gagal mengambil data mahasiswa non-aktif:", err);
       if (activeTab === "non-aktif") {
         setError("Gagal memuat data mahasiswa non-aktif");
       }
@@ -198,50 +209,51 @@ function DaftarMahasiswaSaya() {
     }
   };
 
-  // Function to handle search for active students
-  const handleSearchAktif = async (query) => {
+  // Fungsi untuk menangani pencarian mahasiswa aktif
+  const handleSearchAktif = async (query: string): Promise<void> => {
     setIsLoading(true);
     try {
       const results = await MahasiswaService.searchMahasiswaAktif(query);
       setMahasiswaAktif(results);
       setError(null);
     } catch (err) {
-      console.error("Error searching active mahasiswa:", err);
+      console.error("Gagal mencari mahasiswa aktif:", err);
       setError("Gagal mencari mahasiswa aktif");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Function to handle search for non-active students
-  const handleSearchNonAktif = async (query) => {
+  // Fungsi untuk menangani pencarian mahasiswa non-aktif
+  const handleSearchNonAktif = async (query: string): Promise<void> => {
     setIsLoading(true);
     try {
       const results = await MahasiswaService.searchMahasiswaNonAktif(query);
       setMahasiswaNonAktif(results);
       setError(null);
     } catch (err) {
-      console.error("Error searching non-active mahasiswa:", err);
+      console.error("Gagal mencari mahasiswa non-aktif:", err);
       setError("Gagal mencari mahasiswa non-aktif");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle input change
-  const handleInputChange = (e) => {
+  // Menangani perubahan input pencarian
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setSearchQuery(e.target.value);
   };
 
-  // Handle tab change
-  const handleTabChange = (value) => {
+  // Menangani perubahan tab
+  const handleTabChange = (value: "aktif" | "non-aktif"): void => {
     setActiveTab(value);
-    setSearchQuery(""); 
+    setSearchQuery("");
   };
 
-  // Get current data based on active tab
-  const currentData =
-    activeTab === "aktif" ? mahasiswaAktif : mahasiswaNonAktif;
+  // Mendapatkan data saat ini berdasarkan tab aktif
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //   const currentData: Mahasiswa[] =
+  //     activeTab === "aktif" ? mahasiswaAktif : mahasiswaNonAktif;
 
   return (
     <div className="flex flex-col gap-4 text-[32px] md:gap-8">
@@ -249,7 +261,9 @@ function DaftarMahasiswaSaya() {
       <Tabs
         defaultValue="aktif"
         className="w-full"
-        onValueChange={handleTabChange}
+        onValueChange={(value) =>
+          handleTabChange(value as "aktif" | "non-aktif")
+        }
       >
         <TabsList className="w-full bg-black/10">
           <TabsTrigger
@@ -283,9 +297,9 @@ function DaftarMahasiswaSaya() {
           )}
 
           <section className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
-            {mahasiswaAktif.map((mahasiswa, index) => (
+            {mahasiswaAktif.map((mahasiswa) => (
               <MahasiswaCard
-                key={mahasiswa.id || index}
+                key={mahasiswa.id}
                 name={mahasiswa.name}
                 smt={mahasiswa.smt}
                 faculty={mahasiswa.faculty}
@@ -308,14 +322,14 @@ function DaftarMahasiswaSaya() {
 
           {!isLoading && mahasiswaNonAktif.length === 0 && (
             <p className="text-dark mt-[125px] text-center text-[24px] font-bold md:text-[32px]">
-              Tidak ada mahasiswa aktif yang ditemukan
+              Tidak ada mahasiswa non-aktif yang ditemukan
             </p>
           )}
 
           <section className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
-            {mahasiswaNonAktif.map((mahasiswa, index) => (
+            {mahasiswaNonAktif.map((mahasiswa) => (
               <MahasiswaCard
-                key={mahasiswa.id || index}
+                key={mahasiswa.id}
                 name={mahasiswa.name}
                 smt={mahasiswa.smt}
                 faculty={mahasiswa.faculty}
