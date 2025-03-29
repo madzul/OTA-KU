@@ -41,17 +41,35 @@ backend-test-job:
   stage: test
   needs:
     - backend-build-job
+  image: node:20-bookworm
+  services:
+    - name: postgres:16
+      alias: db
+      variables:
+        POSTGRES_USER: dbuser
+        POSTGRES_PASSWORD: dbpassword
+        POSTGRES_DB: maindb
+        POSTGRES_HOST: db
+        POSTGRES_PORT: 5432
+        DATABASE_URL: postgresql://dbuser:dbpassword@db:5432/maindb
+  before_script:
+    - apt-get update && apt-get install -y postgresql-client
   script:
     - echo "Testing backend..."
     - cd backend
-    - cp "$BACKEND_ENV_FILE" .env
+    - cp "$BACKEND_LOCAL_ENV_FILE" .env
     # Ensure required environment variables are available
     - |
       if ! grep -q "DATABASE_URL" .env || ! grep -q "JWT_SECRET" .env; then
         echo "ERROR: Required environment variables missing in .env"
         exit 1
       fi
+    - export $(grep -v '^#' .env | xargs)
+    - echo "Waiting for PostgreSQL to be ready..."
+    - until pg_isready -h db -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do sleep 2; done
+    - echo "Database is ready!"
     - npm ci --prefer-offline
+    - npm run drizzle-kit:migrate
     - npm run test
   cache:
     policy: pull

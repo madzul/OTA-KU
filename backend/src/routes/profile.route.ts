@@ -5,9 +5,11 @@ import {
   MahasiswaRegistrationFailedResponse,
   MahasiswaRegistrationFormSchema,
   MahasiswaRegistrationSuccessfulResponse,
+  MahasiswaUnverifiedResponse,
   OrangTuaRegistrationFailedResponse,
   OrangTuaRegistrationSchema,
   OrangTuaRegistrationSuccessfulResponse,
+  OrangTuaUnverifiedResponse,
 } from "../zod/profile.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 
@@ -40,6 +42,12 @@ export const pendaftaranMahasiswaRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun belum terverifikasi.",
+      content: {
+        "application/json": { schema: MahasiswaUnverifiedResponse },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -78,6 +86,12 @@ export const pendaftaranOrangTuaRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun belum terverifikasi.",
+      content: {
+        "application/json": { schema: OrangTuaUnverifiedResponse },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
