@@ -38,7 +38,7 @@ if "%mode%"=="1" (
 
     echo Installing Frontend dependencies...
     pushd frontend
-    npm install
+    npm install --force
     popd
     
     echo Development setup complete!
