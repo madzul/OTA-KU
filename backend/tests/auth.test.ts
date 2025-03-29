@@ -1,32 +1,13 @@
-import { hash } from "bcrypt";
 import { eq } from "drizzle-orm";
-import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import app from "../src/app.js";
 import { db } from "../src/db/drizzle.js";
-import { accountTable, otpTable } from "../src/db/schema.js";
+import { accountTable } from "../src/db/schema.js";
 import { otpDatas, testRegisterUsers, testUsers } from "./constants/user.js";
 import { createTestRequest } from "./test-utils.js";
 
 describe("Login", () => {
-  beforeEach(async () => {
-    const hashedUsers = await Promise.all(
-      testUsers.map(async (user) => ({
-        ...user,
-        password: await hash(user.password, 10),
-      })),
-    );
-    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
-  });
-
-  afterAll(async () => {
-    await Promise.all(
-      testUsers.map((user) =>
-        db.delete(accountTable).where(eq(accountTable.email, user.email)),
-      ),
-    );
-  });
-
   test("POST 200 /api/auth/login", async () => {
     const params = new URLSearchParams();
     params.append("identifier", testUsers[0].email);
@@ -127,14 +108,6 @@ describe("Login", () => {
 });
 
 describe("Register", () => {
-  afterAll(async () => {
-    await Promise.all(
-      testRegisterUsers.map((user) =>
-        db.delete(accountTable).where(eq(accountTable.email, user.email)),
-      ),
-    );
-  });
-
   test("POST 200 /api/auth/register", async () => {
     const params = new URLSearchParams();
     params.append("type", testRegisterUsers[0].type);
@@ -227,24 +200,6 @@ describe("Register", () => {
 });
 
 describe("Verify", () => {
-  beforeEach(async () => {
-    const hashedUsers = await Promise.all(
-      testUsers.map(async (user) => ({
-        ...user,
-        password: await hash(user.password, 10),
-      })),
-    );
-    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
-  });
-
-  afterAll(async () => {
-    await Promise.all(
-      testUsers.map((user) =>
-        db.delete(accountTable).where(eq(accountTable.email, user.email)),
-      ),
-    );
-  });
-
   test("GET 200 /api/auth/verify", async () => {
     const params = new URLSearchParams();
     params.append("identifier", testUsers[0].email);
@@ -287,24 +242,6 @@ describe("Verify", () => {
 });
 
 describe("Logout", () => {
-  beforeEach(async () => {
-    const hashedUsers = await Promise.all(
-      testUsers.map(async (user) => ({
-        ...user,
-        password: await hash(user.password, 10),
-      })),
-    );
-    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
-  });
-
-  afterAll(async () => {
-    await Promise.all(
-      testUsers.map((user) =>
-        db.delete(accountTable).where(eq(accountTable.email, user.email)),
-      ),
-    );
-  });
-
   test("POST 200 /api/auth/logout", async () => {
     const params = new URLSearchParams();
     params.append("identifier", testUsers[0].email);
@@ -340,30 +277,11 @@ describe("Logout", () => {
 });
 
 describe("OTP", () => {
-  beforeEach(async () => {
-    const hashedUsers = await Promise.all(
-      testUsers.map(async (user) => ({
-        ...user,
-        password: await hash(user.password, 10),
-      })),
-    );
-    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
-    await db.insert(otpTable).values(otpDatas).onConflictDoNothing();
-  });
-
-  afterAll(async () => {
-    await Promise.all(
-      testUsers.map((user) =>
-        db.delete(accountTable).where(eq(accountTable.email, user.email)),
-      ),
-    );
-  });
-
   test("POST 200 /api/auth/otp", async () => {
     // Login first
     const params = new URLSearchParams();
-    params.append("identifier", testUsers[0].email);
-    params.append("password", testUsers[0].password);
+    params.append("identifier", testUsers[3].email);
+    params.append("password", testUsers[3].password);
 
     const loginRes = await app.request(
       createTestRequest("/api/auth/login", {
@@ -380,7 +298,7 @@ describe("OTP", () => {
 
     // Request OTP
     const otpParams = new URLSearchParams();
-    otpParams.append("pin", otpDatas[0].code);
+    otpParams.append("pin", otpDatas[3].code);
 
     const otpRes = await app.request(
       createTestRequest("/api/auth/otp", {
@@ -400,7 +318,7 @@ describe("OTP", () => {
     await db
       .update(accountTable)
       .set({ status: "unverified" })
-      .where(eq(accountTable.email, testUsers[0].email));
+      .where(eq(accountTable.email, testUsers[3].email));
   });
 
   test("POST 400 /api/auth/otp", async () => {

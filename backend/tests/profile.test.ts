@@ -1,40 +1,19 @@
-import { hash } from "bcrypt";
-import { eq } from "drizzle-orm";
 import FormData from "form-data";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import app from "../src/app.js";
 import { db } from "../src/db/drizzle.js";
-import { accountTable } from "../src/db/schema.js";
 import cloudinary from "../src/lib/cloudinary.js";
 import { testUsers } from "./constants/user.js";
 import { createTestRequest } from "./test-utils.js";
 
 describe("Pendaftaran Mahasiswa", () => {
-  beforeEach(async () => {
-    const hashedUsers = await Promise.all(
-      testUsers.map(async (user) => ({
-        ...user,
-        password: await hash(user.password, 10),
-      })),
-    );
-    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
-  });
-
-  afterAll(async () => {
-    await Promise.all(
-      testUsers.map((user) =>
-        db.delete(accountTable).where(eq(accountTable.email, user.email)),
-      ),
-    );
-  });
-
   test("POST 200 /api/profile/mahasiswa", async () => {
     const params = new URLSearchParams();
-    params.append("identifier", testUsers[0].email);
-    params.append("password", testUsers[0].password);
+    params.append("identifier", testUsers[4].email);
+    params.append("password", testUsers[4].password);
 
     const loginRes = await app.request(
       createTestRequest("/api/auth/login", {
@@ -54,9 +33,9 @@ describe("Pendaftaran Mahasiswa", () => {
 
     const formData = new FormData();
     formData.append("name", "John Doe");
-    formData.append("nim", "99922999");
+    formData.append("nim", "33322333");
     formData.append("description", "Test description");
-    formData.append("phoneNumber", testUsers[0].phoneNumber);
+    formData.append("phoneNumber", testUsers[4].phoneNumber);
     formData.append("file", fileData, {
       filename: "sample.pdf",
       contentType: "application/pdf",
@@ -103,14 +82,14 @@ describe("Pendaftaran Mahasiswa", () => {
     expect(body.success).toBe(true);
     expect(body.message).toBe("Berhasil mendaftar.");
     expect(body.body.name).toBe("John Doe");
-    expect(body.body.nim).toBe("99922999");
+    expect(body.body.nim).toBe("33322333");
     expect(body.body.file).toBe("https://cloudinary.com/sample.pdf");
   });
 
   test("POST 400 /api/profile/mahasiswa", async () => {
     const params = new URLSearchParams();
-    params.append("identifier", testUsers[0].email);
-    params.append("password", testUsers[0].password);
+    params.append("identifier", testUsers[4].email);
+    params.append("password", testUsers[4].password);
 
     const loginRes = await app.request(
       createTestRequest("/api/auth/login", {
@@ -130,7 +109,7 @@ describe("Pendaftaran Mahasiswa", () => {
 
     const formData = new FormData();
     formData.append("name", "John Doe");
-    formData.append("nim", "99922999");
+    formData.append("nim", "33322333");
     formData.append("description", "Test description");
     formData.append("file", fileData, {
       filename: "sample.pdf",
@@ -155,6 +134,54 @@ describe("Pendaftaran Mahasiswa", () => {
     );
   });
 
+  test("POST 403 /api/profile/mahasiswa", async () => {
+    const params = new URLSearchParams();
+    params.append("identifier", testUsers[0].email);
+    params.append("password", testUsers[0].password);
+
+    const loginRes = await app.request(
+      createTestRequest("/api/auth/login", {
+        method: "POST",
+        body: params,
+      }),
+    );
+
+    const loginBody = await loginRes.json();
+    expect(loginBody.success).toBe(true);
+    expect(loginBody.message).toBe("Login successful");
+
+    const token = loginBody.body.token;
+
+    const filePath = join(__dirname, "./constants/sample.pdf");
+    const fileData = readFileSync(filePath);
+
+    const formData = new FormData();
+    formData.append("name", "John Doe");
+    formData.append("nim", "33322333");
+    formData.append("description", "Test description");
+    formData.append("phoneNumber", testUsers[0].phoneNumber);
+    formData.append("file", fileData, {
+      filename: "sample.pdf",
+      contentType: "application/pdf",
+    });
+
+    const headers = formData.getHeaders();
+    headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await app.request(
+      createTestRequest("/api/profile/mahasiswa", {
+        method: "POST",
+        headers: headers,
+        body: formData.getBuffer(),
+      }),
+    );
+
+    expect(res.status).toBe(403);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.message).toBe("Akun anda belum diverifikasi.");
+  });
+
   test("POST 500 /api/profile/mahasiswa (Database Error)", async () => {
     vi.spyOn(db, "transaction").mockImplementationOnce(() => {
       throw new Error("Database connection failed");
@@ -162,8 +189,8 @@ describe("Pendaftaran Mahasiswa", () => {
 
     // Login first
     const params = new URLSearchParams();
-    params.append("identifier", testUsers[0].email);
-    params.append("password", testUsers[0].password);
+    params.append("identifier", testUsers[4].email);
+    params.append("password", testUsers[4].password);
 
     const loginRes = await app.request(
       createTestRequest("/api/auth/login", {
@@ -186,7 +213,7 @@ describe("Pendaftaran Mahasiswa", () => {
     formData.append("name", "John Doe");
     formData.append("nim", "99922999");
     formData.append("description", "Test description");
-    formData.append("phoneNumber", testUsers[0].phoneNumber);
+    formData.append("phoneNumber", testUsers[4].phoneNumber);
     formData.append("file", fileData, {
       filename: "sample.pdf",
       contentType: "application/pdf",
@@ -239,24 +266,6 @@ describe("Pendaftaran Mahasiswa", () => {
 });
 
 describe("Pendaftaran Orang Tua Asuh", () => {
-  beforeEach(async () => {
-    const hashedUsers = await Promise.all(
-      testUsers.map(async (user) => ({
-        ...user,
-        password: await hash(user.password, 10),
-      })),
-    );
-    await db.insert(accountTable).values(hashedUsers).onConflictDoNothing();
-  });
-
-  afterAll(async () => {
-    await Promise.all(
-      testUsers.map((user) =>
-        db.delete(accountTable).where(eq(accountTable.email, user.email)),
-      ),
-    );
-  });
-
   test("POST 200 /api/profile/orang-tua", async () => {
     const params = new URLSearchParams();
     params.append("identifier", testUsers[1].email);
@@ -350,6 +359,53 @@ describe("Pendaftaran Orang Tua Asuh", () => {
     expect(body.errors.fieldErrors.transferDate[0]).toBe(
       "Tanggal transfer harus berupa angka",
     );
+  });
+
+  test("POST 403 /api/profile/orang-tua", async () => {
+    const params = new URLSearchParams();
+    params.append("identifier", testUsers[5].email);
+    params.append("password", testUsers[5].password);
+
+    const loginRes = await app.request(
+      createTestRequest("/api/auth/login", {
+        method: "POST",
+        body: params,
+      }),
+    );
+
+    const loginBody = await loginRes.json();
+    expect(loginBody.success).toBe(true);
+    expect(loginBody.message).toBe("Login successful");
+
+    const token = loginBody.body.token;
+
+    const formData = new FormData();
+    formData.append("name", "John Doe");
+    formData.append("address", "Test address");
+    formData.append("criteria", "Test criteria");
+    formData.append("funds", 300000);
+    formData.append("job", "Test job");
+    formData.append("linkage", "otm");
+    formData.append("maxCapacity", 5);
+    formData.append("maxSemester", 8);
+    formData.append("startDate", new Date().toISOString());
+    formData.append("transferDate", 25);
+
+    const headers = formData.getHeaders();
+    headers["Authorization"] = `Bearer ${token}`;
+
+    const res = await app.request(
+      createTestRequest("/api/profile/orang-tua", {
+        method: "POST",
+        headers: headers,
+        body: formData.getBuffer(),
+      }),
+    );
+
+    expect(res.status).toBe(403);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.message).toBe("Akun anda belum diverifikasi.");
   });
 
   test("POST 500 /api/profile/orang-tua (Database Error)", async () => {

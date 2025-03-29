@@ -40,6 +40,17 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
 
   const { name, nim, description, file, phoneNumber } = zodParseResult.data;
 
+  if (user.status === "unverified") {
+    return c.json(
+      {
+        success: false,
+        message: "Akun anda belum diverifikasi.",
+        error: {},
+      },
+      403,
+    );
+  }
+
   try {
     const fileUuid = uuid();
     const uuidFile = `${fileUuid}.pdf`;
@@ -135,6 +146,17 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
     startDate,
     transferDate,
   } = zodParseResult.data;
+
+  if (user.status === "unverified") {
+    return c.json(
+      {
+        success: false,
+        message: "Akun anda belum diverifikasi.",
+        error: {},
+      },
+      403,
+    );
+  }
 
   try {
     await db.insert(accountOtaDetailTable).values({

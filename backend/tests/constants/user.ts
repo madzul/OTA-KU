@@ -1,4 +1,5 @@
 export const testUsers = [
+  // Default login user
   {
     id: "da7a126a-4c35-43e3-b2fd-3531c26c88ad",
     email: "99922999@mahasiswa.itb.ac.id",
@@ -23,6 +24,36 @@ export const testUsers = [
     phoneNumber: "081234567892",
     password: "testuser123",
     type: "admin" as const,
+    provider: "credentials" as const,
+    status: "unverified" as const,
+  },
+  // OTP login user (will change from unverified to verified after otp)
+  {
+    id: "00ee5a79-2779-4eef-a18e-94781e525832",
+    email: "11122111@mahasiswa.itb.ac.id",
+    phoneNumber: "081234167890",
+    password: "testuser123",
+    type: "mahasiswa" as const,
+    provider: "credentials" as const,
+    status: "unverified" as const,
+  },
+  // Verified mahasiswa user
+  {
+    id: "1f18242c-cd92-401e-ac82-6343bb1d7145",
+    email: "33322333@mahasiswa.itb.ac.id",
+    phoneNumber: "081234166890",
+    password: "testuser123",
+    type: "mahasiswa" as const,
+    provider: "credentials" as const,
+    status: "verified" as const,
+  },
+  // Unverified ota user
+  {
+    id: "2f18242c-cd92-401e-ac82-6343bb1d7145",
+    email: "user6@test.com",
+    phoneNumber: "084234167890",
+    password: "testuser123",
+    type: "ota" as const,
     provider: "credentials" as const,
     status: "unverified" as const,
   },
@@ -63,5 +94,10 @@ export const otpDatas = [
     accountId: testUsers[2].id,
     code: "654321",
     expiredAt: new Date(),
+  },
+  {
+    accountId: testUsers[3].id,
+    code: "123456",
+    expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
   },
 ];
