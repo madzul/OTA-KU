@@ -27,6 +27,7 @@ export const linkageEnum = pgEnum("linkage", [
 export const verificationStatusEnum = pgEnum("verification_status", [
   "verified",
   "unverified",
+  "pending",
 ]);
 
 export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
@@ -43,7 +44,7 @@ export const accountTable = pgTable("account", {
   password: varchar({ length: 255 }).notNull(),
   type: accountTypeEnum("type").notNull(),
   provider: providerEnum("provider").notNull().default("credentials"),
-  status: verificationStatusEnum("status").notNull().default("unverified"),
+  status: verificationStatusEnum("status").notNull().default("pending"),
 });
 
 export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {

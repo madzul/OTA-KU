@@ -26,19 +26,8 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = MahasiswaRegistrationFormSchema.safeParse(data);
-  if (!zodParseResult.success) {
-    return c.json(
-      {
-        success: false,
-        message: "Gagal mendaftar.",
-        error: zodParseResult.error.errors,
-      },
-      400,
-    );
-  }
-
-  const { name, nim, description, file, phoneNumber } = zodParseResult.data;
+  const zodParseResult = MahasiswaRegistrationFormSchema.parse(data);
+  const { name, nim, description, file, phoneNumber } = zodParseResult;
 
   if (user.status === "unverified") {
     return c.json(
@@ -122,17 +111,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = OrangTuaRegistrationSchema.safeParse(data);
-  if (!zodParseResult.success) {
-    return c.json(
-      {
-        success: false,
-        message: "Gagal mendaftar.",
-        error: zodParseResult.error.errors,
-      },
-      400,
-    );
-  }
+  const zodParseResult = OrangTuaRegistrationSchema.parse(data);
 
   const {
     name,
@@ -145,7 +124,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
     maxSemester,
     startDate,
     transferDate,
-  } = zodParseResult.data;
+  } = zodParseResult;
 
   if (user.status === "unverified") {
     return c.json(
