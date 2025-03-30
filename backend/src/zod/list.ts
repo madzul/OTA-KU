@@ -49,6 +49,7 @@ export const OTAListQuerySchema = z.object({
 });
 
 export const OTAListElementSchema = z.object({
+  accountId: z.string().openapi({ example: "1" }),
   name: z.string().openapi({ example: "John Doe" }),
   phoneNumber: PhoneNumberSchema,
   nominal: z.number().openapi({ example: 5000000 }),

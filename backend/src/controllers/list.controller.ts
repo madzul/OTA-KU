@@ -111,6 +111,7 @@ listProtectedRouter.openapi(listOtaKuRoute, async(c) => {
 
     const OTAListQuery = db
       .select({
+        accountId: accountOtaDetailTable.accountId,
         name: accountOtaDetailTable.name,
         phoneNumber: accountTable.phoneNumber,
         //TO-DO: Ganti jadi nominal per anak nanti di connection sekalian tambahin kondisi where connectionTable.mahasiswa_id = user.id gitu lah
@@ -135,6 +136,7 @@ listProtectedRouter.openapi(listOtaKuRoute, async(c) => {
         message: "Daftar OTA-ku berhasil diambil",
         body: {
           data: OTAList.map((OTA) => ({
+            accountId: OTA.accountId,
             name: OTA.name,
             phoneNumber: OTA.phoneNumber ?? "",
             nominal: OTA.nominal
