@@ -20,11 +20,11 @@ const statuses = [
     label: "Tertunda",
   },
   {
-    value: "verified",
+    value: "accepted",
     label: "Terverifikasi",
   },
   {
-    value: "unverified",
+    value: "rejected",
     label: "Tertolak",
   },
 ];

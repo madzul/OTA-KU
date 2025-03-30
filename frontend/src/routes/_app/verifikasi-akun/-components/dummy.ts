@@ -57,7 +57,7 @@ export const mahasiswaTableData = [
     name: "Brian Johnson",
     email: "brian@example.com",
     jurusan: "Teknik Sipil",
-    status: "verified",
+    status: "accepted",
   },
   {
     id: "3",
@@ -78,7 +78,7 @@ export const mahasiswaTableData = [
     name: "Emily Davis",
     email: "emily@example.com",
     jurusan: "Teknik Kimia",
-    status: "verified",
+    status: "accepted",
   },
   {
     id: "6",
@@ -99,7 +99,7 @@ export const mahasiswaTableData = [
     name: "Henry Brown",
     email: "henry@example.com",
     jurusan: "Teknik Lingkungan",
-    status: "verified",
+    status: "accepted",
   },
 ];
 
@@ -116,7 +116,7 @@ export const orangTuaTableData = [
     name: "Beatrice Carter",
     phoneNumber: "987-654-3210",
     job: "Teacher",
-    status: "verified",
+    status: "accepted",
   },
   {
     id: "3",
@@ -137,7 +137,7 @@ export const orangTuaTableData = [
     name: "Edward Norton",
     phoneNumber: "789-012-3456",
     job: "Actor",
-    status: "verified",
+    status: "accepted",
   },
   {
     id: "6",
@@ -158,6 +158,6 @@ export const orangTuaTableData = [
     name: "Hannah Montana",
     phoneNumber: "567-890-1234",
     job: "Singer",
-    status: "verified",
+    status: "accepted",
   },
 ];

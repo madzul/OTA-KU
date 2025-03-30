@@ -91,14 +91,14 @@ export const mahasiswaColumns: ColumnDef<MahasiswaColumn>[] = [
             "rounded-full px-3 py-1 text-xs font-semibold text-white",
             status === "pending"
               ? "bg-[#EAB308]"
-              : status === "verified"
+              : status === "accepted"
                 ? "bg-succeed"
                 : "bg-destructive",
           )}
         >
           {status === "pending"
             ? "Tertunda"
-            : status === "verified"
+            : status === "accepted"
               ? "Terverifikasi"
               : "Tertolak"}
         </span>
@@ -117,14 +117,14 @@ export const mahasiswaColumns: ColumnDef<MahasiswaColumn>[] = [
             "rounded-full px-3 py-1 text-xs font-semibold text-white",
             status === "pending"
               ? "bg-[#EAB308]"
-              : status === "verified"
+              : status === "accepted"
                 ? "bg-succeed"
                 : "bg-destructive",
           )}
         >
           {status === "pending"
             ? "Tertunda"
-            : status === "verified"
+            : status === "accepted"
               ? "Terverifikasi"
               : "Tertolak"}
         </span>
@@ -221,14 +221,14 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
             "rounded-full px-3 py-1 text-xs font-semibold text-white",
             status === "pending"
               ? "bg-[#EAB308]"
-              : status === "verified"
+              : status === "accepted"
                 ? "bg-succeed"
                 : "bg-destructive",
           )}
         >
           {status === "pending"
             ? "Tertunda"
-            : status === "verified"
+            : status === "accepted"
               ? "Terverifikasi"
               : "Tertolak"}
         </span>
@@ -247,14 +247,14 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
             "rounded-full px-3 py-1 text-xs font-semibold text-white",
             status === "pending"
               ? "bg-[#EAB308]"
-              : status === "verified"
+              : status === "accepted"
                 ? "bg-succeed"
                 : "bg-destructive",
           )}
         >
           {status === "pending"
             ? "Tertunda"
-            : status === "verified"
+            : status === "accepted"
               ? "Terverifikasi"
               : "Tertolak"}
         </span>

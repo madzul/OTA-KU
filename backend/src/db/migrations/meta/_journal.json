@@ -78,6 +78,13 @@
       "when": 1743225500648,
       "tag": "0010_opposite_cyclops",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1743316827923,
+      "tag": "0011_illegal_fat_cobra",
+      "breakpoints": true
     }
   ]
 }
