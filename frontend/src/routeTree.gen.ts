@@ -16,6 +16,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as AuthVerificationIndexImport } from './routes/auth/verification/index'
 import { Route as AuthRegisterIndexImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexImport } from './routes/auth/login/index'
+import { Route as AppVerifikasiAkunIndexImport } from './routes/_app/verifikasi-akun/index'
 import { Route as AppProtectedExampleIndexImport } from './routes/_app/protected-example/index'
 import { Route as AppProfileIndexImport } from './routes/_app/profile/index'
 import { Route as AppPendaftaranIndexImport } from './routes/_app/pendaftaran/index'
@@ -56,6 +57,12 @@ const AuthLoginIndexRoute = AuthLoginIndexImport.update({
   id: '/auth/login/',
   path: '/auth/login/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AppVerifikasiAkunIndexRoute = AppVerifikasiAkunIndexImport.update({
+  id: '/verifikasi-akun/',
+  path: '/verifikasi-akun/',
+  getParentRoute: () => AppRoute,
 } as any)
 
 const AppProtectedExampleIndexRoute = AppProtectedExampleIndexImport.update({
@@ -169,6 +176,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProtectedExampleIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/verifikasi-akun/': {
+      id: '/_app/verifikasi-akun/'
+      path: '/verifikasi-akun'
+      fullPath: '/verifikasi-akun'
+      preLoaderRoute: typeof AppVerifikasiAkunIndexImport
+      parentRoute: typeof AppImport
+    }
     '/auth/login/': {
       id: '/auth/login/'
       path: '/auth/login'
@@ -242,6 +256,7 @@ interface AppRouteChildren {
   AppPendaftaranIndexRoute: typeof AppPendaftaranIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
   AppProtectedExampleIndexRoute: typeof AppProtectedExampleIndexRoute
+  AppVerifikasiAkunIndexRoute: typeof AppVerifikasiAkunIndexRoute
   AppDetailMahasiswaDetailIdRoute: typeof AppDetailMahasiswaDetailIdRoute
   AppDaftarMahasiswaSayaIndexRoute: typeof AppDaftarMahasiswaSayaIndexRoute
   AppDaftarMahasiswaIndexRoute: typeof AppDaftarMahasiswaIndexRoute
@@ -254,6 +269,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPendaftaranIndexRoute: AppPendaftaranIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
   AppProtectedExampleIndexRoute: AppProtectedExampleIndexRoute,
+  AppVerifikasiAkunIndexRoute: AppVerifikasiAkunIndexRoute,
   AppDetailMahasiswaDetailIdRoute: AppDetailMahasiswaDetailIdRoute,
   AppDaftarMahasiswaSayaIndexRoute: AppDaftarMahasiswaSayaIndexRoute,
   AppDaftarMahasiswaIndexRoute: AppDaftarMahasiswaIndexRoute,
@@ -270,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/pendaftaran': typeof AppPendaftaranIndexRoute
   '/profile': typeof AppProfileIndexRoute
   '/protected-example': typeof AppProtectedExampleIndexRoute
+  '/verifikasi-akun': typeof AppVerifikasiAkunIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/auth/verification': typeof AuthVerificationIndexRoute
@@ -288,6 +305,7 @@ export interface FileRoutesByTo {
   '/pendaftaran': typeof AppPendaftaranIndexRoute
   '/profile': typeof AppProfileIndexRoute
   '/protected-example': typeof AppProtectedExampleIndexRoute
+  '/verifikasi-akun': typeof AppVerifikasiAkunIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
   '/auth/register': typeof AuthRegisterIndexRoute
   '/auth/verification': typeof AuthVerificationIndexRoute
@@ -307,6 +325,7 @@ export interface FileRoutesById {
   '/_app/pendaftaran/': typeof AppPendaftaranIndexRoute
   '/_app/profile/': typeof AppProfileIndexRoute
   '/_app/protected-example/': typeof AppProtectedExampleIndexRoute
+  '/_app/verifikasi-akun/': typeof AppVerifikasiAkunIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
   '/auth/register/': typeof AuthRegisterIndexRoute
   '/auth/verification/': typeof AuthVerificationIndexRoute
@@ -327,6 +346,7 @@ export interface FileRouteTypes {
     | '/pendaftaran'
     | '/profile'
     | '/protected-example'
+    | '/verifikasi-akun'
     | '/auth/login'
     | '/auth/register'
     | '/auth/verification'
@@ -344,6 +364,7 @@ export interface FileRouteTypes {
     | '/pendaftaran'
     | '/profile'
     | '/protected-example'
+    | '/verifikasi-akun'
     | '/auth/login'
     | '/auth/register'
     | '/auth/verification'
@@ -361,6 +382,7 @@ export interface FileRouteTypes {
     | '/_app/pendaftaran/'
     | '/_app/profile/'
     | '/_app/protected-example/'
+    | '/_app/verifikasi-akun/'
     | '/auth/login/'
     | '/auth/register/'
     | '/auth/verification/'
@@ -420,6 +442,7 @@ export const routeTree = rootRoute
         "/_app/pendaftaran/",
         "/_app/profile/",
         "/_app/protected-example/",
+        "/_app/verifikasi-akun/",
         "/_app/detail/mahasiswa/$detailId",
         "/_app/daftar/mahasiswa-saya/",
         "/_app/daftar/mahasiswa/",
@@ -441,6 +464,10 @@ export const routeTree = rootRoute
     },
     "/_app/protected-example/": {
       "filePath": "_app/protected-example/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/verifikasi-akun/": {
+      "filePath": "_app/verifikasi-akun/index.tsx",
       "parent": "/_app"
     },
     "/auth/login/": {

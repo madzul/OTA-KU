@@ -39,8 +39,7 @@ const RootComponent = () => {
       <QueryClientProvider client={queryClient}>
         <NavBar />
         <motion.div
-          className="min-h-[calc(100vh-324px)] px-4 lg:min-h-[calc(100vh-318px)] lg:px-11 lg:py-8"
-          style={{ minHeight: "calc(100vh - 318px)" }}
+          className="px-4 py-8 md:px-11"
           animate={{
             marginLeft: isLargeScreen && isSidebarOpen ? "255px" : "0px",
           }}

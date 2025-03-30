@@ -2,11 +2,15 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
-  MahasiswaListQueryResponse,
-  MahasiswaListQuerySchema,
   MAListQueryResponse,
+  MahasiswaDetailsListQueryResponse,
+  MahasiswaDetailsListQuerySchema,
   OTAListQueryResponse,
   OTAListQuerySchema,
+  OrangTuaDetailsListQueryResponse,
+  OrangTuaDetailsListQuerySchema,
+  VerifiedMahasiswaListQueryResponse,
+  VerifiedMahasiswaListQuerySchema,
 } from "../zod/list.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 
@@ -14,17 +18,73 @@ export const listMahasiswaOtaRoute = createRoute({
   operationId: "listMahasiswaOta",
   tags: ["List"],
   method: "get",
-  path: "/mahasiswa",
+  path: "/mahasiswa/verified",
   description: "List mahasiswa asuh yang dapat dipilih orang tua asuh.",
   request: {
-    query: MahasiswaListQuerySchema,
+    query: VerifiedMahasiswaListQuerySchema,
   },
   responses: {
     200: {
       description: "Berhasil mendapatkan daftar mahasiswa.",
       content: {
         "application/json": {
-          schema: MahasiswaListQueryResponse,
+          schema: VerifiedMahasiswaListQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const listMahasiswaAdminRoute = createRoute({
+  operationId: "listMahasiswaAdmin",
+  tags: ["List"],
+  method: "get",
+  path: "/mahasiswa/details",
+  description: "List mahasiswa asuh beserta detailnya.",
+  request: {
+    query: MahasiswaDetailsListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan daftar mahasiswa.",
+      content: {
+        "application/json": {
+          schema: MahasiswaDetailsListQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const listOrangTuaAdminRoute = createRoute({
+  operationId: "listOrangTuaAdmin",
+  tags: ["List"],
+  method: "get",
+  path: "/orang-tua/details",
+  description: "List orang tua asuh beserta detailnya.",
+  request: {
+    query: OrangTuaDetailsListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan daftar orang tua.",
+      content: {
+        "application/json": {
+          schema: OrangTuaDetailsListQueryResponse,
         },
       },
     },
@@ -52,9 +112,9 @@ export const listOtaKuRoute = createRoute({
       description: "Berhasil mendapatkan daftar OTA-ku",
       content: {
         "application/json": {
-          schema: OTAListQueryResponse
-        }
-      }
+          schema: OTAListQueryResponse,
+        },
+      },
     },
     401: AuthorizationErrorResponse,
     500: {
@@ -63,8 +123,8 @@ export const listOtaKuRoute = createRoute({
         "application/json": { schema: InternalServerErrorResponse },
       },
     },
-  }
-})
+  },
+});
 
 export const listMAActiveRoute = createRoute({
   operationId: "listMAActive",
@@ -73,16 +133,16 @@ export const listMAActiveRoute = createRoute({
   path: "/orang-tua/mahasiswa-asuh-active",
   description: "List mahasiswa asuh saya yang aktif",
   request: {
-    query: MahasiswaListQuerySchema,
+    query: VerifiedMahasiswaListQuerySchema,
   },
   responses: {
     200: {
       description: "Berhasil mendapatkan daftar MA aktif",
       content: {
         "application/json": {
-          schema: MAListQueryResponse
-        }
-      }
+          schema: MAListQueryResponse,
+        },
+      },
     },
     401: AuthorizationErrorResponse,
     500: {
@@ -91,8 +151,8 @@ export const listMAActiveRoute = createRoute({
         "application/json": { schema: InternalServerErrorResponse },
       },
     },
-  }
-})
+  },
+});
 
 export const listMAPendingRoute = createRoute({
   operationId: "listMAPending",
@@ -101,16 +161,16 @@ export const listMAPendingRoute = createRoute({
   path: "/orang-tua/mahasiswa-asuh-pending",
   description: "List ajuan mahasiswa asuh saya yang masih pending",
   request: {
-    query: MahasiswaListQuerySchema,
+    query: VerifiedMahasiswaListQuerySchema,
   },
   responses: {
     200: {
       description: "Berhasil mendapatkan daftar MA pending",
       content: {
         "application/json": {
-          schema: MAListQueryResponse
-        }
-      }
+          schema: MAListQueryResponse,
+        },
+      },
     },
     401: AuthorizationErrorResponse,
     500: {
@@ -119,5 +179,5 @@ export const listMAPendingRoute = createRoute({
         "application/json": { schema: InternalServerErrorResponse },
       },
     },
-  }
-})
+  },
+});
