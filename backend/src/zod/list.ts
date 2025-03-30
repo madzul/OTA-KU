@@ -1,5 +1,5 @@
 import { z } from "@hono/zod-openapi";
-import { PhoneNumberSchema } from "./atomic.js";
+import { NIMSchema, PhoneNumberSchema } from "./atomic.js";
 
 // Mahasiswa
 export const MahasiswaListQuerySchema = z.object({
@@ -59,6 +59,25 @@ export const OTAListQueryResponse = z.object({
   message: z.string().openapi({ example: "Daftar OTA-ku berhasil diambil" }),
   body: z.object({
     data: z.array(OTAListElementSchema),
+    totalData: z.number().openapi({ example: 100 }),
+  }),
+});
+
+export const MAListElementSchema = z.object({
+  accountId: z.string().openapi({ example: "1" }),
+  name: z.string().openapi({ example: "John Doe" }),
+  nim: NIMSchema,
+  mahasiswaStatus: z.enum(["active", "inactive"]).openapi({
+    example: "active",
+    description: "Status mahasiswa",
+  }),
+});
+
+export const MAListQueryResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Daftar MA berhasil diambil" }),
+  body: z.object({
+    data: z.array(MAListElementSchema),
     totalData: z.number().openapi({ example: 100 }),
   }),
 });

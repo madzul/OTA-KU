@@ -4,6 +4,7 @@ import { AuthorizationErrorResponse } from "../types/response.js";
 import {
   MahasiswaListQueryResponse,
   MahasiswaListQuerySchema,
+  MAListQueryResponse,
   OTAListQueryResponse,
   OTAListQuerySchema,
 } from "../zod/list.js";
@@ -52,6 +53,62 @@ export const listOtaKuRoute = createRoute({
       content: {
         "application/json": {
           schema: OTAListQueryResponse
+        }
+      }
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  }
+})
+
+export const listMAActiveRoute = createRoute({
+  operationId: "listMAActive",
+  tags: ["List"],
+  method: "get",
+  path: "/orang-tua/mahasiswa-asuh-active",
+  description: "List mahasiswa asuh saya yang aktif",
+  request: {
+    query: MahasiswaListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan daftar MA aktif",
+      content: {
+        "application/json": {
+          schema: MAListQueryResponse
+        }
+      }
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  }
+})
+
+export const listMAPendingRoute = createRoute({
+  operationId: "listMAPending",
+  tags: ["List"],
+  method: "get",
+  path: "/orang-tua/mahasiswa-asuh-pending",
+  description: "List ajuan mahasiswa asuh saya yang masih pending",
+  request: {
+    query: MahasiswaListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan daftar MA pending",
+      content: {
+        "application/json": {
+          schema: MAListQueryResponse
         }
       }
     },
