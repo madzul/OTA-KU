@@ -4,6 +4,8 @@ import { AuthorizationErrorResponse } from "../types/response.js";
 import {
   MahasiswaDetailsListQueryResponse,
   MahasiswaDetailsListQuerySchema,
+  OrangTuaDetailsListQueryResponse,
+  OrangTuaDetailsListQuerySchema,
   VerifiedMahasiswaListQueryResponse,
   VerifiedMahasiswaListQuerySchema,
 } from "../zod/list.js";
@@ -52,6 +54,34 @@ export const listMahasiswaAdminRoute = createRoute({
       content: {
         "application/json": {
           schema: MahasiswaDetailsListQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const listOrangTuaAdminRoute = createRoute({
+  operationId: "listOrangTuaAdmin",
+  tags: ["List"],
+  method: "get",
+  path: "/orang-tua/details",
+  description: "List orang tua asuh beserta detailnya.",
+  request: {
+    query: OrangTuaDetailsListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan daftar orang tua.",
+      content: {
+        "application/json": {
+          schema: OrangTuaDetailsListQueryResponse,
         },
       },
     },

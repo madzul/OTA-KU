@@ -1,10 +1,15 @@
 import { and, count, eq, ilike, isNotNull, or, sql } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
-import { accountMahasiswaDetailTable, accountTable } from "../db/schema.js";
+import {
+  accountMahasiswaDetailTable,
+  accountOtaDetailTable,
+  accountTable,
+} from "../db/schema.js";
 import {
   listMahasiswaAdminRoute,
   listMahasiswaOtaRoute,
+  listOrangTuaAdminRoute,
 } from "../routes/list.route.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -106,7 +111,10 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
   try {
     const offset = (pageNumber - 1) * LIST_PAGE_DETAIL_SIZE;
 
-    const baseConditions = [eq(accountTable.type, "mahasiswa")];
+    const baseConditions = [
+      eq(accountTable.type, "mahasiswa"),
+      isNotNull(accountTable.phoneNumber),
+    ];
 
     const searchCondition = q
       ? or(
@@ -134,7 +142,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         rejected: sql<number>`sum(case when ${accountTable.applicationStatus} = 'rejected' then 1 else 0 end)`,
       })
       .from(accountTable)
-      .where(eq(accountTable.type, "mahasiswa"));
+      .where(and(...baseConditions));
 
     const countsPaginationQuery = db
       .select({ count: count() })
@@ -184,29 +192,160 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
           data: mahasiswaList.map((mahasiswa) => ({
             id: mahasiswa.id,
             email: mahasiswa.email,
-            phoneNumber: mahasiswa.phoneNumber,
+            phoneNumber: mahasiswa.phoneNumber!,
             provider: mahasiswa.provider,
             status: mahasiswa.status,
             applicationStatus: mahasiswa.applicationStatus,
-            name: mahasiswa.name,
-            nim: mahasiswa.nim,
-            mahasiswaStatus: mahasiswa.mahasiswaStatus,
-            description: mahasiswa.description,
-            file: mahasiswa.file,
+            name: mahasiswa.name!,
+            nim: mahasiswa.nim!,
+            mahasiswaStatus: mahasiswa.mahasiswaStatus!,
+            description: mahasiswa.description!,
+            file: mahasiswa.file!,
             // TODO: Jurusan masih hard coded
             jurusan: "Teknik Informatika",
           })),
           totalPagination: countsPagination[0].count,
-          totalData: counts[0].total,
-          totalPending: counts[0].pending,
-          totalAccepted: counts[0].accepted,
-          totalRejected: counts[0].rejected,
+          totalData: Number(counts[0].total),
+          totalPending: Number(counts[0].pending),
+          totalAccepted: Number(counts[0].accepted),
+          totalRejected: Number(counts[0].rejected),
         },
       },
       200,
     );
   } catch (error) {
     console.error("Error fetching mahasiswa list:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
+  const { q, page, status } = c.req.query();
+
+  // Validate page to be a positive integer
+  let pageNumber = Number(page);
+  if (isNaN(pageNumber) || pageNumber < 1) {
+    pageNumber = 1;
+  }
+
+  try {
+    const offset = (pageNumber - 1) * LIST_PAGE_DETAIL_SIZE;
+
+    const baseConditions = [eq(accountTable.type, "ota")];
+
+    const searchCondition = q
+      ? or(ilike(accountOtaDetailTable.name, `%${q}%`))
+      : undefined;
+
+    const filterConditions = [
+      status
+        ? eq(
+            accountTable.applicationStatus,
+            status as "pending" | "accepted" | "rejected",
+          )
+        : undefined,
+    ];
+
+    const countsQuery = db
+      .select({
+        total: sql<number>`count(*)`,
+        accepted: sql<number>`sum(case when ${accountTable.applicationStatus} = 'accepted' then 1 else 0 end)`,
+        pending: sql<number>`sum(case when ${accountTable.applicationStatus} = 'pending' then 1 else 0 end)`,
+        rejected: sql<number>`sum(case when ${accountTable.applicationStatus} = 'rejected' then 1 else 0 end)`,
+      })
+      .from(accountTable)
+      .innerJoin(
+        accountOtaDetailTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .where(and(...baseConditions));
+
+    const countsPaginationQuery = db
+      .select({ count: count() })
+      .from(accountTable)
+      .innerJoin(
+        accountOtaDetailTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .where(and(...baseConditions, searchCondition, ...filterConditions))
+      .limit(LIST_PAGE_DETAIL_SIZE)
+      .offset(offset);
+
+    const orangTuaListQuery = db
+      .select({
+        id: accountTable.id,
+        email: accountTable.email,
+        phoneNumber: accountTable.phoneNumber,
+        provider: accountTable.provider,
+        status: accountTable.status,
+        applicationStatus: accountTable.applicationStatus,
+        name: accountOtaDetailTable.name,
+        job: accountOtaDetailTable.job,
+        address: accountOtaDetailTable.address,
+        linkage: accountOtaDetailTable.linkage,
+        funds: accountOtaDetailTable.funds,
+        maxCapacity: accountOtaDetailTable.maxCapacity,
+        startDate: accountOtaDetailTable.startDate,
+        maxSemester: accountOtaDetailTable.maxSemester,
+        transferDate: accountOtaDetailTable.transferDate,
+        criteria: accountOtaDetailTable.criteria,
+      })
+      .from(accountTable)
+      .innerJoin(
+        accountOtaDetailTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .where(and(...baseConditions, searchCondition, ...filterConditions))
+      .limit(LIST_PAGE_DETAIL_SIZE)
+      .offset(offset);
+
+    const [orangTuaList, counts, countsPagination] = await Promise.all([
+      orangTuaListQuery,
+      countsQuery,
+      countsPaginationQuery,
+    ]);
+
+    return c.json(
+      {
+        success: true,
+        message: "Daftar orang tua berhasil diambil",
+        body: {
+          data: orangTuaList.map((orangTua) => ({
+            id: orangTua.id,
+            email: orangTua.email,
+            phoneNumber: orangTua.phoneNumber!,
+            provider: orangTua.provider,
+            status: orangTua.status,
+            applicationStatus: orangTua.applicationStatus,
+            name: orangTua.name,
+            job: orangTua.job,
+            address: orangTua.address,
+            linkage: orangTua.linkage,
+            funds: orangTua.funds,
+            maxCapacity: orangTua.maxCapacity,
+            startDate: orangTua.startDate,
+            maxSemester: orangTua.maxSemester,
+            transferDate: orangTua.transferDate,
+            criteria: orangTua.criteria,
+          })),
+          totalPagination: countsPagination[0].count,
+          totalData: Number(counts[0].total),
+          totalPending: Number(counts[0].pending),
+          totalAccepted: Number(counts[0].accepted),
+          totalRejected: Number(counts[0].rejected),
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error("Error fetching orang tua list:", error);
     return c.json(
       {
         success: false,
