@@ -10,6 +10,7 @@ import {
   OrangTuaRegistrationSchema,
   OrangTuaRegistrationSuccessfulResponse,
   OrangTuaUnverifiedResponse,
+  ProfileOrangTuaResponse
 } from "../zod/profile.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 
@@ -100,3 +101,32 @@ export const pendaftaranOrangTuaRoute = createRoute({
     },
   },
 });
+
+export const profileOrangTuaRoute = createRoute({
+  operationId: "profileOrangTua",
+  tags: ["Profile"],
+  method: "get",
+  path: "/orang-tua/:id",
+  description: "Profile orang tua.",
+  responses: {
+    200: {
+      description: "Success",
+      content: {
+        "application/json": { schema: ProfileOrangTuaResponse }
+      }
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun belum terverifikasi.",
+      content: {
+        "application/json": { schema: OrangTuaUnverifiedResponse },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    }
+  }
+})

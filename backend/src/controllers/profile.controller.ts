@@ -11,6 +11,7 @@ import cloudinary from "../lib/cloudinary.js";
 import {
   pendaftaranMahasiswaRoute,
   pendaftaranOrangTuaRoute,
+  profileOrangTuaRoute,
 } from "../routes/profile.route.js";
 import {
   MahasiswaRegistrationFormSchema,
@@ -171,6 +172,78 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
       },
       200,
     );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+profileProtectedRouter.openapi(profileOrangTuaRoute, async(c) => {
+  const user = c.var.user;
+
+  if (user.status === "unverified") {
+    return c.json(
+      {
+        success: false,
+        message: "Akun anda belum diverifikasi.",
+        error: {},
+      },
+      403,
+    );
+  }
+
+  try{
+    const profileDataOTA = await db
+      .select({
+        email: accountTable.email,
+        phone_number: accountTable.phoneNumber,
+        name: accountOtaDetailTable.name,
+        join_date: accountOtaDetailTable.startDate,
+      })
+      .from(accountTable)
+      .innerJoin(
+        accountOtaDetailTable, 
+        eq(accountOtaDetailTable.accountId, accountTable.id)
+      )
+      .where(eq(accountTable.id, user.id))
+      .limit(1); 
+      
+      // if (profileDataOTA.length === 0) {
+      //   return c.json(
+      //     {
+      //       success: false,
+      //       message: "Profil tidak ditemukan.",
+      //       error: {},
+      //     },
+      //     404
+      //   );
+      // }
+
+      const formattedProfile = {
+        email: profileDataOTA[0].email,
+        phone_number: profileDataOTA[0].phone_number ?? "",
+        name: profileDataOTA[0].name,
+        join_date: new Date(profileDataOTA[0].join_date).toLocaleString("en-US", {
+          month: "long",
+          year: "numeric",
+        }),
+      };
+
+      return c.json(
+        {
+          success: true,
+          message: "Berhasil mengakses profil OTA",
+          body: formattedProfile,
+        },
+        200
+      );
   } catch (error) {
     console.error(error);
     return c.json(
