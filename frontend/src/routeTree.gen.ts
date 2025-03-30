@@ -18,8 +18,7 @@ import { Route as AuthRegisterIndexImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexImport } from './routes/auth/login/index'
 import { Route as AppProtectedExampleIndexImport } from './routes/_app/protected-example/index'
 import { Route as AppProfileIndexImport } from './routes/_app/profile/index'
-import { Route as AuthRegisterOrangTuaIndexImport } from './routes/auth/register/orang-tua/index'
-import { Route as AuthRegisterMahasiswaIndexImport } from './routes/auth/register/mahasiswa/index'
+import { Route as AppPendaftaranIndexImport } from './routes/_app/pendaftaran/index'
 import { Route as AppDaftarOrangtuaIndexImport } from './routes/_app/daftar/orangtua/index'
 import { Route as AppDaftarMahasiswaIndexImport } from './routes/_app/daftar/mahasiswa/index'
 import { Route as AppDaftarMahasiswaSayaIndexImport } from './routes/_app/daftar/mahasiswa-saya/index'
@@ -181,20 +180,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDaftarOrangtuaIndexImport
       parentRoute: typeof AppImport
     }
-    '/auth/register/mahasiswa/': {
-      id: '/auth/register/mahasiswa/'
-      path: '/auth/register/mahasiswa'
-      fullPath: '/auth/register/mahasiswa'
-      preLoaderRoute: typeof AuthRegisterMahasiswaIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/auth/register/orang-tua/': {
-      id: '/auth/register/orang-tua/'
-      path: '/auth/register/orang-tua'
-      fullPath: '/auth/register/orang-tua'
-      preLoaderRoute: typeof AuthRegisterOrangTuaIndexImport
-      parentRoute: typeof rootRoute
-    }
     '/integrations/azure-key-vault/oauth2/callback/': {
       id: '/integrations/azure-key-vault/oauth2/callback/'
       path: '/integrations/azure-key-vault/oauth2/callback'
@@ -239,8 +224,6 @@ export interface FileRoutesByFullPath {
   '/daftar/mahasiswa-saya': typeof AppDaftarMahasiswaSayaIndexRoute
   '/daftar/mahasiswa': typeof AppDaftarMahasiswaIndexRoute
   '/daftar/orangtua': typeof AppDaftarOrangtuaIndexRoute
-  '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
-  '/auth/register/orang-tua': typeof AuthRegisterOrangTuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -256,8 +239,6 @@ export interface FileRoutesByTo {
   '/daftar/mahasiswa-saya': typeof AppDaftarMahasiswaSayaIndexRoute
   '/daftar/mahasiswa': typeof AppDaftarMahasiswaIndexRoute
   '/daftar/orangtua': typeof AppDaftarOrangtuaIndexRoute
-  '/auth/register/mahasiswa': typeof AuthRegisterMahasiswaIndexRoute
-  '/auth/register/orang-tua': typeof AuthRegisterOrangTuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -274,8 +255,6 @@ export interface FileRoutesById {
   '/_app/daftar/mahasiswa-saya/': typeof AppDaftarMahasiswaSayaIndexRoute
   '/_app/daftar/mahasiswa/': typeof AppDaftarMahasiswaIndexRoute
   '/_app/daftar/orangtua/': typeof AppDaftarOrangtuaIndexRoute
-  '/auth/register/mahasiswa/': typeof AuthRegisterMahasiswaIndexRoute
-  '/auth/register/orang-tua/': typeof AuthRegisterOrangTuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback/': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -293,8 +272,6 @@ export interface FileRouteTypes {
     | '/daftar/mahasiswa-saya'
     | '/daftar/mahasiswa'
     | '/daftar/orangtua'
-    | '/auth/register/mahasiswa'
-    | '/auth/register/orang-tua'
     | '/integrations/azure-key-vault/oauth2/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -309,8 +286,6 @@ export interface FileRouteTypes {
     | '/daftar/mahasiswa-saya'
     | '/daftar/mahasiswa'
     | '/daftar/orangtua'
-    | '/auth/register/mahasiswa'
-    | '/auth/register/orang-tua'
     | '/integrations/azure-key-vault/oauth2/callback'
   id:
     | '__root__'
@@ -325,8 +300,6 @@ export interface FileRouteTypes {
     | '/_app/daftar/mahasiswa-saya/'
     | '/_app/daftar/mahasiswa/'
     | '/_app/daftar/orangtua/'
-    | '/auth/register/mahasiswa/'
-    | '/auth/register/orang-tua/'
     | '/integrations/azure-key-vault/oauth2/callback/'
   fileRoutesById: FileRoutesById
 }
@@ -414,12 +387,6 @@ export const routeTree = rootRoute
     "/_app/daftar/orangtua/": {
       "filePath": "_app/daftar/orangtua/index.tsx",
       "parent": "/_app"
-    },
-    "/auth/register/mahasiswa/": {
-      "filePath": "auth/register/mahasiswa/index.tsx"
-    },
-    "/auth/register/orang-tua/": {
-      "filePath": "auth/register/orang-tua/index.tsx"
     },
     "/integrations/azure-key-vault/oauth2/callback/": {
       "filePath": "integrations/azure-key-vault/oauth2/callback/index.tsx"
