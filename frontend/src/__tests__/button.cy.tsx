@@ -22,7 +22,7 @@ describe("<Button />", () => {
         <a href="#">Link</a>
       </Button>,
     );
-    cy.get('[data-slot="button"]').should("not.exist");
-    cy.get("a").should("exist");
+    cy.get("button").should("not.exist");
+    cy.get("a[data-slot='button']").should("exist");
   });
 });
