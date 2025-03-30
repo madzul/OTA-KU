@@ -1,6 +1,6 @@
 import { api } from "@/api/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
 import MahasiswaAsuhContent from "./-components/mahasiswa-asuh-content";
@@ -17,6 +17,8 @@ export const Route = createFileRoute("/_app/verifikasi-akun/")({
 });
 
 function RouteComponent() {
+  const navigate = useNavigate({ from: Route.fullPath });
+
   const [value, setValue] = useState("mahasiswa");
 
   return (
@@ -35,14 +37,20 @@ function RouteComponent() {
           <TabsTrigger
             value="mahasiswa"
             className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white"
-            onClick={() => setValue("mahasiswa")}
+            onClick={() => {
+              setValue("mahasiswa");
+              navigate({ search: () => ({ page: 1 }) });
+            }}
           >
             Mahasiswa Asuh
           </TabsTrigger>
           <TabsTrigger
             value="ota"
             className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white"
-            onClick={() => setValue("ota")}
+            onClick={() => {
+              setValue("ota");
+              navigate({ search: () => ({ page: 1 }) });
+            }}
           >
             Orang Tua Asuh
           </TabsTrigger>
