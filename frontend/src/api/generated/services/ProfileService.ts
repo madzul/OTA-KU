@@ -66,6 +66,7 @@ export class ProfileService {
       errors: {
         400: `Gagal mendaftar.`,
         401: `Bad request: authorization (not logged in) error`,
+        403: `Akun belum terverifikasi.`,
         500: `Internal server error`,
       },
     });
@@ -168,6 +169,7 @@ export class ProfileService {
       errors: {
         400: `Gagal mendaftar.`,
         401: `Bad request: authorization (not logged in) error`,
+        403: `Akun belum terverifikasi.`,
         500: `Internal server error`,
       },
     });
