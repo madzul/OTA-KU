@@ -19,6 +19,7 @@ import { Route as AuthLoginIndexImport } from './routes/auth/login/index'
 import { Route as AppProtectedExampleIndexImport } from './routes/_app/protected-example/index'
 import { Route as AppProfileIndexImport } from './routes/_app/profile/index'
 import { Route as AppPendaftaranIndexImport } from './routes/_app/pendaftaran/index'
+import { Route as AppMahasiswaAsuhSayaIndexImport } from './routes/_app/mahasiswa-asuh-saya/index'
 import { Route as AppDaftarOrangtuaIndexImport } from './routes/_app/daftar/orangtua/index'
 import { Route as AppDaftarMahasiswaIndexImport } from './routes/_app/daftar/mahasiswa/index'
 import { Route as AppDaftarMahasiswaSayaIndexImport } from './routes/_app/daftar/mahasiswa-saya/index'
@@ -72,6 +73,12 @@ const AppProfileIndexRoute = AppProfileIndexImport.update({
 const AppPendaftaranIndexRoute = AppPendaftaranIndexImport.update({
   id: '/pendaftaran/',
   path: '/pendaftaran/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppMahasiswaAsuhSayaIndexRoute = AppMahasiswaAsuhSayaIndexImport.update({
+  id: '/mahasiswa-asuh-saya/',
+  path: '/mahasiswa-asuh-saya/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -133,6 +140,13 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof AppImport
       parentRoute: typeof rootRoute
+    }
+    '/_app/mahasiswa-asuh-saya/': {
+      id: '/_app/mahasiswa-asuh-saya/'
+      path: '/mahasiswa-asuh-saya'
+      fullPath: '/mahasiswa-asuh-saya'
+      preLoaderRoute: typeof AppMahasiswaAsuhSayaIndexImport
+      parentRoute: typeof AppImport
     }
     '/_app/pendaftaran/': {
       id: '/_app/pendaftaran/'
@@ -224,6 +238,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AppRouteChildren {
+  AppMahasiswaAsuhSayaIndexRoute: typeof AppMahasiswaAsuhSayaIndexRoute
   AppPendaftaranIndexRoute: typeof AppPendaftaranIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
   AppProtectedExampleIndexRoute: typeof AppProtectedExampleIndexRoute
@@ -235,6 +250,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppMahasiswaAsuhSayaIndexRoute: AppMahasiswaAsuhSayaIndexRoute,
   AppPendaftaranIndexRoute: AppPendaftaranIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
   AppProtectedExampleIndexRoute: AppProtectedExampleIndexRoute,
@@ -250,6 +266,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof AppRouteWithChildren
+  '/mahasiswa-asuh-saya': typeof AppMahasiswaAsuhSayaIndexRoute
   '/pendaftaran': typeof AppPendaftaranIndexRoute
   '/profile': typeof AppProfileIndexRoute
   '/protected-example': typeof AppProtectedExampleIndexRoute
@@ -267,6 +284,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof AppRouteWithChildren
+  '/mahasiswa-asuh-saya': typeof AppMahasiswaAsuhSayaIndexRoute
   '/pendaftaran': typeof AppPendaftaranIndexRoute
   '/profile': typeof AppProfileIndexRoute
   '/protected-example': typeof AppProtectedExampleIndexRoute
@@ -285,6 +303,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/_app/mahasiswa-asuh-saya/': typeof AppMahasiswaAsuhSayaIndexRoute
   '/_app/pendaftaran/': typeof AppPendaftaranIndexRoute
   '/_app/profile/': typeof AppProfileIndexRoute
   '/_app/protected-example/': typeof AppProtectedExampleIndexRoute
@@ -304,6 +323,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | ''
+    | '/mahasiswa-asuh-saya'
     | '/pendaftaran'
     | '/profile'
     | '/protected-example'
@@ -320,6 +340,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | ''
+    | '/mahasiswa-asuh-saya'
     | '/pendaftaran'
     | '/profile'
     | '/protected-example'
@@ -336,6 +357,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_app'
+    | '/_app/mahasiswa-asuh-saya/'
     | '/_app/pendaftaran/'
     | '/_app/profile/'
     | '/_app/protected-example/'
@@ -394,6 +416,7 @@ export const routeTree = rootRoute
     "/_app": {
       "filePath": "_app.tsx",
       "children": [
+        "/_app/mahasiswa-asuh-saya/",
         "/_app/pendaftaran/",
         "/_app/profile/",
         "/_app/protected-example/",
@@ -403,6 +426,10 @@ export const routeTree = rootRoute
         "/_app/daftar/orangtua/",
         "/_app/orang-tua-asuh/detail/[id]/"
       ]
+    },
+    "/_app/mahasiswa-asuh-saya/": {
+      "filePath": "_app/mahasiswa-asuh-saya/index.tsx",
+      "parent": "/_app"
     },
     "/_app/pendaftaran/": {
       "filePath": "_app/pendaftaran/index.tsx",
