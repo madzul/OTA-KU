@@ -27,6 +27,14 @@ beforeAll(async () => {
     connections: await db.select().from(connectionTable),
   };
 
+  await db.transaction(async (tx) => {
+    // Clear all tables
+    await tx.delete(connectionTable);
+    await tx.delete(accountOtaDetailTable);
+    await tx.delete(accountMahasiswaDetailTable);
+    await tx.delete(accountTable);
+  });
+
   console.log("Seeding database before each tests...");
   const hashedUsers = await Promise.all(
     testUsers.map(async (user) => ({
