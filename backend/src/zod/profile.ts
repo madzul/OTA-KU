@@ -84,6 +84,12 @@ export const MahasiswaRegistrationFailedResponse = z.object({
   error: z.object({}),
 });
 
+export const MahasiswaUnverifiedResponse = z.object({
+  success: z.boolean().openapi({ example: false }),
+  message: z.string().openapi({ example: "Akun belum terverifikasi" }),
+  error: z.object({}),
+});
+
 // Orang Tua Registration
 export const OrangTuaRegistrationSchema = z.object({
   name: z
@@ -209,5 +215,11 @@ export const OrangTuaRegistrationSuccessfulResponse = z.object({
 export const OrangTuaRegistrationFailedResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "Gagal mendaftar" }),
+  error: z.object({}),
+});
+
+export const OrangTuaUnverifiedResponse = z.object({
+  success: z.boolean().openapi({ example: false }),
+  message: z.string().openapi({ example: "Akun belum terverifikasi" }),
   error: z.object({}),
 });
