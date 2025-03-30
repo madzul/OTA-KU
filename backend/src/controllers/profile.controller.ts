@@ -272,6 +272,7 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async(c) => {
     );
   }
 
+  //TO-DO: add join_date to db
   try{
     const profileDataMahasiswa = await db
       .select({
