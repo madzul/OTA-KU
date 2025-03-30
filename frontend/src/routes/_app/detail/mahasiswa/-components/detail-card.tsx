@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Calendar, Mail, Phone } from "lucide-react";
+import { Calendar, Mail, Phone, User } from "lucide-react";
 import React from "react";
 
 interface DetailCardsMahasiswaAsuhProps {
@@ -40,7 +40,7 @@ const DetailCardsMahasiswaAsuh: React.FC<DetailCardsMahasiswaAsuhProps> = ({
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-500">
-                {name.charAt(0)}
+                <User className="h-12 w-12 text-gray-400" />
               </div>
             )}
           </div>
@@ -68,11 +68,14 @@ const DetailCardsMahasiswaAsuh: React.FC<DetailCardsMahasiswaAsuhProps> = ({
           </div>
         </CardContent>
       </Card>
-
       <Card className="text-primary w-full">
         <div className="space-y-3 p-4">
           <h3 className="mb-8 text-lg font-bold xl:text-xl">Data Diri</h3>
           <div className="xl:text-md space-y-2">
+            <div className="flex items-center space-x-3">
+              <span className="font-semibold">NIM:</span>
+              <span>{email.split('@')[0]}</span>
+            </div>
             <div className="flex items-center space-x-3">
               <span className="font-semibold">Departemen:</span>
               <span>{departement}</span>
