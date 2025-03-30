@@ -2,14 +2,17 @@ import { and, count, eq, ilike, isNotNull, or, sql } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import {
-  accountMahasiswaDetailTable, accountOtaDetailTable, accountRelations, accountTable,
+  accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
 } from "../db/schema.js";
 import {
+  listMAActiveRoute,
+  listMAPendingRoute,
   listMahasiswaAdminRoute,
-  listMAActiveRoute, listMahasiswaOtaRoute, listMAPendingRoute, listOtaKuRoute,
+  listMahasiswaOtaRoute,
   listOrangTuaAdminRoute,
+  listOtaKuRoute,
 } from "../routes/list.route.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -357,7 +360,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
   }
 });
 
-listProtectedRouter.openapi(listOtaKuRoute, async(c) => {
+listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
   const { q, page } = c.req.query();
 
   // Validate page to be a positive integer
@@ -367,14 +370,12 @@ listProtectedRouter.openapi(listOtaKuRoute, async(c) => {
   }
 
   try {
-    const offset = (pageNumber - 1) * PAGE_SIZE;
+    const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
 
     const countsQuery = db
       .select({ count: count() })
       .from(accountOtaDetailTable)
-      .where(
-        ilike(accountOtaDetailTable.name, `%${q || ""}%`)
-      );
+      .where(ilike(accountOtaDetailTable.name, `%${q || ""}%`));
 
     const OTAListQuery = db
       .select({
@@ -382,20 +383,18 @@ listProtectedRouter.openapi(listOtaKuRoute, async(c) => {
         name: accountOtaDetailTable.name,
         phoneNumber: accountTable.phoneNumber,
         //TO-DO: Ganti jadi nominal per anak nanti di connection sekalian tambahin kondisi where connectionTable.mahasiswa_id = user.id gitu lah
-        nominal: accountOtaDetailTable.funds
+        nominal: accountOtaDetailTable.funds,
       })
       .from(accountOtaDetailTable)
-      .innerJoin(accountTable, eq(accountTable.id, accountOtaDetailTable.accountId))
-      .where(
-          ilike(accountOtaDetailTable.name, `%${q || ""}%`)
+      .innerJoin(
+        accountTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
       )
-      .limit(PAGE_SIZE)
+      .where(ilike(accountOtaDetailTable.name, `%${q || ""}%`))
+      .limit(LIST_PAGE_SIZE)
       .offset(offset);
 
-    const [OTAList, counts] = await Promise.all([
-      OTAListQuery,
-      countsQuery,
-    ]);
+    const [OTAList, counts] = await Promise.all([OTAListQuery, countsQuery]);
 
     return c.json(
       {
@@ -406,7 +405,7 @@ listProtectedRouter.openapi(listOtaKuRoute, async(c) => {
             accountId: OTA.accountId,
             name: OTA.name,
             phoneNumber: OTA.phoneNumber ?? "",
-            nominal: OTA.nominal
+            nominal: OTA.nominal,
           })),
           totalData: counts[0].count,
         },
@@ -424,7 +423,7 @@ listProtectedRouter.openapi(listOtaKuRoute, async(c) => {
       500,
     );
   }
-})
+});
 
 //TO-DO: nanti status bukan liat dari inactive di detail MA, tapi liat status di connection
 listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
@@ -437,7 +436,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
   }
 
   try {
-    const offset = (pageNumber - 1) * PAGE_SIZE;
+    const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
 
     const countsQuery = db
       .select({ count: count() })
@@ -459,7 +458,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
         accountId: accountMahasiswaDetailTable.accountId,
         name: accountMahasiswaDetailTable.name,
         nim: accountMahasiswaDetailTable.nim,
-        mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus
+        mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
       })
       .from(accountMahasiswaDetailTable)
       .where(
@@ -473,7 +472,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
           ),
         ),
       )
-      .limit(PAGE_SIZE)
+      .limit(LIST_PAGE_SIZE)
       .offset(offset);
 
     const [mahasiswaList, counts] = await Promise.all([
@@ -490,7 +489,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
             accountId: mahasiswa.accountId,
             name: mahasiswa.name,
             nim: mahasiswa.nim,
-            mahasiswaStatus: mahasiswa.mahasiswaStatus
+            mahasiswaStatus: mahasiswa.mahasiswaStatus,
           })),
           totalData: counts[0].count,
         },
@@ -521,7 +520,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
   }
 
   try {
-    const offset = (pageNumber - 1) * PAGE_SIZE;
+    const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
 
     const countsQuery = db
       .select({ count: count() })
@@ -543,7 +542,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         accountId: accountMahasiswaDetailTable.accountId,
         name: accountMahasiswaDetailTable.name,
         nim: accountMahasiswaDetailTable.nim,
-        mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus
+        mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
       })
       .from(accountMahasiswaDetailTable)
       .where(
@@ -557,7 +556,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
           ),
         ),
       )
-      .limit(PAGE_SIZE)
+      .limit(LIST_PAGE_SIZE)
       .offset(offset);
 
     const [mahasiswaList, counts] = await Promise.all([
