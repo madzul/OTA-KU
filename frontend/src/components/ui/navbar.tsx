@@ -1,98 +1,162 @@
-import { Link } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
-
-import { Button } from "./button";
+import { api, queryClient } from "@/api/client";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "./sheet";
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import { useSidebar } from "@/context/sidebar";
+import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 
-// TODO: Nanti sesuaiin lagi sama design figma yang terbaru
+import Sidebar from "../sidebar";
+import { Button } from "./button";
+
 export default function NavBar() {
+  const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
+  const navigate = useNavigate();
+
+  // Only fetch authentication status when component mounts
+  // Enable refetching on window focus and set a stale time
+  const { data, isLoading } = useQuery({
+    queryKey: ["verify"],
+    queryFn: () => api.auth.verif().catch(() => null),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
+  });
+
+  const isLoggedIn = !!data;
+
+  // Close sidebar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const navbar = document.getElementById("navbar");
+      const sidebar = document.querySelector("[data-sidebar='true']");
+
+      // If click is not on the navbar, sidebar, or their children, close the sidebar
+      if (
+        isSidebarOpen &&
+        navbar &&
+        sidebar &&
+        !navbar.contains(event.target as Node) &&
+        !sidebar.contains(event.target as Node)
+      ) {
+        closeSidebar();
+      }
+    };
+
+    if (isSidebarOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isSidebarOpen, closeSidebar]);
+
   return (
-    <nav
-      className="font-anderson sticky top-0 right-0 left-0 z-[50] flex w-full flex-col bg-white"
-      id="navbar"
-    >
-      <div className="flex h-24 flex-row items-center justify-between px-7 xl:px-14">
-        <div className="relative flex items-center">
-          <Link to="/">
-            <img
-              className="h-9 w-auto object-contain xl:h-10"
-              src="/logo-iom.svg"
-              alt="Logo"
-            />
-          </Link>
-        </div>
-
-        <div className="hidden items-center space-x-8 lg:flex">
-          <Link to="/" className="text-primary hover:text-primary/80">
-            Beranda
-          </Link>
-          <Link to="/" className="text-primary hover:text-primary/80">
-            Tentang
-          </Link>
-          <Link className="w-fit" to="/auth/login">
-            <Button
-              size="lg"
-              className="bg-primary hover:bg-primary/90 px-8 text-base text-white"
+    <>
+      <nav
+        className="font-anderson sticky top-0 right-0 left-0 z-[60] flex w-full flex-col bg-white shadow-md"
+        id="navbar"
+      >
+        <div className="flex h-[70px] flex-row items-center justify-between px-7 lg:h-24 xl:px-14">
+          <div className="relative flex items-center gap-6">
+            <button
+              onClick={toggleSidebar}
+              className={cn(
+                "flex items-center justify-center hover:cursor-pointer focus:outline-none",
+                !isLoggedIn && "hidden",
+              )}
+              aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
+              aria-expanded={isSidebarOpen}
             >
-              Masuk
-            </Button>
-          </Link>
-          <Link className="w-fit" to="/auth/register">
-            <Button
-              size="lg"
-              className="bg-secondary hover:bg-secondary/90 px-8 text-base text-white"
-            >
-              Daftar
-            </Button>
-          </Link>
-        </div>
+              <img
+                src="/icon/Type=list-icon.svg"
+                alt="sidebar-button"
+                className="transform transition-transform duration-200 ease-in-out hover:scale-125"
+              />
+            </button>
+            <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+            <Link to="/">
+              <img
+                className="h-9 w-auto object-contain xl:h-10"
+                src="/logo-iom.svg"
+                alt="Logo"
+              />
+            </Link>
+          </div>
 
-        <div className="lg:hidden">
-          <Sheet>
-            <SheetTrigger>
-              <Menu className="text-primary h-6 w-6" />
-            </SheetTrigger>
-            <SheetContent>
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-                <SheetDescription>
-                  <div className="mt-4 flex flex-col space-y-4">
-                    <Link to="/" className="text-primary hover:text-primary/80">
-                      Beranda
-                    </Link>
-                    <Link to="/" className="text-primary hover:text-primary/80">
-                      Tentang
-                    </Link>
-                    <Link className="w-full" to="/auth/login">
-                      <Button
-                        size="lg"
-                        className="bg-primary hover:bg-primary/90 w-full text-base text-white"
-                      >
-                        Masuk
-                      </Button>
-                    </Link>
-                    <Link className="w-full" to="/auth/register">
-                      <Button
-                        size="lg"
-                        className="bg-secondary hover:bg-secondary/90 w-full text-base text-white"
-                      >
-                        Daftar
-                      </Button>
-                    </Link>
-                  </div>
-                </SheetDescription>
-              </SheetHeader>
-            </SheetContent>
-          </Sheet>
+          <div className="flex items-center space-x-8">
+            {!isLoading && !isLoggedIn && (
+              <Link className="w-fit" to="/auth/login">
+                <Button size="lg" variant={"outline"} className="w-[90px]">
+                  Masuk
+                </Button>
+              </Link>
+            )}
+            {!isLoading && !isLoggedIn && (
+              <Link className="w-fit" to="/auth/register">
+                <Button size="lg" className="w-[90px]">
+                  Daftar
+                </Button>
+              </Link>
+            )}
+            {/* TODO: Nanti ganti linknya */}
+            {!isLoading && isLoggedIn && (
+              <Link className="w-fit" to="/auth/login">
+                <img
+                  src="/icon/Type=notification.svg"
+                  alt="Notifications"
+                  className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
+                />
+              </Link>
+            )}
+            {!isLoading && isLoggedIn && (
+              <Menubar className="border-none bg-transparent p-0 shadow-none">
+                <MenubarMenu>
+                  <MenubarTrigger className="cursor-pointer border-none bg-transparent p-0 shadow-none outline-none hover:bg-transparent focus:bg-transparent">
+                    <img
+                      src="/icon/Type=profile-icon.svg"
+                      alt="Profile"
+                      className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
+                    />
+                  </MenubarTrigger>
+                  <MenubarContent
+                    className="z-[70]"
+                    align="end"
+                    alignOffset={-10}
+                    sideOffset={5}
+                  >
+                    <MenubarItem className="text-dark">Akun Saya</MenubarItem>
+                    <MenubarSeparator />
+                    <MenubarItem
+                      className="text-destructive"
+                      onClick={() => {
+                        api.auth.logout();
+                        queryClient.invalidateQueries({ queryKey: ["verify"] });
+                        navigate({
+                          to: "/",
+                          replace: true,
+                          reloadDocument: true,
+                        });
+                      }}
+                    >
+                      Keluar
+                    </MenubarItem>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   );
 }

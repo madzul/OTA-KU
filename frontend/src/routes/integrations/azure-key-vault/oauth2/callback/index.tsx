@@ -1,4 +1,4 @@
-import { api } from "@/api/client";
+import { api, queryClient } from "@/api/client";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
@@ -24,9 +24,10 @@ function RouteComponent() {
       localStorage.removeItem("state");
       api.auth
         .oauth({
-          requestBody: { code },
+          formData: { code },
         })
         .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["verify"] });
           navigate({ to: "/" });
         })
         .catch((error) => {

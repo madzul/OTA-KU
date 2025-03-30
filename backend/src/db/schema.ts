@@ -29,6 +29,12 @@ export const verificationStatusEnum = pgEnum("verification_status", [
   "unverified",
 ]);
 
+export const applicationStatusEnum = pgEnum("account_status", [
+  "accepted",
+  "rejected",
+  "pending",
+]);
+
 export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
   "active",
   "inactive",
@@ -43,6 +49,10 @@ export const accountTable = pgTable("account", {
   password: varchar({ length: 255 }).notNull(),
   type: accountTypeEnum("type").notNull(),
   provider: providerEnum("provider").notNull().default("credentials"),
+  status: verificationStatusEnum("status").notNull().default("unverified"),
+  applicationStatus: applicationStatusEnum("application_status")
+    .notNull()
+    .default("pending"),
 });
 
 export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
@@ -54,7 +64,8 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
     }),
   name: varchar({ length: 255 }).notNull(),
   nim: varchar({ length: 8 }).unique().notNull(),
-  status: verificationStatusEnum("status").notNull().default("unverified"),
+  description: text("description"),
+  file: text("file"),
   mahasiswaStatus: mahasiswaStatusEnum("mahasiswa_status")
     .notNull()
     .default("inactive"),
@@ -77,7 +88,6 @@ export const accountOtaDetailTable = pgTable("account_ota_detail", {
   maxSemester: integer("max_semester").notNull(),
   transferDate: integer("transfer_date").notNull(),
   criteria: text("criteria").notNull(),
-  status: verificationStatusEnum("status").notNull().default("unverified"),
 });
 
 export const connectionTable = pgTable(

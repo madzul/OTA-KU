@@ -67,3 +67,9 @@ export const UserRegisRequestSchema = z
       path: ["email"],
     },
   );
+
+export const OTPVerificationRequestSchema = z.object({
+  pin: z.string().min(6, {
+    message: "Kode OTP harus terdiri dari 6 karakter.",
+  }),
+});

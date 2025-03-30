@@ -1,19 +1,26 @@
 import { compare, hash } from "bcrypt";
-import { eq, or } from "drizzle-orm";
+import { and, eq, gte, or } from "drizzle-orm";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { decode, sign } from "hono/jwt";
 
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
-import { accountMahasiswaDetailTable, accountTable } from "../db/schema.js";
+import {
+  accountMahasiswaDetailTable,
+  accountTable,
+  otpTable,
+} from "../db/schema.js";
+import { generateOTP } from "../lib/otp.js";
 import {
   loginRoute,
   logoutRoute,
   oauthRoute,
+  otpRoute,
   regisRoute,
   verifRoute,
 } from "../routes/auth.route.js";
 import {
+  OTPVerificationRequestSchema,
   UserLoginRequestSchema,
   UserOAuthLoginRequestSchema,
   UserRegisRequestSchema,
@@ -24,21 +31,11 @@ export const authRouter = createRouter();
 export const authProtectedRouter = createAuthRouter();
 
 authRouter.openapi(loginRoute, async (c) => {
-  const body = await c.req.json();
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = UserLoginRequestSchema.safeParse(body);
-  if (!zodParseResult.success) {
-    return c.json(
-      {
-        success: false,
-        message: "Missing required fields",
-        error: "Email and password are required",
-      },
-      400,
-    );
-  }
-
-  const { identifier, password } = zodParseResult.data;
+  const zodParseResult = UserLoginRequestSchema.parse(data);
+  const { identifier, password } = zodParseResult;
 
   try {
     const account = await db
@@ -88,6 +85,7 @@ authRouter.openapi(loginRoute, async (c) => {
         phoneNumber: account[0].phoneNumber,
         type: account[0].type,
         provider: account[0].provider,
+        status: account[0].status,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
       },
@@ -126,46 +124,34 @@ authRouter.openapi(loginRoute, async (c) => {
 });
 
 authRouter.openapi(regisRoute, async (c) => {
-  const body = await c.req.json();
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = UserRegisRequestSchema.safeParse(body);
-  if (!zodParseResult.success) {
-    return c.json(
-      {
-        success: false,
-        message: "Missing required fields",
-        error: "Email, phone number, password, and type are required",
-      },
-      400,
-    );
-  }
-
-  const { email, phoneNumber, password, confirmPassword, type } =
-    zodParseResult.data;
-
-  if (password !== confirmPassword) {
-    return c.json(
-      {
-        success: false,
-        message: "Invalid credentials",
-        error: "Password confirmation failed!",
-      },
-      401,
-    );
-  }
+  const zodParseResult = UserRegisRequestSchema.parse(data);
+  const { email, phoneNumber, password, type } = zodParseResult;
 
   const hashedPassword = await hash(password, 10);
 
   try {
-    const newUser = await db
-      .insert(accountTable)
-      .values({
-        email,
-        phoneNumber,
-        password: hashedPassword,
-        type,
-      })
-      .returning();
+    const newUser = await db.transaction(async (tx) => {
+      const newUser = await tx
+        .insert(accountTable)
+        .values({
+          email,
+          phoneNumber,
+          password: hashedPassword,
+          type,
+        })
+        .returning();
+
+      await tx.insert(otpTable).values({
+        accountId: newUser[0].id,
+        code: generateOTP(),
+        expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      });
+
+      return newUser;
+    });
 
     const accessToken = await sign(
       {
@@ -174,6 +160,7 @@ authRouter.openapi(regisRoute, async (c) => {
         phoneNumber: newUser[0].phoneNumber,
         type: newUser[0].type,
         provider: newUser[0].provider,
+        status: newUser[0].status,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
       },
@@ -214,19 +201,12 @@ authRouter.openapi(regisRoute, async (c) => {
 });
 
 authRouter.openapi(oauthRoute, async (c) => {
-  const body = await c.req.json();
-  const zodParseResult = UserOAuthLoginRequestSchema.safeParse(body);
-  if (!zodParseResult.success) {
-    return c.json(
-      {
-        success: false,
-        message: "Missing required fields",
-        error: "Code is required",
-      },
-      400,
-    );
-  }
-  const { code } = zodParseResult.data;
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+
+  const zodParseResult = UserOAuthLoginRequestSchema.parse(data);
+  const { code } = zodParseResult;
+
   const res = await fetch(
     "https://login.microsoftonline.com/db6e1183-4c65-405c-82ce-7cd53fa6e9dc/oauth2/v2.0/token",
     {
@@ -254,8 +234,8 @@ authRouter.openapi(oauthRoute, async (c) => {
       500,
     );
   }
-  const data = await res.json();
-  const azureToken = data.access_token as string;
+  const resData = await res.json();
+  const azureToken = resData.access_token as string;
   const { payload } = decode(azureToken);
   const email = payload.upn as string;
   const name = payload.name as string;
@@ -299,6 +279,7 @@ authRouter.openapi(oauthRoute, async (c) => {
             type: "mahasiswa",
             phoneNumber: null,
             provider: "azure",
+            status: "verified",
           })
           .returning();
 
@@ -309,7 +290,6 @@ authRouter.openapi(oauthRoute, async (c) => {
           accountId: accountData.id,
           name,
           nim: email.split("@")[0],
-          status: "verified",
         });
       }
 
@@ -320,6 +300,7 @@ authRouter.openapi(oauthRoute, async (c) => {
           phoneNumber: accountData.phoneNumber || null,
           type: accountData.type,
           provider: accountData.provider,
+          status: accountData.status,
           iat: Math.floor(Date.now() / 1000),
           exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
         },
@@ -372,12 +353,99 @@ authProtectedRouter.openapi(verifRoute, async (c) => {
 });
 
 authProtectedRouter.openapi(logoutRoute, async (c) => {
+  deleteCookie(c, "ota-ku.access-cookie");
+  return c.json(
+    {
+      success: true,
+      message: "Logout successful",
+    },
+    200,
+  );
+});
+
+authProtectedRouter.openapi(otpRoute, async (c) => {
+  const user = c.var.user;
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+
+  const zodParseResult = OTPVerificationRequestSchema.parse(data);
+  const { pin } = zodParseResult;
+
+  if (user.status === "verified") {
+    return c.json(
+      {
+        success: false,
+        message: "Account is already verified",
+        error: "Account is already verified",
+      },
+      401,
+    );
+  }
+
+  const currentDateTime = new Date(Date.now());
+
+  const otp = await db
+    .select()
+    .from(otpTable)
+    .where(
+      and(
+        and(
+          eq(otpTable.accountId, user.id),
+          gte(otpTable.expiredAt, currentDateTime),
+        ),
+        eq(otpTable.code, pin),
+      ),
+    )
+    .limit(1);
+
+  if (!otp || otp.length === 0) {
+    return c.json(
+      {
+        success: false,
+        message: "No valid OTP not found",
+        error: "No valid OTP not found",
+      },
+      404,
+    );
+  }
+
   try {
-    deleteCookie(c, "ota-ku.access-cookie");
+    await db
+      .update(accountTable)
+      .set({
+        status: "verified",
+      })
+      .where(eq(accountTable.id, user.id));
+
+    const accessToken = await sign(
+      {
+        id: user.id,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        type: user.type,
+        provider: user.provider,
+        status: "verified",
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+      },
+      env.JWT_SECRET,
+    );
+
+    setCookie(c, "ota-ku.access-cookie", accessToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24,
+      path: "/",
+    });
+
     return c.json(
       {
         success: true,
-        message: "Logout successful",
+        message: "OTP found",
+        body: {
+          token: accessToken,
+        },
       },
       200,
     );

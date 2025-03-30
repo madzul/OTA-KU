@@ -16,6 +16,9 @@ const EnvSchema = z.object({
   AZURE_CLIENT_ID: z.string(),
   AZURE_CLIENT_SECRET: z.string(),
   VITE_PUBLIC_URL: z.string().url(),
+  CLOUDINARY_CLOUD_NAME: z.string(),
+  CLOUDINARY_API_KEY: z.string(),
+  CLOUDINARY_API_SECRET: z.string(),
 });
 
 const result = EnvSchema.safeParse(process.env);

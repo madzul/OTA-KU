@@ -30,7 +30,7 @@ if [ "$mode" == "1" ]; then
     cd backend && npm install && cd ..
 
     echo "Installing Frontend dependencies..."
-    cd frontend && npm install && cd ..
+    cd frontend && npm install --force && cd ..
 
     echo "Development setup complete!"
 elif [ "$mode" == "2" ]; then
