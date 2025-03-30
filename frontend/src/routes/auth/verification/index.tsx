@@ -40,7 +40,7 @@ function RouteComponent() {
   const navigate = useNavigate();
   const otpCallbackMutation = useMutation({
     mutationFn: (data: OTPVerificationFormValues) =>
-      api.auth.otp({ requestBody: data }),
+      api.auth.otp({ formData: data }),
     onSuccess: (_data, _variables, context) => {
       toast.dismiss(context);
       toast.success("Berhasil melakukan verifikasi", {

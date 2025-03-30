@@ -68,19 +68,11 @@ const AppProfileIndexRoute = AppProfileIndexImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 
-const AuthRegisterOrangTuaIndexRoute = AuthRegisterOrangTuaIndexImport.update({
-  id: '/auth/register/orang-tua/',
-  path: '/auth/register/orang-tua/',
-  getParentRoute: () => rootRoute,
+const AppPendaftaranIndexRoute = AppPendaftaranIndexImport.update({
+  id: '/pendaftaran/',
+  path: '/pendaftaran/',
+  getParentRoute: () => AppRoute,
 } as any)
-
-const AuthRegisterMahasiswaIndexRoute = AuthRegisterMahasiswaIndexImport.update(
-  {
-    id: '/auth/register/mahasiswa/',
-    path: '/auth/register/mahasiswa/',
-    getParentRoute: () => rootRoute,
-  } as any,
-)
 
 const AppDaftarOrangtuaIndexRoute = AppDaftarOrangtuaIndexImport.update({
   id: '/daftar/orangtua/',
@@ -125,6 +117,13 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof AppImport
       parentRoute: typeof rootRoute
+    }
+    '/_app/pendaftaran/': {
+      id: '/_app/pendaftaran/'
+      path: '/pendaftaran'
+      fullPath: '/pendaftaran'
+      preLoaderRoute: typeof AppPendaftaranIndexImport
+      parentRoute: typeof AppImport
     }
     '/_app/profile/': {
       id: '/_app/profile/'
@@ -209,6 +208,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AppRouteChildren {
+  AppPendaftaranIndexRoute: typeof AppPendaftaranIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
   AppProtectedExampleIndexRoute: typeof AppProtectedExampleIndexRoute
   AppDaftarMahasiswaSayaIndexRoute: typeof AppDaftarMahasiswaSayaIndexRoute
@@ -217,6 +217,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppPendaftaranIndexRoute: AppPendaftaranIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
   AppProtectedExampleIndexRoute: AppProtectedExampleIndexRoute,
   AppDaftarMahasiswaSayaIndexRoute: AppDaftarMahasiswaSayaIndexRoute,
@@ -229,6 +230,7 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof AppRouteWithChildren
+  '/pendaftaran': typeof AppPendaftaranIndexRoute
   '/profile': typeof AppProfileIndexRoute
   '/protected-example': typeof AppProtectedExampleIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
@@ -245,6 +247,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof AppRouteWithChildren
+  '/pendaftaran': typeof AppPendaftaranIndexRoute
   '/profile': typeof AppProfileIndexRoute
   '/protected-example': typeof AppProtectedExampleIndexRoute
   '/auth/login': typeof AuthLoginIndexRoute
@@ -262,6 +265,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/_app/pendaftaran/': typeof AppPendaftaranIndexRoute
   '/_app/profile/': typeof AppProfileIndexRoute
   '/_app/protected-example/': typeof AppProtectedExampleIndexRoute
   '/auth/login/': typeof AuthLoginIndexRoute
@@ -280,6 +284,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | ''
+    | '/pendaftaran'
     | '/profile'
     | '/protected-example'
     | '/auth/login'
@@ -295,6 +300,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | ''
+    | '/pendaftaran'
     | '/profile'
     | '/protected-example'
     | '/auth/login'
@@ -310,6 +316,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_app'
+    | '/_app/pendaftaran/'
     | '/_app/profile/'
     | '/_app/protected-example/'
     | '/auth/login/'
@@ -330,8 +337,6 @@ export interface RootRouteChildren {
   AuthLoginIndexRoute: typeof AuthLoginIndexRoute
   AuthRegisterIndexRoute: typeof AuthRegisterIndexRoute
   AuthVerificationIndexRoute: typeof AuthVerificationIndexRoute
-  AuthRegisterMahasiswaIndexRoute: typeof AuthRegisterMahasiswaIndexRoute
-  AuthRegisterOrangTuaIndexRoute: typeof AuthRegisterOrangTuaIndexRoute
   IntegrationsAzureKeyVaultOauth2CallbackIndexRoute: typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -341,8 +346,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginIndexRoute: AuthLoginIndexRoute,
   AuthRegisterIndexRoute: AuthRegisterIndexRoute,
   AuthVerificationIndexRoute: AuthVerificationIndexRoute,
-  AuthRegisterMahasiswaIndexRoute: AuthRegisterMahasiswaIndexRoute,
-  AuthRegisterOrangTuaIndexRoute: AuthRegisterOrangTuaIndexRoute,
   IntegrationsAzureKeyVaultOauth2CallbackIndexRoute:
     IntegrationsAzureKeyVaultOauth2CallbackIndexRoute,
 }
@@ -362,8 +365,6 @@ export const routeTree = rootRoute
         "/auth/login/",
         "/auth/register/",
         "/auth/verification/",
-        "/auth/register/mahasiswa/",
-        "/auth/register/orang-tua/",
         "/integrations/azure-key-vault/oauth2/callback/"
       ]
     },
@@ -373,12 +374,17 @@ export const routeTree = rootRoute
     "/_app": {
       "filePath": "_app.tsx",
       "children": [
+        "/_app/pendaftaran/",
         "/_app/profile/",
         "/_app/protected-example/",
         "/_app/daftar/mahasiswa-saya/",
         "/_app/daftar/mahasiswa/",
         "/_app/daftar/orangtua/"
       ]
+    },
+    "/_app/pendaftaran/": {
+      "filePath": "_app/pendaftaran/index.tsx",
+      "parent": "/_app"
     },
     "/_app/profile/": {
       "filePath": "_app/profile/index.tsx",

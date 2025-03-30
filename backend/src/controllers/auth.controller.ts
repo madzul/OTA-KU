@@ -31,21 +31,11 @@ export const authRouter = createRouter();
 export const authProtectedRouter = createAuthRouter();
 
 authRouter.openapi(loginRoute, async (c) => {
-  const body = await c.req.json();
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = UserLoginRequestSchema.safeParse(body);
-  if (!zodParseResult.success) {
-    return c.json(
-      {
-        success: false,
-        message: "Missing required fields",
-        error: "Email and password are required",
-      },
-      400,
-    );
-  }
-
-  const { identifier, password } = zodParseResult.data;
+  const zodParseResult = UserLoginRequestSchema.parse(data);
+  const { identifier, password } = zodParseResult;
 
   try {
     const account = await db
@@ -134,33 +124,11 @@ authRouter.openapi(loginRoute, async (c) => {
 });
 
 authRouter.openapi(regisRoute, async (c) => {
-  const body = await c.req.json();
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = UserRegisRequestSchema.safeParse(body);
-  if (!zodParseResult.success) {
-    return c.json(
-      {
-        success: false,
-        message: "Missing required fields",
-        error: "Email, phone number, password, and type are required",
-      },
-      400,
-    );
-  }
-
-  const { email, phoneNumber, password, confirmPassword, type } =
-    zodParseResult.data;
-
-  if (password !== confirmPassword) {
-    return c.json(
-      {
-        success: false,
-        message: "Invalid credentials",
-        error: "Password confirmation failed!",
-      },
-      401,
-    );
-  }
+  const zodParseResult = UserRegisRequestSchema.parse(data);
+  const { email, phoneNumber, password, type } = zodParseResult;
 
   const hashedPassword = await hash(password, 10);
 
@@ -233,19 +201,12 @@ authRouter.openapi(regisRoute, async (c) => {
 });
 
 authRouter.openapi(oauthRoute, async (c) => {
-  const body = await c.req.json();
-  const zodParseResult = UserOAuthLoginRequestSchema.safeParse(body);
-  if (!zodParseResult.success) {
-    return c.json(
-      {
-        success: false,
-        message: "Missing required fields",
-        error: "Code is required",
-      },
-      400,
-    );
-  }
-  const { code } = zodParseResult.data;
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+
+  const zodParseResult = UserOAuthLoginRequestSchema.parse(data);
+  const { code } = zodParseResult;
+
   const res = await fetch(
     "https://login.microsoftonline.com/db6e1183-4c65-405c-82ce-7cd53fa6e9dc/oauth2/v2.0/token",
     {
@@ -273,8 +234,8 @@ authRouter.openapi(oauthRoute, async (c) => {
       500,
     );
   }
-  const data = await res.json();
-  const azureToken = data.access_token as string;
+  const resData = await res.json();
+  const azureToken = resData.access_token as string;
   const { payload } = decode(azureToken);
   const email = payload.upn as string;
   const name = payload.name as string;
@@ -392,43 +353,23 @@ authProtectedRouter.openapi(verifRoute, async (c) => {
 });
 
 authProtectedRouter.openapi(logoutRoute, async (c) => {
-  try {
-    deleteCookie(c, "ota-ku.access-cookie");
-    return c.json(
-      {
-        success: true,
-        message: "Logout successful",
-      },
-      200,
-    );
-  } catch (error) {
-    console.error(error);
-    return c.json(
-      {
-        success: false,
-        message: "Internal server error",
-        error: {},
-      },
-      500,
-    );
-  }
+  deleteCookie(c, "ota-ku.access-cookie");
+  return c.json(
+    {
+      success: true,
+      message: "Logout successful",
+    },
+    200,
+  );
 });
 
 authProtectedRouter.openapi(otpRoute, async (c) => {
   const user = c.var.user;
-  const body = await c.req.json();
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = OTPVerificationRequestSchema.safeParse(body);
-  if (!zodParseResult.success) {
-    return c.json(
-      {
-        success: false,
-        message: "Missing required fields",
-        error: "OTP is required",
-      },
-      400,
-    );
-  }
+  const zodParseResult = OTPVerificationRequestSchema.parse(data);
+  const { pin } = zodParseResult;
 
   if (user.status === "verified") {
     return c.json(
@@ -437,11 +378,9 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
         message: "Account is already verified",
         error: "Account is already verified",
       },
-      400,
+      401,
     );
   }
-
-  const { pin } = zodParseResult.data;
 
   const currentDateTime = new Date(Date.now());
 

@@ -27,7 +27,7 @@ export default function RegisterForm({ role }: { role: string }) {
   const navigate = useNavigate();
   const registerCallbackMutation = useMutation({
     mutationFn: (data: UserRegisterFormValues) =>
-      api.auth.regis({ requestBody: data }),
+      api.auth.regis({ formData: data }),
     onSuccess: (_data, _variables, context) => {
       toast.dismiss(context);
       toast.success("Berhasil melakukan registrasi", {
