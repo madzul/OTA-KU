@@ -29,7 +29,11 @@ const statuses = [
   },
 ];
 
-function FilterStatus() {
+interface FilterStatusProps {
+  setStatus: (status: "accepted" | "pending" | "rejected") => void;
+}
+
+function FilterStatus({ setStatus }: FilterStatusProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
@@ -61,6 +65,7 @@ function FilterStatus() {
                   value={status.value}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
+                    setStatus(status.value as "accepted" | "pending" | "rejected");
                     setOpen(false);
                   }}
                 >

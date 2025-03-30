@@ -3,6 +3,7 @@ import { createRoute } from "@hono/zod-openapi";
 import { AuthorizationErrorResponse } from "../types/response.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 import {
+  ApplicationStatusParams,
   ApplicationStatusSchema,
   ApplicationStatusSuccessResponse,
 } from "../zod/status.js";
@@ -11,9 +12,10 @@ export const applicationStatusRoute = createRoute({
   operationId: "applicationStatus",
   tags: ["Status"],
   method: "put",
-  path: "/status/application/:id",
+  path: "/status/application/{id}",
   description: "Mengubah status pendaftaran.",
   request: {
+    params: ApplicationStatusParams,
     body: {
       content: {
         "multipart/form-data": {

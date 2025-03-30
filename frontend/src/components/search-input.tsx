@@ -4,10 +4,12 @@ import { Search } from "lucide-react";
 import type * as React from "react";
 
 interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  setSearch?: (search: string) => void;
   placeholder?: string;
 }
 
 export function SearchInput({
+  setSearch,
   placeholder,
   className,
   ...props
@@ -19,6 +21,11 @@ export function SearchInput({
         type="search"
         className={cn("border border-[#BBBAB8] pl-9", className)}
         placeholder={placeholder ?? "Search..."}
+        onChange={(e) => {
+          if (setSearch) {
+            setSearch(e.target.value);
+          }
+        }}
         {...props}
       />
     </div>
