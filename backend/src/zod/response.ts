@@ -5,3 +5,9 @@ export const InternalServerErrorResponse = z.object({
   message: z.string().openapi({ example: "Internal server error" }),
   error: z.object({}),
 });
+
+export const NotFoundResponse = z.object({
+  success: z.boolean().openapi({ example: false }),
+  message: z.string().openapi({ example: "Not found" }),
+  error: z.object({}),
+});
