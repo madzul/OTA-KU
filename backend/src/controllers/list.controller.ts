@@ -1,8 +1,8 @@
 import { and, count, eq, ilike, isNotNull, or } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
-import { accountMahasiswaDetailTable } from "../db/schema.js";
-import { listMahasiswaOtaRoute } from "../routes/list.route.js";
+import { accountMahasiswaDetailTable, accountOtaDetailTable, accountRelations, accountTable } from "../db/schema.js";
+import { listMahasiswaOtaRoute, listOtaKuRoute } from "../routes/list.route.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
 export const listRouter = createRouter();
@@ -89,3 +89,70 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
     );
   }
 });
+
+listProtectedRouter.openapi(listOtaKuRoute, async(c) => {
+  const { q, page } = c.req.query();
+
+  // Validate page to be a positive integer
+  let pageNumber = Number(page);
+  if (isNaN(pageNumber) || pageNumber < 1) {
+    pageNumber = 1;
+  }
+
+  try {
+    const offset = (pageNumber - 1) * PAGE_SIZE;
+
+    const countsQuery = db
+      .select({ count: count() })
+      .from(accountOtaDetailTable)
+      .where(
+        ilike(accountOtaDetailTable.name, `%${q || ""}%`)
+      );
+
+    const OTAListQuery = db
+      .select({
+        name: accountOtaDetailTable.name,
+        phoneNumber: accountTable.phoneNumber,
+        //TO-DO: Ganti jadi nominal per anak nanti di connection sekalian tambahin kondisi where connectionTable.mahasiswa_id = user.id gitu lah
+        nominal: accountOtaDetailTable.funds
+      })
+      .from(accountOtaDetailTable)
+      .innerJoin(accountTable, eq(accountTable.id, accountOtaDetailTable.accountId))
+      .where(
+          ilike(accountOtaDetailTable.name, `%${q || ""}%`)
+      )
+      .limit(PAGE_SIZE)
+      .offset(offset);
+
+    const [OTAList, counts] = await Promise.all([
+      OTAListQuery,
+      countsQuery,
+    ]);
+
+    return c.json(
+      {
+        success: true,
+        message: "Daftar OTA-ku berhasil diambil",
+        body: {
+          data: OTAList.map((OTA) => ({
+            name: OTA.name,
+            phoneNumber: OTA.phoneNumber ?? "",
+            nominal: OTA.nominal
+          })),
+          totalData: counts[0].count,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error("Error fetching OTA-ku list:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+})
