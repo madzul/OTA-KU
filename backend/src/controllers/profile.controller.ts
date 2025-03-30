@@ -11,6 +11,7 @@ import cloudinary from "../lib/cloudinary.js";
 import {
   pendaftaranMahasiswaRoute,
   pendaftaranOrangTuaRoute,
+  profileMahasiswaRoute,
   profileOrangTuaRoute,
 } from "../routes/profile.route.js";
 import {
@@ -240,6 +241,78 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async(c) => {
         {
           success: true,
           message: "Berhasil mengakses profil OTA",
+          body: formattedProfile,
+        },
+        200
+      );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+profileProtectedRouter.openapi(profileMahasiswaRoute, async(c) => {
+  const user = c.var.user;
+
+  if (user.status === "unverified") {
+    return c.json(
+      {
+        success: false,
+        message: "Akun anda belum diverifikasi.",
+        error: {},
+      },
+      403,
+    );
+  }
+
+  try{
+    const profileDataMahasiswa = await db
+      .select({
+        email: accountTable.email,
+        phone_number: accountTable.phoneNumber,
+        name: accountMahasiswaDetailTable.name
+        // join_date: accountMahasiswaDetailTable.startDate,
+      })
+      .from(accountTable)
+      .innerJoin(
+        accountMahasiswaDetailTable, 
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+      )
+      .where(eq(accountTable.id, user.id))
+      .limit(1); 
+      
+      // if (profileDataOTA.length === 0) {
+      //   return c.json(
+      //     {
+      //       success: false,
+      //       message: "Profil tidak ditemukan.",
+      //       error: {},
+      //     },
+      //     404
+      //   );
+      // }
+
+      const formattedProfile = {
+        email: profileDataMahasiswa[0].email,
+        phone_number: profileDataMahasiswa[0].phone_number ?? "",
+        name: profileDataMahasiswa[0].name,
+        // join_date: new Date(profileDataMahasiswa[0].join_date).toLocaleString("en-US", {
+        //   month: "long",
+        //   year: "numeric",
+        // }),
+      };
+
+      return c.json(
+        {
+          success: true,
+          message: "Berhasil mengakses profil MA",
           body: formattedProfile,
         },
         200

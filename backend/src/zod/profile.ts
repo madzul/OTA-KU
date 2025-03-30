@@ -234,3 +234,14 @@ export const ProfileOrangTuaResponse = z.object({
     join_date: z.string().openapi({ example: "March 2025" })
   })
 })
+
+export const ProfileMahasiswaResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Berhasil mengakses profil MA" }),
+  body: z.object({
+    name: z.string().openapi({ example: "Alex Kurniawan" }),
+    email: EmailSchema,
+    phone_number: PhoneNumberSchema,
+    // join_date: z.string().openapi({ example: "March 2025" })
+  })
+})
