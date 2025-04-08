@@ -1,6 +1,6 @@
 import { z } from "@hono/zod-openapi";
 
-import { NIMSchema, PDFSchema, PhoneNumberSchema } from "./atomic.js";
+import { EmailSchema, NIMSchema, PDFSchema, PhoneNumberSchema } from "./atomic.js";
 
 // Mahasiswa Registration
 export const MahasiwaRegistrationSchema = z.object({
@@ -223,3 +223,26 @@ export const OrangTuaUnverifiedResponse = z.object({
   message: z.string().openapi({ example: "Akun belum terverifikasi" }),
   error: z.object({}),
 });
+
+export const ProfileOrangTuaResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Berhasil mengakses profil OTA" }),
+  body: z.object({
+    name: z.string().openapi({ example: "Budi Santoso" }),
+    email: EmailSchema,
+    phone_number: PhoneNumberSchema,
+    join_date: z.string().openapi({ example: "March 2025" })
+  })
+})
+
+//TO-DO: add join_date to db
+export const ProfileMahasiswaResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Berhasil mengakses profil MA" }),
+  body: z.object({
+    name: z.string().openapi({ example: "Alex Kurniawan" }),
+    email: EmailSchema,
+    phone_number: PhoneNumberSchema,
+    // join_date: z.string().openapi({ example: "March 2025" })
+  })
+})
