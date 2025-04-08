@@ -15,4 +15,7 @@ export type { UserRegisRequestSchema } from './models/UserRegisRequestSchema';
 export type { UserSchema } from './models/UserSchema';
 
 export { AuthService } from './services/AuthService';
+export { ConnectService } from './services/ConnectService';
+export { ListService } from './services/ListService';
 export { ProfileService } from './services/ProfileService';
+export { StatusService } from './services/StatusService';

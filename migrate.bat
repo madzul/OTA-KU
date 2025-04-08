@@ -1,5 +1,5 @@
 @echo off
-echo 🚀 Starting database migration...
+echo Starting database migration...
 
 :: Step 1: Start the database container
 echo Starting the database container...
@@ -19,7 +19,7 @@ echo Database is ready!
 :: Step 3: Run Drizzle ORM migration
 echo Running Drizzle ORM migration...
 pushd backend
-npm run drizzle-kit:migrate
+npm run drizzle-kit:migrate:local
 popd
 
 if %errorlevel%==0 (

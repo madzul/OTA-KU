@@ -29,6 +29,12 @@ export const verificationStatusEnum = pgEnum("verification_status", [
   "unverified",
 ]);
 
+export const applicationStatusEnum = pgEnum("account_status", [
+  "accepted",
+  "rejected",
+  "pending",
+]);
+
 export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
   "active",
   "inactive",
@@ -44,6 +50,9 @@ export const accountTable = pgTable("account", {
   type: accountTypeEnum("type").notNull(),
   provider: providerEnum("provider").notNull().default("credentials"),
   status: verificationStatusEnum("status").notNull().default("unverified"),
+  applicationStatus: applicationStatusEnum("application_status")
+    .notNull()
+    .default("pending"),
 });
 
 export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
