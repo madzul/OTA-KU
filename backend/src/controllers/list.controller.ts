@@ -37,9 +37,14 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
     const countsQuery = db
       .select({ count: count() })
       .from(accountMahasiswaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+      )
       .where(
         and(
           eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
+          eq(accountTable.applicationStatus, "accepted"),
           isNotNull(accountMahasiswaDetailTable.description),
           isNotNull(accountMahasiswaDetailTable.file),
           or(
@@ -425,7 +430,7 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
   }
 });
 
-//TO-DO: nanti status bukan liat dari inactive di detail MA, tapi liat status di connection
+//TO-DO: cek status di connection untuk filter MA tertentu, sekarang masih asumsi masing-masing OTA ngajuin untuk semua MA
 listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
   const { q, page } = c.req.query();
 
@@ -441,9 +446,14 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
     const countsQuery = db
       .select({ count: count() })
       .from(accountMahasiswaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+      )
       .where(
         and(
           eq(accountMahasiswaDetailTable.mahasiswaStatus, "active"),
+          eq(accountTable.applicationStatus, "accepted"),
           isNotNull(accountMahasiswaDetailTable.description),
           isNotNull(accountMahasiswaDetailTable.file),
           or(
@@ -461,9 +471,14 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
       })
       .from(accountMahasiswaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+      )
       .where(
         and(
           eq(accountMahasiswaDetailTable.mahasiswaStatus, "active"),
+          eq(accountTable.applicationStatus, "accepted"),
           isNotNull(accountMahasiswaDetailTable.description),
           isNotNull(accountMahasiswaDetailTable.file),
           or(
@@ -525,9 +540,14 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
     const countsQuery = db
       .select({ count: count() })
       .from(accountMahasiswaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+      )
       .where(
         and(
           eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
+          eq(accountTable.applicationStatus, "accepted"),
           isNotNull(accountMahasiswaDetailTable.description),
           isNotNull(accountMahasiswaDetailTable.file),
           or(
@@ -545,9 +565,14 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
       })
       .from(accountMahasiswaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+      )
       .where(
         and(
           eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
+          eq(accountTable.applicationStatus, "accepted"),
           isNotNull(accountMahasiswaDetailTable.description),
           isNotNull(accountMahasiswaDetailTable.file),
           or(
