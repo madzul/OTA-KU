@@ -174,4 +174,233 @@ export class ProfileService {
       },
     });
   }
+  /**
+   * Edit profile OTA
+   * @returns any Berhasil edit profile OTA.
+   * @throws ApiError
+   */
+  public editProfileOta({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * Nama orang tua
+       */
+      name: string;
+      /**
+       * Pekerjaan orang tua
+       */
+      job: string;
+      /**
+       * Alamat orang tua
+       */
+      address: string;
+      /**
+       * Hubungan dengan mahasiswa
+       */
+      linkage: 'otm' | 'dosen' | 'alumni' | 'lainnya' | 'none';
+      /**
+       * Dana yang disediakan
+       */
+      funds: number;
+      /**
+       * Kapasitas maksimal
+       */
+      maxCapacity: number | null;
+      /**
+       * Tanggal mulai
+       */
+      startDate: string;
+      /**
+       * Semester maksimal
+       */
+      maxSemester: number | null;
+      /**
+       * Tanggal transfer
+       */
+      transferDate: number | null;
+      criteria: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * Nama orang tua
+       */
+      name: string;
+      /**
+       * Pekerjaan orang tua
+       */
+      job: string;
+      /**
+       * Alamat orang tua
+       */
+      address: string;
+      /**
+       * Hubungan dengan mahasiswa
+       */
+      linkage: 'otm' | 'dosen' | 'alumni' | 'lainnya' | 'none';
+      /**
+       * Dana yang disediakan
+       */
+      funds: number;
+      /**
+       * Kapasitas maksimal
+       */
+      maxCapacity: number | null;
+      /**
+       * Tanggal mulai
+       */
+      startDate: string;
+      /**
+       * Semester maksimal
+       */
+      maxSemester: number | null;
+      /**
+       * Tanggal transfer
+       */
+      transferDate: number | null;
+      criteria: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/profile/orang-tua/:id',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        400: `Gagal edit profile OTA.`,
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Akun belum terverifikasi.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Profile orang tua.
+   * @returns any Success
+   * @throws ApiError
+   */
+  public profileOrangTua(): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      name: string;
+      /**
+       * The user's email.
+       */
+      email: string;
+      /**
+       * The user phone number.
+       */
+      phone_number: string;
+      join_date: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/profile/orang-tua/:id',
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Akun belum terverifikasi.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Edit profile MA
+   * @returns any Berhasil edit profile MA.
+   * @throws ApiError
+   */
+  public editProfileMa({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * Nama mahasiswa
+       */
+      name: string;
+      /**
+       * The user phone number.
+       */
+      phoneNumber: string;
+      /**
+       * Nomor Induk Mahasiswa
+       */
+      nim: string;
+      /**
+       * Deskripsi mahasiswa
+       */
+      description: string;
+      /**
+       * Foto mahasiswa
+       */
+      file: any;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * Nama mahasiswa
+       */
+      name: string;
+      /**
+       * Nomor Induk Mahasiswa
+       */
+      nim: string;
+      /**
+       * Deskripsi mahasiswa
+       */
+      description: string;
+      /**
+       * Foto mahasiswa
+       */
+      file: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/profile/mahasiswa/:id',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        400: `Gagal edit profile MA.`,
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Akun belum terverifikasi.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Profile mahasiswa.
+   * @returns any Success
+   * @throws ApiError
+   */
+  public profileMahasiswa(): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      name: string;
+      /**
+       * The user's email.
+       */
+      email: string;
+      /**
+       * The user phone number.
+       */
+      phone_number: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/profile/mahasiswa/:id',
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Akun belum terverifikasi.`,
+        500: `Internal server error`,
+      },
+    });
+  }
 }
