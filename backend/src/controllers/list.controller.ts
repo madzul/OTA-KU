@@ -5,6 +5,7 @@ import {
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
+  connectionTable,
 } from "../db/schema.js";
 import {
   listMAActiveRoute,
@@ -430,9 +431,9 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
   }
 });
 
-//TO-DO: cek status di connection untuk filter MA tertentu, sekarang masih asumsi masing-masing OTA ngajuin untuk semua MA
 listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
   const { q, page } = c.req.query();
+  const otaId = c.get("user").id
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -445,22 +446,24 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
 
     const countsQuery = db
       .select({ count: count() })
-      .from(accountMahasiswaDetailTable)
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId)
+      )
       .innerJoin(
         accountTable,
         eq(accountMahasiswaDetailTable.accountId, accountTable.id)
       )
       .where(
         and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "active"),
-          eq(accountTable.applicationStatus, "accepted"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
+          eq(connectionTable.otaId, otaId),
+          eq(connectionTable.connectionStatus, "accepted"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-          ),
-        ),
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`)
+          )
+        )
       );
 
     const mahasiswaListQuery = db
@@ -470,22 +473,24 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
         nim: accountMahasiswaDetailTable.nim,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
       })
-      .from(accountMahasiswaDetailTable)
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId)
+      )
       .innerJoin(
         accountTable,
         eq(accountMahasiswaDetailTable.accountId, accountTable.id)
       )
       .where(
         and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "active"),
-          eq(accountTable.applicationStatus, "accepted"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
+          eq(connectionTable.otaId, otaId),
+          eq(connectionTable.connectionStatus, "accepted"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-          ),
-        ),
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`)
+          )
+        )
       )
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
@@ -524,9 +529,9 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
   }
 });
 
-//TO-DO: nanti status bukan liat dari inactive di detail MA, tapi liat status di connection
 listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
   const { q, page } = c.req.query();
+  const otaId = c.get("user").id;
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -539,22 +544,24 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
 
     const countsQuery = db
       .select({ count: count() })
-      .from(accountMahasiswaDetailTable)
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId)
+      )
       .innerJoin(
         accountTable,
         eq(accountMahasiswaDetailTable.accountId, accountTable.id)
       )
       .where(
         and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
-          eq(accountTable.applicationStatus, "accepted"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
+          eq(connectionTable.otaId, otaId),
+          eq(connectionTable.connectionStatus, "pending"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-          ),
-        ),
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`)
+          )
+        )
       );
 
     const mahasiswaListQuery = db
@@ -564,22 +571,24 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         nim: accountMahasiswaDetailTable.nim,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
       })
-      .from(accountMahasiswaDetailTable)
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId)
+      )
       .innerJoin(
         accountTable,
         eq(accountMahasiswaDetailTable.accountId, accountTable.id)
       )
       .where(
         and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
-          eq(accountTable.applicationStatus, "accepted"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
+          eq(connectionTable.otaId, otaId),
+          eq(connectionTable.connectionStatus, "pending"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-          ),
-        ),
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`)
+          )
+        )
       )
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
