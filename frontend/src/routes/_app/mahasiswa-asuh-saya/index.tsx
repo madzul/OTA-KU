@@ -7,28 +7,23 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Search, User } from "lucide-react";
-import * as React from "react";
-
-// Sample data for students
-const students = Array.from({ length: 5 }, (_, i) => ({
-  name: `Budi Santoso Ke-${i + 1}`,
-  batch: "Angkatan 2022",
-  faculty: "STEI-K",
-  department: "Sistem dan Teknologi Informasi",
-}));
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useDebounce } from "use-debounce";
+import { api } from "@/api/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface StudentCardProps {
   student: {
     name: string;
-    batch: string;
-    faculty: string;
-    department: string;
+    // batch: string;
+    // faculty: string;
+    // department: string;
   };
 }
 
-// Temporary StudentCard Component
 function StudentCard({ student }: StudentCardProps) {
   return (
     <Card className="border-primary min-w-[288px] gap-2 overflow-hidden rounded-lg border p-0 pb-3">
@@ -39,27 +34,24 @@ function StudentCard({ student }: StudentCardProps) {
           </div>
           <div>
             <h3 className="font-semibold">{student.name}</h3>
-            <p className="text-sm">{student.batch}</p>
+            {/* <p className="text-sm">{student.batch}</p> */}
           </div>
         </div>
       </CardHeader>
       <CardContent className="">
         <div className="mt-4 flex flex-row gap-5">
           <div>
-            <p className="text-muted-foreground text-sm">Fakultas</p>
-            <p>{student.faculty}</p>
+            {/* <p className="text-muted-foreground text-sm">Fakultas</p> */}
+            {/* <p>{student.faculty}</p> */}
           </div>
           <div>
-            <p className="text-muted-foreground text-sm">Jurusan</p>
-            <p>{student.department}</p>
+            {/* <p className="text-muted-foreground text-sm">Jurusan</p> */}
+            {/* <p>{student.department}</p> */}
           </div>
         </div>
       </CardContent>
       <CardFooter className="flex justify-center">
-        {/* TODO: Ganti redirect route */}
-        <Button variant={"default"} onClick={() => redirect({ to: "." })}>
-          Lihat Profil
-        </Button>
+        <Button variant={"default"}>Lihat Profil</Button>
       </CardFooter>
     </Card>
   );
@@ -70,11 +62,34 @@ export const Route = createFileRoute("/_app/mahasiswa-asuh-saya/")({
 });
 
 function RouteComponent() {
-  const [searchQuery, setSearchQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 
-  const filteredStudents = students.filter((student) =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  const { data: activeStudentsData, isSuccess: isActiveSuccess } = useQuery({
+    queryKey: ["listMaActive", debouncedSearchQuery],
+    queryFn: () =>
+      api.list.listMaActive({
+        q: debouncedSearchQuery,
+        page: 1,
+      }),
+  });
+
+  const { data: pendingStudentsData, isSuccess: isPendingSuccess } = useQuery({
+    queryKey: ["listMaPending", debouncedSearchQuery],
+    queryFn: () =>
+      api.list.listMaPending({
+        q: debouncedSearchQuery,
+        page: 1,
+      }),
+  });
+
+  const activeStudents = activeStudentsData?.body.data.map((student) => ({
+    name: student.name,
+  })) ?? [];
+
+  const pendingStudents = pendingStudentsData?.body.data.map((student) => ({
+    name: student.name,
+  })) ?? [];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -82,7 +97,6 @@ function RouteComponent() {
         Mahasiswa Asuh Saya
       </h1>
 
-      {/* Tabs */}
       <Tabs defaultValue="aktif" className="mb-6">
         <TabsList className="bg-border grid w-full grid-cols-2 rounded-lg">
           <TabsTrigger value="aktif" className="rounded-l-lg">
@@ -94,7 +108,6 @@ function RouteComponent() {
         </TabsList>
 
         <TabsContent value="aktif">
-          {/* Search Bar */}
           <div className="relative mb-6">
             <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
@@ -105,10 +118,11 @@ function RouteComponent() {
             />
           </div>
 
-          {/* Student Cards Grid */}
-          {filteredStudents.length > 0 ? (
+          {!isActiveSuccess ? (
+            <Skeleton className="h-80 w-full" />
+          ) : (activeStudents ?? []).length > 0 ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredStudents.map((student, index) => (
+              {activeStudents.map((student, index) => (
                 <StudentCard key={index} student={student} />
               ))}
             </div>
@@ -120,7 +134,6 @@ function RouteComponent() {
         </TabsContent>
 
         <TabsContent value="menunggu">
-          {/* Search Bar */}
           <div className="relative mb-6">
             <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
@@ -131,10 +144,11 @@ function RouteComponent() {
             />
           </div>
 
-          {/* Student Cards Grid */}
-          {filteredStudents.length > 0 ? (
+          {!isPendingSuccess ? (
+            <Skeleton className="h-80 w-full" />
+          ) : pendingStudents.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {filteredStudents.map((student, index) => (
+              {pendingStudents.map((student, index) => (
                 <StudentCard key={index} student={student} />
               ))}
             </div>
