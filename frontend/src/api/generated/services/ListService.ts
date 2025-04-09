@@ -156,4 +156,130 @@ export class ListService {
       },
     });
   }
+  /**
+   * List orang tua asuh yang membantu saya
+   * @returns any Berhasil mendapatkan daftar OTA-ku
+   * @throws ApiError
+   */
+  public listOtaKu({
+    q,
+    page,
+  }: {
+    q?: string,
+    page?: number | null,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        accountId: string;
+        name: string;
+        /**
+         * The user phone number.
+         */
+        phoneNumber: string;
+        nominal: number;
+      }>;
+      totalData: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/list/orang-tua',
+      query: {
+        'q': q,
+        'page': page,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * List mahasiswa asuh saya yang aktif
+   * @returns any Berhasil mendapatkan daftar MA aktif
+   * @throws ApiError
+   */
+  public listMaActive({
+    q,
+    page,
+  }: {
+    q?: string,
+    page?: number | null,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        accountId: string;
+        name: string;
+        /**
+         * Nomor Induk Mahasiswa
+         */
+        nim: string;
+        /**
+         * Status mahasiswa
+         */
+        mahasiswaStatus: 'active' | 'inactive';
+      }>;
+      totalData: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/list/orang-tua/mahasiswa-asuh-active',
+      query: {
+        'q': q,
+        'page': page,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * List ajuan mahasiswa asuh saya yang masih pending
+   * @returns any Berhasil mendapatkan daftar MA pending
+   * @throws ApiError
+   */
+  public listMaPending({
+    q,
+    page,
+  }: {
+    q?: string,
+    page?: number | null,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        accountId: string;
+        name: string;
+        /**
+         * Nomor Induk Mahasiswa
+         */
+        nim: string;
+        /**
+         * Status mahasiswa
+         */
+        mahasiswaStatus: 'active' | 'inactive';
+      }>;
+      totalData: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/list/orang-tua/mahasiswa-asuh-pending',
+      query: {
+        'q': q,
+        'page': page,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
 }
