@@ -40,6 +40,12 @@ export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
   "inactive",
 ]);
 
+export const connectionStatusEnum = pgEnum("connection_status", [
+  "accepted",
+  "rejected",
+  "pending",
+]);
+
 export const providerEnum = pgEnum("provider", ["credentials", "azure"]);
 
 export const accountTable = pgTable("account", {
@@ -103,6 +109,9 @@ export const connectionTable = pgTable(
       .references(() => accountOtaDetailTable.accountId, {
         onDelete: "cascade",
       }),
+      connectionStatus:  connectionStatusEnum("connection_status")
+        .notNull()
+        .default("pending"),
   },
   (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
 );
