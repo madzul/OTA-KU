@@ -74,7 +74,7 @@ function DaftarMahasiswa(): JSX.Element {
   console.log(JSON.stringify(data));
   return (
     <div className="flex flex-col gap-4 text-[32px] md:gap-8">
-      <h1 className="text-dark font-bold">Mahasiswa Asuh Saya</h1>
+      <h1 className="text-dark font-bold">Daftar Mahasiswa</h1>
 
       <Input
         placeholder="Cari mahasiswa"
