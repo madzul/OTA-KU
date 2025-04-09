@@ -144,29 +144,23 @@ export const accountRelations = relations(accountTable, ({ one, many }) => ({
 
 export const accountMahasiswaDetailRelations = relations(
   accountMahasiswaDetailTable,
-  ({ one }) => ({
+  ({ one, many }) => ({
     account: one(accountTable, {
       fields: [accountMahasiswaDetailTable.accountId],
       references: [accountTable.id],
     }),
-    connection: one(connectionTable, {
-      fields: [accountMahasiswaDetailTable.accountId],
-      references: [connectionTable.mahasiswaId],
-    }),
+    connection: many(connectionTable),
   }),
 );
 
 export const accountOtaDetailRelations = relations(
   accountOtaDetailTable,
-  ({ one }) => ({
+  ({ one, many }) => ({
     account: one(accountTable, {
       fields: [accountOtaDetailTable.accountId],
       references: [accountTable.id],
     }),
-    connection: one(connectionTable, {
-      fields: [accountOtaDetailTable.accountId],
-      references: [connectionTable.otaId],
-    }),
+    connection: many(connectionTable),
   }),
 );
 
