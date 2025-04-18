@@ -1,6 +1,7 @@
 import { api } from "@/api/client";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -9,13 +10,23 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+// Menu item interface for type safety
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: string;
+  path: string;
+  textColorClass?: string;
+  bgColorClass?: string;
+}
+
 function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   // Only fetch authentication status when component mounts
   // Enable refetching on window focus and set a stale time
-  const {
-    data,
-    // isLoading
-  } = useQuery({
+  const { data } = useQuery({
     queryKey: ["verify"],
     queryFn: () => api.auth.verif().catch(() => null),
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -24,10 +35,22 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
     refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
   });
 
-  // const isLoggedIn = !!data;
+  // Set active item based on current path when component mounts
+  useEffect(() => {
+    // Get the current path from Tanstack Router
+    const currentPath = location.pathname;
 
-  // TODO: Belom selesai
-  const name = "Yusuf Ardian Sandi";
+    // Find menu item matching current path
+    const menuItems = getMenuItems();
+    const matchingItem = menuItems.find((item) =>
+      currentPath.startsWith(item.path),
+    );
+
+    if (matchingItem) {
+      setActiveItem(matchingItem.id);
+    }
+  }, [location.pathname]);
+
   const [activeItem, setActiveItem] = useState<string>("dashboard");
 
   // Use useEffect to handle ESC key press to close sidebar
@@ -48,9 +71,93 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
   }, [isOpen, onClose]);
 
   // Function to handle menu item click
-  const handleItemClick = (itemId: string) => {
-    setActiveItem(itemId);
+  const handleItemClick = (item: MenuItem) => {
+    setActiveItem(item.id);
+    navigate({ to: item.path });
+
+    // Close sidebar on mobile after navigation
+    if (window.innerWidth < 1024) {
+      onClose();
+    }
   };
+
+  // Define menu items for each role
+  const getMenuItems = (): MenuItem[] => {
+    const userRole = data?.body.type || "ota"; // Default to OTA if role is not available
+
+    switch (userRole) {
+      case "mahasiswa":
+        return [
+          {
+            id: "dashboard",
+            label: "Dasbor",
+            icon: "/icon/Type=dashboard.svg",
+            path: "/dashboard",
+          },
+          {
+            id: "my-sponsors",
+            label: "Orang Tua Asuh Saya",
+            icon: "/icon/Type=student-list.svg",
+            path: "/my-sponsors",
+          },
+          {
+            id: "termination",
+            label: "Terminasi",
+            icon: "/icon/Type=remove-student.svg",
+            path: "/termination",
+            textColorClass: "text-destructive",
+            bgColorClass: "bg-destructive/10",
+          },
+        ];
+      case "admin":
+        return [
+          {
+            id: "dashboard",
+            label: "Dasbor",
+            icon: "/icon/Type=dashboard.svg",
+            path: "/dashboard",
+          },
+          {
+            id: "verification",
+            label: "Verifikasi",
+            icon: "/icon/Type=shield.svg",
+            path: "/verification",
+          },
+        ];
+      case "ota":
+      default:
+        return [
+          {
+            id: "dashboard",
+            label: "Dasbor",
+            icon: "/icon/Type=dashboard.svg",
+            path: "/dasbor",
+          },
+          {
+            id: "student-list",
+            label: "Cari Mahasiswa",
+            icon: "/icon/Type=search.svg",
+            path: "/daftar/mahasiswa",
+          },
+          {
+            id: "my-students",
+            label: "Mahasiswa Asuh Saya",
+            icon: "/icon/Type=people.svg",
+            path: "/mahasiswa-asuh-saya",
+          },
+          {
+            id: "termination",
+            label: "Terminasi",
+            icon: "/icon/Type=remove-student.svg",
+            path: "/termination",
+            textColorClass: "text-destructive",
+            bgColorClass: "bg-destructive/10",
+          },
+        ];
+    }
+  };
+
+  const menuItems = getMenuItems();
 
   return (
     <>
@@ -84,77 +191,35 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="flex flex-col gap-5">
           <h4 className="text-dark text-sm font-medium">UTAMA</h4>
           <div className="flex flex-col gap-3">
-            {/* Dashbor */}
-            <div
-              className={cn(
-                "flex cursor-pointer gap-3 transition-all duration-200 ease-linear focus:rounded-md focus:p-2",
-                activeItem === "dashboard" && "bg-dark/10 rounded-md p-2",
-              )}
-              onClick={() => handleItemClick("dashboard")}
-              tabIndex={0}
-            >
-              <img
-                src="/icon/Type=dashboard.svg"
-                alt="icon dashboard"
-                className="h-4 w-4"
-              />
-              <span className="text-dark text-sm font-medium">Dasbor</span>
-            </div>
-            {/* Daftar Mahasiswa */}
-            <div
-              className={cn(
-                "flex cursor-pointer gap-3 transition-all duration-200 ease-linear focus:rounded-md focus:p-2",
-                activeItem === "student-list" && "bg-dark/10 rounded-md p-2",
-              )}
-              onClick={() => handleItemClick("student-list")}
-              tabIndex={0}
-            >
-              <img
-                src="/icon/Type=student-list.svg"
-                alt="icon dashboard"
-                className="h-4 w-4"
-              />
-              <span className="text-dark text-sm font-medium">
-                Daftar Mahasiswa
-              </span>
-            </div>
-            {/* Mahasiswa Asuh Saya */}
-            <div
-              className={cn(
-                "flex cursor-pointer gap-3 transition-all duration-200 ease-linear focus:rounded-md focus:p-2",
-                activeItem === "my-students" && "bg-dark/10 rounded-md p-2",
-              )}
-              onClick={() => handleItemClick("my-students")}
-              tabIndex={0}
-            >
-              <img
-                src="/icon/Type=student.svg"
-                alt="icon dashboard"
-                className="h-4 w-4"
-              />
-              <span className="text-dark text-sm font-medium">
-                Mahasiswa Asuh Saya
-              </span>
-            </div>
-            {/* Terminasi */}
-            <div
-              className={cn(
-                "flex cursor-pointer gap-3 transition-all duration-200 ease-linear focus:rounded-md focus:p-2",
-                activeItem === "termination" &&
-                  "bg-destructive/10 rounded-md p-2",
-              )}
-              onClick={() => handleItemClick("termination")}
-              tabIndex={0}
-            >
-              <img
-                src="/icon/Type=remove-student.svg"
-                alt="icon dashboard"
-                className="h-4 w-4"
-              />
-              <span className="text-destructive text-sm font-medium">
-                Terminasi
-              </span>
-            </div>
+            {/* Dynamically render menu items based on role */}
+            {menuItems.map((item) => (
+              <div
+                key={item.id}
+                className={cn(
+                  "flex cursor-pointer gap-3 transition-all duration-200 ease-linear focus:rounded-md focus:p-2",
+                  activeItem === item.id &&
+                    (item.bgColorClass || "bg-dark/10") + " rounded-md p-2",
+                )}
+                onClick={() => handleItemClick(item)}
+                tabIndex={0}
+                role="button"
+                aria-label={`Navigate to ${item.label}`}
+              >
+                <img
+                  src={item.icon}
+                  alt={`icon ${item.label}`}
+                  className="h-5 w-5"
+                />
+                <span
+                  className={cn(
+                    "text-sm font-medium",
+                    item.textColorClass || "text-dark",
+                  )}
+                >
+                  {item.label}
+                </span>
+              </div>
+            ))}
           </div>
           {/* Line Separator */}
           <div className="h-[1.5px] w-full rounded-full bg-gray-300"></div>
@@ -163,15 +228,28 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* User Info */}
         <div className="flex items-center gap-5 transition-all hover:scale-105">
           <img
-            src="https://randomuser.me/api/portraits/men/1.jpg"
+            src="/icon/Type=profile-icon.svg"
             alt="user avatar"
             className="h-8 w-8 rounded-full"
           />
           <div className="flex flex-col gap-1">
-            <span className="text-dark text-sm font-bold">{name}</span>
+            <span className="text-dark text-sm font-bold">
+              {data?.body.email.split("@")[0]}
+            </span>
             <span className="text-dark line-clamp-1 text-xs font-normal opacity-80">
               {data?.body.email}
             </span>
+            {data?.body.type && (
+              <span className="text-xs text-gray-500 italic">
+                {data.body.type === "mahasiswa"
+                  ? "Mahasiswa"
+                  : data.body.type === "ota"
+                    ? "Orang Tua Asuh"
+                    : data.body.type === "admin"
+                      ? "Admin"
+                      : ""}
+              </span>
+            )}
           </div>
         </div>
       </div>
