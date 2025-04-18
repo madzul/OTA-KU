@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -29,6 +30,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
   // TODO: Belom selesai
   const name = "Yusuf Ardian Sandi";
   const [activeItem, setActiveItem] = useState<string>("dashboard");
+  const navigate = useNavigate();
 
   // Use useEffect to handle ESC key press to close sidebar
   useEffect(() => {
@@ -47,10 +49,38 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
     };
   }, [isOpen, onClose]);
 
-  // Function to handle menu item click
   const handleItemClick = (itemId: string) => {
     setActiveItem(itemId);
+    switch (itemId) {
+      case "dashboard":
+        // TO-DO: dashboard page
+        // navigate({
+        //   to: "/dashboard",
+        // });
+        break;
+      case "student-list":
+        navigate({
+          to: "/daftar/mahasiswa",
+        });
+        break;
+      case "my-students":
+        navigate({
+          to: "/mahasiswa-asuh-saya"
+        });
+        break;
+      case "termination":
+        // TO-DO: termination page
+        // navigate({
+        //   to: "/termination"
+        // });
+        break;
+      default:
+        break;
+    }
+
+    onClose();
   };
+  
 
   return (
     <>
