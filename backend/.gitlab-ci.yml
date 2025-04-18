@@ -1,18 +1,10 @@
 .backend-base:
+  image: node:20-alpine
   cache:
     key: ${CI_COMMIT_REF_SLUG}-backend
     paths:
       - backend/node_modules/
     policy: pull-push
-  before_script:
-    - |
-      echo "Cleaning up potential Git locks..."
-      if [ -f .git/shallow.lock ]; then
-        rm -f .git/shallow.lock
-      fi
-      if [ -f .git/index.lock ]; then
-        rm -f .git/index.lock
-      fi
 
 backend-build-job:
   extends: .backend-base
@@ -21,11 +13,10 @@ backend-build-job:
     - echo "Building backend with Hono..."
     - cd backend
     - cp "$BACKEND_ENV_FILE" .env
-    # CI/CD optimization: only install if node_modules doesn't exist or package.json has changed
     - |
-      if [ ! -d "node_modules" ] || [ "$(stat -c %Y package.json)" -gt "$(stat -c %Y node_modules 2>/dev/null || echo 0)" ]; then
+      if [ ! -d "node_modules" ] || [ "$(find package.json -newer node_modules 2>/dev/null)" ]; then
         echo "Installing dependencies..."
-        npm ci
+        npm ci --prefer-offline
       else
         echo "Using cached node_modules"
       fi
@@ -41,9 +32,9 @@ backend-test-job:
   stage: test
   needs:
     - backend-build-job
-  image: node:20-bookworm
+  image: node:20-alpine
   services:
-    - name: postgres:16
+    - name: postgres:16-alpine
       alias: db
       variables:
         POSTGRES_USER: dbuser
@@ -51,22 +42,15 @@ backend-test-job:
         POSTGRES_DB: maindb
         POSTGRES_HOST: db
         POSTGRES_PORT: 5432
-        DATABASE_URL: postgresql://dbuser:dbpassword@db:5432/maindb
   before_script:
-    - apt-get update && apt-get install -y postgresql-client
+    - apk add --no-cache postgresql-client
   script:
     - echo "Testing backend..."
     - cd backend
     - cp "$BACKEND_LOCAL_ENV_FILE" .env
-    # Ensure required environment variables are available
-    - |
-      if ! grep -q "DATABASE_URL" .env || ! grep -q "JWT_SECRET" .env; then
-        echo "ERROR: Required environment variables missing in .env"
-        exit 1
-      fi
     - export $(grep -v '^#' .env | xargs)
     - echo "Waiting for PostgreSQL to be ready..."
-    - until pg_isready -h db -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do sleep 2; done
+    - until pg_isready -h db -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB"; do sleep 1; done
     - echo "Database is ready!"
     - npm ci --prefer-offline
     - npm run drizzle-kit:migrate
