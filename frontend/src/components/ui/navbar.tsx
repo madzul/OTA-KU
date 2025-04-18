@@ -134,7 +134,29 @@ export default function NavBar() {
                     alignOffset={-10}
                     sideOffset={5}
                   >
-                    <MenubarItem className="text-dark">Akun Saya</MenubarItem>
+                    <MenubarItem
+                      className="text-dark"
+                      onClick={() => {
+                        const detailId = data?.body.id;
+                        const userType = data?.body.type;
+
+                        if (!detailId || !userType) return;
+
+                        const path =
+                          userType === "mahasiswa"
+                            ? `/detail/mahasiswa/${detailId}`
+                            : `/detail/orang-tua-asuh/${detailId}`;
+
+                        navigate({
+                          to: path,
+                          replace: false,
+                          reloadDocument: true,
+                        });
+                      }}
+                    >
+                      Akun Saya
+                    </MenubarItem>
+
                     <MenubarSeparator />
                     <MenubarItem
                       className="text-destructive"
