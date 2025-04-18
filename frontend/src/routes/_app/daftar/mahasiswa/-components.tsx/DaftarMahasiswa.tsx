@@ -26,15 +26,13 @@ const MahasiswaService = {
         name: "John Doe",
         smt: 5,
         faculty: "STEI-K Teknik Informatika",
-        money: 1000000,
         link: "/_app/profile/m001",
       },
       {
         id: "m002",
-        name: "Jane Smith",
+        name: "Jane Smith sasdad adssss adsssssss adssssss adssssss adssss",
         smt: 3,
         faculty: "STEI-K Teknik Informatika",
-        money: 950000,
         link: "/_app/profile/m002",
       },
       {
@@ -42,7 +40,6 @@ const MahasiswaService = {
         name: "Ahmad Fauzi",
         smt: 7,
         faculty: "FTTM Teknik Pertambangan",
-        money: 1200000,
         link: "/_app/profile/m003",
       },
       {
@@ -50,7 +47,6 @@ const MahasiswaService = {
         name: "Siti Rahayu",
         smt: 4,
         faculty: "FTSL Teknik Lingkungan",
-        money: 875000,
         link: "/_app/profile/m004",
       },
       {
@@ -58,7 +54,6 @@ const MahasiswaService = {
         name: "Michael Wong",
         smt: 2,
         faculty: "FTI Teknik Kimia",
-        money: 1150000,
         link: "/_app/profile/m005",
       },
       {
@@ -66,7 +61,6 @@ const MahasiswaService = {
         name: "Devi Putri",
         smt: 6,
         faculty: "FMIPA Matematika",
-        money: 925000,
         link: "/_app/profile/m006",
       },
       {
@@ -74,7 +68,6 @@ const MahasiswaService = {
         name: "Budi Santoso",
         smt: 5,
         faculty: "FTMD Teknik Mesin",
-        money: 1050000,
         link: "/_app/profile/m007",
       },
       {
@@ -82,7 +75,6 @@ const MahasiswaService = {
         name: "Anisa Rahma",
         smt: 3,
         faculty: "FSRD Desain Interior",
-        money: 980000,
         link: "/_app/profile/m008",
       },
       {
@@ -90,7 +82,6 @@ const MahasiswaService = {
         name: "Reza Pratama",
         smt: 1,
         faculty: "STEI-K Teknik Elektro",
-        money: 900000,
         link: "/_app/profile/m009",
       },
     ]);
@@ -172,19 +163,22 @@ function DaftarMahasiswa(): JSX.Element {
   };
 
   return (
-    <div className="flex flex-col gap-4 text-[32px] md:gap-8">
+    <div className="container mx-auto flex flex-col gap-6 text-[32px]">
       <h1 className="text-dark font-bold">Mahasiswa Asuh Saya</h1>
 
-      <Input
-        placeholder="Cari mahasiswa"
-        value={searchQuery}
-        onChange={handleInputChange}
-      />
+      <div className="w-full">
+        <Input
+          placeholder="Cari mahasiswa"
+          value={searchQuery}
+          onChange={handleInputChange}
+          className="w-full"
+        />
+      </div>
 
       {isLoading && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col items-center justify-center gap-4 py-12">
           <div className="flex animate-spin items-center justify-center">
-            <LoaderCircle />
+            <LoaderCircle size={32} />
           </div>
           <p className="text-dark text-center text-base font-medium">
             Sedang Memuat Data...
@@ -192,26 +186,35 @@ function DaftarMahasiswa(): JSX.Element {
         </div>
       )}
 
-      {error && <p className="text-base text-red-500">{error}</p>}
+      {error && <p className="py-4 text-base text-red-500">{error}</p>}
 
       {!isLoading && mahasiswaList.length === 0 && (
-        <p className="text-dark mt-[125px] text-center text-[24px] font-bold md:text-[32px]">
-          Tidak ada mahasiswa yang ditemukan
-        </p>
+        <div className="flex items-center justify-center py-16">
+          <p className="text-dark text-center text-2xl font-bold md:text-3xl">
+            Tidak ada mahasiswa yang ditemukan
+          </p>
+        </div>
       )}
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
-        {mahasiswaList.map((mahasiswa) => (
-          <MahasiswaCard
-            key={mahasiswa.id}
-            name={mahasiswa.name}
-            smt={mahasiswa.smt}
-            faculty={mahasiswa.faculty}
-            money={mahasiswa.money}
-            link={mahasiswa.link}
-          />
-        ))}
-      </section>
+      <div className="w-full">
+        <div
+          className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          style={{
+            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          }}
+        >
+          {mahasiswaList.map((mahasiswa) => (
+            <div key={mahasiswa.id} className="flex">
+              <MahasiswaCard
+                name={mahasiswa.name}
+                smt={mahasiswa.smt}
+                faculty={mahasiswa.faculty}
+                link={mahasiswa.link}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
