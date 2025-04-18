@@ -97,12 +97,12 @@ function RouteComponent() {
         Mahasiswa Asuh Saya
       </h1>
 
-      <Tabs defaultValue="aktif" className="mb-6">
-        <TabsList className="bg-border grid w-full grid-cols-2 rounded-lg">
-          <TabsTrigger value="aktif" className="rounded-l-lg">
+      <Tabs defaultValue="aktif" className="flex w-full flex-col gap-4">
+        <TabsList className="w-full bg-[#BBBAB8]">
+          <TabsTrigger value="aktif" className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white">
             Aktif
           </TabsTrigger>
-          <TabsTrigger value="menunggu" className="rounded-r-lg">
+          <TabsTrigger value="menunggu" className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white">
             Menunggu
           </TabsTrigger>
         </TabsList>
