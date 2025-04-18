@@ -15,7 +15,7 @@ frontend-build-job:
     - apk add --no-cache python3 make g++
     - |
       if [ ! -d "node_modules" ] || [ "$(find package.json -newer node_modules 2>/dev/null)" ]; then
-        npm ci --prefer-offline
+        npm ci --prefer-offline --force
       else
         echo "Using cached node_modules"
       fi
@@ -39,9 +39,9 @@ frontend-build-job:
     - cd frontend
     - echo "Installing Cypress dependencies..."
     - apt-get update && apt-get install -y --no-install-recommends libgtk2.0-0 libgtk-3-0 libgbm-dev libnotify-dev libnss3 libxss1 libasound2 libxtst6 xauth xvfb
-    - npm ci --prefer-offline
+    - npm ci --prefer-offline --force
     - echo "Installing Cypress binary..."
-    - npm install cypress --save-dev
+    - npm install cypress --save-dev --prefer-offline --force
     - npx cypress verify
 
 frontend-component-test-job:
@@ -65,7 +65,7 @@ frontend-e2e-test-job:
     - frontend-build-job
   script:
     - echo "Starting dev server..."
-    - npm install wait-on --save-dev
+    - npm install wait-on --save-dev --prefer-offline --force
     - npm run dev &
     - sleep 5
     - echo "Running E2E tests..."
