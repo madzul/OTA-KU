@@ -9,11 +9,10 @@ function MahasiswaCard({
   name: string;
   smt: number;
   faculty: string;
-  money: number;
   link: string;
 }) {
   return (
-    <div className="flex h-fit w-[330px] flex-col gap-[18px] rounded-[12px] bg-white px-6 py-6 shadow-[0_0_6px_rgba(0,0,0,0.4)]">
+    <div className="flex h-fit min-w-[330px] w-full flex-col gap-[18px] rounded-[12px] bg-white px-6 py-6 shadow-[0_0_6px_rgba(0,0,0,0.4)]">
       <div className="flex flex-col gap-2">
         {/* Name and smt */}
         <div className="flex flex-col justify-between">

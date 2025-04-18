@@ -10,7 +10,6 @@ interface Mahasiswa {
   name: string;
   smt: number;
   faculty: string;
-  money: number;
   link: string;
 }
 
