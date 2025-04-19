@@ -1,6 +1,5 @@
-import React from "react";
-
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
 
 function LandingPage() {
   return (
@@ -33,9 +32,9 @@ function LandingPage() {
           variant={"outline"}
           size={"xl"}
           className="w-[350px]"
-          onClick={() => (window.location.href = "/auth/login")}
+          asChild
         >
-          Bergabung Sekarang
+          <Link to="/auth/login">Bergabung Sekarang</Link>
         </Button>
       </section>
     </div>
