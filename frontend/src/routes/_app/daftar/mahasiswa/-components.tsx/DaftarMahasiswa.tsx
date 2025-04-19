@@ -15,92 +15,24 @@ interface Mahasiswa {
   link: string;
 }
 
-// Layanan API untuk mengelola data mahasiswa
-// Catatan: Pada implementasi sebenarnya, ini akan dipisahkan ke file terpisah
-const MahasiswaService = {
-  // Fungsi simulasi untuk mengambil data dari API
-  getMahasiswaList: async (): Promise<Mahasiswa[]> => {
-    // Pada implementasi sebenarnya, ini akan memanggil API backend
-    return Promise.resolve([
-      {
-        id: "m001",
-        name: "John Doe",
-        smt: 5,
-        faculty: "STEI-K Teknik Informatika",
-        link: "/_app/profile/m001",
-      },
-      {
-        id: "m002",
-        name: "Jane Smith sasdad adssss adsssssss adssssss adssssss adssss",
-        smt: 3,
-        faculty: "STEI-K Teknik Informatika",
-        link: "/_app/profile/m002",
-      },
-      {
-        id: "m003",
-        name: "Ahmad Fauzi",
-        smt: 7,
-        faculty: "FTTM Teknik Pertambangan",
-        link: "/_app/profile/m003",
-      },
-      {
-        id: "m004",
-        name: "Siti Rahayu",
-        smt: 4,
-        faculty: "FTSL Teknik Lingkungan",
-        link: "/_app/profile/m004",
-      },
-      {
-        id: "m005",
-        name: "Michael Wong",
-        smt: 2,
-        faculty: "FTI Teknik Kimia",
-        link: "/_app/profile/m005",
-      },
-      {
-        id: "m006",
-        name: "Devi Putri",
-        smt: 6,
-        faculty: "FMIPA Matematika",
-        link: "/_app/profile/m006",
-      },
-      {
-        id: "m007",
-        name: "Budi Santoso",
-        smt: 5,
-        faculty: "FTMD Teknik Mesin",
-        link: "/_app/profile/m007",
-      },
-      {
-        id: "m008",
-        name: "Anisa Rahma",
-        smt: 3,
-        faculty: "FSRD Desain Interior",
-        link: "/_app/profile/m008",
-      },
-      {
-        id: "m009",
-        name: "Reza Pratama",
-        smt: 1,
-        faculty: "STEI-K Teknik Elektro",
-        link: "/_app/profile/m009",
-      },
-    ]);
-  },
+// TODO: FIKSASI DATA BELUM AMA IOM
+// accountId: string;
+// name: string;
+// nim: string;
+// mahasiswaStatus: "active" | "inactive";
+// description: string;
+// file: string;
 
-  // Fungsi pencarian yang akan memanggil endpoint API dengan parameter pencarian
-  searchMahasiswa: async (query: string): Promise<Mahasiswa[]> => {
-    // Pada implementasi sebenarnya, ini akan memanggil API dengan parameter pencarian
-    // Untuk saat ini, kita akan mengambil daftar lengkap dan memfilternya
-    const data = await MahasiswaService.getMahasiswaList();
-
-    // Filter data berdasarkan query pencarian
-    const filteredData = data.filter((mahasiswa) =>
-      mahasiswa.name.toLowerCase().includes(query.toLowerCase()),
-    );
-
-    return filteredData;
-  },
+// TODO: Jangan pake any, component ini perlu di refactor ulang
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mapApiDataToMahasiswa = (apiData: any[]): Mahasiswa[] => {
+  return apiData.map((item) => ({
+    id: item.accountId,
+    name: item.name,
+    smt: "20" + (parseInt(item.nim.substring(3, 5)) || 1), // Asumsi: 2 digit dari NIM menunjukkan semester
+    faculty: item.description || "Fakultas tidak tersedia",
+    link: `/detail/${item.accountId}`,
+  }));
 };
 
 function DaftarMahasiswa(): JSX.Element {
@@ -142,8 +74,8 @@ function DaftarMahasiswa(): JSX.Element {
 
   console.log(JSON.stringify(data));
   return (
-    <div className="container mx-auto flex flex-col gap-6 text-[32px]">
-      <h1 className="text-dark font-bold">Mahasiswa Asuh Saya</h1>
+    <div className="flex flex-col gap-4 text-[32px] md:gap-8">
+      <h1 className="text-dark font-bold">Daftar Mahasiswa</h1>
 
       <div className="w-full">
         <Input
@@ -165,7 +97,7 @@ function DaftarMahasiswa(): JSX.Element {
         </div>
       )}
 
-      {error && <p className="py-4 text-base text-red-500">{error}</p>}
+      {errorMessage && <p className="text-base text-red-500">{errorMessage}</p>}
 
       {!isLoading && mahasiswaList.length === 0 && (
         <div className="flex items-center justify-center py-16">
@@ -175,25 +107,17 @@ function DaftarMahasiswa(): JSX.Element {
         </div>
       )}
 
-      <div className="w-full">
-        <div
-          className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-          style={{
-            gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-          }}
-        >
-          {mahasiswaList.map((mahasiswa) => (
-            <div key={mahasiswa.id} className="flex">
-              <MahasiswaCard
-                name={mahasiswa.name}
-                smt={mahasiswa.smt}
-                faculty={mahasiswa.faculty}
-                link={mahasiswa.link}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
+        {mahasiswaList.map((mahasiswa) => (
+          <MahasiswaCard
+            key={mahasiswa.id}
+            name={mahasiswa.name}
+            smt={mahasiswa.smt}
+            faculty={mahasiswa.faculty}
+            link={mahasiswa.link}
+          />
+        ))}
+      </section>
     </div>
   );
 }
