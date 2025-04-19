@@ -41,7 +41,8 @@ function RouteComponent() {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:3000/api/detail/orang-tua-asuh/${id}`,
+          // TODO: Nanti ganti pake generated API
+          `http://localhost:3000/api/detail/orang-tua/${id}`,
           { credentials: "include" },
         );
 
@@ -105,7 +106,7 @@ function RouteComponent() {
     year: "numeric",
   });
 
-  // Transforming database data to match the component props
+  // TODO: Transforming database data to match the component props
   const displayData = {
     name: otaData.name,
     role: otaData.linkage === "alumni" ? "Alumni ITB" : "Orang Tua Mitra",

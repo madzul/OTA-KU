@@ -46,7 +46,7 @@ export const getOtaDetailRoute = createRoute({
     operationId: "getOtaDetail",
     tags: ["Detail"],
     method: "get",
-    path: "/orang-tua-asuh/{id}",
+    path: "/orang-tua/{id}",
     description: "Get detailed information of a specific orang tua asuh.",
     request: {
       params: OtaDetailParamsSchema,
