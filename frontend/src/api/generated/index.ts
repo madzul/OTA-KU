@@ -18,3 +18,4 @@ export { AuthService } from './services/AuthService';
 export { ConnectService } from './services/ConnectService';
 export { ListService } from './services/ListService';
 export { ProfileService } from './services/ProfileService';
+export { StatusService } from './services/StatusService';
