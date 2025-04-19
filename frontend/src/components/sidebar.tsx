@@ -49,6 +49,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
     };
   }, [isOpen, onClose]);
 
+  // TODO: Sebenernya gini bad practice sih, kalo ngelink ke page lain harusnya pake Link tag aja
   const handleItemClick = (itemId: string) => {
     setActiveItem(itemId);
     switch (itemId) {

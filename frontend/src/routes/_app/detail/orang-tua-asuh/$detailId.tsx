@@ -12,6 +12,7 @@ interface OtaDetailResponse {
     name: string;
     job: string;
     address: string;
+    // TODO: Ga cuma otm sama alumni
     linkage: "otm" | "alumni";
     funds: number;
     maxCapacity: number;

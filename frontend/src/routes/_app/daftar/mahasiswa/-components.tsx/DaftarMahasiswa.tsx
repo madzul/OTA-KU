@@ -23,6 +23,7 @@ interface Mahasiswa {
 // description: string;
 // file: string;
 
+// TODO: Jangan pake any, component ini perlu di refactor ulang
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapApiDataToMahasiswa = (apiData: any[]): Mahasiswa[] => {
   return apiData.map((item) => ({

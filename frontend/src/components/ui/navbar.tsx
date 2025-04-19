@@ -137,6 +137,7 @@ export default function NavBar() {
                     <MenubarItem
                       className="text-dark"
                       onClick={() => {
+                        // TODO: Ini detail sama profile page sama?
                         const detailId = data?.body.id;
                         const userType = data?.body.type;
 
