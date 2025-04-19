@@ -122,7 +122,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
             id: "verification",
             label: "Verifikasi",
             icon: "/icon/Type=shield.svg",
-            path: "/verification",
+            path: "/verifikasi-akun",
           },
         ];
       case "ota":
