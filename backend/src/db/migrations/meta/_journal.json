@@ -85,6 +85,13 @@
       "when": 1743316827923,
       "tag": "0011_illegal_fat_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1744175931212,
+      "tag": "0012_black_white_queen",
+      "breakpoints": true
     }
   ]
 }

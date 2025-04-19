@@ -1,190 +1,95 @@
+import { api } from "@/api/client";
+import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
-import React, { JSX, useEffect, useState } from "react";
+import React, { JSX, useState } from "react";
 
-import { Input } from "../../../../../components/ui/input";
 import MahasiswaCard from "./card";
 
 // Interface untuk data mahasiswa
 interface Mahasiswa {
   id: string;
   name: string;
-  smt: number;
+  smt: string;
   faculty: string;
-  money: number;
   link: string;
 }
 
-// Layanan API untuk mengelola data mahasiswa
-// Catatan: Pada implementasi sebenarnya, ini akan dipisahkan ke file terpisah
-const MahasiswaService = {
-  // Fungsi simulasi untuk mengambil data dari API
-  getMahasiswaList: async (): Promise<Mahasiswa[]> => {
-    // Pada implementasi sebenarnya, ini akan memanggil API backend
-    return Promise.resolve([
-      {
-        id: "m001",
-        name: "John Doe",
-        smt: 5,
-        faculty: "STEI-K Teknik Informatika",
-        money: 1000000,
-        link: "/_app/profile/m001",
-      },
-      {
-        id: "m002",
-        name: "Jane Smith",
-        smt: 3,
-        faculty: "STEI-K Teknik Informatika",
-        money: 950000,
-        link: "/_app/profile/m002",
-      },
-      {
-        id: "m003",
-        name: "Ahmad Fauzi",
-        smt: 7,
-        faculty: "FTTM Teknik Pertambangan",
-        money: 1200000,
-        link: "/_app/profile/m003",
-      },
-      {
-        id: "m004",
-        name: "Siti Rahayu",
-        smt: 4,
-        faculty: "FTSL Teknik Lingkungan",
-        money: 875000,
-        link: "/_app/profile/m004",
-      },
-      {
-        id: "m005",
-        name: "Michael Wong",
-        smt: 2,
-        faculty: "FTI Teknik Kimia",
-        money: 1150000,
-        link: "/_app/profile/m005",
-      },
-      {
-        id: "m006",
-        name: "Devi Putri",
-        smt: 6,
-        faculty: "FMIPA Matematika",
-        money: 925000,
-        link: "/_app/profile/m006",
-      },
-      {
-        id: "m007",
-        name: "Budi Santoso",
-        smt: 5,
-        faculty: "FTMD Teknik Mesin",
-        money: 1050000,
-        link: "/_app/profile/m007",
-      },
-      {
-        id: "m008",
-        name: "Anisa Rahma",
-        smt: 3,
-        faculty: "FSRD Desain Interior",
-        money: 980000,
-        link: "/_app/profile/m008",
-      },
-      {
-        id: "m009",
-        name: "Reza Pratama",
-        smt: 1,
-        faculty: "STEI-K Teknik Elektro",
-        money: 900000,
-        link: "/_app/profile/m009",
-      },
-    ]);
-  },
+// TODO: FIKSASI DATA BELUM AMA IOM
+// accountId: string;
+// name: string;
+// nim: string;
+// mahasiswaStatus: "active" | "inactive";
+// description: string;
+// file: string;
 
-  // Fungsi pencarian yang akan memanggil endpoint API dengan parameter pencarian
-  searchMahasiswa: async (query: string): Promise<Mahasiswa[]> => {
-    // Pada implementasi sebenarnya, ini akan memanggil API dengan parameter pencarian
-    // Untuk saat ini, kita akan mengambil daftar lengkap dan memfilternya
-    const data = await MahasiswaService.getMahasiswaList();
-
-    // Filter data berdasarkan query pencarian
-    const filteredData = data.filter((mahasiswa) =>
-      mahasiswa.name.toLowerCase().includes(query.toLowerCase()),
-    );
-
-    return filteredData;
-  },
+// TODO: Jangan pake any, component ini perlu di refactor ulang
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mapApiDataToMahasiswa = (apiData: any[]): Mahasiswa[] => {
+  return apiData.map((item) => ({
+    id: item.accountId,
+    name: item.name,
+    smt: "20" + (parseInt(item.nim.substring(3, 5)) || 1), // Asumsi: 2 digit dari NIM menunjukkan semester
+    faculty: item.description || "Fakultas tidak tersedia",
+    link: `/detail/${item.accountId}`,
+  }));
 };
 
 function DaftarMahasiswa(): JSX.Element {
-  const [mahasiswaList, setMahasiswaList] = useState<Mahasiswa[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Memuat data saat komponen pertama kali ditampilkan
-  useEffect(() => {
-    fetchMahasiswaData();
-  }, []);
+  // Gunakan useQuery untuk fetch data
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["mahasiswaOta", searchQuery],
+    queryFn: () =>
+      api.list.listMahasiswaOta({
+        q: searchQuery,
+        page: 1, // Bisa ditambahkan state untuk paginasi jika diperlukan
+      }),
+    staleTime: 5 * 60 * 1000, // Data dianggap basi setelah 5 menit
 
-  // Effect untuk menangani pencarian
-  useEffect(() => {
-    // Debounce pencarian untuk mengurangi panggilan API yang berlebihan
-    const timeoutId = setTimeout(() => {
-      if (searchQuery.trim()) {
-        handleSearch(searchQuery);
-      } else {
-        fetchMahasiswaData(); // Reset ke daftar lengkap ketika pencarian kosong
+    select: (response) => {
+      // Transform data API ke format yang dibutuhkan komponen
+      if (response.success && response.body && response.body.data) {
+        return mapApiDataToMahasiswa(response.body.data);
       }
-    }, 500);
+      return [];
+    },
+  });
 
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
-
-  // Fungsi untuk mengambil semua data mahasiswa
-  const fetchMahasiswaData = async (): Promise<void> => {
-    setIsLoading(true);
-    try {
-      const data = await MahasiswaService.getMahasiswaList();
-      setMahasiswaList(data);
-      setError(null);
-    } catch (err) {
-      console.error("Gagal mengambil data mahasiswa:", err);
-      setError("Gagal memuat data mahasiswa");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fungsi untuk menangani pencarian
-  const handleSearch = async (query: string): Promise<void> => {
-    setIsLoading(true);
-    try {
-      const results = await MahasiswaService.searchMahasiswa(query);
-      setMahasiswaList(results);
-      setError(null);
-    } catch (err) {
-      console.error("Gagal mencari mahasiswa:", err);
-      setError("Gagal mencari mahasiswa");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Menangani perubahan input
+  // Menangani perubahan input dengan debounce
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setSearchQuery(e.target.value);
   };
 
+  // Data mahasiswa dari hasil query
+  const mahasiswaList = data || [];
+
+  // Handle error message
+  const errorMessage = isError
+    ? error instanceof Error
+      ? error.message
+      : "Gagal memuat data mahasiswa"
+    : null;
+
+  console.log(JSON.stringify(data));
   return (
     <div className="flex flex-col gap-4 text-[32px] md:gap-8">
-      <h1 className="text-dark font-bold">Mahasiswa Asuh Saya</h1>
+      <h1 className="text-dark font-bold">Daftar Mahasiswa</h1>
 
-      <Input
-        placeholder="Cari mahasiswa"
-        value={searchQuery}
-        onChange={handleInputChange}
-      />
+      <div className="w-full">
+        <Input
+          placeholder="Cari mahasiswa"
+          value={searchQuery}
+          onChange={handleInputChange}
+          className="w-full"
+        />
+      </div>
 
       {isLoading && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col items-center justify-center gap-4 py-12">
           <div className="flex animate-spin items-center justify-center">
-            <LoaderCircle />
+            <LoaderCircle size={32} />
           </div>
           <p className="text-dark text-center text-base font-medium">
             Sedang Memuat Data...
@@ -192,22 +97,23 @@ function DaftarMahasiswa(): JSX.Element {
         </div>
       )}
 
-      {error && <p className="text-base text-red-500">{error}</p>}
+      {errorMessage && <p className="text-base text-red-500">{errorMessage}</p>}
 
       {!isLoading && mahasiswaList.length === 0 && (
-        <p className="text-dark mt-[125px] text-center text-[24px] font-bold md:text-[32px]">
-          Tidak ada mahasiswa yang ditemukan
-        </p>
+        <div className="flex items-center justify-center py-16">
+          <p className="text-dark text-center text-2xl font-bold md:text-3xl">
+            Tidak ada mahasiswa yang ditemukan
+          </p>
+        </div>
       )}
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
         {mahasiswaList.map((mahasiswa) => (
           <MahasiswaCard
             key={mahasiswa.id}
             name={mahasiswa.name}
             smt={mahasiswa.smt}
             faculty={mahasiswa.faculty}
-            money={mahasiswa.money}
             link={mahasiswa.link}
           />
         ))}
