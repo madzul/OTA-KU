@@ -105,6 +105,7 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
                 </div>
                 <div className="flex items-center space-x-3">
                   <span className="font-semibold">Tipe Keterkaitan:</span>
+                  {/* TODO: Ini ga cuma OTM sama alumni doang */}
                   <span>{linkage === "otm" ? "OTM" : "Alumni"}</span>
                 </div>
                 <div className="flex items-center space-x-3">
