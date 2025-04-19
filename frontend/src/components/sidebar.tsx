@@ -1,16 +1,10 @@
 import { api } from "@/api/client";
-import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import SidebarOverlay from "@/components/sidebar-overlay";
+import SidebarContent from "@/components/sidebar-content";
 
-interface SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-// Menu item interface for type safety
 interface MenuItem {
   id: string;
   label: string;
@@ -20,40 +14,39 @@ interface MenuItem {
   bgColorClass?: string;
 }
 
-function Sidebar({ isOpen, onClose }: SidebarProps) {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [activeItem, setActiveItem] = useState<string>("dashboard");
 
-  // Only fetch authentication status when component mounts
-  // Enable refetching on window focus and set a stale time
   const { data } = useQuery({
     queryKey: ["verify"],
     queryFn: () => api.auth.verif().catch(() => null),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
+    refetchInterval: 30 * 60 * 1000,
   });
 
-  // Set active item based on current path when component mounts
+  const userRole = data?.body.type || "ota";
+
+  const menuItems = getMenuItems(userRole);
+
   useEffect(() => {
-    // Get the current path from Tanstack Router
     const currentPath = location.pathname;
-
-    // Find menu item matching current path
-    const menuItems = getMenuItems();
     const matchingItem = menuItems.find((item) =>
-      currentPath.startsWith(item.path),
+      currentPath.startsWith(item.path)
     );
-
     if (matchingItem) {
       setActiveItem(matchingItem.id);
     }
-  }, [location.pathname]);
+  }, [location.pathname, menuItems]);
 
-  const [activeItem, setActiveItem] = useState<string>("dashboard");
-
-  // Use useEffect to handle ESC key press to close sidebar
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -70,192 +63,52 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
     };
   }, [isOpen, onClose]);
 
-  // Function to handle menu item click
   const handleItemClick = (item: MenuItem) => {
     setActiveItem(item.id);
     navigate({ to: item.path });
 
-    // Close sidebar on mobile after navigation
     if (window.innerWidth < 1024) {
       onClose();
     }
   };
 
-  // TODO: Sebenernya bad practice
-  // Define menu items for each role
-  const getMenuItems = (): MenuItem[] => {
-    const userRole = data?.body.type || "ota"; // Default to OTA if role is not available
-
-    switch (userRole) {
-      case "mahasiswa":
-        return [
-          {
-            id: "dashboard",
-            label: "Dasbor",
-            icon: "/icon/Type=dashboard.svg",
-            path: "/dashboard",
-          },
-          {
-            id: "my-sponsors",
-            label: "Orang Tua Asuh Saya",
-            icon: "/icon/Type=student-list.svg",
-            path: "/my-sponsors",
-          },
-          {
-            id: "termination",
-            label: "Terminasi",
-            icon: "/icon/Type=remove-student.svg",
-            path: "/termination",
-            textColorClass: "text-destructive",
-            bgColorClass: "bg-destructive/10",
-          },
-        ];
-      case "admin":
-        return [
-          {
-            id: "dashboard",
-            label: "Dasbor",
-            icon: "/icon/Type=dashboard.svg",
-            path: "/dashboard",
-          },
-          {
-            id: "verification",
-            label: "Verifikasi",
-            icon: "/icon/Type=shield.svg",
-            path: "/verifikasi-akun",
-          },
-        ];
-      case "ota":
-      default:
-        return [
-          {
-            id: "dashboard",
-            label: "Dasbor",
-            icon: "/icon/Type=dashboard.svg",
-            path: "/dasbor",
-          },
-          {
-            id: "student-list",
-            label: "Cari Mahasiswa",
-            icon: "/icon/Type=search.svg",
-            path: "/daftar/mahasiswa",
-          },
-          {
-            id: "my-students",
-            label: "Mahasiswa Asuh Saya",
-            icon: "/icon/Type=people.svg",
-            path: "/mahasiswa-asuh-saya",
-          },
-          {
-            id: "termination",
-            label: "Terminasi",
-            icon: "/icon/Type=remove-student.svg",
-            path: "/termination",
-            textColorClass: "text-destructive",
-            bgColorClass: "bg-destructive/10",
-          },
-        ];
-    }
-  };
-
-  const menuItems = getMenuItems();
-
   return (
     <>
-      {/* Overlay - with fade animation */}
-      <div
-        className={cn(
-          "fixed inset-0 z-30 bg-black/20 backdrop-blur-xs transition-all duration-300 lg:hidden",
-          isOpen ? "opacity-100" : "pointer-events-none opacity-0",
-        )}
-        style={{ top: "70px" }} // Position below navbar on mobile
-        onClick={onClose}
+      <SidebarOverlay isOpen={isOpen} onClose={onClose} />
+      <SidebarContent
+        isOpen={isOpen}
+        onClose={onClose}
+        menuItems={menuItems}
+        activeItem={activeItem}
+        handleItemClick={handleItemClick}
+        userData={data?.body}
       />
-
-      {/* Sidebar - with slide animation */}
-      <div
-        className={cn(
-          "fixed top-0 -left-4 z-40 mt-[82px] mb-3 flex h-[calc(100vh-24px-70px)] flex-col justify-between rounded-r-[12px] bg-white px-5 py-6 shadow-[0_0_4px_rgba(0,0,0,0.4)] transition-transform duration-300 ease-in-out lg:mt-27 lg:ml-3 lg:h-[calc(100vh-24px-96px)] lg:rounded-l-[12px]",
-          isOpen ? "translate-x-4" : "-translate-x-full",
-        )}
-        data-sidebar="true"
-      >
-        <button
-          className="text-dark absolute top-4 right-4 cursor-pointer"
-          onClick={onClose}
-          aria-label="Close sidebar"
-        >
-          <X size={24} className="transition-all hover:scale-125" />
-        </button>
-
-        {/* Content */}
-        <div className="flex flex-col gap-5">
-          <h4 className="text-dark text-sm font-medium">UTAMA</h4>
-          <div className="flex flex-col gap-3">
-            {/* Dynamically render menu items based on role */}
-            {menuItems.map((item) => (
-              <div
-                key={item.id}
-                className={cn(
-                  "flex cursor-pointer gap-3 transition-all duration-200 ease-linear focus:rounded-md focus:p-2",
-                  activeItem === item.id &&
-                    (item.bgColorClass || "bg-dark/10") + " rounded-md p-2",
-                )}
-                onClick={() => handleItemClick(item)}
-                tabIndex={0}
-                role="button"
-                aria-label={`Navigate to ${item.label}`}
-              >
-                <img
-                  src={item.icon}
-                  alt={`icon ${item.label}`}
-                  className="h-5 w-5"
-                />
-                <span
-                  className={cn(
-                    "text-sm font-medium",
-                    item.textColorClass || "text-dark",
-                  )}
-                >
-                  {item.label}
-                </span>
-              </div>
-            ))}
-          </div>
-          {/* Line Separator */}
-          <div className="h-[1.5px] w-full rounded-full bg-gray-300"></div>
-        </div>
-
-        {/* User Info */}
-        <div className="flex items-center gap-5 transition-all hover:scale-105">
-          <img
-            src="/icon/Type=profile-icon.svg"
-            alt="user avatar"
-            className="h-8 w-8 rounded-full"
-          />
-          <div className="flex flex-col gap-1">
-            <span className="text-dark text-sm font-bold">
-              {data?.body.email.split("@")[0]}
-            </span>
-            <span className="text-dark line-clamp-1 text-xs font-normal opacity-80">
-              {data?.body.email}
-            </span>
-            {data?.body.type && (
-              <span className="text-xs text-gray-500 italic">
-                {data.body.type === "mahasiswa"
-                  ? "Mahasiswa"
-                  : data.body.type === "ota"
-                    ? "Orang Tua Asuh"
-                    : data.body.type === "admin"
-                      ? "Admin"
-                      : ""}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
     </>
   );
-}
+};
+
+const getMenuItems = (role: string): MenuItem[] => {
+  switch (role) {
+    case "mahasiswa":
+      return [
+        { id: "dashboard", label: "Dasbor", icon: "/icon/Type=dashboard.svg", path: "/dashboard" },
+        { id: "my-sponsors", label: "Orang Tua Asuh Saya", icon: "/icon/Type=student-list.svg", path: "/my-sponsors" },
+        { id: "termination", label: "Terminasi", icon: "/icon/Type=remove-student.svg", path: "/termination", textColorClass: "text-destructive", bgColorClass: "bg-destructive/10" },
+      ];
+    case "admin":
+      return [
+        { id: "dashboard", label: "Dasbor", icon: "/icon/Type=dashboard.svg", path: "/dashboard" },
+        { id: "verification", label: "Verifikasi", icon: "/icon/Type=shield.svg", path: "/verifikasi-akun" },
+      ];
+    case "ota":
+    default:
+      return [
+        { id: "dashboard", label: "Dasbor", icon: "/icon/Type=dashboard.svg", path: "/dasbor" },
+        { id: "student-list", label: "Cari Mahasiswa", icon: "/icon/Type=search.svg", path: "/daftar/mahasiswa" },
+        { id: "my-students", label: "Mahasiswa Asuh Saya", icon: "/icon/Type=people.svg", path: "/mahasiswa-asuh-saya" },
+        { id: "termination", label: "Terminasi", icon: "/icon/Type=remove-student.svg", path: "/termination", textColorClass: "text-destructive", bgColorClass: "bg-destructive/10" },
+      ];
+  }
+};
 
 export default Sidebar;
