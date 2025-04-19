@@ -23,7 +23,6 @@ import { Route as AppPendaftaranIndexImport } from './routes/_app/pendaftaran/in
 import { Route as AppMahasiswaAsuhSayaIndexImport } from './routes/_app/mahasiswa-asuh-saya/index'
 import { Route as AppDaftarOrangtuaIndexImport } from './routes/_app/daftar/orangtua/index'
 import { Route as AppDaftarMahasiswaIndexImport } from './routes/_app/daftar/mahasiswa/index'
-import { Route as AppDaftarMahasiswaSayaIndexImport } from './routes/_app/daftar/mahasiswa-saya/index'
 import { Route as AppDetailOrangTuaAsuhDetailIdImport } from './routes/_app/detail/orang-tua-asuh/$detailId'
 import { Route as AppDetailMahasiswaDetailIdImport } from './routes/_app/detail/mahasiswa/$detailId'
 import { Route as IntegrationsAzureKeyVaultOauth2CallbackIndexImport } from './routes/integrations/azure-key-vault/oauth2/callback/index'
@@ -100,13 +99,6 @@ const AppDaftarMahasiswaIndexRoute = AppDaftarMahasiswaIndexImport.update({
   path: '/daftar/mahasiswa/',
   getParentRoute: () => AppRoute,
 } as any)
-
-const AppDaftarMahasiswaSayaIndexRoute =
-  AppDaftarMahasiswaSayaIndexImport.update({
-    id: '/daftar/mahasiswa-saya/',
-    path: '/daftar/mahasiswa-saya/',
-    getParentRoute: () => AppRoute,
-  } as any)
 
 const AppDetailOrangTuaAsuhDetailIdRoute =
   AppDetailOrangTuaAsuhDetailIdImport.update({
@@ -218,13 +210,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDetailOrangTuaAsuhDetailIdImport
       parentRoute: typeof AppImport
     }
-    '/_app/daftar/mahasiswa-saya/': {
-      id: '/_app/daftar/mahasiswa-saya/'
-      path: '/daftar/mahasiswa-saya'
-      fullPath: '/daftar/mahasiswa-saya'
-      preLoaderRoute: typeof AppDaftarMahasiswaSayaIndexImport
-      parentRoute: typeof AppImport
-    }
     '/_app/daftar/mahasiswa/': {
       id: '/_app/daftar/mahasiswa/'
       path: '/daftar/mahasiswa'
@@ -259,7 +244,6 @@ interface AppRouteChildren {
   AppVerifikasiAkunIndexRoute: typeof AppVerifikasiAkunIndexRoute
   AppDetailMahasiswaDetailIdRoute: typeof AppDetailMahasiswaDetailIdRoute
   AppDetailOrangTuaAsuhDetailIdRoute: typeof AppDetailOrangTuaAsuhDetailIdRoute
-  AppDaftarMahasiswaSayaIndexRoute: typeof AppDaftarMahasiswaSayaIndexRoute
   AppDaftarMahasiswaIndexRoute: typeof AppDaftarMahasiswaIndexRoute
   AppDaftarOrangtuaIndexRoute: typeof AppDaftarOrangtuaIndexRoute
 }
@@ -272,7 +256,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppVerifikasiAkunIndexRoute: AppVerifikasiAkunIndexRoute,
   AppDetailMahasiswaDetailIdRoute: AppDetailMahasiswaDetailIdRoute,
   AppDetailOrangTuaAsuhDetailIdRoute: AppDetailOrangTuaAsuhDetailIdRoute,
-  AppDaftarMahasiswaSayaIndexRoute: AppDaftarMahasiswaSayaIndexRoute,
   AppDaftarMahasiswaIndexRoute: AppDaftarMahasiswaIndexRoute,
   AppDaftarOrangtuaIndexRoute: AppDaftarOrangtuaIndexRoute,
 }
@@ -292,7 +275,6 @@ export interface FileRoutesByFullPath {
   '/auth/verification': typeof AuthVerificationIndexRoute
   '/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
   '/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
-  '/daftar/mahasiswa-saya': typeof AppDaftarMahasiswaSayaIndexRoute
   '/daftar/mahasiswa': typeof AppDaftarMahasiswaIndexRoute
   '/daftar/orangtua': typeof AppDaftarOrangtuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -311,7 +293,6 @@ export interface FileRoutesByTo {
   '/auth/verification': typeof AuthVerificationIndexRoute
   '/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
   '/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
-  '/daftar/mahasiswa-saya': typeof AppDaftarMahasiswaSayaIndexRoute
   '/daftar/mahasiswa': typeof AppDaftarMahasiswaIndexRoute
   '/daftar/orangtua': typeof AppDaftarOrangtuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -331,7 +312,6 @@ export interface FileRoutesById {
   '/auth/verification/': typeof AuthVerificationIndexRoute
   '/_app/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
   '/_app/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
-  '/_app/daftar/mahasiswa-saya/': typeof AppDaftarMahasiswaSayaIndexRoute
   '/_app/daftar/mahasiswa/': typeof AppDaftarMahasiswaIndexRoute
   '/_app/daftar/orangtua/': typeof AppDaftarOrangtuaIndexRoute
   '/integrations/azure-key-vault/oauth2/callback/': typeof IntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -352,7 +332,6 @@ export interface FileRouteTypes {
     | '/auth/verification'
     | '/detail/mahasiswa/$detailId'
     | '/detail/orang-tua-asuh/$detailId'
-    | '/daftar/mahasiswa-saya'
     | '/daftar/mahasiswa'
     | '/daftar/orangtua'
     | '/integrations/azure-key-vault/oauth2/callback'
@@ -370,7 +349,6 @@ export interface FileRouteTypes {
     | '/auth/verification'
     | '/detail/mahasiswa/$detailId'
     | '/detail/orang-tua-asuh/$detailId'
-    | '/daftar/mahasiswa-saya'
     | '/daftar/mahasiswa'
     | '/daftar/orangtua'
     | '/integrations/azure-key-vault/oauth2/callback'
@@ -388,7 +366,6 @@ export interface FileRouteTypes {
     | '/auth/verification/'
     | '/_app/detail/mahasiswa/$detailId'
     | '/_app/detail/orang-tua-asuh/$detailId'
-    | '/_app/daftar/mahasiswa-saya/'
     | '/_app/daftar/mahasiswa/'
     | '/_app/daftar/orangtua/'
     | '/integrations/azure-key-vault/oauth2/callback/'
@@ -445,7 +422,6 @@ export const routeTree = rootRoute
         "/_app/verifikasi-akun/",
         "/_app/detail/mahasiswa/$detailId",
         "/_app/detail/orang-tua-asuh/$detailId",
-        "/_app/daftar/mahasiswa-saya/",
         "/_app/daftar/mahasiswa/",
         "/_app/daftar/orangtua/"
       ]
@@ -485,10 +461,6 @@ export const routeTree = rootRoute
     },
     "/_app/detail/orang-tua-asuh/$detailId": {
       "filePath": "_app/detail/orang-tua-asuh/$detailId.tsx",
-      "parent": "/_app"
-    },
-    "/_app/daftar/mahasiswa-saya/": {
-      "filePath": "_app/daftar/mahasiswa-saya/index.tsx",
       "parent": "/_app"
     },
     "/_app/daftar/mahasiswa/": {

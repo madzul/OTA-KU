@@ -2,21 +2,21 @@ import { Button } from "@/components/ui/button";
 
 function MahasiswaCard({
   name = "Name not found",
-  smt = "-",
+  angkatan = "0",
   faculty = "faculty not found",
   link = "/profile/not-found",
 }: {
   name: string;
-  smt: string;
+  angkatan: string;
   faculty: string;
   link: string;
 }) {
   return (
-    <div className="flex h-[343.2] w-full flex-col gap-4 rounded-[12px] bg-white px-5 py-5 shadow-[0_0_6px_rgba(0,0,0,0.4)] md:h-[194px] md:w-[330px] md:gap-[18px] md:px-6 md:py-6">
-      <div className="flex flex-col gap-1">
-        {/* Name and smt */}
-        <div className="items-star flex flex-col gap-1">
-          <h5 className="text-base font-bold text-black md:text-[20px]">
+    <div className="flex h-fit w-full min-w-[330px] flex-col gap-[18px] rounded-[12px] bg-white px-6 py-6 shadow-[0_0_6px_rgba(0,0,0,0.4)]">
+      <div className="flex flex-col gap-2">
+        {/* Name and angkatan */}
+        <div className="flex flex-col justify-between">
+          <h5 className="text-[20px] font-bold text-black">
             {name
               .split(" ")
               .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
@@ -24,7 +24,7 @@ function MahasiswaCard({
               .slice(0, 20) + (name.length > 20 ? "..." : "")}
           </h5>
           <span className="bg-dark/20 text-dark h-fit w-fit rounded-[4.58px] px-3 py-1 text-[14px] font-medium">
-            Semester {smt}
+            Angkatan {angkatan}
           </span>
         </div>
         {/* Fakultas */}
@@ -40,17 +40,15 @@ function MahasiswaCard({
       </div> */}
 
       {/* Button */}
-      <div className="flex w-full flex-row justify-between gap-4">
+      <div className="grid w-full grid-cols-2 gap-4">
         <Button
           variant={"outline"}
           onClick={() => (window.location.href = link)}
-          className="h-10 w-full text-[14px] md:max-w-[130px] md:text-sm"
+          className="h-10 w-full text-sm"
         >
           Lihat Profil
         </Button>
-        <Button className="h-10 w-full text-[14px] md:max-w-[130px] md:text-sm">
-          Bantu
-        </Button>
+        <Button className="h-10 w-full text-sm">Bantu</Button>
       </div>
     </div>
   );

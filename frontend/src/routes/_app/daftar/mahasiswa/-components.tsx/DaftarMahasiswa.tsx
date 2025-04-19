@@ -6,32 +6,34 @@ import React, { JSX, useState } from "react";
 
 import MahasiswaCard from "./card";
 
-// Interface untuk data mahasiswa
+// Response data dari API
+interface MahasiswaResponse {
+  accountId: string;
+  name: string;
+  nim: string;
+  mahasiswaStatus: "active" | "inactive";
+  description: string;
+  file: string;
+}
+
+// Data mahasiswa yang akan ditampilkan di UI
 interface Mahasiswa {
   id: string;
   name: string;
-  smt: string;
+  angkatan: string;
   faculty: string;
   link: string;
 }
 
 // TODO: FIKSASI DATA BELUM AMA IOM
-// accountId: string;
-// name: string;
-// nim: string;
-// mahasiswaStatus: "active" | "inactive";
-// description: string;
-// file: string;
 
-// TODO: Jangan pake any, component ini perlu di refactor ulang
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapApiDataToMahasiswa = (apiData: any[]): Mahasiswa[] => {
+const mapApiDataToMahasiswa = (apiData: MahasiswaResponse[]): Mahasiswa[] => {
   return apiData.map((item) => ({
-    id: item.accountId,
+    id: item.accountId.substring(3, 5),
     name: item.name,
-    smt: "20" + (parseInt(item.nim.substring(3, 5)) || 1), // Asumsi: 2 digit dari NIM menunjukkan semester
-    faculty: item.description || "Fakultas tidak tersedia",
-    link: `/detail/${item.accountId}`,
+    angkatan: "20" + item.nim.substring(3, 5),
+    faculty: "Jurusan " + item.nim.substring(0, 3) || "Fakultas tidak tersedia",
+    link: `/profil/${item.accountId}`,
   }));
 };
 
@@ -40,16 +42,16 @@ function DaftarMahasiswa(): JSX.Element {
 
   // Gunakan useQuery untuk fetch data
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["mahasiswaOta", searchQuery],
+    queryKey: ["listMahasiswaOta", searchQuery],
     queryFn: () =>
       api.list.listMahasiswaOta({
         q: searchQuery,
-        page: 1, // Bisa ditambahkan state untuk paginasi jika diperlukan
+        page: 1,
       }),
-    staleTime: 5 * 60 * 1000, // Data dianggap basi setelah 5 menit
+    staleTime: 5 * 60 * 1000, // 5 menit
 
     select: (response) => {
-      // Transform data API ke format yang dibutuhkan komponen
+      // Transform data API ke format UI
       if (response.success && response.body && response.body.data) {
         return mapApiDataToMahasiswa(response.body.data);
       }
@@ -62,7 +64,6 @@ function DaftarMahasiswa(): JSX.Element {
     setSearchQuery(e.target.value);
   };
 
-  // Data mahasiswa dari hasil query
   const mahasiswaList = data || [];
 
   // Handle error message
@@ -72,10 +73,9 @@ function DaftarMahasiswa(): JSX.Element {
       : "Gagal memuat data mahasiswa"
     : null;
 
-  console.log(JSON.stringify(data));
   return (
     <div className="flex flex-col gap-4 text-[32px] md:gap-8">
-      <h1 className="text-dark font-bold">Daftar Mahasiswa</h1>
+      <h1 className="text-dark font-bold">Cari Mahasiswa</h1>
 
       <div className="w-full">
         <Input
@@ -107,12 +107,15 @@ function DaftarMahasiswa(): JSX.Element {
         </div>
       )}
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
+      <section
+        className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}
+      >
         {mahasiswaList.map((mahasiswa) => (
           <MahasiswaCard
             key={mahasiswa.id}
             name={mahasiswa.name}
-            smt={mahasiswa.smt}
+            angkatan={mahasiswa.angkatan}
             faculty={mahasiswa.faculty}
             link={mahasiswa.link}
           />
