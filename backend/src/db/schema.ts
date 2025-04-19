@@ -40,6 +40,12 @@ export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
   "inactive",
 ]);
 
+export const connectionStatusEnum = pgEnum("connection_status", [
+  "accepted",
+  "rejected",
+  "pending",
+]);
+
 export const providerEnum = pgEnum("provider", ["credentials", "azure"]);
 
 export const accountTable = pgTable("account", {
@@ -103,6 +109,9 @@ export const connectionTable = pgTable(
       .references(() => accountOtaDetailTable.accountId, {
         onDelete: "cascade",
       }),
+      connectionStatus:  connectionStatusEnum("connection_status")
+        .notNull()
+        .default("pending"),
   },
   (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
 );
@@ -135,29 +144,23 @@ export const accountRelations = relations(accountTable, ({ one, many }) => ({
 
 export const accountMahasiswaDetailRelations = relations(
   accountMahasiswaDetailTable,
-  ({ one }) => ({
+  ({ one, many }) => ({
     account: one(accountTable, {
       fields: [accountMahasiswaDetailTable.accountId],
       references: [accountTable.id],
     }),
-    connection: one(connectionTable, {
-      fields: [accountMahasiswaDetailTable.accountId],
-      references: [connectionTable.mahasiswaId],
-    }),
+    connection: many(connectionTable),
   }),
 );
 
 export const accountOtaDetailRelations = relations(
   accountOtaDetailTable,
-  ({ one }) => ({
+  ({ one, many }) => ({
     account: one(accountTable, {
       fields: [accountOtaDetailTable.accountId],
       references: [accountTable.id],
     }),
-    connection: one(connectionTable, {
-      fields: [accountOtaDetailTable.accountId],
-      references: [connectionTable.otaId],
-    }),
+    connection: many(connectionTable),
   }),
 );
 

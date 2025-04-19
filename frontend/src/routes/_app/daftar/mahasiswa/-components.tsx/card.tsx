@@ -7,7 +7,7 @@ function MahasiswaCard({
   link = "/profile/not-found",
 }: {
   name: string;
-  smt: number;
+  smt: string;
   faculty: string;
   link: string;
 }) {

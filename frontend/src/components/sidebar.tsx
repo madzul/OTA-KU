@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -52,6 +53,7 @@ function Sidebar({ isOpen, onClose }: SidebarProps) {
   }, [location.pathname]);
 
   const [activeItem, setActiveItem] = useState<string>("dashboard");
+  const navigate = useNavigate();
 
   // Use useEffect to handle ESC key press to close sidebar
   useEffect(() => {

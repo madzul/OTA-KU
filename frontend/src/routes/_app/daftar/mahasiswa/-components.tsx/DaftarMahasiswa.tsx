@@ -1,14 +1,16 @@
+import { api } from "@/api/client";
+import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
-import React, { JSX, useEffect, useState } from "react";
+import React, { JSX, useState } from "react";
 
-import { Input } from "../../../../../components/ui/input";
 import MahasiswaCard from "./card";
 
 // Interface untuk data mahasiswa
 interface Mahasiswa {
   id: string;
   name: string;
-  smt: number;
+  smt: string;
   faculty: string;
   link: string;
 }
@@ -102,65 +104,43 @@ const MahasiswaService = {
 };
 
 function DaftarMahasiswa(): JSX.Element {
-  const [mahasiswaList, setMahasiswaList] = useState<Mahasiswa[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Memuat data saat komponen pertama kali ditampilkan
-  useEffect(() => {
-    fetchMahasiswaData();
-  }, []);
+  // Gunakan useQuery untuk fetch data
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["mahasiswaOta", searchQuery],
+    queryFn: () =>
+      api.list.listMahasiswaOta({
+        q: searchQuery,
+        page: 1, // Bisa ditambahkan state untuk paginasi jika diperlukan
+      }),
+    staleTime: 5 * 60 * 1000, // Data dianggap basi setelah 5 menit
 
-  // Effect untuk menangani pencarian
-  useEffect(() => {
-    // Debounce pencarian untuk mengurangi panggilan API yang berlebihan
-    const timeoutId = setTimeout(() => {
-      if (searchQuery.trim()) {
-        handleSearch(searchQuery);
-      } else {
-        fetchMahasiswaData(); // Reset ke daftar lengkap ketika pencarian kosong
+    select: (response) => {
+      // Transform data API ke format yang dibutuhkan komponen
+      if (response.success && response.body && response.body.data) {
+        return mapApiDataToMahasiswa(response.body.data);
       }
-    }, 500);
+      return [];
+    },
+  });
 
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
-
-  // Fungsi untuk mengambil semua data mahasiswa
-  const fetchMahasiswaData = async (): Promise<void> => {
-    setIsLoading(true);
-    try {
-      const data = await MahasiswaService.getMahasiswaList();
-      setMahasiswaList(data);
-      setError(null);
-    } catch (err) {
-      console.error("Gagal mengambil data mahasiswa:", err);
-      setError("Gagal memuat data mahasiswa");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Fungsi untuk menangani pencarian
-  const handleSearch = async (query: string): Promise<void> => {
-    setIsLoading(true);
-    try {
-      const results = await MahasiswaService.searchMahasiswa(query);
-      setMahasiswaList(results);
-      setError(null);
-    } catch (err) {
-      console.error("Gagal mencari mahasiswa:", err);
-      setError("Gagal mencari mahasiswa");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Menangani perubahan input
+  // Menangani perubahan input dengan debounce
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setSearchQuery(e.target.value);
   };
 
+  // Data mahasiswa dari hasil query
+  const mahasiswaList = data || [];
+
+  // Handle error message
+  const errorMessage = isError
+    ? error instanceof Error
+      ? error.message
+      : "Gagal memuat data mahasiswa"
+    : null;
+
+  console.log(JSON.stringify(data));
   return (
     <div className="container mx-auto flex flex-col gap-6 text-[32px]">
       <h1 className="text-dark font-bold">Mahasiswa Asuh Saya</h1>

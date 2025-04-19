@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Mail, Phone } from "lucide-react";
+import { Calendar, Mail, Phone, User } from "lucide-react";
 import React from "react";
 
 interface DetailCardsOrangTuaAsuhProps {
@@ -12,6 +12,13 @@ interface DetailCardsOrangTuaAsuhProps {
   avatarSrc?: string;
   occupation: string;
   beneficiary: number;
+  address: string;
+  linkage: string;
+  funds: number;
+  maxCapacity: number;
+  maxSemester: number;
+  transferDate: number;
+  criteria: string;
 }
 
 const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
@@ -23,6 +30,13 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
   avatarSrc,
   occupation,
   beneficiary,
+  address,
+  linkage,
+  funds,
+  maxCapacity,
+  maxSemester,
+  transferDate,
+  criteria,
 }) => {
   return (
     <div className="grid gap-6 md:grid-cols-[300px_1fr]">
@@ -37,7 +51,7 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-500">
-                {name.charAt(0)}
+                <User className="h-12 w-12 text-gray-400" />
               </div>
             )}
           </div>
@@ -86,8 +100,21 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
                   <span>{occupation}</span>
                 </div>
                 <div className="flex items-center space-x-3">
+                  <span className="font-semibold">Alamat:</span>
+                  <span>{address}</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="font-semibold">Tipe Keterkaitan:</span>
+                  {/* TODO: Ini ga cuma OTM sama alumni doang */}
+                  <span>{linkage === "otm" ? "OTM" : "Alumni"}</span>
+                </div>
+                <div className="flex items-center space-x-3">
                   <span className="font-semibold">Jumlah Mahasiswa Asuh:</span>
                   <span>{beneficiary}</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="font-semibold">Kapasitas Maksimal:</span>
+                  <span>{maxCapacity}</span>
                 </div>
               </div>
             </div>
@@ -99,18 +126,22 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
               <h3 className="mb-8 text-lg font-bold xl:text-xl">
                 Detail Pendaftaran
               </h3>
-              <div className="xl:text-md space-y-2">
+              <div className="xl:text-md space-y-4">
                 <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Status Pendaftaran:</span>
-                  <span>Aktif</span>
+                  <span className="font-semibold">Dana Beasiswa:</span>
+                  <span>Rp {funds.toLocaleString('id-ID')}</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Tanggal Pendaftaran:</span>
-                  <span>1 Januari 2024</span>
+                  <span className="font-semibold">Maksimum Semester:</span>
+                  <span>{maxSemester} semester</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Tanggal Pembaruan:</span>
-                  <span>1 Maret 2024</span>
+                  <span className="font-semibold">Tanggal Transfer:</span>
+                  <span>Setiap tanggal {transferDate}</span>
+                </div>
+                <div className="space-y-2">
+                  <span className="font-semibold">Kriteria:</span>
+                  <p className="mt-1 text-sm text-muted-foreground">{criteria}</p>
                 </div>
               </div>
             </div>
