@@ -1,7 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/api/client";
 
 function LandingPage() {
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["verify"],
+    queryFn: () => api.auth.verif().catch(() => null),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true,
+  });
+
+  const isLoggedIn = !!user;
+
   return (
     <div className="h-[calc(100vh-70px-64px)] lg:h-[calc(100vh-96px-64px)]">
       <section className="flex h-full flex-col items-center justify-center gap-10 lg:gap-15">
@@ -28,14 +39,11 @@ function LandingPage() {
           </div>
         </div>
         {/* Button */}
-        <Button
-          variant={"outline"}
-          size={"xl"}
-          className="w-[350px]"
-          asChild
-        >
-          <Link to="/auth/login">Bergabung Sekarang</Link>
-        </Button>
+        {!isLoading && !isLoggedIn && (
+          <Button variant={"outline"} size={"xl"} className="w-[350px]" asChild>
+            <Link to="/auth/login">Bergabung Sekarang</Link>
+          </Button>
+        )}
       </section>
     </div>
   );
