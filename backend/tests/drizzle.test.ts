@@ -63,7 +63,7 @@ describe("Database Seeding", () => {
     const mahasiswaDetails = await db
       .select()
       .from(accountMahasiswaDetailTable);
-    expect(mahasiswaDetails.length).toBe(2);
+    expect(mahasiswaDetails.length).toBe(5);
 
     const otaDetails = await db.select().from(accountOtaDetailTable);
     expect(otaDetails.length).toBe(2);
@@ -79,7 +79,7 @@ describe("Database Seeding", () => {
         ),
       );
     expect(connections).toBeDefined();
-    expect(connections.length).toBe(1);
+    expect(connections.length).toBe(3);
   });
 });
 
@@ -95,12 +95,12 @@ describe("Database Reset", () => {
     const mahasiswaDetails = await db
       .select()
       .from(accountMahasiswaDetailTable);
-    expect(mahasiswaDetails.length).toBe(2);
+    expect(mahasiswaDetails.length).toBe(5);
 
     const otaDetails = await db.select().from(accountOtaDetailTable);
     expect(otaDetails.length).toBe(2);
 
     const connections = await db.select().from(connectionTable);
-    expect(connections.length).toBe(1);
+    expect(connections.length).toBe(3);
   });
 });
