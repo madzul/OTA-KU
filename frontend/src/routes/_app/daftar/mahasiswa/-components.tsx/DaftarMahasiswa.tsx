@@ -29,7 +29,7 @@ interface Mahasiswa {
 
 const mapApiDataToMahasiswa = (apiData: MahasiswaResponse[]): Mahasiswa[] => {
   return apiData.map((item) => ({
-    id: item.accountId.substring(3, 5),
+    id: item.accountId,
     name: item.name,
     angkatan: "20" + item.nim.substring(3, 5),
     faculty: "Jurusan " + item.nim.substring(0, 3) || "Fakultas tidak tersedia",
@@ -118,6 +118,7 @@ function DaftarMahasiswa(): JSX.Element {
             angkatan={mahasiswa.angkatan}
             faculty={mahasiswa.faculty}
             link={mahasiswa.link}
+            id={mahasiswa.id}
           />
         ))}
       </section>
