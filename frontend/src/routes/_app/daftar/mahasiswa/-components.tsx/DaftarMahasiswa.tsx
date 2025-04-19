@@ -23,6 +23,7 @@ interface Mahasiswa {
 // description: string;
 // file: string;
 
+// TODO: Jangan pake any, component ini perlu di refactor ulang
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapApiDataToMahasiswa = (apiData: any[]): Mahasiswa[] => {
   return apiData.map((item) => ({
@@ -74,7 +75,7 @@ function DaftarMahasiswa(): JSX.Element {
   console.log(JSON.stringify(data));
   return (
     <div className="flex flex-col gap-4 text-[32px] md:gap-8">
-      <h1 className="text-dark font-bold">Mahasiswa Asuh Saya</h1>
+      <h1 className="text-dark font-bold">Daftar Mahasiswa</h1>
 
       <Input
         placeholder="Cari mahasiswa"
