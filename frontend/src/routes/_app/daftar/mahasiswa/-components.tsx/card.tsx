@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 
 function MahasiswaCard({
-  name = "John Doe",
-  smt = "999",
-  faculty = "STEI-K Teknik Informatika",
-  link = "/ profile/",
+  name = "Name not found",
+  smt = "-",
+  faculty = "faculty not found",
+  link = "/profile/not-found",
 }: {
   name: string;
   smt: string;
@@ -20,20 +20,27 @@ function MahasiswaCard({
             {name
               .split(" ")
               .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(" ")}
+              .join(" ")
+              .slice(0, 20) + (name.length > 20 ? "..." : "")}
           </h5>
-          <span className="bg-dark/20 text-dark h-fit w-fit rounded-[4.58px] px-3 py-1 text-[14px] font-medium md:text-[14px]">
-            Angkatan {smt}
+          <span className="bg-dark/20 text-dark h-fit w-fit rounded-[4.58px] px-3 py-1 text-[14px] font-medium">
+            Semester {smt}
           </span>
         </div>
         {/* Fakultas */}
-        <span className="text-[14px] font-medium text-black/70 md:text-[14px]">
-          {faculty}
-        </span>
+        <span className="text-[14px] font-medium text-black/70">{faculty}</span>
       </div>
 
+      {/* Bantuan */}
+      {/* <div className="flex flex-col">
+        <span className="text-[14px] text-black/80">Bantuan Dibutuhkan</span>
+        <span className="text-[20px] font-bold text-black">
+          Rp.{money.toLocaleString("id-ID")}
+        </span>
+      </div> */}
+
       {/* Button */}
-      <div className="flex w-full flex-col gap-2 md:flex-row md:justify-between">
+      <div className="flex w-full flex-row justify-between gap-4">
         <Button
           variant={"outline"}
           onClick={() => (window.location.href = link)}

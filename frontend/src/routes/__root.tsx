@@ -1,5 +1,6 @@
 // src/routes/__root.tsx
 import { queryClient } from "@/api/client";
+import { NotFound } from "@/components/not-found";
 import Footer from "@/components/ui/footer";
 import NavBar from "@/components/ui/navbar";
 import { Toaster } from "@/components/ui/sonner";
@@ -39,7 +40,7 @@ const RootComponent = () => {
       <QueryClientProvider client={queryClient}>
         <NavBar />
         <motion.div
-          className="px-4 py-8 md:px-11"
+          className="min-h-[75vh] px-4 py-8 md:px-11"
           animate={{
             marginLeft: isLargeScreen && isSidebarOpen ? "255px" : "0px",
           }}
@@ -67,6 +68,5 @@ export const Route = createRootRoute({
       <RootComponent />
     </SidebarProvider>
   ),
-  // TODO: Nanti ganti pake component yang bener
-  notFoundComponent: () => <div>Not Found</div>,
+  notFoundComponent: () => <NotFound />,
 });

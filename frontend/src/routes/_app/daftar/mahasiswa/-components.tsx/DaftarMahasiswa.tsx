@@ -77,16 +77,19 @@ function DaftarMahasiswa(): JSX.Element {
     <div className="flex flex-col gap-4 text-[32px] md:gap-8">
       <h1 className="text-dark font-bold">Daftar Mahasiswa</h1>
 
-      <Input
-        placeholder="Cari mahasiswa"
-        value={searchQuery}
-        onChange={handleInputChange}
-      />
+      <div className="w-full">
+        <Input
+          placeholder="Cari mahasiswa"
+          value={searchQuery}
+          onChange={handleInputChange}
+          className="w-full"
+        />
+      </div>
 
       {isLoading && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col items-center justify-center gap-4 py-12">
           <div className="flex animate-spin items-center justify-center">
-            <LoaderCircle />
+            <LoaderCircle size={32} />
           </div>
           <p className="text-dark text-center text-base font-medium">
             Sedang Memuat Data...
@@ -97,9 +100,11 @@ function DaftarMahasiswa(): JSX.Element {
       {errorMessage && <p className="text-base text-red-500">{errorMessage}</p>}
 
       {!isLoading && mahasiswaList.length === 0 && (
-        <p className="text-dark mt-[125px] text-center text-[24px] font-bold md:text-[32px]">
-          Tidak ada mahasiswa yang ditemukan
-        </p>
+        <div className="flex items-center justify-center py-16">
+          <p className="text-dark text-center text-2xl font-bold md:text-3xl">
+            Tidak ada mahasiswa yang ditemukan
+          </p>
+        </div>
       )}
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(350px,1fr))] md:gap-6">
