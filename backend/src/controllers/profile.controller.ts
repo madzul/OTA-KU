@@ -459,7 +459,7 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async(c) => {
       const formattedProfile = {
         email: profileDataMahasiswa[0].email,
         phone_number: profileDataMahasiswa[0].phone_number ?? "",
-        name: profileDataMahasiswa[0].name,
+        name: profileDataMahasiswa[0].name!,
         // join_date: new Date(profileDataMahasiswa[0].join_date).toLocaleString("en-US", {
         //   month: "long",
         //   year: "numeric",

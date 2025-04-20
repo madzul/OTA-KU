@@ -410,6 +410,7 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
   }
 
   try {
+    // TODO: Abis OTP valid, langsung isi nim sama email mahasiswa detail
     await db
       .update(accountTable)
       .set({

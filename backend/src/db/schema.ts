@@ -142,7 +142,7 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
       onDelete: "cascade",
     }),
   // Personal Information (form input)
-  name: varchar({ length: 255 }).notNull(),
+  name: varchar({ length: 255 }),
   nim: varchar({ length: 8 }).unique().notNull(),
   major: jurusanEnum("major"),
   faculty: fakultasEnum("faculty"),
