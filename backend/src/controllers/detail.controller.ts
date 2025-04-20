@@ -39,7 +39,7 @@ detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
         message: "Detail mahasiswa berhasil diambil",
         body: {
           accountId: mahasiswa.accountId,
-          name: mahasiswa.name,
+          name: mahasiswa.name!,
           nim: mahasiswa.nim,
           mahasiswaStatus: mahasiswa.mahasiswaStatus,
           description: mahasiswa.description || null,
