@@ -89,8 +89,7 @@ export const UserRegisRequestSchema = z
       return true;
     },
     {
-      message:
-        "Email harus sesuai format NIM@mahasiswa.itb.ac.id",
+      message: "Email harus sesuai format NIM@mahasiswa.itb.ac.id",
       path: ["email"],
     },
   )
@@ -170,6 +169,11 @@ export const JWTPayloadSchema = z
       .enum(["credentials", "azure"])
       .openapi({ example: "credentials" }),
     status: z.enum(["verified", "unverified"]).openapi({ example: "verified" }),
+    applicationStatus: z
+      .enum(["accepted", "rejected", "pending"])
+      .openapi({ example: "accepted" }),
+    oid: z.string().nullable().openapi({ example: "1" }),
+    createdAt: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
     iat: z.number().openapi({ example: 1630000000 }),
     exp: z.number().openapi({ example: 1630000000 }),
   })
