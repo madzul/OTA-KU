@@ -48,6 +48,79 @@ export const connectionStatusEnum = pgEnum("connection_status", [
 
 export const providerEnum = pgEnum("provider", ["credentials", "azure"]);
 
+export const jurusanEnum = pgEnum("jurusan", [
+  "Matematika",
+  "Fisika",
+  "Astronomi",
+  "Mikrobiologi",
+  "Kimia",
+  "Biologi",
+  "Sains dan Teknologi Farmasi",
+  "Aktuaria",
+  "Teknik Oseanografi",
+  "Rekayasa Hayati",
+  "Rekayasa Pertanian",
+  "Rekayasa Kehutanan",
+  "Farmasi Klinik dan Komunitas",
+  "Teknologi Pasca Panen",
+  "Teknik Geologi",
+  "Teknik Pertambangan",
+  "Teknik Perminyakan",
+  "Teknik Geofisika",
+  "Teknik Metalurgi",
+  "Meteorologi",
+  "Oseanografi",
+  "Teknik Kimia",
+  "Teknik Mesin",
+  "Teknik Elektro",
+  "Teknik Fisika",
+  "Teknik Industri",
+  "Teknik Informatika",
+  "Aeronotika dan Astronotika",
+  "Teknik Material",
+  "Teknik Pangan",
+  "Manajemen Rekayasa Industri",
+  "Teknik Bioenergi dan Kemurgi",
+  "Teknik Sipil",
+  "Teknik Geodesi dan Geomatika",
+  "Arsitektur",
+  "Teknik Lingkungan",
+  "Perencanaan Wilayah dan Kota",
+  "Teknik Kelautan",
+  "Rekayasa Infrastruktur Lingkungan",
+  "Teknik dan Pengelolaan Sumber Daya Air",
+  "Seni Rupa",
+  "Desain",
+  "Kriya",
+  "Desain Interior",
+  "Desain Komunikasi Visual",
+  "Desain Produk",
+  "Teknik Tenaga Listrik",
+  "Teknik Telekomunikasi",
+  "Sistem Teknologi dan Informasi",
+  "Teknik Biomedis",
+  "Manajemen",
+  "Kewirausahaan",
+  "TPB",
+]);
+
+export const fakultasEnum = pgEnum("fakultas", [
+  "FMIPA",
+  "SITH-S",
+  "SF",
+  "FITB",
+  "FTTM",
+  "STEI-R",
+  "FTSL",
+  "FTI",
+  "FSRD",
+  "FTMD",
+  "STEI-K",
+  "SBM",
+  "SITH-R",
+  "SAPPK",
+]);
+
 export const accountTable = pgTable("account", {
   id: uuid("id").defaultRandom().primaryKey().unique().notNull(),
   email: varchar({ length: 255 }).unique().notNull(),
@@ -68,10 +141,28 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
     .references(() => accountTable.id, {
       onDelete: "cascade",
     }),
+  // Personal Information (form input)
   name: varchar({ length: 255 }).notNull(),
   nim: varchar({ length: 8 }).unique().notNull(),
+  major: jurusanEnum("major"),
+  faculty: fakultasEnum("faculty"),
+  cityOfOrigin: varchar({ length: 255 }),
+  highschoolAlumni: varchar({ length: 255 }),
   description: text("description"),
+  // Files (links)
+  // Field file di bawah ini maksudnya file essay
   file: text("file"),
+  kk: text("kk"),
+  ktm: text("ktm"),
+  waliRecommendationLetter: text("wali_recommendation_letter"),
+  transcript: text("transcript"),
+  salaryReport: text("salary_report"),
+  pbb: text("pbb"),
+  electricityBill: text("electricity_bill"),
+  ditmawaRecommendationLetter: text("ditmawa_recommendation_letter"),
+  // Notes from interview given by admin
+  notes: text("notes"),
+  // TODO: Tambah 1 field notes lagi, tapi masih gajelas maksud fieldnya apa
   mahasiswaStatus: mahasiswaStatusEnum("mahasiswa_status")
     .notNull()
     .default("inactive"),
@@ -109,9 +200,9 @@ export const connectionTable = pgTable(
       .references(() => accountOtaDetailTable.accountId, {
         onDelete: "cascade",
       }),
-      connectionStatus:  connectionStatusEnum("connection_status")
-        .notNull()
-        .default("pending"),
+    connectionStatus: connectionStatusEnum("connection_status")
+      .notNull()
+      .default("pending"),
   },
   (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
 );
