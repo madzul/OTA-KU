@@ -162,7 +162,7 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
   ditmawaRecommendationLetter: text("ditmawa_recommendation_letter"),
   // Notes from interview given by admin
   notes: text("notes"),
-  // TODO: Tambah 1 field notes lagi, tapi masih gajelas maksud fieldnya apa
+  adminOnlyNotes: text("admin_only_notes"),
   mahasiswaStatus: mahasiswaStatusEnum("mahasiswa_status")
     .notNull()
     .default("inactive"),
