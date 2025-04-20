@@ -1,13 +1,11 @@
-image: node:20-alpine
-
 stages:
   - build
   - test
   - deploy
 
 variables:
-  GIT_STRATEGY: "clone" # Reverting to clone to avoid lock issues
-  CYPRESS_CACHE_FOLDER: "$CI_PROJECT_DIR/.cypress-cache"
+  GIT_STRATEGY: "fetch"
+  CYPRESS_CACHE_FOLDER: "/root/.cache/Cypress"
   npm_config_cache: "$CI_PROJECT_DIR/.npm"
 
 # Global cache definition
@@ -15,18 +13,6 @@ cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
     - .npm/
-    - .cypress-cache/
-
-# Git lock cleanup helper
-.git-cleanup: &git-cleanup
-  - |
-    echo "Cleaning up potential Git locks..."
-    if [ -f .git/shallow.lock ]; then
-      rm -f .git/shallow.lock
-    fi
-    if [ -f .git/index.lock ]; then
-      rm -f .git/index.lock
-    fi
 
 workflow:
   rules:

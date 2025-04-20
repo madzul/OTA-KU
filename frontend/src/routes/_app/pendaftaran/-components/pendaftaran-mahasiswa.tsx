@@ -73,6 +73,7 @@ export default function PendaftaranMahasiswa({
   });
 
   async function onSubmit(values: MahasiswaRegistrationFormValues) {
+    console.log(values);
     mahasiswaRegistrationCallbackMutation.mutate(values);
   }
 
@@ -114,18 +115,23 @@ export default function PendaftaranMahasiswa({
             <FormField
               control={form.control}
               name="phoneNumber"
-              disabled={!!session.phoneNumber}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-primary text-sm">
-                    Nomor HP (Whatsapp)
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Masukkan nomor WA Anda" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel className="text-primary text-sm">
+                      Nomor HP (Whatsapp)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Masukkan nomor WA Anda"
+                        disabled={!!session.phoneNumber}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             <FormField

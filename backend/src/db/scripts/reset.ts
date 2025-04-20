@@ -44,6 +44,9 @@ export async function resetDatabase() {
       const adminId = uuidv4();
       const mahasiswa1Id = uuidv4();
       const mahasiswa2Id = uuidv4();
+      const mahasiswa3Id = uuidv4();
+      const mahasiswa4Id = uuidv4();
+      const mahasiswa5Id = uuidv4();
       const ota1Id = uuidv4();
       const ota2Id = uuidv4();
 
@@ -73,6 +76,29 @@ export async function resetDatabase() {
           phoneNumber: "08198765432",
           password: hashedPassword,
           type: "mahasiswa",
+          status: "verified",
+        },
+        {
+          id: mahasiswa3Id,
+          email: "mahasiswa3@example.com",
+          phoneNumber: "08198702490",
+          password: hashedPassword,
+          type: "mahasiswa",
+          status: "verified",
+        },
+        {
+          id: mahasiswa4Id,
+          email: "mahasiswa4@example.com",
+          phoneNumber: "08198766782",
+          password: hashedPassword,
+          type: "mahasiswa",
+        },
+        {
+          id: mahasiswa5Id,
+          email: "mahasiswa5@example.com",
+          phoneNumber: "08198987411",
+          password: hashedPassword,
+          type: "mahasiswa",
         },
       ]);
 
@@ -90,8 +116,32 @@ export async function resetDatabase() {
           accountId: mahasiswa2Id,
           name: "Mahasiswa Two",
           nim: "87654321",
-          description: "Mahasiswa Two is an inactive student.",
+          description: "Mahasiswa Two is an active student.",
           file: "https://example.com/mahasiswa2.pdf",
+          mahasiswaStatus: "active",
+        },
+        {
+          accountId: mahasiswa3Id,
+          name: "Mahasiswa Three",
+          nim: "13522000",
+          description: "Mahasiswa Three is an active student.",
+          file: "https://example.com/mahasiswa3.pdf",
+          mahasiswaStatus: "active",
+        },
+        {
+          accountId: mahasiswa4Id,
+          name: "Mahasiswa Four",
+          nim: "10122000",
+          description: "Mahasiswa Four is an inactive student.",
+          file: "https://example.com/mahasiswa4.pdf",
+          mahasiswaStatus: "inactive",
+        },
+        {
+          accountId: mahasiswa5Id,
+          name: "Mahasiswa Five",
+          nim: "14523999",
+          description: "Mahasiswa Five is an inactive student.",
+          file: "https://example.com/mahasiswa5.pdf",
           mahasiswaStatus: "inactive",
         },
       ]);
@@ -146,10 +196,23 @@ export async function resetDatabase() {
       ]);
 
       // Seed connections between mahasiswa and OTA
-      await tx.insert(connectionTable).values({
-        mahasiswaId: mahasiswa1Id,
-        otaId: ota1Id,
-      });
+      await tx.insert(connectionTable).values([
+        {
+          mahasiswaId: mahasiswa1Id,
+          otaId: ota1Id,
+          connectionStatus: "accepted",
+        },
+        {
+          mahasiswaId: mahasiswa2Id,
+          otaId: ota1Id,
+          connectionStatus: "accepted",
+        },
+        {
+          mahasiswaId: mahasiswa3Id,
+          otaId: ota1Id,
+          connectionStatus: "pending",
+        },
+      ]);
 
       console.log("Database reset completed successfully!");
     });
