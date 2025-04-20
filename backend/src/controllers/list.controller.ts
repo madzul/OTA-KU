@@ -40,7 +40,7 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
       .from(accountMahasiswaDetailTable)
       .innerJoin(
         accountTable,
-        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
       .where(
         and(
@@ -368,6 +368,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
 
 listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
   const { q, page } = c.req.query();
+  const maId = c.get("user").id;
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -381,7 +382,13 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
     const countsQuery = db
       .select({ count: count() })
       .from(accountOtaDetailTable)
-      .where(ilike(accountOtaDetailTable.name, `%${q || ""}%`));
+      .where(
+        and(
+          eq(connectionTable.mahasiswaId, maId),
+          eq(connectionTable.connectionStatus, "accepted"),
+          ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+        ),
+      );
 
     const OTAListQuery = db
       .select({
@@ -396,7 +403,13 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
         accountTable,
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
-      .where(ilike(accountOtaDetailTable.name, `%${q || ""}%`))
+      .where(
+        and(
+          eq(connectionTable.mahasiswaId, maId),
+          eq(connectionTable.connectionStatus, "accepted"),
+          ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+        ),
+      )
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
 
@@ -430,10 +443,9 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
     );
   }
 });
-
 listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
   const { q, page } = c.req.query();
-  const otaId = c.get("user").id
+  const otaId = c.get("user").id;
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -449,11 +461,11 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
       .from(connectionTable)
       .innerJoin(
         accountMahasiswaDetailTable,
-        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId)
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
       )
       .innerJoin(
         accountTable,
-        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
       .where(
         and(
@@ -461,9 +473,9 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
           eq(connectionTable.connectionStatus, "accepted"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`)
-          )
-        )
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+          ),
+        ),
       );
 
     const mahasiswaListQuery = db
@@ -476,11 +488,11 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
       .from(connectionTable)
       .innerJoin(
         accountMahasiswaDetailTable,
-        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId)
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
       )
       .innerJoin(
         accountTable,
-        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
       .where(
         and(
@@ -488,9 +500,9 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
           eq(connectionTable.connectionStatus, "accepted"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`)
-          )
-        )
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+          ),
+        ),
       )
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
@@ -547,11 +559,11 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
       .from(connectionTable)
       .innerJoin(
         accountMahasiswaDetailTable,
-        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId)
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
       )
       .innerJoin(
         accountTable,
-        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
       .where(
         and(
@@ -559,9 +571,9 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
           eq(connectionTable.connectionStatus, "pending"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`)
-          )
-        )
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+          ),
+        ),
       );
 
     const mahasiswaListQuery = db
@@ -574,11 +586,11 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
       .from(connectionTable)
       .innerJoin(
         accountMahasiswaDetailTable,
-        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId)
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
       )
       .innerJoin(
         accountTable,
-        eq(accountMahasiswaDetailTable.accountId, accountTable.id)
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
       .where(
         and(
@@ -586,9 +598,9 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
           eq(connectionTable.connectionStatus, "pending"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`)
-          )
-        )
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+          ),
+        ),
       )
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
