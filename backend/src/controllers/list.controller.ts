@@ -382,6 +382,10 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
     const countsQuery = db
       .select({ count: count() })
       .from(accountOtaDetailTable)
+      .innerJoin(
+        connectionTable,
+        eq(connectionTable.otaId, accountOtaDetailTable.accountId),
+      )
       .where(
         and(
           eq(connectionTable.mahasiswaId, maId),
@@ -402,6 +406,10 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
       .innerJoin(
         accountTable,
         eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .innerJoin(
+        connectionTable,
+        eq(connectionTable.otaId, accountOtaDetailTable.accountId),
       )
       .where(
         and(
