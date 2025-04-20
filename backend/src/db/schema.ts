@@ -57,7 +57,6 @@ export const jurusanEnum = pgEnum("jurusan", [
   "Biologi",
   "Sains dan Teknologi Farmasi",
   "Aktuaria",
-  "Teknik Oseanografi",
   "Rekayasa Hayati",
   "Rekayasa Pertanian",
   "Rekayasa Kehutanan",
@@ -132,6 +131,8 @@ export const accountTable = pgTable("account", {
   applicationStatus: applicationStatusEnum("application_status")
     .notNull()
     .default("pending"),
+  oid: varchar({ length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
@@ -203,6 +204,7 @@ export const connectionTable = pgTable(
     connectionStatus: connectionStatusEnum("connection_status")
       .notNull()
       .default("pending"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
 );

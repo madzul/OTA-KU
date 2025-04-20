@@ -240,6 +240,7 @@ authRouter.openapi(oauthRoute, async (c) => {
   const email = payload.upn as string;
   const name = payload.name as string;
 
+  // TODO: Tambahin oid nanti
   try {
     await db.transaction(async (tx) => {
       let accountData;

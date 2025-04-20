@@ -8,7 +8,6 @@ export function getNimJurusanCodeMap(): Record<string, string> {
     "106": "Biologi",
     "107": "Sains dan Teknologi Farmasi",
     "108": "Aktuaria",
-    "109": "Teknik Oseanografi",
     "112": "Rekayasa Hayati",
     "114": "Rekayasa Pertanian",
     "115": "Rekayasa Kehutanan",

@@ -5,6 +5,7 @@ import {
   PasswordSchema,
   PhoneNumberSchema,
   TokenSchema,
+  validNimPrefixes,
 } from "./atomic.js";
 
 // Login
@@ -77,13 +78,19 @@ export const UserRegisRequestSchema = z
   .refine(
     (data) => {
       if (data.type === "mahasiswa") {
-        const emailRegex = /^\d{8}\@mahasiswa.itb.ac.id$/;
-        return emailRegex.test(data.email);
+        const match = data.email.match(
+          /^(\d{3})(\d{5})@mahasiswa\.itb\.ac\.id$/,
+        );
+        if (!match) return false;
+
+        const nimPrefix = match[1];
+        return validNimPrefixes.has(nimPrefix);
       }
       return true;
     },
     {
-      message: "Email harus berdomain mahasiswa.itb.ac.id",
+      message:
+        "Email harus sesuai format NIM@mahasiswa.itb.ac.id",
       path: ["email"],
     },
   )

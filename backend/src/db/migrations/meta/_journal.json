@@ -113,6 +113,27 @@
       "when": 1745155726971,
       "tag": "0015_complete_thanos",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1745157521450,
+      "tag": "0016_chilly_luke_cage",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1745157956512,
+      "tag": "0017_petite_sprite",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1745160705891,
+      "tag": "0018_ordinary_mole_man",
+      "breakpoints": true
     }
   ]
 }

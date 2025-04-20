@@ -147,7 +147,7 @@ describe("Register", () => {
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.errors.fieldErrors.email[0]).toBe(
-      "Email harus berdomain mahasiswa.itb.ac.id",
+      "Email harus sesuai format NIM@mahasiswa.itb.ac.id",
     );
   });
 

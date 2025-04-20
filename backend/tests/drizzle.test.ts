@@ -45,7 +45,7 @@ describe("Database Seeding", () => {
       await db
         .select()
         .from(accountTable)
-        .where(eq(accountTable.email, "mahasiswa1@example.com"))
+        .where(eq(accountTable.email, "13599001@mahasiswa.itb.ac.id"))
     )[0];
     expect(mahasiswa).toBeDefined();
     expect(mahasiswa.type).toBe("mahasiswa");
