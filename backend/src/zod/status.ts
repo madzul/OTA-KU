@@ -6,7 +6,7 @@ export const ApplicationStatusParams = z.object({
 });
 
 export const ApplicationStatusSchema = z.object({
-  status: z.enum(["accepted", "rejected", "pending"]).openapi({
+  status: z.enum(["accepted", "rejected", "pending", "unregistered"]).openapi({
     description: "Status aplikasi",
     example: "accepted",
   }),
@@ -18,9 +18,11 @@ export const ApplicationStatusSuccessResponse = z.object({
     example: "Berhasil mengubah status pendaftaran",
   }),
   body: z.object({
-    status: z.enum(["accepted", "rejected", "pending"]).openapi({
-      description: "Status aplikasi",
-      example: "accepted",
-    }),
+    status: z
+      .enum(["accepted", "rejected", "pending", "unregistered"])
+      .openapi({
+        description: "Status aplikasi",
+        example: "accepted",
+      }),
   }),
 });

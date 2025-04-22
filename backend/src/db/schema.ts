@@ -33,6 +33,7 @@ export const applicationStatusEnum = pgEnum("account_status", [
   "accepted",
   "rejected",
   "pending",
+  "unregistered",
 ]);
 
 export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
@@ -130,7 +131,7 @@ export const accountTable = pgTable("account", {
   status: verificationStatusEnum("status").notNull().default("unverified"),
   applicationStatus: applicationStatusEnum("application_status")
     .notNull()
-    .default("pending"),
+    .default("unregistered"),
   oid: varchar({ length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
