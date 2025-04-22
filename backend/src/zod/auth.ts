@@ -170,7 +170,7 @@ export const JWTPayloadSchema = z
       .openapi({ example: "credentials" }),
     status: z.enum(["verified", "unverified"]).openapi({ example: "verified" }),
     applicationStatus: z
-      .enum(["accepted", "rejected", "pending"])
+      .enum(["accepted", "rejected", "pending", "unregistered"])
       .openapi({ example: "accepted" }),
     oid: z.string().nullable().openapi({ example: "1" }),
     createdAt: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
