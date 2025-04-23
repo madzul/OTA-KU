@@ -62,12 +62,16 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
       }
     });
 
-    await transporter.sendMail({
-      from: env.EMAIL_FROM,
-      to: email,
-      subject: "Token OTP Bantuan Orang Tua Asuh",
-      html: emailHTML(code),
-    });
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: email,
+        subject: "Token OTP Bantuan Orang Tua Asuh",
+        html: emailHTML(code),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
 
     return c.json(
       {
