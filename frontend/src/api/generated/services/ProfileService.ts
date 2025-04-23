@@ -20,7 +20,7 @@ export class ProfileService {
        */
       name: string;
       /**
-       * The user phone number.
+       * Nomor telepon pengguna yang dimulai dengan 62.
        */
       phoneNumber: string;
       /**
@@ -28,13 +28,61 @@ export class ProfileService {
        */
       nim: string;
       /**
+       * Jurusan mahasiswa
+       */
+      major: 'Matematika' | 'Fisika' | 'Astronomi' | 'Mikrobiologi' | 'Kimia' | 'Biologi' | 'Sains dan Teknologi Farmasi' | 'Aktuaria' | 'Rekayasa Hayati' | 'Rekayasa Pertanian' | 'Rekayasa Kehutanan' | 'Farmasi Klinik dan Komunitas' | 'Teknologi Pasca Panen' | 'Teknik Geologi' | 'Teknik Pertambangan' | 'Teknik Perminyakan' | 'Teknik Geofisika' | 'Teknik Metalurgi' | 'Meteorologi' | 'Oseanografi' | 'Teknik Kimia' | 'Teknik Mesin' | 'Teknik Elektro' | 'Teknik Fisika' | 'Teknik Industri' | 'Teknik Informatika' | 'Aeronotika dan Astronotika' | 'Teknik Material' | 'Teknik Pangan' | 'Manajemen Rekayasa Industri' | 'Teknik Bioenergi dan Kemurgi' | 'Teknik Sipil' | 'Teknik Geodesi dan Geomatika' | 'Arsitektur' | 'Teknik Lingkungan' | 'Perencanaan Wilayah dan Kota' | 'Teknik Kelautan' | 'Rekayasa Infrastruktur Lingkungan' | 'Teknik dan Pengelolaan Sumber Daya Air' | 'Seni Rupa' | 'Desain' | 'Kriya' | 'Desain Interior' | 'Desain Komunikasi Visual' | 'Desain Produk' | 'Teknik Tenaga Listrik' | 'Teknik Telekomunikasi' | 'Sistem Teknologi dan Informasi' | 'Teknik Biomedis' | 'Manajemen' | 'Kewirausahaan' | 'TPB';
+      /**
+       * Fakultas mahasiswa
+       */
+      faculty: 'FMIPA' | 'SITH-S' | 'SF' | 'FITB' | 'FTTM' | 'STEI-R' | 'FTSL' | 'FTI' | 'FSRD' | 'FTMD' | 'STEI-K' | 'SBM' | 'SITH-R' | 'SAPPK';
+      /**
+       * Kota asal mahasiswa
+       */
+      cityOfOrigin: string;
+      /**
+       * Asal SMA
+       */
+      highschoolAlumni: string;
+      /**
        * Deskripsi mahasiswa
        */
       description: string;
       /**
-       * Foto mahasiswa
+       * File Essay Mahasiswa
        */
       file: any;
+      /**
+       * Kartu Keluarga
+       */
+      kk: any;
+      /**
+       * Kartu Tanda Mahasiswa
+       */
+      ktm: any;
+      /**
+       * Surat Rekomendasi Wali
+       */
+      waliRecommendationLetter: any;
+      /**
+       * Transkrip Nilai
+       */
+      transcript: any;
+      /**
+       * Slip Gaji Orang Tua
+       */
+      salaryReport: any;
+      /**
+       * Bukti Pembayaran PBB
+       */
+      pbb: any;
+      /**
+       * Tagihan Listrik
+       */
+      electricityBill: any;
+      /**
+       * Surat Rekomendasi Ditmawa
+       */
+      ditmawaRecommendationLetter: any;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -49,13 +97,61 @@ export class ProfileService {
        */
       nim: string;
       /**
+       * Jurusan mahasiswa
+       */
+      major: 'Matematika' | 'Fisika' | 'Astronomi' | 'Mikrobiologi' | 'Kimia' | 'Biologi' | 'Sains dan Teknologi Farmasi' | 'Aktuaria' | 'Rekayasa Hayati' | 'Rekayasa Pertanian' | 'Rekayasa Kehutanan' | 'Farmasi Klinik dan Komunitas' | 'Teknologi Pasca Panen' | 'Teknik Geologi' | 'Teknik Pertambangan' | 'Teknik Perminyakan' | 'Teknik Geofisika' | 'Teknik Metalurgi' | 'Meteorologi' | 'Oseanografi' | 'Teknik Kimia' | 'Teknik Mesin' | 'Teknik Elektro' | 'Teknik Fisika' | 'Teknik Industri' | 'Teknik Informatika' | 'Aeronotika dan Astronotika' | 'Teknik Material' | 'Teknik Pangan' | 'Manajemen Rekayasa Industri' | 'Teknik Bioenergi dan Kemurgi' | 'Teknik Sipil' | 'Teknik Geodesi dan Geomatika' | 'Arsitektur' | 'Teknik Lingkungan' | 'Perencanaan Wilayah dan Kota' | 'Teknik Kelautan' | 'Rekayasa Infrastruktur Lingkungan' | 'Teknik dan Pengelolaan Sumber Daya Air' | 'Seni Rupa' | 'Desain' | 'Kriya' | 'Desain Interior' | 'Desain Komunikasi Visual' | 'Desain Produk' | 'Teknik Tenaga Listrik' | 'Teknik Telekomunikasi' | 'Sistem Teknologi dan Informasi' | 'Teknik Biomedis' | 'Manajemen' | 'Kewirausahaan' | 'TPB';
+      /**
+       * Fakultas mahasiswa
+       */
+      faculty: 'FMIPA' | 'SITH-S' | 'SF' | 'FITB' | 'FTTM' | 'STEI-R' | 'FTSL' | 'FTI' | 'FSRD' | 'FTMD' | 'STEI-K' | 'SBM' | 'SITH-R' | 'SAPPK';
+      /**
+       * Kota asal mahasiswa
+       */
+      cityOfOrigin: string;
+      /**
+       * Asal SMA
+       */
+      highschoolAlumni: string;
+      /**
        * Deskripsi mahasiswa
        */
       description: string;
       /**
-       * Foto mahasiswa
+       * File Essay Mahasiswa
        */
       file: string;
+      /**
+       * Kartu Keluarga
+       */
+      kk: string;
+      /**
+       * Kartu Tanda Mahasiswa
+       */
+      ktm: string;
+      /**
+       * Surat Rekomendasi Wali
+       */
+      waliRecommendationLetter: string;
+      /**
+       * Transkrip Nilai
+       */
+      transcript: string;
+      /**
+       * Slip Gaji Orang Tua
+       */
+      salaryReport: string;
+      /**
+       * Bukti Pembayaran PBB
+       */
+      pbb: string;
+      /**
+       * Tagihan Listrik
+       */
+      electricityBill: string;
+      /**
+       * Surat Rekomendasi Ditmawa
+       */
+      ditmawaRecommendationLetter: string;
     };
   }> {
     return this.httpRequest.request({
@@ -292,7 +388,7 @@ export class ProfileService {
        */
       email: string;
       /**
-       * The user phone number.
+       * Nomor telepon pengguna yang dimulai dengan 62.
        */
       phone_number: string;
       join_date: string;
@@ -322,7 +418,7 @@ export class ProfileService {
        */
       name: string;
       /**
-       * The user phone number.
+       * Nomor telepon pengguna yang dimulai dengan 62.
        */
       phoneNumber: string;
       /**
@@ -330,13 +426,61 @@ export class ProfileService {
        */
       nim: string;
       /**
+       * Jurusan mahasiswa
+       */
+      major: 'Matematika' | 'Fisika' | 'Astronomi' | 'Mikrobiologi' | 'Kimia' | 'Biologi' | 'Sains dan Teknologi Farmasi' | 'Aktuaria' | 'Rekayasa Hayati' | 'Rekayasa Pertanian' | 'Rekayasa Kehutanan' | 'Farmasi Klinik dan Komunitas' | 'Teknologi Pasca Panen' | 'Teknik Geologi' | 'Teknik Pertambangan' | 'Teknik Perminyakan' | 'Teknik Geofisika' | 'Teknik Metalurgi' | 'Meteorologi' | 'Oseanografi' | 'Teknik Kimia' | 'Teknik Mesin' | 'Teknik Elektro' | 'Teknik Fisika' | 'Teknik Industri' | 'Teknik Informatika' | 'Aeronotika dan Astronotika' | 'Teknik Material' | 'Teknik Pangan' | 'Manajemen Rekayasa Industri' | 'Teknik Bioenergi dan Kemurgi' | 'Teknik Sipil' | 'Teknik Geodesi dan Geomatika' | 'Arsitektur' | 'Teknik Lingkungan' | 'Perencanaan Wilayah dan Kota' | 'Teknik Kelautan' | 'Rekayasa Infrastruktur Lingkungan' | 'Teknik dan Pengelolaan Sumber Daya Air' | 'Seni Rupa' | 'Desain' | 'Kriya' | 'Desain Interior' | 'Desain Komunikasi Visual' | 'Desain Produk' | 'Teknik Tenaga Listrik' | 'Teknik Telekomunikasi' | 'Sistem Teknologi dan Informasi' | 'Teknik Biomedis' | 'Manajemen' | 'Kewirausahaan' | 'TPB';
+      /**
+       * Fakultas mahasiswa
+       */
+      faculty: 'FMIPA' | 'SITH-S' | 'SF' | 'FITB' | 'FTTM' | 'STEI-R' | 'FTSL' | 'FTI' | 'FSRD' | 'FTMD' | 'STEI-K' | 'SBM' | 'SITH-R' | 'SAPPK';
+      /**
+       * Kota asal mahasiswa
+       */
+      cityOfOrigin: string;
+      /**
+       * Asal SMA
+       */
+      highschoolAlumni: string;
+      /**
        * Deskripsi mahasiswa
        */
       description: string;
       /**
-       * Foto mahasiswa
+       * File Essay Mahasiswa
        */
       file: any;
+      /**
+       * Kartu Keluarga
+       */
+      kk: any;
+      /**
+       * Kartu Tanda Mahasiswa
+       */
+      ktm: any;
+      /**
+       * Surat Rekomendasi Wali
+       */
+      waliRecommendationLetter: any;
+      /**
+       * Transkrip Nilai
+       */
+      transcript: any;
+      /**
+       * Slip Gaji Orang Tua
+       */
+      salaryReport: any;
+      /**
+       * Bukti Pembayaran PBB
+       */
+      pbb: any;
+      /**
+       * Tagihan Listrik
+       */
+      electricityBill: any;
+      /**
+       * Surat Rekomendasi Ditmawa
+       */
+      ditmawaRecommendationLetter: any;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -351,13 +495,61 @@ export class ProfileService {
        */
       nim: string;
       /**
+       * Jurusan mahasiswa
+       */
+      major: 'Matematika' | 'Fisika' | 'Astronomi' | 'Mikrobiologi' | 'Kimia' | 'Biologi' | 'Sains dan Teknologi Farmasi' | 'Aktuaria' | 'Rekayasa Hayati' | 'Rekayasa Pertanian' | 'Rekayasa Kehutanan' | 'Farmasi Klinik dan Komunitas' | 'Teknologi Pasca Panen' | 'Teknik Geologi' | 'Teknik Pertambangan' | 'Teknik Perminyakan' | 'Teknik Geofisika' | 'Teknik Metalurgi' | 'Meteorologi' | 'Oseanografi' | 'Teknik Kimia' | 'Teknik Mesin' | 'Teknik Elektro' | 'Teknik Fisika' | 'Teknik Industri' | 'Teknik Informatika' | 'Aeronotika dan Astronotika' | 'Teknik Material' | 'Teknik Pangan' | 'Manajemen Rekayasa Industri' | 'Teknik Bioenergi dan Kemurgi' | 'Teknik Sipil' | 'Teknik Geodesi dan Geomatika' | 'Arsitektur' | 'Teknik Lingkungan' | 'Perencanaan Wilayah dan Kota' | 'Teknik Kelautan' | 'Rekayasa Infrastruktur Lingkungan' | 'Teknik dan Pengelolaan Sumber Daya Air' | 'Seni Rupa' | 'Desain' | 'Kriya' | 'Desain Interior' | 'Desain Komunikasi Visual' | 'Desain Produk' | 'Teknik Tenaga Listrik' | 'Teknik Telekomunikasi' | 'Sistem Teknologi dan Informasi' | 'Teknik Biomedis' | 'Manajemen' | 'Kewirausahaan' | 'TPB';
+      /**
+       * Fakultas mahasiswa
+       */
+      faculty: 'FMIPA' | 'SITH-S' | 'SF' | 'FITB' | 'FTTM' | 'STEI-R' | 'FTSL' | 'FTI' | 'FSRD' | 'FTMD' | 'STEI-K' | 'SBM' | 'SITH-R' | 'SAPPK';
+      /**
+       * Kota asal mahasiswa
+       */
+      cityOfOrigin: string;
+      /**
+       * Asal SMA
+       */
+      highschoolAlumni: string;
+      /**
        * Deskripsi mahasiswa
        */
       description: string;
       /**
-       * Foto mahasiswa
+       * File Essay Mahasiswa
        */
       file: string;
+      /**
+       * Kartu Keluarga
+       */
+      kk: string;
+      /**
+       * Kartu Tanda Mahasiswa
+       */
+      ktm: string;
+      /**
+       * Surat Rekomendasi Wali
+       */
+      waliRecommendationLetter: string;
+      /**
+       * Transkrip Nilai
+       */
+      transcript: string;
+      /**
+       * Slip Gaji Orang Tua
+       */
+      salaryReport: string;
+      /**
+       * Bukti Pembayaran PBB
+       */
+      pbb: string;
+      /**
+       * Tagihan Listrik
+       */
+      electricityBill: string;
+      /**
+       * Surat Rekomendasi Ditmawa
+       */
+      ditmawaRecommendationLetter: string;
     };
   }> {
     return this.httpRequest.request({
@@ -388,7 +580,7 @@ export class ProfileService {
        */
       email: string;
       /**
-       * The user phone number.
+       * Nomor telepon pengguna yang dimulai dengan 62.
        */
       phone_number: string;
     };

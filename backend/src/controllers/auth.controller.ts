@@ -2,6 +2,7 @@ import { compare, hash } from "bcrypt";
 import { and, eq, gte, or } from "drizzle-orm";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { decode, sign } from "hono/jwt";
+import nodemailer from "nodemailer";
 
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
@@ -10,6 +11,7 @@ import {
   accountTable,
   otpTable,
 } from "../db/schema.js";
+import { emailHTML } from "../lib/email-html.js";
 import {
   getNimFakultasCodeMap,
   getNimFakultasFromNimJurusanMap,
@@ -141,7 +143,7 @@ authRouter.openapi(regisRoute, async (c) => {
   const hashedPassword = await hash(password, 10);
 
   try {
-    const newUser = await db.transaction(async (tx) => {
+    const [newUser, code] = await db.transaction(async (tx) => {
       const newUser = await tx
         .insert(accountTable)
         .values({
@@ -152,13 +154,40 @@ authRouter.openapi(regisRoute, async (c) => {
         })
         .returning();
 
+      const code = generateOTP();
+
       await tx.insert(otpTable).values({
         accountId: newUser[0].id,
-        code: generateOTP(),
+        code: code,
         expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
       });
 
-      return newUser;
+      return [newUser, code];
+    });
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
+
+    await transporter.sendMail({
+      from: env.EMAIL_FROM,
+      to: newUser[0].email,
+      subject: "Token OTP Bantuan Orang Tua Asuh",
+      html: emailHTML(code),
     });
 
     const accessToken = await sign(

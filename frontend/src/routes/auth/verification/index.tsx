@@ -1,4 +1,5 @@
 import { api, queryClient } from "@/api/client";
+import { SendOtpRequestSchema } from "@/api/generated";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/input-otp";
 import { OTPVerificationRequestSchema } from "@/lib/zod/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -68,6 +69,41 @@ function RouteComponent() {
     },
   });
 
+  const otpResendCallbackMutation = useMutation({
+    mutationFn: (formData: SendOtpRequestSchema) =>
+      api.otp.sendOtp({ formData: formData }),
+    onSuccess: (_data, _variables, context) => {
+      toast.dismiss(context);
+      toast.success("Berhasil mengirim ulang OTP", {
+        description: "Silakan cek email Anda",
+      });
+    },
+    onError: (_error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal mengirim ulang OTP", {
+        description: "Silakan coba lagi",
+      });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Mengirim ulang OTP...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
+    },
+  });
+
+  // Only fetch authentication status when component mounts
+  // Enable refetching on window focus and set a stale time
+  const { data } = useQuery({
+    queryKey: ["verify"],
+    queryFn: () => api.auth.verif().catch(() => null),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
+  });
+
   const form = useForm<OTPVerificationFormValues>({
     resolver: zodResolver(OTPVerificationRequestSchema),
   });
@@ -76,13 +112,16 @@ function RouteComponent() {
     otpCallbackMutation.mutate(data);
   }
 
-  // const handleResend = () => {
-  //   console.log("Resending OTP...")
-  //   console.log("OTP resent!")
-  // }
+  const handleResend = () => {
+    if (!data?.body.email) {
+      toast.error("Email tidak ditemukan", {
+        description: "Silakan coba lagi",
+      });
+      return;
+    }
 
-  const handleChangeNumber = () => {
-    console.log("Changing number...");
+    const formData = { email: data.body.email };
+    otpResendCallbackMutation.mutate(formData);
   };
 
   return (
@@ -103,9 +142,9 @@ function RouteComponent() {
         <div className="text-center text-sm md:text-base xl:text-lg">
           <div className="mb-6">
             <p className="">
-              Kami telah mengirimkan kode 6 digit ke nomor WhatsApp Anda:
+              Kami telah mengirimkan kode 6 digit ke email Anda:
             </p>
-            <p className="mt-1 font-medium">+62 8999-9999-999</p>
+            <p className="mt-1 font-medium">{data?.body.email}</p>
             <p className="mt-1">
               Silahkan masukkan kode tersebut untuk melanjutkan
             </p>
@@ -149,15 +188,11 @@ function RouteComponent() {
         <div className="flex flex-col pt-0 text-sm xl:text-base">
           <div className="mt-4 flex justify-center">
             <span>Belum menerima kode? </span>
-            <button onClick={handleChangeNumber} className="ml-1 underline">
+            <button
+              onClick={handleResend}
+              className="ml-1 underline hover:cursor-pointer"
+            >
               Kirim ulang
-            </button>
-          </div>
-
-          <div className="mt-2 flex justify-center">
-            <span>Nomor salah? </span>
-            <button onClick={handleChangeNumber} className="ml-1 underline">
-              Ubah nomor
             </button>
           </div>
         </div>

@@ -19,6 +19,9 @@ const EnvSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string(),
   CLOUDINARY_API_KEY: z.string(),
   CLOUDINARY_API_SECRET: z.string(),
+  EMAIL: z.string().email(),
+  EMAIL_FROM: z.string(),
+  EMAIL_PASSWORD: z.string(),
 });
 
 const result = EnvSchema.safeParse(process.env);
