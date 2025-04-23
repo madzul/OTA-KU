@@ -54,10 +54,10 @@ function RouteComponent() {
         navigate({ to: "/profile" });
       }, 1500); // 1.5 seconds delay
     },
-    onError: (_error, _variables, context) => {
+    onError: (error, _variables, context) => {
       toast.dismiss(context);
       toast.warning("Gagal melakukan verifikasi", {
-        description: "Silakan coba lagi",
+        description: error.message,
       });
     },
     onMutate: () => {
@@ -78,10 +78,10 @@ function RouteComponent() {
         description: "Silakan cek email Anda",
       });
     },
-    onError: (_error, _variables, context) => {
+    onError: (error, _variables, context) => {
       toast.dismiss(context);
       toast.warning("Gagal mengirim ulang OTP", {
-        description: "Silakan coba lagi",
+        description: error.message,
       });
     },
     onMutate: () => {
@@ -114,7 +114,7 @@ function RouteComponent() {
 
   const handleResend = () => {
     if (!data?.body.email) {
-      toast.error("Email tidak ditemukan", {
+      toast.warning("Email tidak ditemukan", {
         description: "Silakan coba lagi",
       });
       return;
