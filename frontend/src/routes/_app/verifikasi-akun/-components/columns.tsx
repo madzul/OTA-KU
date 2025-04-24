@@ -1,16 +1,9 @@
-import { api, queryClient } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useMutation } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  ArrowDownAZ,
-  ArrowUpAZ,
-  CircleCheck,
-  CircleX,
-  RefreshCw,
-} from "lucide-react";
-import { toast } from "sonner";
+import { ArrowDownAZ, ArrowUpAZ } from "lucide-react";
+
+import Combobox from "./combobox";
 
 export type MahasiswaColumn = {
   id: string;
@@ -123,94 +116,21 @@ export const mahasiswaColumns: ColumnDef<MahasiswaColumn>[] = [
     header: "Aksi",
     cell: ({ row }) => {
       const id = row.getValue("id") as string;
+      const name = row.getValue("name") as string;
+      const email = row.getValue("email") as string;
       const status = row.getValue("status") as
         | "pending"
         | "accepted"
-        | "rejected"
-        | "unregistered";
-
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const applicationStatusCallbackMutation = useMutation({
-        mutationFn: (status: "accepted" | "rejected") => {
-          return api.status.applicationStatus({
-            formData: { status },
-            id: id,
-          });
-        },
-        onSuccess: (_data, _variables, context) => {
-          toast.dismiss(context);
-          toast.success("Berhasil mengubah status", {
-            description: "Status berhasil diubah",
-          });
-        },
-        onError: (_error, _variables, context) => {
-          toast.dismiss(context);
-          toast.warning("Gagal mengubah status", {
-            description: "Silakan coba lagi",
-          });
-        },
-        onMutate: () => {
-          const loading = toast.loading("Sedang mengubah status...", {
-            description: "Mohon tunggu sebentar",
-            duration: Infinity,
-          });
-          return loading;
-        },
-      });
+        | "rejected";
 
       return (
-        <div className="flex gap-6">
-          {status === "pending" ? (
-            <>
-              <CircleCheck
-                className="text-succeed h-5 w-5 hover:cursor-pointer"
-                onClick={async () => {
-                  await applicationStatusCallbackMutation.mutateAsync(
-                    "accepted",
-                  );
-                  await queryClient.invalidateQueries({
-                    queryKey: ["listMahasiswaAdmin"],
-                    refetchType: "active",
-                  });
-                }}
-              />
-              <CircleX
-                className="text-destructive h-5 w-5 hover:cursor-pointer"
-                onClick={async () => {
-                  await applicationStatusCallbackMutation.mutateAsync(
-                    "rejected",
-                  );
-                  await queryClient.invalidateQueries({
-                    queryKey: ["listMahasiswaAdmin"],
-                    refetchType: "active",
-                  });
-                }}
-              />
-            </>
-          ) : status === "accepted" ? (
-            <RefreshCw
-              className="text-destructive h-5 w-5 hover:cursor-pointer"
-              onClick={async () => {
-                await applicationStatusCallbackMutation.mutateAsync("rejected");
-                await queryClient.invalidateQueries({
-                  queryKey: ["listMahasiswaAdmin"],
-                  refetchType: "active",
-                });
-              }}
-            />
-          ) : (
-            <RefreshCw
-              className="text-succeed h-5 w-5 hover:cursor-pointer"
-              onClick={async () => {
-                await applicationStatusCallbackMutation.mutateAsync("accepted");
-                await queryClient.invalidateQueries({
-                  queryKey: ["listMahasiswaAdmin"],
-                  refetchType: "active",
-                });
-              }}
-            />
-          )}
-        </div>
+        <Combobox
+          id={id}
+          name={name}
+          email={email}
+          status={status}
+          type="mahasiswa"
+        />
       );
     },
   },
@@ -327,94 +247,21 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
     header: "Aksi",
     cell: ({ row }) => {
       const id = row.getValue("id") as string;
+      const name = row.getValue("name") as string;
+      const email = row.getValue("email") as string;
       const status = row.getValue("status") as
         | "pending"
         | "accepted"
-        | "rejected"
-        | "unregistered";
-
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const applicationStatusCallbackMutation = useMutation({
-        mutationFn: (status: "accepted" | "rejected") => {
-          return api.status.applicationStatus({
-            formData: { status },
-            id: id,
-          });
-        },
-        onSuccess: (_data, _variables, context) => {
-          toast.dismiss(context);
-          toast.success("Berhasil mengubah status", {
-            description: "Status berhasil diubah",
-          });
-        },
-        onError: (_error, _variables, context) => {
-          toast.dismiss(context);
-          toast.warning("Gagal mengubah status", {
-            description: "Silakan coba lagi",
-          });
-        },
-        onMutate: () => {
-          const loading = toast.loading("Sedang mengubah status...", {
-            description: "Mohon tunggu sebentar",
-            duration: Infinity,
-          });
-          return loading;
-        },
-      });
+        | "rejected";
 
       return (
-        <div className="flex gap-6">
-          {status === "pending" ? (
-            <>
-              <CircleCheck
-                className="text-succeed h-5 w-5 hover:cursor-pointer"
-                onClick={async () => {
-                  await applicationStatusCallbackMutation.mutateAsync(
-                    "accepted",
-                  );
-                  await queryClient.invalidateQueries({
-                    queryKey: ["listOrangTuaAdmin"],
-                    refetchType: "active",
-                  });
-                }}
-              />
-              <CircleX
-                className="text-destructive h-5 w-5 hover:cursor-pointer"
-                onClick={async () => {
-                  await applicationStatusCallbackMutation.mutateAsync(
-                    "rejected",
-                  );
-                  await queryClient.invalidateQueries({
-                    queryKey: ["listOrangTuaAdmin"],
-                    refetchType: "active",
-                  });
-                }}
-              />
-            </>
-          ) : status === "accepted" ? (
-            <RefreshCw
-              className="text-destructive h-5 w-5 hover:cursor-pointer"
-              onClick={async () => {
-                await applicationStatusCallbackMutation.mutateAsync("rejected");
-                await queryClient.invalidateQueries({
-                  queryKey: ["listOrangTuaAdmin"],
-                  refetchType: "active",
-                });
-              }}
-            />
-          ) : (
-            <RefreshCw
-              className="text-succeed h-5 w-5 hover:cursor-pointer"
-              onClick={async () => {
-                await applicationStatusCallbackMutation.mutateAsync("accepted");
-                await queryClient.invalidateQueries({
-                  queryKey: ["listOrangTuaAdmin"],
-                  refetchType: "active",
-                });
-              }}
-            />
-          )}
-        </div>
+        <Combobox
+          id={id}
+          name={name}
+          email={email}
+          status={status}
+          type="ota"
+        />
       );
     },
   },

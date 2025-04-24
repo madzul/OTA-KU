@@ -53,6 +53,7 @@ export async function seed() {
             password: hashedPassword,
             type: "mahasiswa",
             status: "verified",
+            applicationStatus: "accepted",
           },
           {
             id: mahasiswa2Id,
@@ -61,6 +62,7 @@ export async function seed() {
             password: hashedPassword,
             type: "mahasiswa",
             status: "verified",
+            applicationStatus: "accepted",
           },
           {
             id: mahasiswa3Id,
@@ -69,6 +71,7 @@ export async function seed() {
             password: hashedPassword,
             type: "mahasiswa",
             status: "verified",
+            applicationStatus: "pending",
           },
           {
             id: mahasiswa4Id,
@@ -76,6 +79,7 @@ export async function seed() {
             phoneNumber: "628198766782",
             password: hashedPassword,
             type: "mahasiswa",
+            applicationStatus: "pending",
           },
           {
             id: mahasiswa5Id,
@@ -83,6 +87,7 @@ export async function seed() {
             phoneNumber: "628198987411",
             password: hashedPassword,
             type: "mahasiswa",
+            applicationStatus: "rejected",
           },
         ])
         .onConflictDoNothing();
