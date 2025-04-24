@@ -143,10 +143,10 @@ export const mahasiswaColumns: ColumnDef<MahasiswaColumn>[] = [
             description: "Status berhasil diubah",
           });
         },
-        onError: (_error, _variables, context) => {
+        onError: (error, _variables, context) => {
           toast.dismiss(context);
           toast.warning("Gagal mengubah status", {
-            description: "Silakan coba lagi",
+            description: error.message,
           });
         },
         onMutate: () => {
@@ -347,10 +347,10 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
             description: "Status berhasil diubah",
           });
         },
-        onError: (_error, _variables, context) => {
+        onError: (error, _variables, context) => {
           toast.dismiss(context);
           toast.warning("Gagal mengubah status", {
-            description: "Silakan coba lagi",
+            description: error.message,
           });
         },
         onMutate: () => {

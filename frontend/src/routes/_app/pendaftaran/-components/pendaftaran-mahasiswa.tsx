@@ -50,10 +50,10 @@ export default function PendaftaranMahasiswa({
         navigate({ to: "/profile" });
       }, 1000);
     },
-    onError: (_error, _variables, context) => {
+    onError: (error, _variables, context) => {
       toast.dismiss(context);
       toast.warning("Gagal melakukan pendaftaran", {
-        description: "Silakan coba lagi",
+        description: error.message,
       });
     },
     onMutate: () => {
@@ -73,7 +73,6 @@ export default function PendaftaranMahasiswa({
   });
 
   async function onSubmit(values: MahasiswaRegistrationFormValues) {
-    console.log(values);
     mahasiswaRegistrationCallbackMutation.mutate(values);
   }
 
