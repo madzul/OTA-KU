@@ -33,13 +33,32 @@ describe("Pendaftaran Mahasiswa", () => {
 
     const formData = new FormData();
     formData.append("name", "John Doe");
-    formData.append("nim", "33322333");
-    formData.append("description", "Test description");
+    formData.append("nim", "13599008");
     formData.append("phoneNumber", testUsers[4].phoneNumber);
-    formData.append("file", fileData, {
-      filename: "sample.pdf",
-      contentType: "application/pdf",
-    });
+    formData.append("major", "Teknik Informatika");
+    formData.append("faculty", "STEI-R");
+    formData.append("cityOfOrigin", "Bandung");
+    formData.append("highschoolAlumni", "SMA Negeri 1 Bandung");
+    formData.append("description", "Test description");
+
+    const fileFields = [
+      "file",
+      "kk",
+      "ktm",
+      "waliRecommendationLetter",
+      "transcript",
+      "salaryReport",
+      "pbb",
+      "electricityBill",
+      "ditmawaRecommendationLetter",
+    ];
+
+    for (const field of fileFields) {
+      formData.append(field, fileData, {
+        filename: `${field}.pdf`,
+        contentType: "application/pdf",
+      });
+    }
 
     const headers = formData.getHeaders();
     headers["Authorization"] = `Bearer ${token}`;
@@ -72,7 +91,7 @@ describe("Pendaftaran Mahasiswa", () => {
     const res = await app.request(
       createTestRequest("/api/profile/mahasiswa", {
         method: "POST",
-        headers: headers,
+        headers,
         body: formData.getBuffer(),
       }),
     );
@@ -82,7 +101,7 @@ describe("Pendaftaran Mahasiswa", () => {
     expect(body.success).toBe(true);
     expect(body.message).toBe("Berhasil mendaftar.");
     expect(body.body.name).toBe("John Doe");
-    expect(body.body.nim).toBe("33322333");
+    expect(body.body.nim).toBe("13599008");
     expect(body.body.file).toBe("https://cloudinary.com/sample.pdf");
   });
 
@@ -109,7 +128,7 @@ describe("Pendaftaran Mahasiswa", () => {
 
     const formData = new FormData();
     formData.append("name", "John Doe");
-    formData.append("nim", "33322333");
+    formData.append("nim", "13599008");
     formData.append("description", "Test description");
     formData.append("file", fileData, {
       filename: "sample.pdf",
@@ -157,13 +176,32 @@ describe("Pendaftaran Mahasiswa", () => {
 
     const formData = new FormData();
     formData.append("name", "John Doe");
-    formData.append("nim", "33322333");
-    formData.append("description", "Test description");
+    formData.append("nim", "13599008");
     formData.append("phoneNumber", testUsers[0].phoneNumber);
-    formData.append("file", fileData, {
-      filename: "sample.pdf",
-      contentType: "application/pdf",
-    });
+    formData.append("major", "Teknik Informatika");
+    formData.append("faculty", "STEI-R");
+    formData.append("cityOfOrigin", "Bandung");
+    formData.append("highschoolAlumni", "SMA Negeri 1 Bandung");
+    formData.append("description", "Test description");
+
+    const fileFields = [
+      "file",
+      "kk",
+      "ktm",
+      "waliRecommendationLetter",
+      "transcript",
+      "salaryReport",
+      "pbb",
+      "electricityBill",
+      "ditmawaRecommendationLetter",
+    ];
+
+    for (const field of fileFields) {
+      formData.append(field, fileData, {
+        filename: `${field}.pdf`,
+        contentType: "application/pdf",
+      });
+    }
 
     const headers = formData.getHeaders();
     headers["Authorization"] = `Bearer ${token}`;
@@ -171,7 +209,7 @@ describe("Pendaftaran Mahasiswa", () => {
     const res = await app.request(
       createTestRequest("/api/profile/mahasiswa", {
         method: "POST",
-        headers: headers,
+        headers,
         body: formData.getBuffer(),
       }),
     );
@@ -187,7 +225,6 @@ describe("Pendaftaran Mahasiswa", () => {
       throw new Error("Database connection failed");
     });
 
-    // Login first
     const params = new URLSearchParams();
     params.append("identifier", testUsers[4].email);
     params.append("password", testUsers[4].password);
@@ -205,24 +242,41 @@ describe("Pendaftaran Mahasiswa", () => {
 
     const token = loginBody.body.token;
 
-    // Prepare form data
     const filePath = join(__dirname, "./constants/sample.pdf");
     const fileData = readFileSync(filePath);
 
     const formData = new FormData();
     formData.append("name", "John Doe");
-    formData.append("nim", "99922999");
-    formData.append("description", "Test description");
+    formData.append("nim", "13599006");
     formData.append("phoneNumber", testUsers[4].phoneNumber);
-    formData.append("file", fileData, {
-      filename: "sample.pdf",
-      contentType: "application/pdf",
-    });
+    formData.append("major", "Teknik Informatika");
+    formData.append("faculty", "STEI-R");
+    formData.append("cityOfOrigin", "Bandung");
+    formData.append("highschoolAlumni", "SMA Negeri 1 Bandung");
+    formData.append("description", "Test description");
+
+    const fileFields = [
+      "file",
+      "kk",
+      "ktm",
+      "waliRecommendationLetter",
+      "transcript",
+      "salaryReport",
+      "pbb",
+      "electricityBill",
+      "ditmawaRecommendationLetter",
+    ];
+
+    for (const field of fileFields) {
+      formData.append(field, fileData, {
+        filename: `${field}.pdf`,
+        contentType: "application/pdf",
+      });
+    }
 
     const headers = formData.getHeaders();
     headers["Authorization"] = `Bearer ${token}`;
 
-    // Mock cloudinary upload
     vi.spyOn(cloudinary.uploader, "upload").mockResolvedValue({
       public_id: "sample",
       version: 1,
@@ -248,16 +302,14 @@ describe("Pendaftaran Mahasiswa", () => {
       metadata: {},
     });
 
-    // Send request
     const res = await app.request(
       createTestRequest("/api/profile/mahasiswa", {
         method: "POST",
-        headers: headers,
+        headers,
         body: formData.getBuffer(),
       }),
     );
 
-    // Check response
     expect(res.status).toBe(500);
     const body = await res.json();
     expect(body.success).toBe(false);

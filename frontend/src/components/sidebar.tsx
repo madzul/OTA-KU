@@ -1,9 +1,9 @@
 import { api } from "@/api/client";
+import SidebarContent from "@/components/sidebar-content";
+import SidebarOverlay from "@/components/sidebar-overlay";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import SidebarOverlay from "@/components/sidebar-overlay";
-import SidebarContent from "@/components/sidebar-content";
 
 interface MenuItem {
   id: string;
@@ -40,7 +40,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   useEffect(() => {
     const currentPath = location.pathname;
     const matchingItem = menuItems.find((item) =>
-      currentPath.startsWith(item.path)
+      currentPath.startsWith(item.path),
     );
     if (matchingItem) {
       setActiveItem(matchingItem.id);
@@ -91,22 +91,71 @@ const getMenuItems = (role: string): MenuItem[] => {
   switch (role) {
     case "mahasiswa":
       return [
-        { id: "dashboard", label: "Dasbor", icon: "/icon/Type=dashboard.svg", path: "/dashboard" },
-        { id: "my-sponsors", label: "Orang Tua Asuh Saya", icon: "/icon/Type=student-list.svg", path: "/my-sponsors" },
-        { id: "termination", label: "Terminasi", icon: "/icon/Type=remove-student.svg", path: "/termination", textColorClass: "text-destructive", bgColorClass: "bg-destructive/10" },
+        {
+          id: "dashboard",
+          label: "Dasbor",
+          icon: "/icon/Type=dashboard.svg",
+          path: "/dashboard",
+        },
+        {
+          id: "ota-saya",
+          label: "Orang Tua Asuh Saya",
+          icon: "/icon/Type=student-list.svg",
+          path: "/daftar/orangtua",
+        },
+        {
+          id: "termination",
+          label: "Terminasi",
+          icon: "/icon/Type=remove-student.svg",
+          path: "/termination",
+          textColorClass: "text-destructive",
+          bgColorClass: "bg-destructive/10",
+        },
       ];
     case "admin":
       return [
-        { id: "dashboard", label: "Dasbor", icon: "/icon/Type=dashboard.svg", path: "/dashboard" },
-        { id: "verification", label: "Verifikasi", icon: "/icon/Type=shield.svg", path: "/verifikasi-akun" },
+        {
+          id: "dashboard",
+          label: "Dasbor",
+          icon: "/icon/Type=dashboard.svg",
+          path: "/dashboard",
+        },
+        {
+          id: "verification",
+          label: "Verifikasi",
+          icon: "/icon/Type=shield.svg",
+          path: "/verifikasi-akun",
+        },
       ];
     case "ota":
     default:
       return [
-        { id: "dashboard", label: "Dasbor", icon: "/icon/Type=dashboard.svg", path: "/dasbor" },
-        { id: "student-list", label: "Cari Mahasiswa", icon: "/icon/Type=search.svg", path: "/daftar/mahasiswa" },
-        { id: "my-students", label: "Mahasiswa Asuh Saya", icon: "/icon/Type=people.svg", path: "/mahasiswa-asuh-saya" },
-        { id: "termination", label: "Terminasi", icon: "/icon/Type=remove-student.svg", path: "/termination", textColorClass: "text-destructive", bgColorClass: "bg-destructive/10" },
+        {
+          id: "dashboard",
+          label: "Dasbor",
+          icon: "/icon/Type=dashboard.svg",
+          path: "/dasbor",
+        },
+        {
+          id: "student-list",
+          label: "Cari Mahasiswa",
+          icon: "/icon/Type=search.svg",
+          path: "/daftar/mahasiswa",
+        },
+        {
+          id: "my-students",
+          label: "Mahasiswa Asuh Saya",
+          icon: "/icon/Type=people.svg",
+          path: "/mahasiswa-asuh-saya",
+        },
+        {
+          id: "termination",
+          label: "Terminasi",
+          icon: "/icon/Type=remove-student.svg",
+          path: "/termination",
+          textColorClass: "text-destructive",
+          bgColorClass: "bg-destructive/10",
+        },
       ];
   }
 };

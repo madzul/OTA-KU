@@ -126,7 +126,8 @@ export const mahasiswaColumns: ColumnDef<MahasiswaColumn>[] = [
       const status = row.getValue("status") as
         | "pending"
         | "accepted"
-        | "rejected";
+        | "rejected"
+        | "unregistered";
 
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const applicationStatusCallbackMutation = useMutation({
@@ -329,7 +330,8 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
       const status = row.getValue("status") as
         | "pending"
         | "accepted"
-        | "rejected";
+        | "rejected"
+        | "unregistered";
 
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const applicationStatusCallbackMutation = useMutation({

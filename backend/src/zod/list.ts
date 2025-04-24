@@ -77,9 +77,11 @@ export const MahasiswaDetailsListQueryResponse = z.object({
         status: z
           .enum(["verified", "unverified"])
           .openapi({ example: "unverified" }),
-        applicationStatus: z.enum(["accepted", "rejected", "pending"]).openapi({
-          example: "pending",
-        }),
+        applicationStatus: z
+          .enum(["accepted", "rejected", "pending", "unregistered"])
+          .openapi({
+            example: "pending",
+          }),
         nim: z.string().openapi({ example: "13522005" }),
         mahasiswaStatus: z.enum(["active", "inactive"]).openapi({
           example: "active",
@@ -131,9 +133,11 @@ export const OrangTuaDetailsListQueryResponse = z.object({
         status: z
           .enum(["verified", "unverified"])
           .openapi({ example: "unverified" }),
-        applicationStatus: z.enum(["accepted", "rejected", "pending"]).openapi({
-          example: "pending",
-        }),
+        applicationStatus: z
+          .enum(["accepted", "rejected", "pending", "unregistered"])
+          .openapi({
+            example: "pending",
+          }),
         job: z.string().openapi({ example: "Guru" }),
         address: z.string().openapi({ example: "Jl. Merdeka No. 1" }),
         linkage: z.enum(["otm", "dosen", "alumni", "lainnya", "none"]).openapi({

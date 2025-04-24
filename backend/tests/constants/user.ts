@@ -2,8 +2,8 @@ export const testUsers = [
   // Default login user
   {
     id: "da7a126a-4c35-43e3-b2fd-3531c26c88ad",
-    email: "99922999@mahasiswa.itb.ac.id",
-    phoneNumber: "081234567890",
+    email: "13599006@mahasiswa.itb.ac.id",
+    phoneNumber: "6281234567890",
     password: "testuser123",
     type: "mahasiswa" as const,
     provider: "credentials" as const,
@@ -12,7 +12,7 @@ export const testUsers = [
   {
     id: "cd22db2d-fe89-45e2-b6fe-76fc23bbd8d1",
     email: "user2@test.com",
-    phoneNumber: "081234567891",
+    phoneNumber: "6281234567891",
     password: "testuser123",
     type: "ota" as const,
     provider: "credentials" as const,
@@ -21,7 +21,7 @@ export const testUsers = [
   {
     id: "9c4dde84-b662-4066-8048-c7beac56d22d",
     email: "user3@test.com",
-    phoneNumber: "081234567892",
+    phoneNumber: "6281234567892",
     password: "testuser123",
     type: "admin" as const,
     provider: "credentials" as const,
@@ -30,8 +30,8 @@ export const testUsers = [
   // OTP login user (will change from unverified to verified after otp)
   {
     id: "00ee5a79-2779-4eef-a18e-94781e525832",
-    email: "11122111@mahasiswa.itb.ac.id",
-    phoneNumber: "081234167890",
+    email: "13599007@mahasiswa.itb.ac.id",
+    phoneNumber: "6281234167890",
     password: "testuser123",
     type: "mahasiswa" as const,
     provider: "credentials" as const,
@@ -40,8 +40,8 @@ export const testUsers = [
   // Verified mahasiswa user
   {
     id: "1f18242c-cd92-401e-ac82-6343bb1d7145",
-    email: "33322333@mahasiswa.itb.ac.id",
-    phoneNumber: "081234166890",
+    email: "13599008@mahasiswa.itb.ac.id",
+    phoneNumber: "6281234166890",
     password: "testuser123",
     type: "mahasiswa" as const,
     provider: "credentials" as const,
@@ -51,7 +51,7 @@ export const testUsers = [
   {
     id: "2f18242c-cd92-401e-ac82-6343bb1d7145",
     email: "user6@test.com",
-    phoneNumber: "084234167890",
+    phoneNumber: "6284234167890",
     password: "testuser123",
     type: "ota" as const,
     provider: "credentials" as const,
@@ -64,7 +64,7 @@ export const testRegisterUsers = [
   {
     type: "ota",
     email: "user4@test.com",
-    phoneNumber: "081234567893",
+    phoneNumber: "6281234567893",
     password: "testuser123",
     confirmPassword: "testuser123",
   },
@@ -72,7 +72,7 @@ export const testRegisterUsers = [
   {
     type: "mahasiswa",
     email: "user5@test.com",
-    phoneNumber: "081234567894",
+    phoneNumber: "6281234567894",
     password: "testuser123",
     confirmPassword: "testuser123",
   },

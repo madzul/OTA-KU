@@ -35,29 +35,35 @@ connectProtectedRouter.openapi(connectOtaMahasiswaRoute, async (c) => {
 
   try {
     await db.transaction(async (tx) => {
-      // Get OTA's max capacity and current active mahasiswa count
+      // Get OTA's max capacity
       const otaDetails = await tx
         .select({
           maxCapacity: accountOtaDetailTable.maxCapacity,
-          currentCount: sql<number>`
-              SELECT COUNT(*) 
-              FROM ${accountMahasiswaDetailTable} 
-              WHERE ${accountMahasiswaDetailTable.mahasiswaStatus} = 'active'
-              AND ${accountMahasiswaDetailTable.accountId} IN (
+        })
+        .from(accountOtaDetailTable)
+        .where(eq(accountOtaDetailTable.accountId, otaId))
+        .then((rows) => rows[0]);
+
+      // active count di query terpisah
+      const activeCount = await tx
+        .select({
+          count: sql<number>`count(*)`,
+        })
+        .from(accountMahasiswaDetailTable)
+        .where(
+          sql`${accountMahasiswaDetailTable.mahasiswaStatus} = 'active' AND 
+              ${accountMahasiswaDetailTable.accountId} IN (
                 SELECT ${accountMahasiswaDetailTable.accountId}
                 FROM ${accountMahasiswaDetailTable}
                 JOIN ${accountTable} 
                   ON ${accountTable.id} = ${accountMahasiswaDetailTable.accountId}
                 WHERE ${accountTable.type} = 'mahasiswa'
                 AND ${accountTable.id} = ${mahasiswaId}
-              )
-            `,
-        })
-        .from(accountOtaDetailTable)
-        .where(eq(accountOtaDetailTable.accountId, otaId))
-        .then((rows) => rows[0]);
+              )`,
+        )
+        .then((rows) => Number(rows[0]?.count || 0));
 
-      if (otaDetails.currentCount >= otaDetails.maxCapacity) {
+      if (activeCount >= otaDetails.maxCapacity) {
         return c.json(
           {
             success: false,
