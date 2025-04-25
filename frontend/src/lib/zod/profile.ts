@@ -2,7 +2,6 @@ import { z } from "zod";
 
 import { NIMSchema, PDFSchema, PhoneNumberSchema } from "./atomic";
 
-// TODO: Nanti tambahin schema validasinya sesuai di backend, sama kalo jadi multipage sesuaiin juga sama kaya form ota
 export const MahasiswaRegistrationFormSchema = z.object({
   name: z
     .string({

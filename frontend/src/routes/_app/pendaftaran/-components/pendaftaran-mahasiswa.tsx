@@ -26,7 +26,6 @@ type MahasiswaRegistrationFormValues = z.infer<
   typeof MahasiswaRegistrationFormSchema
 >;
 
-// Nama file upload yang ada di backend (TODO: Ubah nama nya supaya lebih user friendly)
 type MahasiswaRegistrationField = keyof MahasiswaRegistrationFormValues;
 const uploadFields: MahasiswaRegistrationField[] = [
   "file",
@@ -86,13 +85,13 @@ export default function PendaftaranMahasiswa({
 
   const handleFileChange = (
     field: keyof MahasiswaRegistrationFormValues,
-    file: File | null
+    file: File | null,
   ) => {
     setFileNames((prev) => ({
       ...prev,
       [field]: file?.name || "",
     }));
-  
+
     // Kalau tidak ada file, set ke undefined atau string kosong
     form.setValue(field, file ?? "");
   };
@@ -179,7 +178,9 @@ export default function PendaftaranMahasiswa({
               name="major"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">Jurusan</FormLabel>
+                  <FormLabel className="text-primary text-sm">
+                    Jurusan
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Masukkan jurusan Anda" {...field} />
                   </FormControl>
@@ -193,7 +194,9 @@ export default function PendaftaranMahasiswa({
               name="faculty"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">Fakultas</FormLabel>
+                  <FormLabel className="text-primary text-sm">
+                    Fakultas
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Masukkan fakultas Anda" {...field} />
                   </FormControl>
@@ -207,7 +210,9 @@ export default function PendaftaranMahasiswa({
               name="cityOfOrigin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">Kota Asal</FormLabel>
+                  <FormLabel className="text-primary text-sm">
+                    Kota Asal
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Masukkan kota asal Anda" {...field} />
                   </FormControl>
@@ -221,7 +226,9 @@ export default function PendaftaranMahasiswa({
               name="highschoolAlumni"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">Asal SMA</FormLabel>
+                  <FormLabel className="text-primary text-sm">
+                    Asal SMA
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Masukkan asal SMA Anda" {...field} />
                   </FormControl>
@@ -246,20 +253,27 @@ export default function PendaftaranMahasiswa({
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {uploadFields.map((name) => (
                 <FormField
                   key={name}
                   control={form.control}
                   name={name}
                   render={() => {
-                    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+                    const handleDragOver = (
+                      e: React.DragEvent<HTMLDivElement>,
+                    ) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setFileNames((prev) => ({ ...prev, [name]: "Dragging..." }));
+                      setFileNames((prev) => ({
+                        ...prev,
+                        [name]: "Dragging...",
+                      }));
                     };
 
-                    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+                    const handleDragLeave = (
+                      e: React.DragEvent<HTMLDivElement>,
+                    ) => {
                       e.preventDefault();
                       e.stopPropagation();
                       setFileNames((prev) => ({ ...prev, [name]: "" }));
@@ -274,7 +288,9 @@ export default function PendaftaranMahasiswa({
 
                     return (
                       <FormItem>
-                        <FormLabel className="text-primary text-sm">{name}</FormLabel>
+                        <FormLabel className="text-primary text-sm">
+                          {name}
+                        </FormLabel>
                         <FormControl>
                           <div
                             className={`flex flex-col items-center justify-center rounded-md border-2 ${
@@ -301,13 +317,16 @@ export default function PendaftaranMahasiswa({
                             <div className="flex flex-col items-center gap-2 text-center">
                               <FileUp className="text-muted-foreground h-8 w-8" />
                               <p className="text-sm font-medium">
-                                {fileNames[name] || `Klik untuk upload atau drag & drop`}
+                                {fileNames[name] ||
+                                  `Klik untuk upload atau drag & drop`}
                               </p>
                               <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                onClick={() => fileInputRefs.current[name]?.click()}
+                                onClick={() =>
+                                  fileInputRefs.current[name]?.click()
+                                }
                               >
                                 Pilih {name}
                               </Button>

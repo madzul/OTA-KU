@@ -1,8 +1,6 @@
 import { SessionContext } from "@/context/session";
 import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { useContext } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/api/client";
 
 import PendaftaranMahasiswa from "./-components/pendaftaran-mahasiswa";
 import PendaftaranOrangTua from "./-components/pendaftaran-orang-tua";
@@ -16,33 +14,23 @@ function RouteComponent() {
 
   const isAdmin = session?.type === "admin";
 
-  const {
-    data: applicationStatusData,
-    isLoading,
-  } = useQuery({
-    queryKey: ["applicationStatus", session?.id],
-    queryFn: () =>
-      api.status.applicationStatus({ id: session?.id || "" }).catch(() => null),
-    enabled: !!session?.id && !isAdmin, // Jangan jalankan query kalau admin
-  });
-
   if (isAdmin) {
     return <Navigate to="/profile" />;
   }
 
-  if (isLoading) {
-    return <div>Loading...</div>;
+  const applicationStatus = session?.applicationStatus;
+
+  if (applicationStatus === "accepted") {
+    return <Navigate to="/profile" />;
   }
 
-  const applicationStatus = applicationStatusData?.body?.status;
+  // TODO: Kayanya better ngeceknya jangan pake session, soalnya kalo belom logout sessionnya ga berubah
 
-  // LOG APPLICATION STATUS
-  console.log("Application Status:", applicationStatus);
-
+  // TODO: Sesuaiin datanya sesuai apa yang diinginkan IOM nanti
   if (applicationStatus === "pending") {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-center text-2xl font-bold text-primary">
+        <h1 className="text-primary text-center text-2xl font-bold">
           Anda sudah mendaftar
         </h1>
         <p className="mt-4 text-center text-lg">
@@ -65,7 +53,7 @@ function RouteComponent() {
   if (applicationStatus === "rejected") {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-center text-2xl font-bold text-primary">
+        <h1 className="text-primary text-center text-2xl font-bold">
           Maaf, pendaftaran anda ditolak
         </h1>
         <p className="mt-4 text-center text-lg">
