@@ -101,7 +101,7 @@ const getMenuItems = (role: string): MenuItem[] => {
           id: "ota-saya",
           label: "Orang Tua Asuh Saya",
           icon: "/icon/Type=student-list.svg",
-          path: "/daftar/orangtua",
+          path: "/orang-tua-asuh-saya",
         },
         {
           id: "termination",
@@ -140,7 +140,7 @@ const getMenuItems = (role: string): MenuItem[] => {
           id: "student-list",
           label: "Cari Mahasiswa",
           icon: "/icon/Type=search.svg",
-          path: "/daftar/mahasiswa",
+          path: "/cari-mahasiswa",
         },
         {
           id: "my-students",

@@ -30,19 +30,19 @@ export default function Footer() {
           <p className="text-primary">+62 856-2465-4990</p>
           <div className="mt-2 flex space-x-3">
             <a href="#" className="text-primary">
-              <img src="/ig.svg" alt="Facebook" className="w-8" />
+              <img src="/ig.svg" alt="Instagram" className="w-8" />
             </a>
             <a href="#" className="text-primary">
-              <img src="/fb.svg" alt="Instagram" className="w-8" />
+              <img src="/fb.svg" alt="Facebook" className="w-8" />
             </a>
             <a href="#" className="text-primary">
               <img src="/twitter.svg" alt="Twitter" className="w-8" />
             </a>
             <a href="#" className="text-primary">
-              <img src="/line.svg" alt="Twitter" className="w-8" />
+              <img src="/line.svg" alt="LINE" className="w-8" />
             </a>
             <a href="#" className="text-primary">
-              <img src="/yt.svg" alt="Twitter" className="w-8" />
+              <img src="/yt.svg" alt="YouTube" className="w-8" />
             </a>
 
           </div>

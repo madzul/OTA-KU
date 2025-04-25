@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import ProfileCard from "./-components/profile-card"
 import ProfileFormMA from "./-components/profile-form-ma";
-import ProfileFormOTA from "./-components/profile-form-ota";
+// import ProfileFormOTA from "./-components/profile-form-ota";
 
 export const Route = createFileRoute("/_app/profile/")({
   component: RouteComponent,

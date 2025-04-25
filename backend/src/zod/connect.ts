@@ -55,6 +55,6 @@ export const OrangTuaFailedResponse = z.object({
 
 export const OrangTuaUnverifiedResponse = z.object({
   success: z.boolean().openapi({ example: false }),
-  message: z.string().openapi({ example: "Akun belum terverifikasi" }),
+  message: z.string().openapi({ example: "Akun OTA belum terverifikasi" }),
   error: z.object({}),
 });
