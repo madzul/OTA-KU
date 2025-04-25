@@ -13,7 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as AppImport } from './routes/_app'
 import { Route as IndexImport } from './routes/index'
-import { Route as AuthVerificationIndexImport } from './routes/auth/verification/index'
+import { Route as AuthVerificationIndexImport } from './routes/auth/otp-verification/index'
 import { Route as AuthRegisterIndexImport } from './routes/auth/register/index'
 import { Route as AuthLoginIndexImport } from './routes/auth/login/index'
 import { Route as AppVerifikasiAkunIndexImport } from './routes/_app/verifikasi-akun/index'
