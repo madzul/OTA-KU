@@ -2,27 +2,43 @@ import { api } from "@/api/client";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
-import React, { JSX, useState } from "react";
-
-import MahasiswaCard from "./card";
+import React, { JSX, useState, useContext } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { SessionContext } from "@/context/session";
 
 // Response data dari API
 interface MahasiswaResponse {
   accountId: string;
+  email: string;
   name: string;
   nim: string;
   mahasiswaStatus: "active" | "inactive";
   description: string;
   file: string;
+  major: string;
+  faculty: string;
+  cityOfOrigin: string;
+  highschoolAlumni: string;
 }
 
 // Data mahasiswa yang akan ditampilkan di UI
 interface Mahasiswa {
   id: string;
   name: string;
-  angkatan: string;
+  major: string;
   faculty: string;
-  link: string;
+  cityOfOrigin: string;
+  highschoolAlumni: string;
 }
 
 // TODO: FIKSASI DATA BELUM AMA IOM
@@ -31,14 +47,49 @@ const mapApiDataToMahasiswa = (apiData: MahasiswaResponse[]): Mahasiswa[] => {
   return apiData.map((item) => ({
     id: item.accountId,
     name: item.name,
-    angkatan: "20" + item.nim.substring(3, 5),
-    faculty: "Jurusan " + item.nim.substring(0, 3) || "Fakultas tidak tersedia",
-    link: `/profil/${item.accountId}`,
+    major: item.major || "Jurusan tidak tersedia",
+    faculty: item.faculty || "Fakultas tidak tersedia",
+    cityOfOrigin: item.cityOfOrigin || "Asal kota tidak tersedia",
+    highschoolAlumni: item.highschoolAlumni || "Alumni SMA tidak tersedia",
   }));
 };
 
 function DaftarMahasiswa(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const session = useContext(SessionContext);
+  const [selectedMahasiswa, setSelectedMahasiswa] = useState<null | Mahasiswa>(null);
+
+  const bantuHandler = useMutation({
+    mutationFn: (id: { mahasiswa: string; ota: string }) => {
+      return api.connect.connectOtaMahasiswa({
+        formData: {
+          mahasiswaId: id.mahasiswa,
+          otaId: id.ota,
+        },
+      });
+    },
+    onSuccess: () => {
+      toast.success("Berhasil melakukan permintaan Bantuan Orang Tua Asuh", {
+        description: "Permintaan akan segera diproses oleh IOM ITB",
+      });
+      setSelectedMahasiswa(null);
+    },
+    onError: (error) => {
+      toast.warning("Gagal melakukan permintaan Bantuan Orang Tua Asuh", {
+        description: error.message,
+      });
+      setSelectedMahasiswa(null);
+    },
+  });
+
+  const handleBantuConfirm = () => {
+    if (selectedMahasiswa) {
+      bantuHandler.mutate({
+        mahasiswa: selectedMahasiswa.id,
+        ota: session?.id || "",
+      });
+    }
+  };
 
   // Gunakan useQuery untuk fetch data
   const { data, isLoading, isError, error } = useQuery({
@@ -112,16 +163,65 @@ function DaftarMahasiswa(): JSX.Element {
         style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}
       >
         {mahasiswaList.map((mahasiswa) => (
-          <MahasiswaCard
+          <div
             key={mahasiswa.id}
-            name={mahasiswa.name}
-            angkatan={mahasiswa.angkatan}
-            faculty={mahasiswa.faculty}
-            link={mahasiswa.link}
-            id={mahasiswa.id}
-          />
+            className="border p-4 rounded-lg shadow-md bg-white"
+          >
+            <h2 className="text-lg font-bold">{mahasiswa.name}</h2>
+            <p className="text-sm text-gray-600">Jurusan: {mahasiswa.major}</p>
+            <p className="text-sm text-gray-600">Fakultas: {mahasiswa.faculty}</p>
+            <p className="text-sm text-gray-600">
+              Asal Kota: {mahasiswa.cityOfOrigin}
+            </p>
+            <p className="text-sm text-gray-600">
+              Alumni SMA: {mahasiswa.highschoolAlumni}
+            </p>
+            <div className="flex gap-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => (window.location.href = `/detail/mahasiswa/${mahasiswa.id}`)}
+              >
+                Lihat Profil
+              </Button>
+              <Button onClick={() => setSelectedMahasiswa(mahasiswa)}>
+                Bantu
+              </Button>
+            </div>
+          </div>
         ))}
       </section>
+
+      {selectedMahasiswa && (
+        <Dialog open={!!selectedMahasiswa} onOpenChange={() => setSelectedMahasiswa(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Konfirmasi Bantuan</DialogTitle>
+              <DialogDescription>
+                Apakah Anda yakin ingin memberikan bantuan kepada{" "}
+                <span className="text-dark font-bold">{selectedMahasiswa.name}</span>?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="sm:flex-1"
+                onClick={() => setSelectedMahasiswa(null)}
+              >
+                Batal
+              </Button>
+              <Button
+                type="button"
+                onClick={handleBantuConfirm}
+                disabled={bantuHandler.isPending}
+                className="sm:flex-1"
+              >
+                {bantuHandler.isPending ? "Memproses..." : "Bantu"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
