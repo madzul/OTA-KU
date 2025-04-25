@@ -56,8 +56,38 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
       );
 
     const mahasiswaListQuery = db
-      .select()
+      .select({
+        accountId: accountMahasiswaDetailTable.accountId,
+        email: accountTable.email,
+        type: accountTable.type,
+        phoneNumber: accountTable.phoneNumber,
+        provider: accountTable.provider,
+        applicationStatus: accountTable.applicationStatus,
+        name: accountMahasiswaDetailTable.name,
+        nim: accountMahasiswaDetailTable.nim,
+        mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
+        description: accountMahasiswaDetailTable.description,
+        file: accountMahasiswaDetailTable.file,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        kk: accountMahasiswaDetailTable.kk,
+        ktm: accountMahasiswaDetailTable.ktm,
+        waliRecommendationLetter: accountMahasiswaDetailTable.waliRecommendationLetter,
+        transcript: accountMahasiswaDetailTable.transcript,
+        salaryReport: accountMahasiswaDetailTable.salaryReport,
+        pbb: accountMahasiswaDetailTable.pbb,
+        electricityBill: accountMahasiswaDetailTable.electricityBill,
+        ditmawaRecommendationLetter: accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        notes: accountMahasiswaDetailTable.notes,
+        adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
+      })
       .from(accountMahasiswaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+      )
       .where(
         and(
           eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
@@ -84,11 +114,30 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         body: {
           data: mahasiswaList.map((mahasiswa) => ({
             accountId: mahasiswa.accountId,
+            email: mahasiswa.email,
+            type: mahasiswa.type,
+            phoneNumber: mahasiswa.phoneNumber || "",
+            provider: mahasiswa.provider,
+            applicationStatus: mahasiswa.applicationStatus,
             name: mahasiswa.name!,
             nim: mahasiswa.nim,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
             description: mahasiswa.description || "",
             file: mahasiswa.file || "",
+            major: mahasiswa.major || "",
+            faculty: mahasiswa.faculty || "",
+            cityOfOrigin: mahasiswa.cityOfOrigin || "",
+            highschoolAlumni: mahasiswa.highschoolAlumni || "",
+            kk: mahasiswa.kk || "",
+            ktm: mahasiswa.ktm || "",
+            waliRecommendationLetter: mahasiswa.waliRecommendationLetter || "",
+            transcript: mahasiswa.transcript || "",
+            salaryReport: mahasiswa.salaryReport || "",
+            pbb: mahasiswa.pbb || "",
+            electricityBill: mahasiswa.electricityBill || "",
+            ditmawaRecommendationLetter: mahasiswa.ditmawaRecommendationLetter || "",
+            notes: mahasiswa.notes || "",
+            adminOnlyNotes: mahasiswa.adminOnlyNotes || "",
           })),
           totalData: counts[0].count,
         },
@@ -139,8 +188,6 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             status as "pending" | "accepted" | "rejected" | "unregistered",
           )
         : undefined,
-      // TODO: Jurusan masih hard coded
-      // jurusan ? eq(accountMahasiswaDetailTable.jurusan, jurusan) : undefined,
     ];
 
     const countsQuery = db
@@ -172,11 +219,26 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         provider: accountTable.provider,
         status: accountTable.status,
         applicationStatus: accountTable.applicationStatus,
+        type: accountTable.type, // Add the missing 'type' field
         name: accountMahasiswaDetailTable.name,
         nim: accountMahasiswaDetailTable.nim,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
         description: accountMahasiswaDetailTable.description,
         file: accountMahasiswaDetailTable.file,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        kk: accountMahasiswaDetailTable.kk,
+        ktm: accountMahasiswaDetailTable.ktm,
+        waliRecommendationLetter: accountMahasiswaDetailTable.waliRecommendationLetter,
+        transcript: accountMahasiswaDetailTable.transcript,
+        salaryReport: accountMahasiswaDetailTable.salaryReport,
+        pbb: accountMahasiswaDetailTable.pbb,
+        electricityBill: accountMahasiswaDetailTable.electricityBill,
+        ditmawaRecommendationLetter: accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        notes: accountMahasiswaDetailTable.notes,
+        adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
       })
       .from(accountTable)
       .leftJoin(
@@ -212,13 +274,26 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             provider: mahasiswa.provider,
             status: mahasiswa.status,
             applicationStatus: mahasiswa.applicationStatus,
+            type: mahasiswa.type, // Include the 'type' field in the response
             name: mahasiswa.name!,
             nim: mahasiswa.nim!,
             mahasiswaStatus: mahasiswa.mahasiswaStatus!,
             description: mahasiswa.description!,
             file: mahasiswa.file!,
-            // TODO: Jurusan masih hard coded
-            jurusan: "Teknik Informatika",
+            major: mahasiswa.major || "",
+            faculty: mahasiswa.faculty || "",
+            cityOfOrigin: mahasiswa.cityOfOrigin || "",
+            highschoolAlumni: mahasiswa.highschoolAlumni || "",
+            kk: mahasiswa.kk || "",
+            ktm: mahasiswa.ktm || "",
+            waliRecommendationLetter: mahasiswa.waliRecommendationLetter || "",
+            transcript: mahasiswa.transcript || "",
+            salaryReport: mahasiswa.salaryReport || "",
+            pbb: mahasiswa.pbb || "",
+            electricityBill: mahasiswa.electricityBill || "",
+            ditmawaRecommendationLetter: mahasiswa.ditmawaRecommendationLetter || "",
+            notes: mahasiswa.notes || "",
+            adminOnlyNotes: mahasiswa.adminOnlyNotes || "",
           })),
           totalPagination: countsPagination[0].count,
           totalData: Number(counts[0].total),

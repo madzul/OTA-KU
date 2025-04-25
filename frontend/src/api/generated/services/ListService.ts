@@ -23,11 +23,30 @@ export class ListService {
     body: {
       data: Array<{
         accountId: string;
+        email: string;
+        type: 'mahasiswa' | 'admin' | 'ota';
+        phoneNumber: string;
+        provider: 'credentials' | 'azure';
+        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered';
         name: string;
         nim: string;
         mahasiswaStatus: 'active' | 'inactive';
         description: string;
         file: string;
+        major: string;
+        faculty: string;
+        cityOfOrigin: string;
+        highschoolAlumni: string;
+        kk: string;
+        ktm: string;
+        waliRecommendationLetter: string;
+        transcript: string;
+        salaryReport: string;
+        pbb: string;
+        electricityBill: string;
+        ditmawaRecommendationLetter: string;
+        notes: string;
+        adminOnlyNotes: string;
       }>;
       totalData: number;
     };
@@ -66,17 +85,30 @@ export class ListService {
     body: {
       data: Array<{
         id: string;
-        name: string;
         email: string;
+        type: 'mahasiswa' | 'admin' | 'ota';
         phoneNumber: string;
-        jurusan: string;
         provider: 'credentials' | 'azure';
-        status: 'verified' | 'unverified';
-        applicationStatus: 'accepted' | 'rejected' | 'pending' | 'unregistered';
+        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered';
+        name: string;
         nim: string;
         mahasiswaStatus: 'active' | 'inactive';
         description: string;
         file: string;
+        major: string;
+        faculty: string;
+        cityOfOrigin: string;
+        highschoolAlumni: string;
+        kk: string;
+        ktm: string;
+        waliRecommendationLetter: string;
+        transcript: string;
+        salaryReport: string;
+        pbb: string;
+        electricityBill: string;
+        ditmawaRecommendationLetter: string;
+        notes: string;
+        adminOnlyNotes: string;
       }>;
       totalPagination: number;
       totalData: number;
