@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-export const Route = createFileRoute("/auth/verification/")({
+export const Route = createFileRoute("/auth/otp-verification/")({
   component: RouteComponent,
   beforeLoad: async () => {
     const user = await api.auth.verif().catch(() => null);
