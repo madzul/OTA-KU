@@ -9,5 +9,10 @@ export type UserSchema = {
   type: 'mahasiswa' | 'ota' | 'admin';
   provider: 'credentials' | 'azure';
   status: 'verified' | 'unverified';
+  applicationStatus: 'accepted' | 'rejected' | 'pending' | 'unregistered';
+  oid: string | null;
+  createdAt: string;
+  iat: number;
+  exp: number;
 };
 

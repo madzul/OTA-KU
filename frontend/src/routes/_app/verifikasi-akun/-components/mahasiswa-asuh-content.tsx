@@ -37,7 +37,7 @@ function MahasiswaAsuhContent() {
     id: item.id,
     name: item.name,
     email: item.email,
-    jurusan: item.jurusan,
+    jurusan: item.major,
     status: item.applicationStatus,
   }));
 

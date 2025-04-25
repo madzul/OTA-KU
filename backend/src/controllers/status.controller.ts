@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
-import { accountTable } from "../db/schema.js";
+import { accountMahasiswaDetailTable, accountTable } from "../db/schema.js";
 import { applicationStatusRoute } from "../routes/status.route.js";
 import { ApplicationStatusSchema } from "../zod/status.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
@@ -15,15 +15,34 @@ statusProtectedRouter.openapi(applicationStatusRoute, async (c) => {
   const data = Object.fromEntries(body.entries());
 
   const zodParseResult = ApplicationStatusSchema.parse(data);
-  const { status } = zodParseResult;
+  const { status, adminOnlyNotes, notes } = zodParseResult;
 
   try {
-    await db
-      .update(accountTable)
-      .set({
-        applicationStatus: status,
-      })
-      .where(eq(accountTable.id, id));
+    await db.transaction(async (tx) => {
+      await tx
+        .update(accountTable)
+        .set({
+          applicationStatus: status,
+        })
+        .where(eq(accountTable.id, id));
+
+      const user = await tx
+        .select()
+        .from(accountTable)
+        .where(eq(accountTable.id, id));
+
+      const type = user[0]?.type;
+
+      if (type === "mahasiswa") {
+        await tx
+          .update(accountMahasiswaDetailTable)
+          .set({
+            notes: notes ?? null,
+            adminOnlyNotes: adminOnlyNotes ?? null,
+          })
+          .where(eq(accountMahasiswaDetailTable.accountId, id));
+      }
+    });
 
     return c.json(
       {

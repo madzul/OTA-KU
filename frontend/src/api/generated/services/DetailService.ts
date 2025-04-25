@@ -19,12 +19,31 @@ export class DetailService {
     success: boolean;
     message: string;
     body: {
-      accountId: string;
+      id: string;
+      email: string;
+      type: 'mahasiswa' | 'admin' | 'ota';
+      phoneNumber: string;
+      provider: 'credentials' | 'azure';
+      applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered';
       name: string;
       nim: string;
       mahasiswaStatus: 'active' | 'inactive';
-      description: string | null;
-      file: string | null;
+      description: string;
+      file: string;
+      major: string;
+      faculty: string;
+      cityOfOrigin: string;
+      highschoolAlumni: string;
+      kk: string;
+      ktm: string;
+      waliRecommendationLetter: string;
+      transcript: string;
+      salaryReport: string;
+      pbb: string;
+      electricityBill: string;
+      ditmawaRecommendationLetter: string;
+      notes: string;
+      adminOnlyNotes: string;
     };
   }> {
     return this.httpRequest.request({
@@ -53,11 +72,16 @@ export class DetailService {
     success: boolean;
     message: string;
     body: {
-      accountId: string;
+      id: string;
+      email: string;
+      type: 'mahasiswa' | 'admin' | 'ota';
+      phoneNumber: string;
+      provider: 'credentials' | 'azure';
+      applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered';
       name: string;
       job: string;
       address: string;
-      linkage: 'otm' | 'alumni';
+      linkage: 'otm' | 'dosen' | 'alumni' | 'lainnya' | 'none';
       funds: number;
       maxCapacity: number;
       startDate: string;

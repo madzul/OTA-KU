@@ -5,6 +5,7 @@ import { detailProtectedRouter, detailRouter } from "./detail.controller.js";
 import { listProtectedRouter, listRouter } from "./list.controller.js";
 import { profileProtectedRouter, profileRouter } from "./profile.controller.js";
 import { statusProtectedRouter, statusRouter } from "./status.controller.js";
+import { otpProtectedRouter, otpRouter } from "./otp.controller.js";
 import { terminateProtectedRouter } from "./terminate.controller.js";
 
 const unprotectedApiRouter = new OpenAPIHono();
@@ -14,6 +15,7 @@ unprotectedApiRouter.route("/list", listRouter);
 unprotectedApiRouter.route("/connect", connectRouter);
 unprotectedApiRouter.route("/status", statusRouter);
 unprotectedApiRouter.route("/detail", detailRouter);
+unprotectedApiRouter.route("/otp", otpRouter);
 
 const protectedApiRouter = new OpenAPIHono();
 protectedApiRouter.route("/auth", authProtectedRouter);
@@ -22,6 +24,7 @@ protectedApiRouter.route("/list", listProtectedRouter);
 protectedApiRouter.route("/connect", connectProtectedRouter);
 protectedApiRouter.route("/status", statusProtectedRouter);
 protectedApiRouter.route("/detail", detailProtectedRouter);
+protectedApiRouter.route("/otp", otpProtectedRouter);
 protectedApiRouter.route("/terminate", terminateProtectedRouter);
 
 export const apiRouter = new OpenAPIHono();
