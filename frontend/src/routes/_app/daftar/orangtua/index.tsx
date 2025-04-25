@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-
 import DaftarOrangTua from "./-components.tsx/DaftarOrangTua";
 
 export const Route = createFileRoute("/_app/daftar/orangtua/")({
@@ -8,7 +7,7 @@ export const Route = createFileRoute("/_app/daftar/orangtua/")({
 
 function RouteComponent() {
   return (
-    <div>
+    <div className="container py-8">
       <DaftarOrangTua />
     </div>
   );

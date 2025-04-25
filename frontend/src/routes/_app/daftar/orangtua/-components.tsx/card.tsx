@@ -3,12 +3,10 @@ import { Button } from "@/components/ui/button";
 function OTACard({
   name = "Name not found",
   phoneNumber = "000000000",
-  //   nominal = 0,
   link = "/profile/not-found",
 }: {
   name: string;
   phoneNumber: string;
-  nominal: number;
   link: string;
 }) {
   return (
@@ -36,9 +34,8 @@ function OTACard({
           </span>
         </div>
       </div>
-
       {/* Button */}
-      <div className="grid w-full grid-cols-2 gap-4">
+      <div className="w-full">
         <Button
           variant={"outline"}
           onClick={() => (window.location.href = link)}
