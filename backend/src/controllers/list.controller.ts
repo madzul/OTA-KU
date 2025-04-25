@@ -84,7 +84,7 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         body: {
           data: mahasiswaList.map((mahasiswa) => ({
             accountId: mahasiswa.accountId,
-            name: mahasiswa.name,
+            name: mahasiswa.name!,
             nim: mahasiswa.nim,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
             description: mahasiswa.description || "",
@@ -527,7 +527,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
         body: {
           data: mahasiswaList.map((mahasiswa) => ({
             accountId: mahasiswa.accountId,
-            name: mahasiswa.name,
+            name: mahasiswa.name!,
             nim: mahasiswa.nim,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
           })),
@@ -625,7 +625,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         body: {
           data: mahasiswaList.map((mahasiswa) => ({
             accountId: mahasiswa.accountId,
-            name: mahasiswa.name,
+            name: mahasiswa.name!,
             nim: mahasiswa.nim,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
           })),
