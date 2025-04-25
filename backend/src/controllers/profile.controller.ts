@@ -1,5 +1,8 @@
 import { eq } from "drizzle-orm";
+import { setCookie } from "hono/cookie";
+import { sign } from "hono/jwt";
 
+import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
@@ -134,6 +137,36 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
               ditmawaRecommendationLetterResult.secure_url,
           },
         });
+
+      await tx
+        .update(accountTable)
+        .set({ applicationStatus: "pending" })
+        .where(eq(accountTable.id, user.id));
+    });
+
+    const accessToken = await sign(
+      {
+        id: user.id,
+        email: user.email,
+        phoneNumber: phoneNumber,
+        type: user.type,
+        provider: user.provider,
+        status: user.status,
+        applicationStatus: "pending",
+        oid: user.oid,
+        createdAt: user.createdAt,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+      },
+      env.JWT_SECRET,
+    );
+
+    setCookie(c, "ota-ku.access-cookie", accessToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24,
+      path: "/",
     });
 
     return c.json(
@@ -207,18 +240,50 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
   }
 
   try {
-    await db.insert(accountOtaDetailTable).values({
-      accountId: user.id,
-      address,
-      criteria,
-      funds,
-      job,
-      linkage,
-      maxCapacity,
-      maxSemester,
-      startDate: new Date(startDate),
-      name,
-      transferDate,
+    await db.transaction(async (tx) => {
+      await tx.insert(accountOtaDetailTable).values({
+        accountId: user.id,
+        address,
+        criteria,
+        funds,
+        job,
+        linkage,
+        maxCapacity,
+        maxSemester,
+        startDate: new Date(startDate),
+        name,
+        transferDate,
+      });
+
+      await tx
+        .update(accountTable)
+        .set({ applicationStatus: "pending" })
+        .where(eq(accountTable.id, user.id));
+    });
+
+    const accessToken = await sign(
+      {
+        id: user.id,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        type: user.type,
+        provider: user.provider,
+        status: user.status,
+        applicationStatus: "pending",
+        oid: user.oid,
+        createdAt: user.createdAt,
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+      },
+      env.JWT_SECRET,
+    );
+
+    setCookie(c, "ota-ku.access-cookie", accessToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24,
+      path: "/",
     });
 
     return c.json(
@@ -546,7 +611,7 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
     );
   }
 
-  //TO-DO: add join_date to db
+  //TODO: add join_date to db
   try {
     const profileDataMahasiswa = await db
       .select({

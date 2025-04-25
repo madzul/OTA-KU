@@ -84,12 +84,21 @@ export default function NavBar() {
               />
             </button>
             <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
-            <Link to="/">
+            <Link to="/" className="flex items-center space-x-2">
               <img
                 className="h-9 w-auto object-contain xl:h-10"
-                src="/logo-iom.svg"
+                src="/logo-iom-icon.svg"
                 alt="Logo"
               />
+              {/* Title visible from md (desktop) and up */}
+              <div className="hidden md:flex flex-col leading-tight">
+                <span className="text-primary text-lg font-bold">
+                  Ikatan Orang Tua Mahasiswa
+                </span>
+                <span className="text-primary text-base font-medium">
+                  Institut Teknologi Bandung
+                </span>
+              </div>
             </Link>
           </div>
 

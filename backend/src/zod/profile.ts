@@ -135,7 +135,7 @@ export const MahasiswaRegistrationFailedResponse = z.object({
 
 export const MahasiswaUnverifiedResponse = z.object({
   success: z.boolean().openapi({ example: false }),
-  message: z.string().openapi({ example: "Akun belum terverifikasi" }),
+  message: z.string().openapi({ example: "Akun MA belum terverifikasi" }),
   error: z.object({}),
 });
 
@@ -284,7 +284,7 @@ export const ProfileOrangTuaResponse = z.object({
   }),
 });
 
-//TO-DO: add join_date to db
+//TODO: add join_date to db
 export const ProfileMahasiswaResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mengakses profil MA" }),
