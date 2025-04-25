@@ -29,6 +29,7 @@ interface MahasiswaResponse {
   faculty: string;
   cityOfOrigin: string;
   highschoolAlumni: string;
+  notes: string;
 }
 
 // Data mahasiswa yang akan ditampilkan di UI
@@ -39,6 +40,7 @@ interface Mahasiswa {
   faculty: string;
   cityOfOrigin: string;
   highschoolAlumni: string;
+  notes: string;
 }
 
 // TODO: FIKSASI DATA BELUM AMA IOM
@@ -51,6 +53,7 @@ const mapApiDataToMahasiswa = (apiData: MahasiswaResponse[]): Mahasiswa[] => {
     faculty: item.faculty || "Fakultas tidak tersedia",
     cityOfOrigin: item.cityOfOrigin || "Asal kota tidak tersedia",
     highschoolAlumni: item.highschoolAlumni || "Alumni SMA tidak tersedia",
+    notes: item.notes || "Catatan tidak tersedia",
   }));
 };
 
@@ -177,6 +180,10 @@ function DaftarMahasiswa(): JSX.Element {
             <p className="text-sm text-gray-600">
               Alumni SMA: {mahasiswa.highschoolAlumni}
             </p>
+            <div className="text-sm text-gray-600">
+              <p>Catatan:</p>
+              <p>{mahasiswa.notes}</p>
+            </div>
             <div className="flex gap-2 mt-4">
               {/* TODO: page detail belom nampilin schema db detail mahasiswa yang terbaru */}
               <Button
