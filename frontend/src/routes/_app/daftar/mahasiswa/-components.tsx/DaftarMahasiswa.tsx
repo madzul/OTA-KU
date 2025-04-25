@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { Filter, X } from "lucide-react";
 import React, { JSX, useState, useEffect } from "react";
-import MahasiswaCard from "./card";
+// import MahasiswaCard from "./card";
 import { getNimJurusanCodeMap, getNimFakultasFromNimJurusanMap, getNimFakultasCodeMap } from "@/lib/nim";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -145,6 +145,7 @@ function DaftarMahasiswa(): JSX.Element {
       if (prev.fakultas.includes(fakultasCode)) {
         const nimFakultasFromJurusanMap = getNimFakultasFromNimJurusanMap();
         const jurusanToRemove = Object.entries(nimFakultasFromJurusanMap)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .filter(([_, fakCode]) => fakCode === fakultasCode)
           .map(([jurCode]) => jurCode);
         
@@ -466,7 +467,7 @@ function DaftarMahasiswa(): JSX.Element {
           </div>
           
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredMahasiswa.map((mahasiswa) => (
+            {/* {filteredMahasiswa.map((mahasiswa) => (
               <MahasiswaCard
                 key={mahasiswa.id}
                 name={mahasiswa.name}
@@ -475,7 +476,7 @@ function DaftarMahasiswa(): JSX.Element {
                 link={mahasiswa.link}
                 id={mahasiswa.id}
               />
-            ))}
+            ))} */}
           </div>
         </>
       )}
