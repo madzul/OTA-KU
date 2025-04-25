@@ -72,7 +72,7 @@ export class ListService {
         jurusan: string;
         provider: 'credentials' | 'azure';
         status: 'verified' | 'unverified';
-        applicationStatus: 'accepted' | 'rejected' | 'pending';
+        applicationStatus: 'accepted' | 'rejected' | 'pending' | 'unregistered';
         nim: string;
         mahasiswaStatus: 'active' | 'inactive';
         description: string;
@@ -124,7 +124,7 @@ export class ListService {
         phoneNumber: string;
         provider: 'credentials' | 'azure';
         status: 'verified' | 'unverified';
-        applicationStatus: 'accepted' | 'rejected' | 'pending';
+        applicationStatus: 'accepted' | 'rejected' | 'pending' | 'unregistered';
         job: string;
         address: string;
         linkage: 'otm' | 'dosen' | 'alumni' | 'lainnya' | 'none';
@@ -175,7 +175,7 @@ export class ListService {
         accountId: string;
         name: string;
         /**
-         * The user phone number.
+         * Nomor telepon pengguna yang dimulai dengan 62.
          */
         phoneNumber: string;
         nominal: number;
