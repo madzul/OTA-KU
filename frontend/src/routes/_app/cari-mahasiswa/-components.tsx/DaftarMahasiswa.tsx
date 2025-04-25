@@ -129,6 +129,7 @@ function DaftarMahasiswa(): JSX.Element {
       <h1 className="text-dark font-bold">Cari Mahasiswa</h1>
 
       <div className="w-full">
+        {/* TODO: Pakein debounce search */}
         <Input
           placeholder="Cari mahasiswa"
           value={searchQuery}
@@ -177,12 +178,14 @@ function DaftarMahasiswa(): JSX.Element {
               Alumni SMA: {mahasiswa.highschoolAlumni}
             </p>
             <div className="flex gap-2 mt-4">
+              {/* TODO: page detail belom nampilin schema db detail mahasiswa yang terbaru */}
               <Button
                 variant="outline"
                 onClick={() => (window.location.href = `/detail/mahasiswa/${mahasiswa.id}`)}
               >
                 Lihat Profil
               </Button>
+              {/* TODO: Pas di klik masih internal server error */}
               <Button onClick={() => setSelectedMahasiswa(mahasiswa)}>
                 Bantu
               </Button>
