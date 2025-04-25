@@ -160,6 +160,7 @@ export async function resetDatabase() {
           password: hashedPassword,
           type: "ota",
           status: "verified",
+          applicationStatus: "accepted",
         },
         {
           id: ota2Id,
@@ -167,6 +168,7 @@ export async function resetDatabase() {
           phoneNumber: "628444555666",
           password: hashedPassword,
           type: "ota",
+          applicationStatus: "accepted",
         },
       ]);
 

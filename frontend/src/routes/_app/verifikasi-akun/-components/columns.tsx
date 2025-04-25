@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
+import { formatPhoneNumber } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDownAZ, ArrowUpAZ } from "lucide-react";
 
 import Combobox from "./combobox";
+import DetailDialogMahasiswa from "./detail-dialog-mahasiswa";
+import DetailDialogOta from "./detail-dialog-ota";
 
 export type MahasiswaColumn = {
   id: string;
@@ -134,6 +137,19 @@ export const mahasiswaColumns: ColumnDef<MahasiswaColumn>[] = [
       );
     },
   },
+  {
+    accessorKey: "detail",
+    header: "Detail",
+    cell: ({ row }) => {
+      const id = row.getValue("id") as string;
+      const status = row.getValue("status") as
+        | "pending"
+        | "accepted"
+        | "rejected";
+
+      return <DetailDialogMahasiswa id={id} status={status} />;
+    },
+  },
 ];
 
 export type OrangTuaColumn = {
@@ -183,6 +199,10 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
           )}
         </Button>
       );
+    },
+    cell: ({ row }) => {
+      const phoneNumber = row.getValue("phoneNumber") as string;
+      return <>{formatPhoneNumber(phoneNumber)}</>;
     },
   },
   {
@@ -263,6 +283,19 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
           type="ota"
         />
       );
+    },
+  },
+  {
+    accessorKey: "detail",
+    header: "Detail",
+    cell: ({ row }) => {
+      const id = row.getValue("id") as string;
+      const status = row.getValue("status") as
+        | "pending"
+        | "accepted"
+        | "rejected";
+
+      return <DetailDialogOta id={id} status={status} />;
     },
   },
 ];

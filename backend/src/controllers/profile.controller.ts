@@ -134,6 +134,11 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
               ditmawaRecommendationLetterResult.secure_url,
           },
         });
+
+      await tx
+        .update(accountTable)
+        .set({ applicationStatus: "pending" })
+        .where(eq(accountTable.id, user.id));
     });
 
     return c.json(
@@ -207,18 +212,25 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
   }
 
   try {
-    await db.insert(accountOtaDetailTable).values({
-      accountId: user.id,
-      address,
-      criteria,
-      funds,
-      job,
-      linkage,
-      maxCapacity,
-      maxSemester,
-      startDate: new Date(startDate),
-      name,
-      transferDate,
+    await db.transaction(async (tx) => {
+      await tx.insert(accountOtaDetailTable).values({
+        accountId: user.id,
+        address,
+        criteria,
+        funds,
+        job,
+        linkage,
+        maxCapacity,
+        maxSemester,
+        startDate: new Date(startDate),
+        name,
+        transferDate,
+      });
+
+      await tx
+        .update(accountTable)
+        .set({ applicationStatus: "pending" })
+        .where(eq(accountTable.id, user.id));
     });
 
     return c.json(

@@ -8,10 +8,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { NotesVerificationRequestSchema } from "@/lib/zod/admin-verification";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { CircleCheck, CircleX } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
+
+type NotesVerificationFormValues = z.infer<
+  typeof NotesVerificationRequestSchema
+>;
 
 function Combobox({
   id,
@@ -29,10 +47,14 @@ function Combobox({
   const [openAccept, setOpenAccept] = useState(false);
   const [openReject, setOpenReject] = useState(false);
 
+  const form = useForm<NotesVerificationFormValues>({
+    resolver: zodResolver(NotesVerificationRequestSchema),
+  });
+
   const applicationStatusCallbackMutation = useMutation({
-    mutationFn: (status: "accepted" | "rejected") => {
+    mutationFn: (data: NotesVerificationFormValues) => {
       return api.status.applicationStatus({
-        formData: { status },
+        formData: data,
         id: id,
       });
     },
@@ -41,6 +63,17 @@ function Combobox({
       toast.success("Berhasil mengubah status", {
         description: "Status berhasil diubah",
       });
+      if (type === "ota") {
+        queryClient.invalidateQueries({
+          queryKey: ["listOrangTuaAdmin"],
+          refetchType: "active",
+        });
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: ["listMahasiswaAdmin"],
+          refetchType: "active",
+        });
+      }
     },
     onError: (_error, _variables, context) => {
       toast.dismiss(context);
@@ -56,6 +89,10 @@ function Combobox({
       return loading;
     },
   });
+
+  async function onSubmit(data: NotesVerificationFormValues) {
+    applicationStatusCallbackMutation.mutate(data);
+  }
 
   return (
     <div className="flex gap-6">
@@ -76,35 +113,75 @@ function Combobox({
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Button
-                  className="bg-succeed hover:bg-succeed"
-                  onClick={async () => {
-                    await applicationStatusCallbackMutation.mutateAsync(
-                      "accepted",
-                    );
-                    if (type === "ota") {
-                      await queryClient.invalidateQueries({
-                        queryKey: ["listOrangTuaAdmin"],
-                        refetchType: "active",
-                      });
-                    } else {
-                      await queryClient.invalidateQueries({
-                        queryKey: ["listMahasiswaAdmin"],
-                        refetchType: "active",
-                      });
-                    }
-                  }}
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="flex flex-col gap-4"
                 >
-                  Ya
-                </Button>
-                <Button
-                  className="bg-destructive hover:bg-destructive"
-                  onClick={() => setOpenAccept(false)}
-                >
-                  Tidak
-                </Button>
-              </div>
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem className={cn(type === "ota" && "hidden")}>
+                        <FormLabel>Catatan Mahasiswa</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            disabled={status !== "pending"}
+                            placeholder="Masukkan catatan"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="adminOnlyNotes"
+                    render={({ field }) => (
+                      <FormItem className={cn(type === "ota" && "hidden")}>
+                        <FormLabel>Catatan Admin</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            disabled={status !== "pending"}
+                            placeholder="Masukkan catatan"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <Button
+                      className="bg-succeed hover:bg-succeed"
+                      onClick={() => {
+                        form.setValue("status", "accepted");
+                        if (type === "ota") {
+                          form.setValue("notes", "-");
+                          form.setValue("adminOnlyNotes", "-");
+                        }
+                        form.handleSubmit(onSubmit)();
+                        setOpenAccept(false);
+                        form.reset();
+                      }}
+                    >
+                      Ya
+                    </Button>
+                    <Button
+                      className="bg-destructive hover:bg-destructive"
+                      onClick={() => {
+                        setOpenAccept(false);
+                        form.reset();
+                      }}
+                    >
+                      Tidak
+                    </Button>
+                  </div>
+                </form>
+              </Form>
             </DialogContent>
           </Dialog>
 
@@ -122,35 +199,77 @@ function Combobox({
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Button
-                  className="bg-succeed hover:bg-succeed"
-                  onClick={async () => {
-                    await applicationStatusCallbackMutation.mutateAsync(
-                      "rejected",
-                    );
-                    if (type === "ota") {
-                      await queryClient.invalidateQueries({
-                        queryKey: ["listOrangTuaAdmin"],
-                        refetchType: "active",
-                      });
-                    } else {
-                      await queryClient.invalidateQueries({
-                        queryKey: ["listMahasiswaAdmin"],
-                        refetchType: "active",
-                      });
-                    }
-                  }}
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="flex flex-col gap-4"
                 >
-                  Ya
-                </Button>
-                <Button
-                  className="bg-destructive hover:bg-destructive"
-                  onClick={() => setOpenReject(false)}
-                >
-                  Tidak
-                </Button>
-              </div>
+                  <FormField
+                    control={form.control}
+                    name="notes"
+                    render={({ field }) => (
+                      <FormItem className={cn(type === "ota" && "hidden")}>
+                        <FormLabel>Catatan Mahasiswa</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            disabled={status !== "pending"}
+                            placeholder="Masukkan catatan"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="adminOnlyNotes"
+                    render={({ field }) => (
+                      <FormItem className={cn(type === "ota" && "hidden")}>
+                        <FormLabel>Catatan Admin</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            disabled={status !== "pending"}
+                            placeholder="Masukkan catatan"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <Button
+                      className="bg-succeed hover:bg-succeed"
+                      type="submit"
+                      onClick={() => {
+                        form.setValue("status", "rejected");
+                        if (type === "ota") {
+                          form.setValue("notes", "-");
+                          form.setValue("adminOnlyNotes", "-");
+                        }
+                        form.handleSubmit(onSubmit)();
+                        setOpenReject(false);
+                        form.reset();
+                      }}
+                    >
+                      Ya
+                    </Button>
+                    <Button
+                      className="bg-destructive hover:bg-destructive"
+                      type="button"
+                      onClick={() => {
+                        setOpenReject(false);
+                        form.reset();
+                      }}
+                    >
+                      Tidak
+                    </Button>
+                  </div>
+                </form>
+              </Form>
             </DialogContent>
           </Dialog>
         </>

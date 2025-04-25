@@ -20,7 +20,9 @@ export class StatusService {
       /**
        * Status aplikasi
        */
-      status: 'accepted' | 'rejected' | 'pending';
+      status: 'accepted' | 'rejected' | 'pending' | 'unregistered';
+      notes?: string;
+      adminOnlyNotes?: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -29,7 +31,7 @@ export class StatusService {
       /**
        * Status aplikasi
        */
-      status: 'accepted' | 'rejected' | 'pending';
+      status: 'accepted' | 'rejected' | 'pending' | 'unregistered';
     };
   }> {
     return this.httpRequest.request({

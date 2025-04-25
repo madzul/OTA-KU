@@ -154,6 +154,7 @@ export async function seed() {
             password: hashedPassword,
             type: "ota",
             status: "verified",
+            applicationStatus: "accepted",
           },
           {
             id: ota2Id,
@@ -161,6 +162,7 @@ export async function seed() {
             phoneNumber: "628444555666",
             password: hashedPassword,
             type: "ota",
+            applicationStatus: "accepted",
           },
         ])
         .onConflictDoNothing();
@@ -209,17 +211,17 @@ export async function seed() {
           {
             mahasiswaId: mahasiswa1Id,
             otaId: ota1Id,
-            connectionStatus: "accepted"
+            connectionStatus: "accepted",
           },
           {
             mahasiswaId: mahasiswa2Id,
             otaId: ota1Id,
-            connectionStatus: "accepted"
+            connectionStatus: "accepted",
           },
           {
             mahasiswaId: mahasiswa3Id,
             otaId: ota1Id,
-            connectionStatus: "pending"
+            connectionStatus: "pending",
           },
         ])
         .onConflictDoNothing();
