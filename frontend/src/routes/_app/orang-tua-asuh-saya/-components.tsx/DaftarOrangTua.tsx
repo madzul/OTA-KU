@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
 import React, { JSX, useState } from "react";
-
 import OTACard from "./card";
 
 // Response data dari API
@@ -11,7 +10,6 @@ interface OTAResponse {
   accountId: string;
   name: string;
   phoneNumber: string;
-  nominal: number;
 }
 
 // Data OTA yang akan ditampilkan di UI
@@ -19,19 +17,15 @@ interface OTA {
   id: string;
   name: string;
   phoneNumber: string;
-  nominal: number;
   link: string;
 }
 
-// TODO: FIKSASI DATA BELUM AMA IOM
-
 const mapApiDataToOTA = (apiData: OTAResponse[]): OTA[] => {
   return apiData.map((item) => ({
-    id: item.accountId.substring(3, 5),
+    id: item.accountId,
     name: item.name,
     phoneNumber: item.phoneNumber,
-    nominal: item.nominal,
-    link: `/profil/${item.accountId}`,
+    link: `/detail/orang-tua-asuh/${item.accountId}`,
   }));
 };
 
@@ -47,7 +41,6 @@ function DaftarOTA(): JSX.Element {
         page: 1,
       }),
     staleTime: 5 * 60 * 1000, // 5 menit
-
     select: (response) => {
       // Transform data API ke format UI
       if (response.success && response.body && response.body.data) {
@@ -74,7 +67,7 @@ function DaftarOTA(): JSX.Element {
   return (
     <div className="flex flex-col gap-4 text-[32px] md:gap-8">
       <h1 className="text-dark font-bold">Orang Tua Asuh Saya</h1>
-
+      
       <div className="w-full">
         <Input
           placeholder="Cari Orang Tua"
@@ -114,7 +107,6 @@ function DaftarOTA(): JSX.Element {
             key={orangtua_asuh.id}
             name={orangtua_asuh.name}
             phoneNumber={orangtua_asuh.phoneNumber}
-            nominal={orangtua_asuh.nominal}
             link={orangtua_asuh.link}
           />
         ))}
