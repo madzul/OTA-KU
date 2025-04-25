@@ -10,6 +10,24 @@ export const ApplicationStatusSchema = z.object({
     description: "Status aplikasi",
     example: "accepted",
   }),
+  notes: z
+    .string({
+      invalid_type_error: "Catatan untuk Orang Tua Asuh harus berupa string",
+      required_error: "Catatan untuk Orang Tua Asuh harus diisi",
+    })
+    .min(1, {
+      message: "Catatan untuk Orang Tua Asuh tidak boleh kosong",
+    })
+    .optional(),
+  adminOnlyNotes: z
+    .string({
+      invalid_type_error: "Catatan khusus Admin harus berupa string",
+      required_error: "Catatan khusus Admin harus diisi",
+    })
+    .min(1, {
+      message: "Catatan khusus Admin tidak boleh kosong",
+    })
+    .optional(),
 });
 
 export const ApplicationStatusSuccessResponse = z.object({

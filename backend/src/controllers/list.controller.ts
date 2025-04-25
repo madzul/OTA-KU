@@ -136,7 +136,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
       status
         ? eq(
             accountTable.applicationStatus,
-            status as "pending" | "accepted" | "rejected",
+            status as "pending" | "accepted" | "rejected" | "unregistered",
           )
         : undefined,
       // TODO: Jurusan masih hard coded
@@ -145,7 +145,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
 
     const countsQuery = db
       .select({
-        total: sql<number>`count(*)`,
+        total: sql<number>`sum(case when ${accountTable.applicationStatus} != 'unregistered' then 1 else 0 end)`,
         accepted: sql<number>`sum(case when ${accountTable.applicationStatus} = 'accepted' then 1 else 0 end)`,
         pending: sql<number>`sum(case when ${accountTable.applicationStatus} = 'pending' then 1 else 0 end)`,
         rejected: sql<number>`sum(case when ${accountTable.applicationStatus} = 'rejected' then 1 else 0 end)`,
@@ -183,7 +183,14 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         accountMahasiswaDetailTable,
         eq(accountTable.id, accountMahasiswaDetailTable.accountId),
       )
-      .where(and(...baseConditions, searchCondition, ...filterConditions))
+      .where(
+        and(
+          ...baseConditions,
+          searchCondition,
+          ...filterConditions,
+          isNotNull(accountMahasiswaDetailTable.description),
+        ),
+      )
       .limit(LIST_PAGE_DETAIL_SIZE)
       .offset(offset);
 
@@ -264,7 +271,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
 
     const countsQuery = db
       .select({
-        total: sql<number>`count(*)`,
+        total: sql<number>`sum(case when ${accountTable.applicationStatus} != 'unregistered' then 1 else 0 end)`,
         accepted: sql<number>`sum(case when ${accountTable.applicationStatus} = 'accepted' then 1 else 0 end)`,
         pending: sql<number>`sum(case when ${accountTable.applicationStatus} = 'pending' then 1 else 0 end)`,
         rejected: sql<number>`sum(case when ${accountTable.applicationStatus} = 'rejected' then 1 else 0 end)`,

@@ -21,6 +21,8 @@ export class StatusService {
        * Status aplikasi
        */
       status: 'accepted' | 'rejected' | 'pending' | 'unregistered';
+      notes?: string;
+      adminOnlyNotes?: string;
     },
   }): CancelablePromise<{
     success: boolean;
