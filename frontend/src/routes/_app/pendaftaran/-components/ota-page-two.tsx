@@ -61,10 +61,10 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
         navigate({ to: "/profile" });
       }, 1000);
     },
-    onError: (_error, _variables, context) => {
+    onError: (error, _variables, context) => {
       toast.dismiss(context);
       toast.warning("Gagal melakukan pendaftaran", {
-        description: "Silakan coba lagi",
+        description: error.message,
       });
     },
     onMutate: () => {

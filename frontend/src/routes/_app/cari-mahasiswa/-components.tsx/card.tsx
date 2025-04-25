@@ -31,7 +31,6 @@ function MahasiswaCard({
 
   const bantuHandler = useMutation({
     mutationFn: (id: { mahasiswa: string; ota: string }) => {
-      console.log(id);
       return api.connect.connectOtaMahasiswa({
         formData: {
           mahasiswaId: id.mahasiswa,
@@ -46,11 +45,10 @@ function MahasiswaCard({
       });
       setIsDialogOpen(false);
     },
-    onError: (_error, _variables, context: string | number | undefined) => {
+    onError: (error, _variables, context: string | number | undefined) => {
       toast.dismiss(context);
       toast.warning("Gagal melakukan permintaan Bantuan Orang Tua Asuh", {
-        // description: "Silakan coba lagi",
-        description: _error.message,
+        description: error.message,
       });
       setIsDialogOpen(false);
     },
