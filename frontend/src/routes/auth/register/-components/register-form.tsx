@@ -37,7 +37,7 @@ export default function RegisterForm({ role }: { role: string }) {
       queryClient.invalidateQueries({ queryKey: ["verify"] });
 
       setTimeout(() => {
-        navigate({ to: "/auth/verification" });
+        navigate({ to: "/auth/otp-verification" });
       }, 1500); // 1.5 seconds delay
     },
     onError: (_error, _variables, context) => {
