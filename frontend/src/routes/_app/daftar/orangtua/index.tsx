@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import DaftarMahasiswa from "./-components.tsx/DaftarMahasiswa";
+import DaftarOrangTua from "./-components.tsx/DaftarOrangTua";
 
-export const Route = createFileRoute("/_app/cari-mahasiswa/")({
+export const Route = createFileRoute("/_app/daftar/orangtua/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
   return (
     <div>
-      <DaftarMahasiswa />
+      <DaftarOrangTua />
     </div>
   );
 }
