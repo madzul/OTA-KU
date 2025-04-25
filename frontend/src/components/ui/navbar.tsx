@@ -84,12 +84,21 @@ export default function NavBar() {
               />
             </button>
             <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
-            <Link to="/">
+            <Link to="/" className="flex items-center space-x-2">
               <img
                 className="h-9 w-auto object-contain xl:h-10"
-                src="/logo-iom.svg"
+                src="/logo-iom-icon.svg"
                 alt="Logo"
               />
+              {/* Title visible from md (desktop) and up */}
+              <div className="hidden md:flex flex-col leading-tight">
+                <span className="text-primary text-lg font-bold">
+                  Ikatan Orang Tua Mahasiswa
+                </span>
+                <span className="text-primary text-base font-medium">
+                  Institut Teknologi Bandung
+                </span>
+              </div>
             </Link>
           </div>
 
@@ -134,7 +143,30 @@ export default function NavBar() {
                     alignOffset={-10}
                     sideOffset={5}
                   >
-                    <MenubarItem className="text-dark">Akun Saya</MenubarItem>
+                    <MenubarItem
+                      className="text-dark"
+                      onClick={() => {
+                        // TODO: Ini detail sama profile page sama?
+                        const detailId = data?.body.id;
+                        const userType = data?.body.type;
+
+                        if (!detailId || !userType) return;
+
+                        const path =
+                          userType === "mahasiswa"
+                            ? `/detail/mahasiswa/${detailId}`
+                            : `/detail/orang-tua-asuh/${detailId}`;
+
+                        navigate({
+                          to: path,
+                          replace: false,
+                          reloadDocument: true,
+                        });
+                      }}
+                    >
+                      Akun Saya
+                    </MenubarItem>
+
                     <MenubarSeparator />
                     <MenubarItem
                       className="text-destructive"

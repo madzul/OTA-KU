@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { getNimFakultasCodeMap, getNimJurusanCodeMap } from "../nim";
+
 const allowedPdfTypes = ["application/pdf"];
 const maxPdfSize = 5242880; // 5 MB
 
@@ -32,8 +34,8 @@ export const PhoneNumberSchema = z
   .max(32, {
     message: "Nomor telepon terlalu panjang",
   })
-  .regex(/\d{7,13}$/, {
-    message: "Nomor telepon tidak valid",
+  .regex(/^62\d{6,12}$/, {
+    message: "Hanya dapat menggunakan nomor telepon Indonesia (62XXXXXXXXXX)",
   });
 
 export const PasswordSchema = z
@@ -47,6 +49,11 @@ export const PasswordSchema = z
 
 export const TokenSchema = z.string();
 
+export const validNimPrefixes = new Set([
+  ...Object.keys(getNimJurusanCodeMap()),
+  ...Object.keys(getNimFakultasCodeMap()),
+]);
+
 export const NIMSchema = z
   .string({
     invalid_type_error: "NIM harus berupa string",
@@ -55,6 +62,9 @@ export const NIMSchema = z
   .length(8, {
     message: "NIM harus 8 karakter",
   })
-  .regex(/\d{8}$/, {
+  .regex(/^\d{8}$/, {
     message: "Format NIM tidak valid",
+  })
+  .refine((nim) => validNimPrefixes.has(nim.slice(0, 3)), {
+    message: "Kode fakultas/jurusan NIM tidak valid",
   });

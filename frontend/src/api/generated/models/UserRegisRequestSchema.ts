@@ -12,7 +12,7 @@ export type UserRegisRequestSchema = {
    */
   email: string;
   /**
-   * The user phone number.
+   * Nomor telepon pengguna yang dimulai dengan 62.
    */
   phoneNumber: string;
   /**

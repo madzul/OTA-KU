@@ -1,46 +1,66 @@
 import { z } from "@hono/zod-openapi";
 
-import { EmailSchema, NIMSchema, PDFSchema, PhoneNumberSchema } from "./atomic.js";
+import { fakultasEnum, jurusanEnum } from "../db/schema.js";
+import {
+  EmailSchema,
+  NIMSchema,
+  PDFSchema,
+  PhoneNumberSchema,
+  cloudinaryUrlSchema,
+} from "./atomic.js";
 
 // Mahasiswa Registration
-export const MahasiwaRegistrationSchema = z.object({
+export const MahasiswaRegistrationSchema = z.object({
   name: z
     .string({
       invalid_type_error: "Nama harus berupa string",
       required_error: "Nama harus diisi",
     })
-    .min(3, {
-      message: "Nama terlalu pendek",
-    })
-    .max(255, {
-      message: "Nama terlalu panjang",
-    })
+    .min(3, { message: "Nama terlalu pendek" })
+    .max(255, { message: "Nama terlalu panjang" })
     .openapi({ example: "John Doe", description: "Nama mahasiswa" }),
   nim: NIMSchema,
+  major: z
+    .enum(jurusanEnum.enumValues, {
+      required_error: "Jurusan harus dipilih",
+      invalid_type_error: "Jurusan tidak valid",
+    })
+    .openapi({
+      example: "Teknik Informatika",
+      description: "Jurusan mahasiswa",
+    }),
+  faculty: z
+    .enum(fakultasEnum.enumValues, {
+      required_error: "Fakultas harus dipilih",
+      invalid_type_error: "Fakultas tidak valid",
+    })
+    .openapi({ example: "STEI-R", description: "Fakultas mahasiswa" }),
+  cityOfOrigin: z
+    .string()
+    .min(1, "Asal kota harus diisi")
+    .max(255)
+    .openapi({ example: "Bandung", description: "Kota asal mahasiswa" }),
+  highschoolAlumni: z
+    .string()
+    .min(1, "Asal sekolah harus diisi")
+    .max(255)
+    .openapi({ example: "SMA Negeri 1 Bandung", description: "Asal SMA" }),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",
       invalid_type_error: "Deskripsi harus berupa string",
     })
-    .min(3, {
-      message: "Deskripsi terlalu pendek",
-    })
+    .min(3, { message: "Deskripsi terlalu pendek" })
     .openapi({ example: "Mahasiswa baru", description: "Deskripsi mahasiswa" }),
-  file: z
-    .string({
-      required_error: "File harus diisi",
-      invalid_type_error: "File harus berupa string",
-    })
-    .url({
-      message: "File harus berupa URL",
-    })
-    .regex(/^https:\/\/res\.cloudinary\.com/, {
-      message: "File harus berupa URL dari cloudinary",
-    })
-    .openapi({
-      example: "https://res.cloudinary.com/your-image.jpg",
-      description: "Foto mahasiswa",
-    }),
+  file: cloudinaryUrlSchema("File Essay Mahasiswa"),
+  kk: cloudinaryUrlSchema("Kartu Keluarga"),
+  ktm: cloudinaryUrlSchema("Kartu Tanda Mahasiswa"),
+  waliRecommendationLetter: cloudinaryUrlSchema("Surat Rekomendasi Wali"),
+  transcript: cloudinaryUrlSchema("Transkrip Nilai"),
+  salaryReport: cloudinaryUrlSchema("Slip Gaji Orang Tua"),
+  pbb: cloudinaryUrlSchema("Bukti Pembayaran PBB"),
+  electricityBill: cloudinaryUrlSchema("Tagihan Listrik"),
+  ditmawaRecommendationLetter: cloudinaryUrlSchema("Surat Rekomendasi Ditmawa"),
 });
 
 export const MahasiswaRegistrationFormSchema = z.object({
@@ -49,33 +69,62 @@ export const MahasiswaRegistrationFormSchema = z.object({
       invalid_type_error: "Nama harus berupa string",
       required_error: "Nama harus diisi",
     })
-    .min(3, {
-      message: "Nama terlalu pendek",
-    })
-    .max(255, {
-      message: "Nama terlalu panjang",
-    })
+    .min(3, { message: "Nama terlalu pendek" })
+    .max(255, { message: "Nama terlalu panjang" })
     .openapi({ example: "John Doe", description: "Nama mahasiswa" }),
   phoneNumber: PhoneNumberSchema,
   nim: NIMSchema,
+  major: z
+    .enum(jurusanEnum.enumValues, {
+      required_error: "Jurusan harus dipilih",
+      invalid_type_error: "Jurusan tidak valid",
+    })
+    .openapi({
+      example: "Teknik Informatika",
+      description: "Jurusan mahasiswa",
+    }),
+  faculty: z
+    .enum(fakultasEnum.enumValues, {
+      required_error: "Fakultas harus dipilih",
+      invalid_type_error: "Fakultas tidak valid",
+    })
+    .openapi({ example: "STEI-R", description: "Fakultas mahasiswa" }),
+  cityOfOrigin: z
+    .string()
+    .min(1, "Asal kota harus diisi")
+    .max(255)
+    .openapi({ example: "Bandung", description: "Kota asal mahasiswa" }),
+  highschoolAlumni: z
+    .string()
+    .min(1, "Asal sekolah harus diisi")
+    .max(255)
+    .openapi({ example: "SMA Negeri 1 Bandung", description: "Asal SMA" }),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",
       invalid_type_error: "Deskripsi harus berupa string",
     })
-    .min(3, {
-      message: "Deskripsi terlalu pendek",
-    })
+    .min(3, { message: "Deskripsi terlalu pendek" })
     .openapi({ example: "Mahasiswa baru", description: "Deskripsi mahasiswa" }),
-  file: PDFSchema.openapi({
-    description: "Foto mahasiswa",
+  file: PDFSchema.openapi({ description: "File Essay Mahasiswa" }),
+  kk: PDFSchema.openapi({ description: "Kartu Keluarga" }),
+  ktm: PDFSchema.openapi({ description: "Kartu Tanda Mahasiswa" }),
+  waliRecommendationLetter: PDFSchema.openapi({
+    description: "Surat Rekomendasi Wali",
+  }),
+  transcript: PDFSchema.openapi({ description: "Transkrip Nilai" }),
+  salaryReport: PDFSchema.openapi({ description: "Slip Gaji Orang Tua" }),
+  pbb: PDFSchema.openapi({ description: "Bukti Pembayaran PBB" }),
+  electricityBill: PDFSchema.openapi({ description: "Tagihan Listrik" }),
+  ditmawaRecommendationLetter: PDFSchema.openapi({
+    description: "Surat Rekomendasi Ditmawa",
   }),
 });
 
 export const MahasiswaRegistrationSuccessfulResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mendaftar" }),
-  body: MahasiwaRegistrationSchema,
+  body: MahasiswaRegistrationSchema,
 });
 
 export const MahasiswaRegistrationFailedResponse = z.object({
@@ -86,7 +135,7 @@ export const MahasiswaRegistrationFailedResponse = z.object({
 
 export const MahasiswaUnverifiedResponse = z.object({
   success: z.boolean().openapi({ example: false }),
-  message: z.string().openapi({ example: "Akun belum terverifikasi" }),
+  message: z.string().openapi({ example: "Akun MA belum terverifikasi" }),
   error: z.object({}),
 });
 
@@ -231,11 +280,11 @@ export const ProfileOrangTuaResponse = z.object({
     name: z.string().openapi({ example: "Budi Santoso" }),
     email: EmailSchema,
     phone_number: PhoneNumberSchema,
-    join_date: z.string().openapi({ example: "March 2025" })
-  })
-})
+    join_date: z.string().openapi({ example: "March 2025" }),
+  }),
+});
 
-//TO-DO: add join_date to db
+//TODO: add join_date to db
 export const ProfileMahasiswaResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mengakses profil MA" }),
@@ -244,5 +293,5 @@ export const ProfileMahasiswaResponse = z.object({
     email: EmailSchema,
     phone_number: PhoneNumberSchema,
     // join_date: z.string().openapi({ example: "March 2025" })
-  })
-})
+  }),
+});

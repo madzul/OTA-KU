@@ -23,7 +23,7 @@ export default function SessionProvider({
   }
 
   if (data.body.status === "unverified") {
-    return <Navigate to="/auth/verification" />;
+    return <Navigate to="/auth/otp-verification" />;
   }
 
   // TODO: Should not be needed anymore, but just in case I just comment it out

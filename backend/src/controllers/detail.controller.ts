@@ -1,7 +1,15 @@
 import { eq } from "drizzle-orm";
+
 import { db } from "../db/drizzle.js";
-import { accountMahasiswaDetailTable, accountOtaDetailTable } from "../db/schema.js";
-import { getMahasiswaDetailRoute, getOtaDetailRoute } from "../routes/detail.route.js";
+import {
+  accountMahasiswaDetailTable,
+  accountOtaDetailTable,
+  accountTable,
+} from "../db/schema.js";
+import {
+  getMahasiswaDetailRoute,
+  getOtaDetailRoute,
+} from "../routes/detail.route.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
 export const detailRouter = createRouter();
@@ -9,12 +17,16 @@ export const detailProtectedRouter = createAuthRouter();
 
 detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
   const { id } = c.req.param();
-  
+
   try {
     const mahasiswaDetail = await db
       .select()
-      .from(accountMahasiswaDetailTable)
-      .where(eq(accountMahasiswaDetailTable.accountId, id))
+      .from(accountTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(accountTable.id, accountMahasiswaDetailTable.accountId),
+      )
+      .where(eq(accountTable.id, id))
       .limit(1);
 
     if (mahasiswaDetail.length === 0) {
@@ -38,12 +50,34 @@ detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
         success: true,
         message: "Detail mahasiswa berhasil diambil",
         body: {
-          accountId: mahasiswa.accountId,
-          name: mahasiswa.name,
-          nim: mahasiswa.nim,
-          mahasiswaStatus: mahasiswa.mahasiswaStatus,
-          description: mahasiswa.description || null,
-          file: mahasiswa.file || null,
+          id: mahasiswa.account.id,
+          email: mahasiswa.account.email,
+          type: mahasiswa.account.type,
+          phoneNumber: mahasiswa.account.phoneNumber!,
+          provider: mahasiswa.account.provider,
+          applicationStatus: mahasiswa.account.applicationStatus,
+          name: mahasiswa.account_mahasiswa_detail.name!,
+          nim: mahasiswa.account_mahasiswa_detail.nim!,
+          mahasiswaStatus: mahasiswa.account_mahasiswa_detail.mahasiswaStatus!,
+          description: mahasiswa.account_mahasiswa_detail.description!,
+          file: mahasiswa.account_mahasiswa_detail.file!,
+          major: mahasiswa.account_mahasiswa_detail.major!,
+          faculty: mahasiswa.account_mahasiswa_detail.faculty!,
+          cityOfOrigin: mahasiswa.account_mahasiswa_detail.cityOfOrigin!,
+          highschoolAlumni:
+            mahasiswa.account_mahasiswa_detail.highschoolAlumni!,
+          kk: mahasiswa.account_mahasiswa_detail.kk!,
+          ktm: mahasiswa.account_mahasiswa_detail.ktm!,
+          waliRecommendationLetter:
+            mahasiswa.account_mahasiswa_detail.waliRecommendationLetter!,
+          transcript: mahasiswa.account_mahasiswa_detail.transcript!,
+          salaryReport: mahasiswa.account_mahasiswa_detail.salaryReport!,
+          pbb: mahasiswa.account_mahasiswa_detail.pbb!,
+          electricityBill: mahasiswa.account_mahasiswa_detail.electricityBill!,
+          ditmawaRecommendationLetter:
+            mahasiswa.account_mahasiswa_detail.ditmawaRecommendationLetter!,
+          notes: mahasiswa.account_mahasiswa_detail.notes!,
+          adminOnlyNotes: mahasiswa.account_mahasiswa_detail.adminOnlyNotes!,
         },
       },
       200,
@@ -63,12 +97,16 @@ detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
 
 detailProtectedRouter.openapi(getOtaDetailRoute, async (c) => {
   const { id } = c.req.param();
-  
+
   try {
     const otaDetail = await db
       .select()
-      .from(accountOtaDetailTable)
-      .where(eq(accountOtaDetailTable.accountId, id))
+      .from(accountTable)
+      .innerJoin(
+        accountOtaDetailTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .where(eq(accountTable.id, id))
       .limit(1);
 
     if (otaDetail.length === 0) {
@@ -86,26 +124,28 @@ detailProtectedRouter.openapi(getOtaDetailRoute, async (c) => {
     }
 
     const ota = otaDetail[0];
-    
-    // Make sure linkage is compatible with expected type
-    const sanitizedLinkage = (ota.linkage === "otm" || ota.linkage === "alumni") ? ota.linkage : "alumni";
 
     return c.json(
       {
         success: true,
         message: "Detail orang tua asuh berhasil diambil",
         body: {
-          accountId: ota.accountId,
-          name: ota.name,
-          job: ota.job,
-          address: ota.address,
-          linkage: sanitizedLinkage,
-          funds: ota.funds,
-          maxCapacity: ota.maxCapacity,
-          startDate: ota.startDate.toISOString(),
-          maxSemester: ota.maxSemester,
-          transferDate: ota.transferDate,
-          criteria: ota.criteria,
+          id: ota.account.id,
+          email: ota.account.email,
+          type: ota.account.type,
+          phoneNumber: ota.account.phoneNumber!,
+          provider: ota.account.provider,
+          applicationStatus: ota.account.applicationStatus,
+          name: ota.account_ota_detail.name!,
+          job: ota.account_ota_detail.job!,
+          address: ota.account_ota_detail.address!,
+          linkage: ota.account_ota_detail.linkage,
+          funds: ota.account_ota_detail.funds,
+          maxCapacity: ota.account_ota_detail.maxCapacity,
+          startDate: ota.account_ota_detail.startDate.toISOString(),
+          maxSemester: ota.account_ota_detail.maxSemester,
+          transferDate: ota.account_ota_detail.transferDate,
+          criteria: ota.account_ota_detail.criteria,
         },
       },
       200,

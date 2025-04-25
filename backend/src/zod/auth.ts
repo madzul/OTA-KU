@@ -5,6 +5,7 @@ import {
   PasswordSchema,
   PhoneNumberSchema,
   TokenSchema,
+  validNimPrefixes,
 } from "./atomic.js";
 
 // Login
@@ -77,13 +78,18 @@ export const UserRegisRequestSchema = z
   .refine(
     (data) => {
       if (data.type === "mahasiswa") {
-        const emailRegex = /^\d{8}\@mahasiswa.itb.ac.id$/;
-        return emailRegex.test(data.email);
+        const match = data.email.match(
+          /^(\d{3})(\d{5})@mahasiswa\.itb\.ac\.id$/,
+        );
+        if (!match) return false;
+
+        const nimPrefix = match[1];
+        return validNimPrefixes.has(nimPrefix);
       }
       return true;
     },
     {
-      message: "Email harus berdomain mahasiswa.itb.ac.id",
+      message: "Email harus sesuai format NIM@mahasiswa.itb.ac.id",
       path: ["email"],
     },
   )
@@ -135,6 +141,13 @@ export const UserAuthenticatedResponse = z.object({
       status: z
         .enum(["verified", "unverified"])
         .openapi({ example: "verified" }),
+      applicationStatus: z
+        .enum(["accepted", "rejected", "pending", "unregistered"])
+        .openapi({ example: "accepted" }),
+      oid: z.string().nullable().openapi({ example: "1" }),
+      createdAt: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
+      iat: z.number().openapi({ example: 1630000000 }),
+      exp: z.number().openapi({ example: 1630000000 }),
     })
     .openapi("UserSchema"),
 });
@@ -163,6 +176,11 @@ export const JWTPayloadSchema = z
       .enum(["credentials", "azure"])
       .openapi({ example: "credentials" }),
     status: z.enum(["verified", "unverified"]).openapi({ example: "verified" }),
+    applicationStatus: z
+      .enum(["accepted", "rejected", "pending", "unregistered"])
+      .openapi({ example: "accepted" }),
+    oid: z.string().nullable().openapi({ example: "1" }),
+    createdAt: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
     iat: z.number().openapi({ example: 1630000000 }),
     exp: z.number().openapi({ example: 1630000000 }),
   })

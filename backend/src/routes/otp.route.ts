@@ -1,0 +1,65 @@
+import { createRoute } from "@hono/zod-openapi";
+
+import { InvalidLoginResponse } from "../zod/auth.js";
+import {
+  BadRequestSendOtpResponse,
+  EmailNotFoundResponseSchema,
+  SendOtpRequestSchema,
+  SendOtpResponseSchema,
+} from "../zod/otp.js";
+import { InternalServerErrorResponse } from "../zod/response.js";
+
+export const sendOtpRoute = createRoute({
+  operationId: "sendOtp",
+  tags: ["OTP"],
+  method: "post",
+  path: "/send",
+  description: "Send OTP to the user's email.",
+  request: {
+    body: {
+      content: {
+        "multipart/form-data": {
+          schema: SendOtpRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "OTP sent successfully.",
+      content: {
+        "application/json": {
+          schema: SendOtpResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: "Bad request - missing fields.",
+      content: {
+        "application/json": {
+          schema: BadRequestSendOtpResponse,
+        },
+      },
+    },
+    401: {
+      description: "Invalid credentials.",
+      content: {
+        "application/json": { schema: InvalidLoginResponse },
+      },
+    },
+    404: {
+      description: "User not found.",
+      content: {
+        "application/json": {
+          schema: EmailNotFoundResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});

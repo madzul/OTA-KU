@@ -1,5 +1,7 @@
 import { z } from "@hono/zod-openapi";
 
+import { getNimFakultasCodeMap, getNimJurusanCodeMap } from "../lib/nim.js";
+
 const allowedPdfTypes = ["application/pdf"];
 const maxPdfSize = 5242880; // 5 MB
 
@@ -37,12 +39,12 @@ export const PhoneNumberSchema = z
   .max(32, {
     message: "Nomor telepon terlalu panjang",
   })
-  .regex(/\d{7,13}$/, {
-    message: "Nomor telepon tidak valid",
+  .regex(/^62\d{6,12}$/, {
+    message: "Hanya dapat menggunakan nomor telepon Indonesia (62XXXXXXXXXX)",
   })
   .openapi({
-    example: "081234567890",
-    description: "The user phone number.",
+    example: "6281234567890",
+    description: "Nomor telepon pengguna yang dimulai dengan 62.",
   });
 
 export const PasswordSchema = z
@@ -63,6 +65,11 @@ export const TokenSchema = z.string().openapi({
   description: "JWT token for authentication.",
 });
 
+export const validNimPrefixes = new Set([
+  ...Object.keys(getNimJurusanCodeMap()),
+  ...Object.keys(getNimFakultasCodeMap()),
+]);
+
 export const NIMSchema = z
   .string({
     invalid_type_error: "NIM harus berupa string",
@@ -71,7 +78,26 @@ export const NIMSchema = z
   .length(8, {
     message: "NIM harus 8 karakter",
   })
-  .regex(/\d{8}$/, {
+  .regex(/^\d{8}$/, {
     message: "Format NIM tidak valid",
   })
+  .refine((nim) => validNimPrefixes.has(nim.slice(0, 3)), {
+    message: "Kode fakultas/jurusan NIM tidak valid",
+  })
   .openapi({ example: "13522005", description: "Nomor Induk Mahasiswa" });
+
+export function cloudinaryUrlSchema(description: string) {
+  return z
+    .string({
+      required_error: `${description} harus diisi`,
+      invalid_type_error: `${description} harus berupa string`,
+    })
+    .url({ message: `${description} harus berupa URL` })
+    .regex(/^https:\/\/res\.cloudinary\.com/, {
+      message: `${description} harus berupa URL dari cloudinary`,
+    })
+    .openapi({
+      example: "https://res.cloudinary.com/your-image.pdf",
+      description,
+    });
+}

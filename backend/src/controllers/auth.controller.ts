@@ -2,6 +2,7 @@ import { compare, hash } from "bcrypt";
 import { and, eq, gte, or } from "drizzle-orm";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { decode, sign } from "hono/jwt";
+import nodemailer from "nodemailer";
 
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
@@ -10,6 +11,12 @@ import {
   accountTable,
   otpTable,
 } from "../db/schema.js";
+import { emailHTML } from "../lib/email-html.js";
+import {
+  getNimFakultasCodeMap,
+  getNimFakultasFromNimJurusanMap,
+  getNimJurusanCodeMap,
+} from "../lib/nim.js";
 import { generateOTP } from "../lib/otp.js";
 import {
   loginRoute,
@@ -86,6 +93,9 @@ authRouter.openapi(loginRoute, async (c) => {
         type: account[0].type,
         provider: account[0].provider,
         status: account[0].status,
+        applicationStatus: account[0].applicationStatus,
+        oid: account[0].oid,
+        createdAt: account[0].createdAt,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
       },
@@ -133,7 +143,7 @@ authRouter.openapi(regisRoute, async (c) => {
   const hashedPassword = await hash(password, 10);
 
   try {
-    const newUser = await db.transaction(async (tx) => {
+    const [newUser, code] = await db.transaction(async (tx) => {
       const newUser = await tx
         .insert(accountTable)
         .values({
@@ -144,14 +154,45 @@ authRouter.openapi(regisRoute, async (c) => {
         })
         .returning();
 
+      const code = generateOTP();
+
       await tx.insert(otpTable).values({
         accountId: newUser[0].id,
-        code: generateOTP(),
+        code: code,
         expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
       });
 
-      return newUser;
+      return [newUser, code];
     });
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
+
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: newUser[0].email,
+        subject: "Token OTP Bantuan Orang Tua Asuh",
+        html: emailHTML(code),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
 
     const accessToken = await sign(
       {
@@ -161,6 +202,9 @@ authRouter.openapi(regisRoute, async (c) => {
         type: newUser[0].type,
         provider: newUser[0].provider,
         status: newUser[0].status,
+        applicationStatus: newUser[0].applicationStatus,
+        oid: newUser[0].oid,
+        createdAt: newUser[0].createdAt,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
       },
@@ -239,6 +283,8 @@ authRouter.openapi(oauthRoute, async (c) => {
   const { payload } = decode(azureToken);
   const email = payload.upn as string;
   const name = payload.name as string;
+  const oid = payload.oid as string;
+  const nim = email.split("@")[0];
 
   try {
     await db.transaction(async (tx) => {
@@ -270,6 +316,41 @@ authRouter.openapi(oauthRoute, async (c) => {
           accountData = existingAccount[0];
         }
       } else {
+        const existingOid = await tx
+          .select()
+          .from(accountTable)
+          .where(eq(accountTable.oid, oid))
+          .limit(1);
+
+        if (existingOid && existingOid.length > 0) {
+          // Update the existing account with the new email and password, nim must be nim jurusan
+          const updatedAccount = await tx
+            .update(accountTable)
+            .set({
+              email,
+              password: await hash(randomPassword, 10),
+            })
+            .where(eq(accountTable.oid, oid))
+            .returning();
+
+          accountData = updatedAccount[0];
+
+          // Update the mahasiswa details for the existing account
+          await tx
+            .update(accountMahasiswaDetailTable)
+            .set({
+              name,
+              nim,
+              major: getNimJurusanCodeMap()[nim.slice(0, 3)],
+              faculty:
+                getNimFakultasCodeMap()[
+                  getNimFakultasFromNimJurusanMap()[nim.slice(0, 3)]
+                ],
+            })
+            .where(eq(accountMahasiswaDetailTable.accountId, accountData.id));
+          return;
+        }
+
         // Account doesn't exist, create new one
         const newAccount = await tx
           .insert(accountTable)
@@ -280,6 +361,7 @@ authRouter.openapi(oauthRoute, async (c) => {
             phoneNumber: null,
             provider: "azure",
             status: "verified",
+            oid,
           })
           .returning();
 
@@ -289,7 +371,12 @@ authRouter.openapi(oauthRoute, async (c) => {
         await tx.insert(accountMahasiswaDetailTable).values({
           accountId: accountData.id,
           name,
-          nim: email.split("@")[0],
+          nim,
+          major: getNimJurusanCodeMap()[nim.slice(0, 3)] || "TPB",
+          faculty:
+            getNimFakultasCodeMap()[
+              getNimFakultasFromNimJurusanMap()[nim.slice(0, 3)]
+            ] || getNimFakultasCodeMap()[nim.slice(0, 3)],
         });
       }
 
@@ -301,6 +388,9 @@ authRouter.openapi(oauthRoute, async (c) => {
           type: accountData.type,
           provider: accountData.provider,
           status: accountData.status,
+          applicationStatus: accountData.applicationStatus,
+          oid: accountData.oid,
+          createdAt: accountData.createdAt,
           iat: Math.floor(Date.now() / 1000),
           exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
         },
@@ -410,6 +500,7 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
   }
 
   try {
+    // TODO: Abis OTP valid, langsung isi nim sama email mahasiswa detail
     await db
       .update(accountTable)
       .set({
@@ -425,6 +516,9 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
         type: user.type,
         provider: user.provider,
         status: "verified",
+        applicationStatus: user.applicationStatus,
+        oid: user.oid,
+        createdAt: user.createdAt,
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
       },

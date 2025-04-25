@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-import { NIMSchema, PDFSchema } from "./atomic";
-import { PhoneNumberSchema } from "./auth";
+import { NIMSchema, PDFSchema, PhoneNumberSchema } from "./atomic";
 
 export const MahasiswaRegistrationFormSchema = z.object({
   name: z
@@ -9,23 +8,111 @@ export const MahasiswaRegistrationFormSchema = z.object({
       invalid_type_error: "Nama harus berupa string",
       required_error: "Nama harus diisi",
     })
-    .min(3, {
-      message: "Nama terlalu pendek",
-    })
-    .max(255, {
-      message: "Nama terlalu panjang",
-    }),
+    .min(3, { message: "Nama terlalu pendek" })
+    .max(255, { message: "Nama terlalu panjang" }),
   phoneNumber: PhoneNumberSchema,
   nim: NIMSchema,
+  major: z
+    .enum([
+      "Matematika",
+      "Fisika",
+      "Astronomi",
+      "Mikrobiologi",
+      "Kimia",
+      "Biologi",
+      "Sains dan Teknologi Farmasi",
+      "Aktuaria",
+      "Rekayasa Hayati",
+      "Rekayasa Pertanian",
+      "Rekayasa Kehutanan",
+      "Farmasi Klinik dan Komunitas",
+      "Teknologi Pasca Panen",
+      "Teknik Geologi",
+      "Teknik Pertambangan",
+      "Teknik Perminyakan",
+      "Teknik Geofisika",
+      "Teknik Metalurgi",
+      "Meteorologi",
+      "Oseanografi",
+      "Teknik Kimia",
+      "Teknik Mesin",
+      "Teknik Elektro",
+      "Teknik Fisika",
+      "Teknik Industri",
+      "Teknik Informatika",
+      "Aeronotika dan Astronotika",
+      "Teknik Material",
+      "Teknik Pangan",
+      "Manajemen Rekayasa Industri",
+      "Teknik Bioenergi dan Kemurgi",
+      "Teknik Sipil",
+      "Teknik Geodesi dan Geomatika",
+      "Arsitektur",
+      "Teknik Lingkungan",
+      "Perencanaan Wilayah dan Kota",
+      "Teknik Kelautan",
+      "Rekayasa Infrastruktur Lingkungan",
+      "Teknik dan Pengelolaan Sumber Daya Air",
+      "Seni Rupa",
+      "Desain",
+      "Kriya",
+      "Desain Interior",
+      "Desain Komunikasi Visual",
+      "Desain Produk",
+      "Teknik Tenaga Listrik",
+      "Teknik Telekomunikasi",
+      "Sistem Teknologi dan Informasi",
+      "Teknik Biomedis",
+      "Manajemen",
+      "Kewirausahaan",
+      "TPB",
+    ], {
+      required_error: "Jurusan harus dipilih",
+      invalid_type_error: "Jurusan tidak valid",
+    }),
+  faculty: z
+    .enum([
+      "FMIPA",
+      "SITH-S",
+      "SF",
+      "FITB",
+      "FTTM",
+      "STEI-R",
+      "FTSL",
+      "FTI",
+      "FSRD",
+      "FTMD",
+      "STEI-K",
+      "SBM",
+      "SITH-R",
+      "SAPPK",
+    ], {
+      required_error: "Fakultas harus dipilih",
+      invalid_type_error: "Fakultas tidak valid",
+    }),
+  cityOfOrigin: z
+    .string()
+    .min(1, "Asal kota harus diisi")
+    .max(255),
+  highschoolAlumni: z
+    .string()
+    .min(1, "Asal sekolah harus diisi")
+    .max(255),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",
       invalid_type_error: "Deskripsi harus berupa string",
     })
-    .min(3, {
-      message: "Deskripsi terlalu pendek",
-    }),
+    .min(3, { message: "Deskripsi terlalu pendek" }),
   file: PDFSchema,
+  kk: PDFSchema,
+  ktm: PDFSchema,
+  waliRecommendationLetter: PDFSchema,
+  transcript: PDFSchema,
+  salaryReport: PDFSchema,
+  pbb: PDFSchema,
+  electricityBill: PDFSchema,
+  ditmawaRecommendationLetter: PDFSchema,
 });
 
 export const OrangTuaPageOneSchema = z.object({

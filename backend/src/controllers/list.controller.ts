@@ -5,6 +5,7 @@ import {
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
+  connectionTable,
 } from "../db/schema.js";
 import {
   listMAActiveRoute,
@@ -37,9 +38,14 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
     const countsQuery = db
       .select({ count: count() })
       .from(accountMahasiswaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+      )
       .where(
         and(
           eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
+          eq(accountTable.applicationStatus, "accepted"),
           isNotNull(accountMahasiswaDetailTable.description),
           isNotNull(accountMahasiswaDetailTable.file),
           or(
@@ -50,8 +56,38 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
       );
 
     const mahasiswaListQuery = db
-      .select()
+      .select({
+        accountId: accountMahasiswaDetailTable.accountId,
+        email: accountTable.email,
+        type: accountTable.type,
+        phoneNumber: accountTable.phoneNumber,
+        provider: accountTable.provider,
+        applicationStatus: accountTable.applicationStatus,
+        name: accountMahasiswaDetailTable.name,
+        nim: accountMahasiswaDetailTable.nim,
+        mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
+        description: accountMahasiswaDetailTable.description,
+        file: accountMahasiswaDetailTable.file,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        kk: accountMahasiswaDetailTable.kk,
+        ktm: accountMahasiswaDetailTable.ktm,
+        waliRecommendationLetter: accountMahasiswaDetailTable.waliRecommendationLetter,
+        transcript: accountMahasiswaDetailTable.transcript,
+        salaryReport: accountMahasiswaDetailTable.salaryReport,
+        pbb: accountMahasiswaDetailTable.pbb,
+        electricityBill: accountMahasiswaDetailTable.electricityBill,
+        ditmawaRecommendationLetter: accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        notes: accountMahasiswaDetailTable.notes,
+        adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
+      })
       .from(accountMahasiswaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+      )
       .where(
         and(
           eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
@@ -78,11 +114,30 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         body: {
           data: mahasiswaList.map((mahasiswa) => ({
             accountId: mahasiswa.accountId,
-            name: mahasiswa.name,
+            email: mahasiswa.email,
+            type: mahasiswa.type,
+            phoneNumber: mahasiswa.phoneNumber || "",
+            provider: mahasiswa.provider,
+            applicationStatus: mahasiswa.applicationStatus,
+            name: mahasiswa.name!,
             nim: mahasiswa.nim,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
             description: mahasiswa.description || "",
             file: mahasiswa.file || "",
+            major: mahasiswa.major || "",
+            faculty: mahasiswa.faculty || "",
+            cityOfOrigin: mahasiswa.cityOfOrigin || "",
+            highschoolAlumni: mahasiswa.highschoolAlumni || "",
+            kk: mahasiswa.kk || "",
+            ktm: mahasiswa.ktm || "",
+            waliRecommendationLetter: mahasiswa.waliRecommendationLetter || "",
+            transcript: mahasiswa.transcript || "",
+            salaryReport: mahasiswa.salaryReport || "",
+            pbb: mahasiswa.pbb || "",
+            electricityBill: mahasiswa.electricityBill || "",
+            ditmawaRecommendationLetter: mahasiswa.ditmawaRecommendationLetter || "",
+            notes: mahasiswa.notes || "",
+            adminOnlyNotes: mahasiswa.adminOnlyNotes || "",
           })),
           totalData: counts[0].count,
         },
@@ -130,16 +185,14 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
       status
         ? eq(
             accountTable.applicationStatus,
-            status as "pending" | "accepted" | "rejected",
+            status as "pending" | "accepted" | "rejected" | "unregistered",
           )
         : undefined,
-      // TODO: Jurusan masih hard coded
-      // jurusan ? eq(accountMahasiswaDetailTable.jurusan, jurusan) : undefined,
     ];
 
     const countsQuery = db
       .select({
-        total: sql<number>`count(*)`,
+        total: sql<number>`sum(case when ${accountTable.applicationStatus} != 'unregistered' then 1 else 0 end)`,
         accepted: sql<number>`sum(case when ${accountTable.applicationStatus} = 'accepted' then 1 else 0 end)`,
         pending: sql<number>`sum(case when ${accountTable.applicationStatus} = 'pending' then 1 else 0 end)`,
         rejected: sql<number>`sum(case when ${accountTable.applicationStatus} = 'rejected' then 1 else 0 end)`,
@@ -166,18 +219,40 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         provider: accountTable.provider,
         status: accountTable.status,
         applicationStatus: accountTable.applicationStatus,
+        type: accountTable.type, // Add the missing 'type' field
         name: accountMahasiswaDetailTable.name,
         nim: accountMahasiswaDetailTable.nim,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
         description: accountMahasiswaDetailTable.description,
         file: accountMahasiswaDetailTable.file,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        kk: accountMahasiswaDetailTable.kk,
+        ktm: accountMahasiswaDetailTable.ktm,
+        waliRecommendationLetter: accountMahasiswaDetailTable.waliRecommendationLetter,
+        transcript: accountMahasiswaDetailTable.transcript,
+        salaryReport: accountMahasiswaDetailTable.salaryReport,
+        pbb: accountMahasiswaDetailTable.pbb,
+        electricityBill: accountMahasiswaDetailTable.electricityBill,
+        ditmawaRecommendationLetter: accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        notes: accountMahasiswaDetailTable.notes,
+        adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
       })
       .from(accountTable)
       .leftJoin(
         accountMahasiswaDetailTable,
         eq(accountTable.id, accountMahasiswaDetailTable.accountId),
       )
-      .where(and(...baseConditions, searchCondition, ...filterConditions))
+      .where(
+        and(
+          ...baseConditions,
+          searchCondition,
+          ...filterConditions,
+          isNotNull(accountMahasiswaDetailTable.description),
+        ),
+      )
       .limit(LIST_PAGE_DETAIL_SIZE)
       .offset(offset);
 
@@ -199,13 +274,26 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             provider: mahasiswa.provider,
             status: mahasiswa.status,
             applicationStatus: mahasiswa.applicationStatus,
+            type: mahasiswa.type, // Include the 'type' field in the response
             name: mahasiswa.name!,
             nim: mahasiswa.nim!,
             mahasiswaStatus: mahasiswa.mahasiswaStatus!,
             description: mahasiswa.description!,
             file: mahasiswa.file!,
-            // TODO: Jurusan masih hard coded
-            jurusan: "Teknik Informatika",
+            major: mahasiswa.major || "",
+            faculty: mahasiswa.faculty || "",
+            cityOfOrigin: mahasiswa.cityOfOrigin || "",
+            highschoolAlumni: mahasiswa.highschoolAlumni || "",
+            kk: mahasiswa.kk || "",
+            ktm: mahasiswa.ktm || "",
+            waliRecommendationLetter: mahasiswa.waliRecommendationLetter || "",
+            transcript: mahasiswa.transcript || "",
+            salaryReport: mahasiswa.salaryReport || "",
+            pbb: mahasiswa.pbb || "",
+            electricityBill: mahasiswa.electricityBill || "",
+            ditmawaRecommendationLetter: mahasiswa.ditmawaRecommendationLetter || "",
+            notes: mahasiswa.notes || "",
+            adminOnlyNotes: mahasiswa.adminOnlyNotes || "",
           })),
           totalPagination: countsPagination[0].count,
           totalData: Number(counts[0].total),
@@ -258,7 +346,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
 
     const countsQuery = db
       .select({
-        total: sql<number>`count(*)`,
+        total: sql<number>`sum(case when ${accountTable.applicationStatus} != 'unregistered' then 1 else 0 end)`,
         accepted: sql<number>`sum(case when ${accountTable.applicationStatus} = 'accepted' then 1 else 0 end)`,
         pending: sql<number>`sum(case when ${accountTable.applicationStatus} = 'pending' then 1 else 0 end)`,
         rejected: sql<number>`sum(case when ${accountTable.applicationStatus} = 'rejected' then 1 else 0 end)`,
@@ -362,6 +450,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
 
 listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
   const { q, page } = c.req.query();
+  const maId = c.get("user").id;
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -375,7 +464,17 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
     const countsQuery = db
       .select({ count: count() })
       .from(accountOtaDetailTable)
-      .where(ilike(accountOtaDetailTable.name, `%${q || ""}%`));
+      .innerJoin(
+        connectionTable,
+        eq(connectionTable.otaId, accountOtaDetailTable.accountId),
+      )
+      .where(
+        and(
+          eq(connectionTable.mahasiswaId, maId),
+          eq(connectionTable.connectionStatus, "accepted"),
+          ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+        ),
+      );
 
     const OTAListQuery = db
       .select({
@@ -390,7 +489,17 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
         accountTable,
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
-      .where(ilike(accountOtaDetailTable.name, `%${q || ""}%`))
+      .innerJoin(
+        connectionTable,
+        eq(connectionTable.otaId, accountOtaDetailTable.accountId),
+      )
+      .where(
+        and(
+          eq(connectionTable.mahasiswaId, maId),
+          eq(connectionTable.connectionStatus, "accepted"),
+          ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+        ),
+      )
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
 
@@ -424,10 +533,9 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
     );
   }
 });
-
-//TO-DO: nanti status bukan liat dari inactive di detail MA, tapi liat status di connection
 listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
   const { q, page } = c.req.query();
+  const otaId = c.get("user").id;
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -440,12 +548,19 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
 
     const countsQuery = db
       .select({ count: count() })
-      .from(accountMahasiswaDetailTable)
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+      )
       .where(
         and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "active"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
+          eq(connectionTable.otaId, otaId),
+          eq(connectionTable.connectionStatus, "accepted"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
             ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
@@ -460,12 +575,19 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
         nim: accountMahasiswaDetailTable.nim,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
       })
-      .from(accountMahasiswaDetailTable)
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+      )
       .where(
         and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "active"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
+          eq(connectionTable.otaId, otaId),
+          eq(connectionTable.connectionStatus, "accepted"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
             ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
@@ -487,7 +609,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
         body: {
           data: mahasiswaList.map((mahasiswa) => ({
             accountId: mahasiswa.accountId,
-            name: mahasiswa.name,
+            name: mahasiswa.name!,
             nim: mahasiswa.nim,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
           })),
@@ -509,9 +631,9 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
   }
 });
 
-//TO-DO: nanti status bukan liat dari inactive di detail MA, tapi liat status di connection
 listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
   const { q, page } = c.req.query();
+  const otaId = c.get("user").id;
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -524,12 +646,19 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
 
     const countsQuery = db
       .select({ count: count() })
-      .from(accountMahasiswaDetailTable)
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+      )
       .where(
         and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
+          eq(connectionTable.otaId, otaId),
+          eq(connectionTable.connectionStatus, "pending"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
             ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
@@ -544,12 +673,19 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         nim: accountMahasiswaDetailTable.nim,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
       })
-      .from(accountMahasiswaDetailTable)
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+      )
       .where(
         and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
+          eq(connectionTable.otaId, otaId),
+          eq(connectionTable.connectionStatus, "pending"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
             ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
@@ -571,7 +707,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         body: {
           data: mahasiswaList.map((mahasiswa) => ({
             accountId: mahasiswa.accountId,
-            name: mahasiswa.name,
+            name: mahasiswa.name!,
             nim: mahasiswa.nim,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
           })),

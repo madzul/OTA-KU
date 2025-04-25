@@ -36,6 +36,7 @@ function RouteComponent() {
       try {
         setLoading(true);
         const response = await fetch(
+          // TODO: Nanti ganti pake generated API
           `http://localhost:3000/api/detail/mahasiswa/${id}`,
           { credentials: "include" },
         );
@@ -91,7 +92,7 @@ function RouteComponent() {
     );
   }
 
-  // Transforming database data to match the component props
+  // TODO: Transforming database data to match the component props
   const displayData = {
     name: mahasiswaData.name,
     role:

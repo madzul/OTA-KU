@@ -45,7 +45,7 @@ describe("Database Seeding", () => {
       await db
         .select()
         .from(accountTable)
-        .where(eq(accountTable.email, "mahasiswa1@example.com"))
+        .where(eq(accountTable.email, "13599001@mahasiswa.itb.ac.id"))
     )[0];
     expect(mahasiswa).toBeDefined();
     expect(mahasiswa.type).toBe("mahasiswa");
@@ -63,7 +63,7 @@ describe("Database Seeding", () => {
     const mahasiswaDetails = await db
       .select()
       .from(accountMahasiswaDetailTable);
-    expect(mahasiswaDetails.length).toBe(2);
+    expect(mahasiswaDetails.length).toBe(5);
 
     const otaDetails = await db.select().from(accountOtaDetailTable);
     expect(otaDetails.length).toBe(2);
@@ -90,17 +90,17 @@ describe("Database Reset", () => {
 
     // 3. Verify all tables were reset properly
     const accounts = await db.select().from(accountTable);
-    expect(accounts.length).toBe(5); // admin + 2 mahasiswa + 2 ota
+    expect(accounts.length).toBe(8); // admin + 5 mahasiswa + 2 ota
 
     const mahasiswaDetails = await db
       .select()
       .from(accountMahasiswaDetailTable);
-    expect(mahasiswaDetails.length).toBe(2);
+    expect(mahasiswaDetails.length).toBe(5);
 
     const otaDetails = await db.select().from(accountOtaDetailTable);
     expect(otaDetails.length).toBe(2);
 
     const connections = await db.select().from(connectionTable);
-    expect(connections.length).toBe(1);
+    expect(connections.length).toBe(3);
   });
 });

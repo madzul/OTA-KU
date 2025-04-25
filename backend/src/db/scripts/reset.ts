@@ -44,6 +44,9 @@ export async function resetDatabase() {
       const adminId = uuidv4();
       const mahasiswa1Id = uuidv4();
       const mahasiswa2Id = uuidv4();
+      const mahasiswa3Id = uuidv4();
+      const mahasiswa4Id = uuidv4();
+      const mahasiswa5Id = uuidv4();
       const ota1Id = uuidv4();
       const ota2Id = uuidv4();
 
@@ -51,7 +54,7 @@ export async function resetDatabase() {
       await tx.insert(accountTable).values({
         id: adminId,
         email: "admin@example.com",
-        phoneNumber: "08123456789",
+        phoneNumber: "628123456789",
         password: hashedPassword,
         type: "admin",
         status: "verified",
@@ -61,18 +64,46 @@ export async function resetDatabase() {
       await tx.insert(accountTable).values([
         {
           id: mahasiswa1Id,
-          email: "mahasiswa1@example.com",
-          phoneNumber: "08123456780",
+          email: "13599001@mahasiswa.itb.ac.id",
+          phoneNumber: "628123456780",
           password: hashedPassword,
           type: "mahasiswa",
           status: "verified",
+          applicationStatus: "accepted",
         },
         {
           id: mahasiswa2Id,
-          email: "mahasiswa2@example.com",
-          phoneNumber: "08198765432",
+          email: "13599002@mahasiswa.itb.ac.id",
+          phoneNumber: "628198765432",
           password: hashedPassword,
           type: "mahasiswa",
+          status: "verified",
+          applicationStatus: "accepted",
+        },
+        {
+          id: mahasiswa3Id,
+          email: "13599003@mahasiswa.itb.ac.id",
+          phoneNumber: "628198702490",
+          password: hashedPassword,
+          type: "mahasiswa",
+          status: "verified",
+          applicationStatus: "pending",
+        },
+        {
+          id: mahasiswa4Id,
+          email: "13599004@mahasiswa.itb.ac.id",
+          phoneNumber: "628198766782",
+          password: hashedPassword,
+          type: "mahasiswa",
+          applicationStatus: "pending",
+        },
+        {
+          id: mahasiswa5Id,
+          email: "13599005@mahasiswa.itb.ac.id",
+          phoneNumber: "628198987411",
+          password: hashedPassword,
+          type: "mahasiswa",
+          applicationStatus: "rejected",
         },
       ]);
 
@@ -81,7 +112,7 @@ export async function resetDatabase() {
         {
           accountId: mahasiswa1Id,
           name: "Mahasiswa One",
-          nim: "12345678",
+          nim: "13599001",
           description: "Mahasiswa One is an active student.",
           file: "https://example.com/mahasiswa1.pdf",
           mahasiswaStatus: "active",
@@ -89,9 +120,33 @@ export async function resetDatabase() {
         {
           accountId: mahasiswa2Id,
           name: "Mahasiswa Two",
-          nim: "87654321",
-          description: "Mahasiswa Two is an inactive student.",
+          nim: "13599002",
+          description: "Mahasiswa Two is an active student.",
           file: "https://example.com/mahasiswa2.pdf",
+          mahasiswaStatus: "active",
+        },
+        {
+          accountId: mahasiswa3Id,
+          name: "Mahasiswa Three",
+          nim: "13599003",
+          description: "Mahasiswa Three is an active student.",
+          file: "https://example.com/mahasiswa3.pdf",
+          mahasiswaStatus: "active",
+        },
+        {
+          accountId: mahasiswa4Id,
+          name: "Mahasiswa Four",
+          nim: "13599004",
+          description: "Mahasiswa Four is an inactive student.",
+          file: "https://example.com/mahasiswa4.pdf",
+          mahasiswaStatus: "inactive",
+        },
+        {
+          accountId: mahasiswa5Id,
+          name: "Mahasiswa Five",
+          nim: "13599005",
+          description: "Mahasiswa Five is an inactive student.",
+          file: "https://example.com/mahasiswa5.pdf",
           mahasiswaStatus: "inactive",
         },
       ]);
@@ -101,17 +156,19 @@ export async function resetDatabase() {
         {
           id: ota1Id,
           email: "ota1@example.com",
-          phoneNumber: "08987654321",
+          phoneNumber: "628111222333",
           password: hashedPassword,
           type: "ota",
           status: "verified",
+          applicationStatus: "accepted",
         },
         {
           id: ota2Id,
           email: "ota2@example.com",
-          phoneNumber: "08912345678",
+          phoneNumber: "628444555666",
           password: hashedPassword,
           type: "ota",
+          applicationStatus: "accepted",
         },
       ]);
 
@@ -146,10 +203,23 @@ export async function resetDatabase() {
       ]);
 
       // Seed connections between mahasiswa and OTA
-      await tx.insert(connectionTable).values({
-        mahasiswaId: mahasiswa1Id,
-        otaId: ota1Id,
-      });
+      await tx.insert(connectionTable).values([
+        {
+          mahasiswaId: mahasiswa1Id,
+          otaId: ota1Id,
+          connectionStatus: "accepted",
+        },
+        {
+          mahasiswaId: mahasiswa2Id,
+          otaId: ota1Id,
+          connectionStatus: "accepted",
+        },
+        {
+          mahasiswaId: mahasiswa3Id,
+          otaId: ota1Id,
+          connectionStatus: "pending",
+        },
+      ]);
 
       console.log("Database reset completed successfully!");
     });
