@@ -3,7 +3,7 @@ import { serve } from "@hono/node-server";
 import app from "./app.js";
 import { env } from "./config/env.config.js";
 
-export function startServer(port = env.PORT || 3000) {
+export function startServer(port = process.env.PORT || 3000) {
   return serve(
     {
       fetch: app.fetch,
