@@ -6,7 +6,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "${PORT}:3000"
+      - "${BACKEND_PORT}:3000"
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -15,7 +15,7 @@ services:
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}
       - DATABASE_URL=${DATABASE_URL}
-      - PORT=${PORT}
+      - BACKEND_PORT=${BACKEND_PORT}
       - JWT_SECRET=${JWT_SECRET}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
