@@ -152,10 +152,7 @@ export default function NavBar() {
 
                         if (!detailId || !userType) return;
 
-                        const path =
-                          userType === "mahasiswa"
-                            ? `/detail/mahasiswa/${detailId}`
-                            : `/detail/orang-tua-asuh/${detailId}`;
+                        const path = '/profile';
 
                         navigate({
                           to: path,

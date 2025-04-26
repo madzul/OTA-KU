@@ -527,7 +527,6 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
 
 profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
   const user = c.var.user;
-
   if (user.status === "unverified") {
     return c.json(
       {
@@ -538,7 +537,6 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       403,
     );
   }
-
   try {
     const profileDataOTA = await db
       .select({
@@ -546,6 +544,15 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
         phone_number: accountTable.phoneNumber,
         name: accountOtaDetailTable.name,
         join_date: accountOtaDetailTable.startDate,
+        job: accountOtaDetailTable.job,
+        address: accountOtaDetailTable.address,
+        linkage: accountOtaDetailTable.linkage,
+        funds: accountOtaDetailTable.funds,
+        maxCapacity: accountOtaDetailTable.maxCapacity,
+        startDate: accountOtaDetailTable.startDate,
+        maxSemester: accountOtaDetailTable.maxSemester,
+        transferDate: accountOtaDetailTable.transferDate,
+        criteria: accountOtaDetailTable.criteria,
       })
       .from(accountTable)
       .innerJoin(
@@ -570,6 +577,15 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       email: profileDataOTA[0].email,
       phone_number: profileDataOTA[0].phone_number ?? "",
       name: profileDataOTA[0].name,
+      job: profileDataOTA[0].job,
+      address: profileDataOTA[0].address,
+      linkage: profileDataOTA[0].linkage,
+      funds: profileDataOTA[0].funds,
+      maxCapacity: profileDataOTA[0].maxCapacity,
+      startDate: profileDataOTA[0].startDate ? profileDataOTA[0].startDate.toISOString().split('T')[0] : undefined,
+      maxSemester: profileDataOTA[0].maxSemester,
+      transferDate: profileDataOTA[0].transferDate,
+      criteria: profileDataOTA[0].criteria,
       join_date: new Date(profileDataOTA[0].join_date).toLocaleString("en-US", {
         month: "long",
         year: "numeric",
@@ -618,6 +634,21 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
         email: accountTable.email,
         phone_number: accountTable.phoneNumber,
         name: accountMahasiswaDetailTable.name,
+        nim: accountMahasiswaDetailTable.nim,
+        description: accountMahasiswaDetailTable.description,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        file: accountMahasiswaDetailTable.file,
+        kk: accountMahasiswaDetailTable.kk,
+        ktm: accountMahasiswaDetailTable.ktm,
+        waliRecommendationLetter: accountMahasiswaDetailTable.waliRecommendationLetter,
+        transcript: accountMahasiswaDetailTable.transcript,
+        salaryReport: accountMahasiswaDetailTable.salaryReport,
+        pbb: accountMahasiswaDetailTable.pbb,
+        electricityBill: accountMahasiswaDetailTable.electricityBill,
+        ditmawaRecommendationLetter: accountMahasiswaDetailTable.ditmawaRecommendationLetter,
         // join_date: accountMahasiswaDetailTable.startDate,
       })
       .from(accountTable)
@@ -643,6 +674,21 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
       email: profileDataMahasiswa[0].email,
       phone_number: profileDataMahasiswa[0].phone_number ?? "",
       name: profileDataMahasiswa[0].name!,
+      nim: profileDataMahasiswa[0].nim ?? undefined,
+      description: profileDataMahasiswa[0].description ?? undefined,
+      major: profileDataMahasiswa[0].major ?? undefined,
+      faculty: profileDataMahasiswa[0].faculty ?? undefined,
+      cityOfOrigin: profileDataMahasiswa[0].cityOfOrigin ?? undefined,
+      highschoolAlumni: profileDataMahasiswa[0].highschoolAlumni ?? undefined,
+      file: profileDataMahasiswa[0].file ?? undefined,
+      kk: profileDataMahasiswa[0].kk ?? undefined,
+      ktm: profileDataMahasiswa[0].ktm ?? undefined,
+      waliRecommendationLetter: profileDataMahasiswa[0].waliRecommendationLetter ?? undefined,
+      transcript: profileDataMahasiswa[0].transcript ?? undefined,
+      salaryReport: profileDataMahasiswa[0].salaryReport ?? undefined,
+      pbb: profileDataMahasiswa[0].pbb ?? undefined,
+      electricityBill: profileDataMahasiswa[0].electricityBill ?? undefined,
+      ditmawaRecommendationLetter: profileDataMahasiswa[0].ditmawaRecommendationLetter ?? undefined,
       // join_date: new Date(profileDataMahasiswa[0].join_date).toLocaleString("en-US", {
       //   month: "long",
       //   year: "numeric",

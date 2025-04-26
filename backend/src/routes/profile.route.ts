@@ -107,7 +107,7 @@ export const profileOrangTuaRoute = createRoute({
   operationId: "profileOrangTua",
   tags: ["Profile"],
   method: "get",
-  path: "/orang-tua/:id",
+  path: "/orang-tua/{id}",
   description: "Profile orang tua.",
   responses: {
     200: {
@@ -136,7 +136,7 @@ export const editProfileOrangTuaRoute = createRoute({
   operationId: "editProfileOTA",
   tags: ["Profile"],
   method: "post",
-  path: "/orang-tua/:id",
+  path: "/orang-tua/{id}",
   description: "Edit profile OTA",
   request: {
     body: {
@@ -180,7 +180,7 @@ export const profileMahasiswaRoute = createRoute({
   operationId: "profileMahasiswa",
   tags: ["Profile"],
   method: "get",
-  path: "/mahasiswa/:id",
+  path: "/mahasiswa/{id}",
   description: "Profile mahasiswa.",
   responses: {
     200: {
@@ -209,7 +209,7 @@ export const editProfileMahasiswaRoute = createRoute({
   operationId: "editProfileMA",
   tags: ["Profile"],
   method: "post",
-  path: "/mahasiswa/:id",
+  path: "/mahasiswa/{id}",
   description: "Edit profile MA",
   request: {
     body: {
