@@ -46,7 +46,7 @@ describe("Server Initialization", () => {
   });
 
   test("should use correct port from environment", () => {
-    process.env.PORT = "4000";
+    process.env.BACKEND_PORT = "4000";
     startServer();
 
     expect(mockServe).toHaveBeenCalledWith(
@@ -57,6 +57,6 @@ describe("Server Initialization", () => {
     );
 
     // Clean up
-    delete process.env.PORT;
+    delete process.env.BACKEND_PORT;
   });
 });
