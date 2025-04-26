@@ -7,7 +7,7 @@ type RequestOptions = {
   headers?: Record<string, string>;
 };
 
-export const BASE_URL = `http://localhost:${env.PORT || 3000}`;
+export const BASE_URL = `http://localhost:${env.BACKEND_PORT || 3000}`;
 
 export function getEndpointUrl(path: string) {
   return `${BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
