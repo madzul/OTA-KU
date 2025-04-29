@@ -47,6 +47,9 @@ export default function PendaftaranMahasiswa({
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
+  const [dragStates, setDragStates] = useState<Record<string, boolean>>({});
+
+
   const navigate = useNavigate();
   const mahasiswaRegistrationCallbackMutation = useMutation({
     mutationFn: (data: MahasiswaRegistrationFormValues) =>
@@ -87,13 +90,13 @@ export default function PendaftaranMahasiswa({
     field: keyof MahasiswaRegistrationFormValues,
     file: File | null,
   ) => {
-    setFileNames((prev) => ({
-      ...prev,
-      [field]: file?.name || "",
-    }));
-
-    // Kalau tidak ada file, set ke undefined atau string kosong
-    form.setValue(field, file ?? "");
+    if (file) {
+      setFileNames((prev) => ({
+        ...prev,
+        [field]: file.name,
+      }));
+      form.setValue(field, file);
+    }
   };
 
   async function onSubmit(values: MahasiswaRegistrationFormValues) {
@@ -260,28 +263,24 @@ export default function PendaftaranMahasiswa({
                   control={form.control}
                   name={name}
                   render={() => {
-                    const handleDragOver = (
-                      e: React.DragEvent<HTMLDivElement>,
-                    ) => {
+                    const isDragging = dragStates[name];
+
+                    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setFileNames((prev) => ({
-                        ...prev,
-                        [name]: "Dragging...",
-                      }));
+                      setDragStates((prev) => ({ ...prev, [name]: true }));
                     };
 
-                    const handleDragLeave = (
-                      e: React.DragEvent<HTMLDivElement>,
-                    ) => {
+                    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setFileNames((prev) => ({ ...prev, [name]: "" }));
+                      setDragStates((prev) => ({ ...prev, [name]: false }));
                     };
 
                     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      setDragStates((prev) => ({ ...prev, [name]: false }));
                       const file = e.dataTransfer.files?.[0] || null;
                       handleFileChange(name, file);
                     };
@@ -294,10 +293,10 @@ export default function PendaftaranMahasiswa({
                         <FormControl>
                           <div
                             className={`flex flex-col items-center justify-center rounded-md border-2 ${
-                              fileNames[name] === "Dragging..."
-                                ? "border-primary bg-primary/5 border-dashed"
-                                : "border-muted-foreground/25 hover:border-muted-foreground/50 border-dashed"
-                            } p-6 transition-all`}
+                              isDragging
+                                ? "border-primary bg-primary/5"
+                                : "border-muted-foreground/25 hover:border-muted-foreground/50"
+                            } border-dashed p-6 transition-all`}
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}
                             onDrop={handleDrop}
@@ -309,6 +308,10 @@ export default function PendaftaranMahasiswa({
                               onChange={(e) => {
                                 const file = e.target.files?.[0] || null;
                                 handleFileChange(name, file);
+                                // Reset the input value to allow re-selecting the same file
+                                if (!file) {
+                                  e.target.value = "";
+                                }
                               }}
                               ref={(el) => {
                                 fileInputRefs.current[name] = el;
@@ -317,8 +320,9 @@ export default function PendaftaranMahasiswa({
                             <div className="flex flex-col items-center gap-2 text-center">
                               <FileUp className="text-muted-foreground h-8 w-8" />
                               <p className="text-sm font-medium">
-                                {fileNames[name] ||
-                                  `Klik untuk upload atau drag & drop`}
+                                {isDragging
+                                  ? "Geser berkas kesini untuk upload"
+                                  : fileNames[name] || `Klik untuk upload atau drag & drop`}
                               </p>
                               <Button
                                 type="button"
