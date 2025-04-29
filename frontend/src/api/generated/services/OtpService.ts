@@ -27,8 +27,28 @@ export class OtpService {
       mediaType: 'multipart/form-data',
       errors: {
         400: `Bad request - missing fields.`,
-        401: `Invalid credentials.`,
+        401: `Bad request: authorization (not logged in) error`,
         404: `User not found.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Get OTP expiration date.
+   * @returns any OTP expiration date retrieved successfully.
+   * @throws ApiError
+   */
+  public getOtpExpiredDate(): CancelablePromise<{
+    success: boolean;
+    message: string;
+    expiredAt: string;
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/otp/expired-date',
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        404: `OTP not found.`,
         500: `Internal server error`,
       },
     });

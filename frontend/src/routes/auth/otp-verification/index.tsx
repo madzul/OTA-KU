@@ -21,6 +21,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { CountdownTimer } from "./-components/countdown-timer";
+
 export const Route = createFileRoute("/auth/otp-verification/")({
   component: RouteComponent,
   beforeLoad: async () => {
@@ -104,6 +106,11 @@ function RouteComponent() {
     refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
   });
 
+  const { data: otpExpiredData } = useQuery({
+    queryKey: ["otp-expired"],
+    queryFn: () => api.otp.getOtpExpiredDate().catch(() => null),
+  });
+
   const form = useForm<OTPVerificationFormValues>({
     resolver: zodResolver(OTPVerificationRequestSchema),
   });
@@ -124,9 +131,11 @@ function RouteComponent() {
     otpResendCallbackMutation.mutate(formData);
   };
 
+  console.log("otpExpiredData", otpExpiredData);
+
   return (
     <main className="text-primary flex min-h-screen flex-col items-center justify-center p-8">
-      <div className="w-full md:w-3/5 lg:w-1/2 xl:w-1/3">
+      <div className="w-full md:w-3/5 lg:w-1/2">
         <div className="text-center">
           <div className="mb-4 flex justify-center">
             <img src="/logo-iom-icon.svg" alt="IOM-ITB Logo" className="h-16" />
@@ -134,9 +143,7 @@ function RouteComponent() {
           <h1 className="text-3xl font-bold md:text-4xl xl:text-5xl">
             Verifikasi Kode OTP
           </h1>
-          <p className="my-6 text-xl md:text-2xl xl:text-3xl">
-            Cek WhatsApp Anda
-          </p>
+          <p className="my-6 text-xl md:text-2xl xl:text-3xl">Cek Email Anda</p>
         </div>
 
         <div className="text-center text-sm md:text-base xl:text-lg">
@@ -147,6 +154,9 @@ function RouteComponent() {
             <p className="mt-1 font-medium">{data?.body.email}</p>
             <p className="mt-1">
               Silahkan masukkan kode tersebut untuk melanjutkan
+            </p>
+            <p>
+              <CountdownTimer expiresAt={otpExpiredData?.expiredAt || ""} />
             </p>
           </div>
 
