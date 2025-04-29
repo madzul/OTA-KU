@@ -53,7 +53,7 @@ function RouteComponent() {
     },
     onError: (_error, _variables, context) => {
       toast.dismiss(context);
-      toast.warning("Gagal melakukan login", {
+      toast.warning("Email/No. WA atau Kata Sandi salah", {
         description: "Silakan coba lagi",
       });
     },
@@ -162,7 +162,11 @@ function RouteComponent() {
                 <a
                   href={`https://login.microsoftonline.com/db6e1183-4c65-405c-82ce-7cd53fa6e9dc/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${window.location.origin}/integrations/azure-key-vault/oauth2/callback&response_mode=query&scope=https://vault.azure.net/.default openid offline_access&state=${state}&prompt=select_account`}
                 >
-                  <img src="/microsoft.svg" alt="Microsoft Logo" className="w-6" />
+                  <img
+                    src="/microsoft.svg"
+                    alt="Microsoft Logo"
+                    className="w-6"
+                  />
                   Masuk dengan akun ITB
                 </a>
               </Button>
