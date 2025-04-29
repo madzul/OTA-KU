@@ -26,8 +26,19 @@ type MahasiswaRegistrationFormValues = z.infer<
   typeof MahasiswaRegistrationFormSchema
 >;
 
-type MahasiswaRegistrationField = keyof MahasiswaRegistrationFormValues;
-const uploadFields: MahasiswaRegistrationField[] = [
+type MahasiswaUploadField =
+  | "file"
+  | "kk"
+  | "ktm"
+  | "waliRecommendationLetter"
+  | "transcript"
+  | "salaryReport"
+  | "pbb"
+  | "electricityBill"
+  | "ditmawaRecommendationLetter";
+
+// type MahasiswaRegistrationField = keyof MahasiswaRegistrationFormValues;
+const uploadFields: MahasiswaUploadField[] = [
   "file",
   "kk",
   "ktm",
@@ -38,6 +49,18 @@ const uploadFields: MahasiswaRegistrationField[] = [
   "electricityBill",
   "ditmawaRecommendationLetter",
 ];
+
+const documentDisplayNames: Record<MahasiswaUploadField, string> = {
+  file: "Essay",
+  kk: "Kartu Keluarga",
+  ktm: "Kartu Tanda Mahasiswa",
+  waliRecommendationLetter: "Surat Rekomendasi Wali",
+  transcript: "Transkrip Nilai",
+  salaryReport: "Surat Keterangan Gaji",
+  pbb: "Pajak Bumi Bangunan",
+  electricityBill: "Tagihan Listrik",
+  ditmawaRecommendationLetter: "Surat Rekomendasi Ditmawa",
+};
 
 export default function PendaftaranMahasiswa({
   session,
@@ -288,7 +311,7 @@ export default function PendaftaranMahasiswa({
                     return (
                       <FormItem>
                         <FormLabel className="text-primary text-sm">
-                          {name}
+                          {documentDisplayNames[name]}
                         </FormLabel>
                         <FormControl>
                           <div
@@ -332,7 +355,7 @@ export default function PendaftaranMahasiswa({
                                   fileInputRefs.current[name]?.click()
                                 }
                               >
-                                Pilih {name}
+                                Pilih {documentDisplayNames[name]}
                               </Button>
                             </div>
                           </div>
