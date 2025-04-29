@@ -1,9 +1,9 @@
 "use client";
 
+import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -27,71 +27,133 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { SessionContext } from "@/context/session";
 import { cn } from "@/lib/utils";
+import { OrangTuaRegistrationSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { toast } from "sonner";
+import { z } from "zod";
 
-// Zod validation schema
-const profileFormSchema = z.object({
-  personalInfo: z.object({
-    fullName: z.string().min(1, { message: "Nama lengkap harus diisi" }),
-    occupation: z.string().optional(),
-    address: z.string().optional(),
-    relationshipWithITB: z.string().optional(),
-  }),
-  sponsorshipDetails: z.object({
-    monthlyContribution: z
-      .string()
-      .min(300000, { message: "Minimal Rp 300.000" }),
-    beneficiary: z.string().optional(),
-    startDate: z.string().optional(),
-    duration: z.string().optional(),
-    dateTransfer: z.string().min(1).max(31),
-    criteriaDescription: z.string().optional(),
-    agreeToContact: z.boolean().optional(),
-  }),
-});
-
-type ProfileFormData = z.infer<typeof profileFormSchema>;
+type OrangTuaRegistrationFormValues = z.infer<
+  typeof OrangTuaRegistrationSchema
+>;
 
 const ProfileFormOTA: React.FC = () => {
-  const form = useForm<ProfileFormData>({
-    resolver: zodResolver(profileFormSchema),
+  const session = useContext(SessionContext);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+
+  // Create form with zod validation
+  const form = useForm<OrangTuaRegistrationFormValues>({
+    resolver: zodResolver(OrangTuaRegistrationSchema),
     defaultValues: {
-      personalInfo: {
-        fullName: "",
-        occupation: "",
-        address: "",
-        relationshipWithITB: "",
-      },
-      sponsorshipDetails: {
-        monthlyContribution: "",
-        beneficiary: "anak-asuh",
-        startDate: "",
-        duration: "semester",
-        dateTransfer: "",
-        criteriaDescription: "",
-        agreeToContact: false,
-      },
+      name: "",
+      job: "",
+      address: "",
+      linkage: "none",
+      funds: 300000,
+      maxCapacity: 1,
+      startDate: new Date().toISOString().split("T")[0], // Format: YYYY-MM-DD
+      maxSemester: 1,
+      transferDate: 1,
+      criteria: "",
     },
   });
 
-  const onSubmit = (data: ProfileFormData) => {
-    console.log("Form Data:", data);
-    // Handle form submission logic
+  // Fetch existing profile data
+  const { data: profileData } = useQuery({
+    queryKey: ["otaProfile", session?.id],
+    queryFn: () => api.profile.profileOrangTua({ id: session?.id ?? "" }),
+    enabled: !!session?.id,
+  });
+
+  // Set form values once profile data is loaded
+  useEffect(() => {
+    if (profileData?.body) {
+      // Set basic profile data
+      form.setValue("name", profileData.body.name || "");
+
+      // Check if we have additional details through an API call
+      // This is a placeholder - we need to check how the API actually returns OTA details
+      api.profile
+        .profileOrangTua({ id: session?.id ?? "" })
+        .then((response) => {
+          const otaDetails = response.body;
+
+          if (otaDetails) {
+            // Set all available values from API
+            if (otaDetails.job) form.setValue("job", otaDetails.job);
+            if (otaDetails.address)
+              form.setValue("address", otaDetails.address);
+            if (otaDetails.linkage)
+              form.setValue(
+                "linkage",
+                otaDetails.linkage as
+                  | "otm"
+                  | "dosen"
+                  | "alumni"
+                  | "lainnya"
+                  | "none",
+              );
+            if (otaDetails.funds) form.setValue("funds", otaDetails.funds);
+            if (otaDetails.maxCapacity)
+              form.setValue("maxCapacity", otaDetails.maxCapacity);
+            if (otaDetails.startDate) {
+              form.setValue("startDate", otaDetails.startDate);
+              // Also set the date picker state
+              try {
+                setSelectedDate(new Date(otaDetails.startDate));
+              } catch (e) {
+                console.error("Failed to parse date:", e);
+              }
+            }
+            if (otaDetails.maxSemester)
+              form.setValue("maxSemester", otaDetails.maxSemester);
+            if (otaDetails.transferDate)
+              form.setValue("transferDate", otaDetails.transferDate);
+            if (otaDetails.criteria)
+              form.setValue("criteria", otaDetails.criteria);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching OTA details:", error);
+        });
+    }
+  }, [profileData, form, session?.id]);
+
+  // Mutation for updating profile
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: OrangTuaRegistrationFormValues) =>
+      api.profile.editProfileOta({
+        formData: data,
+        id: session?.id ?? "",
+      }),
+    onSuccess: () => {
+      toast.success("Profil berhasil diperbarui", {
+        description: "Data profil Anda telah disimpan",
+      });
+    },
+    onError: (error) => {
+      toast.error("Gagal memperbarui profil", {
+        description: error.message,
+      });
+    },
+  });
+
+  const onSubmit = (values: OrangTuaRegistrationFormValues) => {
+    updateProfileMutation.mutate(values);
   };
 
-  const [date, setDate] = React.useState<Date>();
   return (
     <div className="mx-auto w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Tabs defaultValue="personalInfo" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="bg-placeholder grid w-full grid-cols-2">
               <TabsTrigger value="personalInfo">Data Diri</TabsTrigger>
               <TabsTrigger value="sponsorshipDetails">
                 Detail Pendaftaran
@@ -104,7 +166,7 @@ const ProfileFormOTA: React.FC = () => {
                 <div className="space-y-4 p-4">
                   <FormField
                     control={form.control}
-                    name="personalInfo.fullName"
+                    name="name"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Nama Lengkap</FormLabel>
@@ -117,31 +179,33 @@ const ProfileFormOTA: React.FC = () => {
                   />
                   <FormField
                     control={form.control}
-                    name="personalInfo.occupation"
+                    name="job"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Pekerjaan</FormLabel>
                         <FormControl>
                           <Input placeholder="Pekerjaan" {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="personalInfo.address"
+                    name="address"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Alamat</FormLabel>
                         <FormControl>
                           <Textarea placeholder="Alamat" {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="personalInfo.relationshipWithITB"
+                    name="linkage"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Keterkaitan dengan ITB</FormLabel>
@@ -156,11 +220,15 @@ const ProfileFormOTA: React.FC = () => {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="alumni">Alumni</SelectItem>
-                            <SelectItem value="mahasiswa">Mahasiswa</SelectItem>
+                            <SelectItem value="otm">
+                              Orang Tua Mahasiswa
+                            </SelectItem>
                             <SelectItem value="dosen">Dosen</SelectItem>
                             <SelectItem value="lainnya">Lainnya</SelectItem>
+                            <SelectItem value="none">Tidak Ada</SelectItem>
                           </SelectContent>
                         </Select>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -172,7 +240,7 @@ const ProfileFormOTA: React.FC = () => {
                 <div className="space-y-4 p-4">
                   <FormField
                     control={form.control}
-                    name="sponsorshipDetails.monthlyContribution"
+                    name="funds"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -184,6 +252,9 @@ const ProfileFormOTA: React.FC = () => {
                             type="number"
                             placeholder="Minimal Rp 300.000"
                             {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -192,96 +263,121 @@ const ProfileFormOTA: React.FC = () => {
                   />
                   <FormField
                     control={form.control}
-                    name="sponsorshipDetails.beneficiary"
+                    name="maxCapacity"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Untuk Diberikan Kepada</FormLabel>
+                        <FormLabel>Jumlah Anak Asuh Maksimal</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             placeholder="Jumlah anak asuh"
                             {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="sponsorshipDetails.startDate"
+                    name="startDate"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="flex flex-col">
                         <FormLabel>Dana akan mulai diberikan pada</FormLabel>
-                        <FormControl>
-                          <Popover>
-                            <PopoverTrigger asChild>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
                               <Button
                                 variant={"outline"}
                                 className={cn(
                                   "border-input placeholder:text-muted-foreground flex h-9 w-full min-w-0 justify-start rounded-md border bg-white px-3 py-1 text-base text-black shadow-xs transition-[color,box-shadow] outline-none md:text-sm",
                                   "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
                                   "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-                                  !date && "text-muted-foreground",
+                                  !selectedDate && "text-muted-foreground",
                                 )}
                               >
                                 <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date ? (
-                                  format(date, "PPP")
+                                {selectedDate ? (
+                                  format(selectedDate, "PPP")
                                 ) : (
-                                  <span>Pick a date</span>
+                                  <span>Pilih tanggal</span>
                                 )}
                               </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                              <Calendar
-                                mode="single"
-                                selected={date}
-                                onSelect={setDate}
-                                initialFocus
-                                {...field}
-                              />
-                            </PopoverContent>
-                          </Popover>
-                        </FormControl>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={selectedDate}
+                              onSelect={(date) => {
+                                setSelectedDate(date);
+                                if (date) {
+                                  field.onChange(format(date, "yyyy-MM-dd"));
+                                }
+                              }}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="sponsorshipDetails.duration"
+                    name="maxSemester"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Selama</FormLabel>
+                        <FormLabel>Semester Maksimal</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             placeholder="Min. 1 semester"
                             {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="sponsorshipDetails.dateTransfer"
+                    name="transferDate"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
                           Dana akan ditransfer ke rekening IOM setiap tanggal
                         </FormLabel>
-                        <Input type="number" placeholder="Tanggal" {...field} />
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Tanggal (1-28)"
+                            min={1}
+                            max={28}
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
 
                   <FormField
                     control={form.control}
-                    name="sponsorshipDetails.criteriaDescription"
+                    name="criteria"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Adapun Kriteria Anak Asuh yang Diinginkan (Opsional)
+                          Adapun Kriteria Anak Asuh yang Diinginkan
                         </FormLabel>
                         <FormControl>
                           <Textarea
@@ -289,29 +385,7 @@ const ProfileFormOTA: React.FC = () => {
                             {...field}
                           />
                         </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="sponsorshipDetails.agreeToContact"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center space-x-2">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <FormLabel>
-                            Saya bersedia dihubungi melalui nomor HP untuk
-                            koordinasi dalam penyaluran bantuan. Demikian
-                            pernyataan ini saya buat dengan sebenarnya untuk
-                            dapat dipergunakan sebagaimana mestinya. Saya tidak
-                            keberatan untuk berkomunikasi dengan anak asuh
-                          </FormLabel>
-                        </div>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -321,10 +395,21 @@ const ProfileFormOTA: React.FC = () => {
           </Tabs>
 
           <div className="flex justify-end space-x-2 p-4">
-            <Button type="button" className="w-24 xl:w-40" variant="outline">
+            <Button
+              type="button"
+              className="w-24 xl:w-40"
+              variant="outline"
+              onClick={() => form.reset()}
+            >
               Batal
             </Button>
-            <Button type="submit" className="w-24 xl:w-40">Simpan</Button>
+            <Button
+              type="submit"
+              className="w-24 xl:w-40"
+              disabled={updateProfileMutation.isPending}
+            >
+              {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
+            </Button>
           </div>
         </form>
       </Form>

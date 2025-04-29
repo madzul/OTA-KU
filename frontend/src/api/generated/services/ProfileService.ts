@@ -276,8 +276,10 @@ export class ProfileService {
    * @throws ApiError
    */
   public editProfileOta({
+    id,
     formData,
   }: {
+    id: string,
     formData?: {
       /**
        * Nama orang tua
@@ -362,7 +364,10 @@ export class ProfileService {
   }> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/api/profile/orang-tua/:id',
+      url: '/api/profile/orang-tua/{id}',
+      path: {
+        'id': id,
+      },
       formData: formData,
       mediaType: 'multipart/form-data',
       errors: {
@@ -378,7 +383,11 @@ export class ProfileService {
    * @returns any Success
    * @throws ApiError
    */
-  public profileOrangTua(): CancelablePromise<{
+  public profileOrangTua({
+    id,
+  }: {
+    id: string,
+  }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
@@ -392,11 +401,23 @@ export class ProfileService {
        */
       phone_number: string;
       join_date: string;
+      job?: string;
+      address?: string;
+      linkage?: string;
+      funds?: number;
+      maxCapacity?: number;
+      startDate?: string;
+      maxSemester?: number;
+      transferDate?: number;
+      criteria?: string;
     };
   }> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/api/profile/orang-tua/:id',
+      url: '/api/profile/orang-tua/{id}',
+      path: {
+        'id': id,
+      },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun belum terverifikasi.`,
@@ -554,7 +575,7 @@ export class ProfileService {
   }> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/api/profile/mahasiswa/:id',
+      url: '/api/profile/mahasiswa/{id}',
       formData: formData,
       mediaType: 'multipart/form-data',
       errors: {
@@ -570,7 +591,11 @@ export class ProfileService {
    * @returns any Success
    * @throws ApiError
    */
-  public profileMahasiswa(): CancelablePromise<{
+  public profileMahasiswa({
+    id,
+  }: {
+    id: string,
+  }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
@@ -583,11 +608,29 @@ export class ProfileService {
        * Nomor telepon pengguna yang dimulai dengan 62.
        */
       phone_number: string;
+      nim?: string;
+      major?: string;
+      faculty?: string;
+      cityOfOrigin?: string;
+      highschoolAlumni?: string;
+      description?: string;
+      file?: string;
+      kk?: string;
+      ktm?: string;
+      waliRecommendationLetter?: string;
+      transcript?: string;
+      salaryReport?: string;
+      pbb?: string;
+      electricityBill?: string;
+      ditmawaRecommendationLetter?: string;
     };
   }> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/api/profile/mahasiswa/:id',
+      url: '/api/profile/mahasiswa/{id}',
+      path: {
+        'id': id,
+      },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun belum terverifikasi.`,
