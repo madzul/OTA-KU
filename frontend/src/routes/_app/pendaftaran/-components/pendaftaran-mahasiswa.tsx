@@ -17,7 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { FileUp } from "lucide-react";
 import type React from "react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -107,6 +107,7 @@ export default function PendaftaranMahasiswa({
     defaultValues: {
       phoneNumber: session.phoneNumber ?? "",
     },
+    mode: "onSubmit",
   });
 
   const handleFileChange = (
@@ -122,7 +123,18 @@ export default function PendaftaranMahasiswa({
     }
   };
 
+  useEffect(() => {
+    if (Object.keys(form.formState.errors).length > 0) {
+      Object.entries(form.formState.errors).forEach(([field, error]) => {
+        toast.error(`Error in ${field}: ${error?.message || "Invalid input"}`);
+      });
+    }
+  }, [form.formState.errors]);
+
   async function onSubmit(values: MahasiswaRegistrationFormValues) {
+    if (Object.keys(form.formState.errors).length > 0) {
+      return; // Prevent submission if there are errors
+    }
     mahasiswaRegistrationCallbackMutation.mutate(values);
   }
 
