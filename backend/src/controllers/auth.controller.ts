@@ -159,7 +159,7 @@ authRouter.openapi(regisRoute, async (c) => {
       await tx.insert(otpTable).values({
         accountId: newUser[0].id,
         code: code,
-        expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        expiredAt: new Date(Date.now() + 1000 * 60 * 15), // 15 minutes
       });
 
       return [newUser, code];

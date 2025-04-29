@@ -6,7 +6,7 @@ import { db } from "../db/drizzle.js";
 import { accountTable, otpTable } from "../db/schema.js";
 import { emailHTML } from "../lib/email-html.js";
 import { generateOTP } from "../lib/otp.js";
-import { sendOtpRoute } from "../routes/otp.route.js";
+import { getOtpExpiredDateRoute, sendOtpRoute } from "../routes/otp.route.js";
 import { SendOtpRequestSchema } from "../zod/otp.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -86,6 +86,49 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+otpProtectedRouter.openapi(getOtpExpiredDateRoute, async (c) => {
+  const user = c.var.user;
+
+  try {
+    const otp = await db
+      .select()
+      .from(otpTable)
+      .where(eq(otpTable.accountId, user.id))
+      .limit(1);
+
+    if (!otp.length) {
+      return c.json(
+        {
+          success: false,
+          message: "OTP not found",
+          error: {},
+        },
+        404,
+      );
+    }
+
+    const expiredAt = otp[0].expiredAt.toISOString();
+    return c.json(
+      {
+        success: true,
+        message: "OTP expired date retrieved successfully",
+        expiredAt,
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Failed to retrieve OTP expired date",
         error: {},
       },
       500,

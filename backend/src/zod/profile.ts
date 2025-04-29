@@ -143,6 +143,12 @@ export const MahasiswaUnverifiedResponse = z.object({
   error: z.object({}),
 });
 
+export const MahasiswaNotFoundResponse = z.object({
+  success: z.boolean().openapi({ example: false }),
+  message: z.string().openapi({ example: "Mahasiswa tidak ditemukan" }),
+  error: z.object({}),
+});
+
 // Orang Tua Registration
 export const OrangTuaRegistrationParams = z.object({
   id: z.string().openapi({ description: "ID akun" }),
@@ -281,6 +287,12 @@ export const OrangTuaUnverifiedResponse = z.object({
   error: z.object({}),
 });
 
+export const OrangTuaNotFoundResponse = z.object({
+  success: z.boolean().openapi({ example: false }),
+  message: z.string().openapi({ example: "Orang tua tidak ditemukan" }),
+  error: z.object({}),
+});
+
 export const ProfileOrangTuaResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mengakses profil OTA" }),
@@ -290,14 +302,20 @@ export const ProfileOrangTuaResponse = z.object({
     phone_number: PhoneNumberSchema,
     join_date: z.string().openapi({ example: "March 2025" }),
     job: z.string().optional().openapi({ example: "Dokter" }),
-    address: z.string().optional().openapi({ example: "Jl. Ganesha No. 10, Bandung" }),
+    address: z
+      .string()
+      .optional()
+      .openapi({ example: "Jl. Ganesha No. 10, Bandung" }),
     linkage: z.string().optional().openapi({ example: "alumni" }),
     funds: z.number().optional().openapi({ example: 500000 }),
     maxCapacity: z.number().optional().openapi({ example: 2 }),
     startDate: z.string().optional().openapi({ example: "2025-01-01" }),
     maxSemester: z.number().optional().openapi({ example: 8 }),
     transferDate: z.number().optional().openapi({ example: 10 }),
-    criteria: z.string().optional().openapi({ example: "Mahasiswa dari daerah Indonesia Timur" }),
+    criteria: z
+      .string()
+      .optional()
+      .openapi({ example: "Mahasiswa dari daerah Indonesia Timur" }),
   }),
 });
 
@@ -313,17 +331,48 @@ export const ProfileMahasiswaResponse = z.object({
     major: z.string().optional().openapi({ example: "Teknik Informatika" }),
     faculty: z.string().optional().openapi({ example: "STEI-K" }),
     cityOfOrigin: z.string().optional().openapi({ example: "Bandung" }),
-    highschoolAlumni: z.string().optional().openapi({ example: "SMAN 3 Bandung" }),
-    description: z.string().optional().openapi({ example: "Membutuhkan bantuan biaya kuliah" }),
-    file: z.string().optional().openapi({ example: "https://res.cloudinary.com/example/file.pdf" }),
-    kk: z.string().optional().openapi({ example: "https://res.cloudinary.com/example/kk.pdf" }),
-    ktm: z.string().optional().openapi({ example: "https://res.cloudinary.com/example/ktm.pdf" }),
-    waliRecommendationLetter: z.string().optional().openapi({ example: "https://res.cloudinary.com/example/wali.pdf" }),
-    transcript: z.string().optional().openapi({ example: "https://res.cloudinary.com/example/transcript.pdf" }),
-    salaryReport: z.string().optional().openapi({ example: "https://res.cloudinary.com/example/salary.pdf" }),
-    pbb: z.string().optional().openapi({ example: "https://res.cloudinary.com/example/pbb.pdf" }),
-    electricityBill: z.string().optional().openapi({ example: "https://res.cloudinary.com/example/electricity.pdf" }),
-    ditmawaRecommendationLetter: z.string().optional().openapi({ example: "https://res.cloudinary.com/example/ditmawa.pdf" }),
+    highschoolAlumni: z
+      .string()
+      .optional()
+      .openapi({ example: "SMAN 3 Bandung" }),
+    description: z
+      .string()
+      .optional()
+      .openapi({ example: "Membutuhkan bantuan biaya kuliah" }),
+    file: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/file.pdf" }),
+    kk: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/kk.pdf" }),
+    ktm: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/ktm.pdf" }),
+    waliRecommendationLetter: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/wali.pdf" }),
+    transcript: z.string().optional().openapi({
+      example: "https://res.cloudinary.com/example/transcript.pdf",
+    }),
+    salaryReport: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/salary.pdf" }),
+    pbb: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/pbb.pdf" }),
+    electricityBill: z.string().optional().openapi({
+      example: "https://res.cloudinary.com/example/electricity.pdf",
+    }),
+    ditmawaRecommendationLetter: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/ditmawa.pdf" }),
     // join_date: z.string().openapi({ example: "March 2025" })
   }),
 });

@@ -562,16 +562,16 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       .where(eq(accountTable.id, user.id))
       .limit(1);
 
-    // if (profileDataOTA.length === 0) {
-    //   return c.json(
-    //     {
-    //       success: false,
-    //       message: "Profil tidak ditemukan.",
-    //       error: {},
-    //     },
-    //     404
-    //   );
-    // }
+    if (profileDataOTA.length === 0) {
+      return c.json(
+        {
+          success: false,
+          message: "Profil tidak ditemukan.",
+          error: {},
+        },
+        404,
+      );
+    }
 
     const formattedProfile = {
       email: profileDataOTA[0].email,
@@ -582,7 +582,9 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       linkage: profileDataOTA[0].linkage,
       funds: profileDataOTA[0].funds,
       maxCapacity: profileDataOTA[0].maxCapacity,
-      startDate: profileDataOTA[0].startDate ? profileDataOTA[0].startDate.toISOString().split('T')[0] : undefined,
+      startDate: profileDataOTA[0].startDate
+        ? profileDataOTA[0].startDate.toISOString().split("T")[0]
+        : undefined,
       maxSemester: profileDataOTA[0].maxSemester,
       transferDate: profileDataOTA[0].transferDate,
       criteria: profileDataOTA[0].criteria,
@@ -643,12 +645,14 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
         file: accountMahasiswaDetailTable.file,
         kk: accountMahasiswaDetailTable.kk,
         ktm: accountMahasiswaDetailTable.ktm,
-        waliRecommendationLetter: accountMahasiswaDetailTable.waliRecommendationLetter,
+        waliRecommendationLetter:
+          accountMahasiswaDetailTable.waliRecommendationLetter,
         transcript: accountMahasiswaDetailTable.transcript,
         salaryReport: accountMahasiswaDetailTable.salaryReport,
         pbb: accountMahasiswaDetailTable.pbb,
         electricityBill: accountMahasiswaDetailTable.electricityBill,
-        ditmawaRecommendationLetter: accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        ditmawaRecommendationLetter:
+          accountMahasiswaDetailTable.ditmawaRecommendationLetter,
         // join_date: accountMahasiswaDetailTable.startDate,
       })
       .from(accountTable)
@@ -659,16 +663,16 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
       .where(eq(accountTable.id, user.id))
       .limit(1);
 
-    // if (profileDataOTA.length === 0) {
-    //   return c.json(
-    //     {
-    //       success: false,
-    //       message: "Profil tidak ditemukan.",
-    //       error: {},
-    //     },
-    //     404
-    //   );
-    // }
+    if (profileDataMahasiswa.length === 0) {
+      return c.json(
+        {
+          success: false,
+          message: "Profil tidak ditemukan.",
+          error: {},
+        },
+        404,
+      );
+    }
 
     const formattedProfile = {
       email: profileDataMahasiswa[0].email,
@@ -683,12 +687,14 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
       file: profileDataMahasiswa[0].file ?? undefined,
       kk: profileDataMahasiswa[0].kk ?? undefined,
       ktm: profileDataMahasiswa[0].ktm ?? undefined,
-      waliRecommendationLetter: profileDataMahasiswa[0].waliRecommendationLetter ?? undefined,
+      waliRecommendationLetter:
+        profileDataMahasiswa[0].waliRecommendationLetter ?? undefined,
       transcript: profileDataMahasiswa[0].transcript ?? undefined,
       salaryReport: profileDataMahasiswa[0].salaryReport ?? undefined,
       pbb: profileDataMahasiswa[0].pbb ?? undefined,
       electricityBill: profileDataMahasiswa[0].electricityBill ?? undefined,
-      ditmawaRecommendationLetter: profileDataMahasiswa[0].ditmawaRecommendationLetter ?? undefined,
+      ditmawaRecommendationLetter:
+        profileDataMahasiswa[0].ditmawaRecommendationLetter ?? undefined,
       // join_date: new Date(profileDataMahasiswa[0].join_date).toLocaleString("en-US", {
       //   month: "long",
       //   year: "numeric",

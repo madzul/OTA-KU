@@ -2,6 +2,7 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
+  MahasiswaNotFoundResponse,
   MahasiswaRegistrationFailedResponse,
   MahasiswaRegistrationFormSchema,
   MahasiswaRegistrationParams,
@@ -128,6 +129,12 @@ export const profileOrangTuaRoute = createRoute({
         "application/json": { schema: OrangTuaUnverifiedResponse },
       },
     },
+    404: {
+      description: "Data tidak ditemukan.",
+      content: {
+        "application/json": { schema: MahasiswaRegistrationFailedResponse },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -202,7 +209,13 @@ export const profileMahasiswaRoute = createRoute({
     403: {
       description: "Akun belum terverifikasi.",
       content: {
-        "application/json": { schema: OrangTuaUnverifiedResponse },
+        "application/json": { schema: MahasiswaUnverifiedResponse },
+      },
+    },
+    404: {
+      description: "Data tidak ditemukan.",
+      content: {
+        "application/json": { schema: MahasiswaNotFoundResponse },
       },
     },
     500: {
