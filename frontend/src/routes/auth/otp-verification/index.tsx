@@ -30,7 +30,7 @@ export const Route = createFileRoute("/auth/otp-verification/")({
     }
 
     if (user.body.status === "verified") {
-      throw redirect({ to: "/profile" });
+      throw redirect({ to: "/profile" }); //TODO: redirect ke dashboard bukan profile, ini juga gatau kenapa profile budi santoso (masih placeholder kah?)
     }
   },
 });

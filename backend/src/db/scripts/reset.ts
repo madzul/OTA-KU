@@ -11,6 +11,19 @@ import {
 
 export async function resetDatabase() {
   try {
+    // Hash passwords - adjust salt rounds as needed
+    const hashedPassword = await hash("password123", 10);
+
+    // Generate UUIDs
+    const adminId = uuidv4();
+    const mahasiswa1Id = uuidv4();
+    const mahasiswa2Id = uuidv4();
+    const mahasiswa3Id = uuidv4();
+    const mahasiswa4Id = uuidv4();
+    const mahasiswa5Id = uuidv4();
+    const ota1Id = uuidv4();
+    const ota2Id = uuidv4();
+    
     await db.transaction(async (tx) => {
       console.log("Starting database reset...");
 
@@ -36,19 +49,6 @@ export async function resetDatabase() {
 
       // 3. Re-seed with initial data
       console.log("Re-seeding database with initial data...");
-
-      // Hash passwords - adjust salt rounds as needed
-      const hashedPassword = await hash("password123", 10);
-
-      // Generate UUIDs
-      const adminId = uuidv4();
-      const mahasiswa1Id = uuidv4();
-      const mahasiswa2Id = uuidv4();
-      const mahasiswa3Id = uuidv4();
-      const mahasiswa4Id = uuidv4();
-      const mahasiswa5Id = uuidv4();
-      const ota1Id = uuidv4();
-      const ota2Id = uuidv4();
 
       // Seed admin account
       await tx.insert(accountTable).values({
@@ -107,6 +107,29 @@ export async function resetDatabase() {
         },
       ]);
 
+      // Seed OTA accounts
+      await tx.insert(accountTable).values([
+        {
+          id: ota1Id,
+          email: "ota1@example.com",
+          phoneNumber: "628111222333",
+          password: hashedPassword,
+          type: "ota",
+          status: "verified",
+          applicationStatus: "accepted",
+        },
+        {
+          id: ota2Id,
+          email: "ota2@example.com",
+          phoneNumber: "628444555666",
+          password: hashedPassword,
+          type: "ota",
+          applicationStatus: "accepted",
+        },
+      ]);
+    });
+
+    await db.transaction(async (tx) => {
       // Seed mahasiswa details
       await tx.insert(accountMahasiswaDetailTable).values([
         {
@@ -148,27 +171,6 @@ export async function resetDatabase() {
           description: "Mahasiswa Five is an inactive student.",
           file: "https://example.com/mahasiswa5.pdf",
           mahasiswaStatus: "inactive",
-        },
-      ]);
-
-      // Seed OTA accounts
-      await tx.insert(accountTable).values([
-        {
-          id: ota1Id,
-          email: "ota1@example.com",
-          phoneNumber: "628111222333",
-          password: hashedPassword,
-          type: "ota",
-          status: "verified",
-          applicationStatus: "accepted",
-        },
-        {
-          id: ota2Id,
-          email: "ota2@example.com",
-          phoneNumber: "628444555666",
-          password: hashedPassword,
-          type: "ota",
-          applicationStatus: "accepted",
         },
       ]);
 
@@ -220,9 +222,9 @@ export async function resetDatabase() {
           connectionStatus: "pending",
         },
       ]);
+    })
 
-      console.log("Database reset completed successfully!");
-    });
+    console.log("Database reset completed successfully!");
   } catch (error) {
     console.error("Error resetting database:", error);
   } finally {
