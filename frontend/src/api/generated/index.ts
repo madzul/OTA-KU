@@ -22,3 +22,4 @@ export { ListService } from './services/ListService';
 export { OtpService } from './services/OtpService';
 export { ProfileService } from './services/ProfileService';
 export { StatusService } from './services/StatusService';
+export { TerminateService } from './services/TerminateService';
