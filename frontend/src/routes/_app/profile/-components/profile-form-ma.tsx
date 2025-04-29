@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SessionContext } from "@/context/session";
+import { Fakultas, Jurusan } from "@/lib/nim";
 import { MahasiswaRegistrationFormSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -77,8 +78,7 @@ const ProfileFormMA: React.FC = () => {
   // Fetch existing profile data
   const { data: profileData } = useQuery({
     queryKey: ["mahasiswaProfile", session?.id],
-    queryFn: () =>
-      api.profile.profileMahasiswa({ params: { id: session?.id ?? "" } }),
+    queryFn: () => api.profile.profileMahasiswa({ id: session?.id ?? "" }),
     enabled: !!session?.id,
   });
 
@@ -92,9 +92,9 @@ const ProfileFormMA: React.FC = () => {
       // Set data detail mahasiswa jika tersedia
       if (profileData.body.nim) form.setValue("nim", profileData.body.nim);
       if (profileData.body.major)
-        form.setValue("major", profileData.body.major as any);
+        form.setValue("major", profileData.body.major as Jurusan);
       if (profileData.body.faculty)
-        form.setValue("faculty", profileData.body.faculty as any);
+        form.setValue("faculty", profileData.body.faculty as Fakultas);
       if (profileData.body.cityOfOrigin)
         form.setValue("cityOfOrigin", profileData.body.cityOfOrigin);
       if (profileData.body.highschoolAlumni)
@@ -108,8 +108,9 @@ const ProfileFormMA: React.FC = () => {
 
       uploadFields.forEach((fieldName) => {
         // Map form field names to API response field names if needed
-        const apiFieldName = fieldName === 'phoneNumber' ? 'phone_number' : fieldName;
-        
+        const apiFieldName =
+          fieldName === "phoneNumber" ? "phone_number" : fieldName;
+
         if (
           profileData.body[apiFieldName] &&
           typeof profileData.body[apiFieldName] === "string"
@@ -125,7 +126,7 @@ const ProfileFormMA: React.FC = () => {
 
       setFileNames(newFileNames);
     }
-  }, [profileData, form, setFileNames]);
+  }, [profileData, form, setFileNames, fileNames]);
 
   // Mutation for updating profile
   const updateProfileMutation = useMutation({

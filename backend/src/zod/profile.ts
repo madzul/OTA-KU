@@ -10,6 +10,10 @@ import {
 } from "./atomic.js";
 
 // Mahasiswa Registration
+export const MahasiswaRegistrationParams = z.object({
+  id: z.string().openapi({ description: "ID akun" }),
+});
+
 export const MahasiswaRegistrationSchema = z.object({
   name: z
     .string({
@@ -140,6 +144,10 @@ export const MahasiswaUnverifiedResponse = z.object({
 });
 
 // Orang Tua Registration
+export const OrangTuaRegistrationParams = z.object({
+  id: z.string().openapi({ description: "ID akun" }),
+});
+
 export const OrangTuaRegistrationSchema = z.object({
   name: z
     .string({

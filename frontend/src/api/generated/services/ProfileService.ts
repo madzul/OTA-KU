@@ -276,8 +276,10 @@ export class ProfileService {
    * @throws ApiError
    */
   public editProfileOta({
+    id,
     formData,
   }: {
+    id: string,
     formData?: {
       /**
        * Nama orang tua
@@ -363,6 +365,9 @@ export class ProfileService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/profile/orang-tua/{id}',
+      path: {
+        'id': id,
+      },
       formData: formData,
       mediaType: 'multipart/form-data',
       errors: {
@@ -378,7 +383,11 @@ export class ProfileService {
    * @returns any Success
    * @throws ApiError
    */
-  public profileOrangTua(p0: { params: { id: string; }; }): CancelablePromise<{
+  public profileOrangTua({
+    id,
+  }: {
+    id: string,
+  }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
@@ -406,6 +415,9 @@ export class ProfileService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/api/profile/orang-tua/{id}',
+      path: {
+        'id': id,
+      },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun belum terverifikasi.`,
@@ -579,7 +591,11 @@ export class ProfileService {
    * @returns any Success
    * @throws ApiError
    */
-  public profileMahasiswa(p0: { params: { id: string; }; }): CancelablePromise<{
+  public profileMahasiswa({
+    id,
+  }: {
+    id: string,
+  }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
@@ -612,6 +628,9 @@ export class ProfileService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/api/profile/mahasiswa/{id}',
+      path: {
+        'id': id,
+      },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun belum terverifikasi.`,

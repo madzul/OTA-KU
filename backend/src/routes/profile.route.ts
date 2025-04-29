@@ -4,14 +4,16 @@ import { AuthorizationErrorResponse } from "../types/response.js";
 import {
   MahasiswaRegistrationFailedResponse,
   MahasiswaRegistrationFormSchema,
+  MahasiswaRegistrationParams,
   MahasiswaRegistrationSuccessfulResponse,
   MahasiswaUnverifiedResponse,
   OrangTuaRegistrationFailedResponse,
+  OrangTuaRegistrationParams,
   OrangTuaRegistrationSchema,
   OrangTuaRegistrationSuccessfulResponse,
   OrangTuaUnverifiedResponse,
   ProfileMahasiswaResponse,
-  ProfileOrangTuaResponse
+  ProfileOrangTuaResponse,
 } from "../zod/profile.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 
@@ -109,12 +111,15 @@ export const profileOrangTuaRoute = createRoute({
   method: "get",
   path: "/orang-tua/{id}",
   description: "Profile orang tua.",
+  request: {
+    params: OrangTuaRegistrationParams,
+  },
   responses: {
     200: {
       description: "Success",
       content: {
-        "application/json": { schema: ProfileOrangTuaResponse }
-      }
+        "application/json": { schema: ProfileOrangTuaResponse },
+      },
     },
     401: AuthorizationErrorResponse,
     403: {
@@ -128,9 +133,9 @@ export const profileOrangTuaRoute = createRoute({
       content: {
         "application/json": { schema: InternalServerErrorResponse },
       },
-    }
-  }
-})
+    },
+  },
+});
 
 export const editProfileOrangTuaRoute = createRoute({
   operationId: "editProfileOTA",
@@ -139,6 +144,7 @@ export const editProfileOrangTuaRoute = createRoute({
   path: "/orang-tua/{id}",
   description: "Edit profile OTA",
   request: {
+    params: OrangTuaRegistrationParams,
     body: {
       content: {
         "multipart/form-data": {
@@ -174,7 +180,7 @@ export const editProfileOrangTuaRoute = createRoute({
       },
     },
   },
-})
+});
 
 export const profileMahasiswaRoute = createRoute({
   operationId: "profileMahasiswa",
@@ -182,12 +188,15 @@ export const profileMahasiswaRoute = createRoute({
   method: "get",
   path: "/mahasiswa/{id}",
   description: "Profile mahasiswa.",
+  request: {
+    params: MahasiswaRegistrationParams,
+  },
   responses: {
     200: {
       description: "Success",
       content: {
-        "application/json": { schema: ProfileMahasiswaResponse }
-      }
+        "application/json": { schema: ProfileMahasiswaResponse },
+      },
     },
     401: AuthorizationErrorResponse,
     403: {
@@ -201,9 +210,9 @@ export const profileMahasiswaRoute = createRoute({
       content: {
         "application/json": { schema: InternalServerErrorResponse },
       },
-    }
-  }
-})
+    },
+  },
+});
 
 export const editProfileMahasiswaRoute = createRoute({
   operationId: "editProfileMA",
@@ -247,4 +256,4 @@ export const editProfileMahasiswaRoute = createRoute({
       },
     },
   },
-})
+});

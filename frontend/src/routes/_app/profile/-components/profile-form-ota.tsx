@@ -4,7 +4,6 @@ import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -29,11 +28,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { SessionContext } from "@/context/session";
-import { OrangTuaRegistrationSchema } from "@/lib/zod/profile";
 import { cn } from "@/lib/utils";
+import { OrangTuaRegistrationSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -58,7 +57,7 @@ const ProfileFormOTA: React.FC = () => {
       linkage: "none",
       funds: 300000,
       maxCapacity: 1,
-      startDate: new Date().toISOString().split('T')[0], // Format: YYYY-MM-DD
+      startDate: new Date().toISOString().split("T")[0], // Format: YYYY-MM-DD
       maxSemester: 1,
       transferDate: 1,
       criteria: "",
@@ -68,8 +67,7 @@ const ProfileFormOTA: React.FC = () => {
   // Fetch existing profile data
   const { data: profileData } = useQuery({
     queryKey: ["otaProfile", session?.id],
-    queryFn: () =>
-      api.profile.profileOrangTua({ params: { id: session?.id ?? "" } }),
+    queryFn: () => api.profile.profileOrangTua({ id: session?.id ?? "" }),
     enabled: !!session?.id,
   });
 
@@ -78,20 +76,32 @@ const ProfileFormOTA: React.FC = () => {
     if (profileData?.body) {
       // Set basic profile data
       form.setValue("name", profileData.body.name || "");
-      
+
       // Check if we have additional details through an API call
       // This is a placeholder - we need to check how the API actually returns OTA details
-      api.profile.profileOrangTua({ params: { id: session?.id ?? "" } })
-        .then(response => {
+      api.profile
+        .profileOrangTua({ id: session?.id ?? "" })
+        .then((response) => {
           const otaDetails = response.body;
-          
+
           if (otaDetails) {
             // Set all available values from API
             if (otaDetails.job) form.setValue("job", otaDetails.job);
-            if (otaDetails.address) form.setValue("address", otaDetails.address);
-            if (otaDetails.linkage) form.setValue("linkage", otaDetails.linkage as any);
+            if (otaDetails.address)
+              form.setValue("address", otaDetails.address);
+            if (otaDetails.linkage)
+              form.setValue(
+                "linkage",
+                otaDetails.linkage as
+                  | "otm"
+                  | "dosen"
+                  | "alumni"
+                  | "lainnya"
+                  | "none",
+              );
             if (otaDetails.funds) form.setValue("funds", otaDetails.funds);
-            if (otaDetails.maxCapacity) form.setValue("maxCapacity", otaDetails.maxCapacity);
+            if (otaDetails.maxCapacity)
+              form.setValue("maxCapacity", otaDetails.maxCapacity);
             if (otaDetails.startDate) {
               form.setValue("startDate", otaDetails.startDate);
               // Also set the date picker state
@@ -101,12 +111,15 @@ const ProfileFormOTA: React.FC = () => {
                 console.error("Failed to parse date:", e);
               }
             }
-            if (otaDetails.maxSemester) form.setValue("maxSemester", otaDetails.maxSemester);
-            if (otaDetails.transferDate) form.setValue("transferDate", otaDetails.transferDate);
-            if (otaDetails.criteria) form.setValue("criteria", otaDetails.criteria);
+            if (otaDetails.maxSemester)
+              form.setValue("maxSemester", otaDetails.maxSemester);
+            if (otaDetails.transferDate)
+              form.setValue("transferDate", otaDetails.transferDate);
+            if (otaDetails.criteria)
+              form.setValue("criteria", otaDetails.criteria);
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Error fetching OTA details:", error);
         });
     }
@@ -117,6 +130,7 @@ const ProfileFormOTA: React.FC = () => {
     mutationFn: (data: OrangTuaRegistrationFormValues) =>
       api.profile.editProfileOta({
         formData: data,
+        id: session?.id ?? "",
       }),
     onSuccess: () => {
       toast.success("Profil berhasil diperbarui", {
@@ -206,7 +220,9 @@ const ProfileFormOTA: React.FC = () => {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="alumni">Alumni</SelectItem>
-                            <SelectItem value="otm">Orang Tua Mahasiswa</SelectItem>
+                            <SelectItem value="otm">
+                              Orang Tua Mahasiswa
+                            </SelectItem>
                             <SelectItem value="dosen">Dosen</SelectItem>
                             <SelectItem value="lainnya">Lainnya</SelectItem>
                             <SelectItem value="none">Tidak Ada</SelectItem>
@@ -228,14 +244,17 @@ const ProfileFormOTA: React.FC = () => {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
-                          Bersedia memberikan dana setiap bulan sebesar (dalam Rp)
+                          Bersedia memberikan dana setiap bulan sebesar (dalam
+                          Rp)
                         </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             placeholder="Minimal Rp 300.000"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -253,7 +272,9 @@ const ProfileFormOTA: React.FC = () => {
                             type="number"
                             placeholder="Jumlah anak asuh"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -316,7 +337,9 @@ const ProfileFormOTA: React.FC = () => {
                             type="number"
                             placeholder="Min. 1 semester"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -332,13 +355,15 @@ const ProfileFormOTA: React.FC = () => {
                           Dana akan ditransfer ke rekening IOM setiap tanggal
                         </FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
+                          <Input
+                            type="number"
                             placeholder="Tanggal (1-28)"
                             min={1}
                             max={28}
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                         </FormControl>
                         <FormMessage />
