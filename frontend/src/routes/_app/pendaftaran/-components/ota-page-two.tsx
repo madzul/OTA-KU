@@ -324,7 +324,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
             <Button
               type="button"
               className="w-full"
-              variant={"secondary"}
+              variant="outline"
               onClick={() => setPage(1)}
             >
               Kembali

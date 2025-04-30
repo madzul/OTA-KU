@@ -42,6 +42,7 @@ export type OrangTuaRegistrationOneFormValues = z.infer<
 
 export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const form = useForm<OrangTuaRegistrationOneFormValues>({
     resolver: zodResolver(OrangTuaPageOneSchema),
@@ -174,7 +175,7 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
                   <FormLabel className="text-primary text-sm">
                     Keterkaitan dengan ITB
                   </FormLabel>
-                  <Popover>
+                  <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -204,6 +205,7 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
                                 key={linkage.value}
                                 onSelect={() => {
                                   form.setValue("linkage", linkage.value);
+                                  setOpen(false);
                                 }}
                               >
                                 {linkage.label}
