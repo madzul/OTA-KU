@@ -92,7 +92,10 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
 
 const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
-  if (applicationStatus === "unregistered" || applicationStatus === "pending" || applicationStatus === "rejected") {
+  if (
+    (role === "ota" || role === "mahasiswa") &&
+    (applicationStatus === "unregistered" || applicationStatus === "pending" || applicationStatus === "rejected")
+  ) {
     return [
       {
         id: "pendaftaran",
