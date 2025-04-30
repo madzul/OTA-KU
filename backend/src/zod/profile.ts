@@ -196,6 +196,7 @@ export const OrangTuaRegistrationSchema = z.object({
     description: "Hubungan dengan mahasiswa",
   }),
   funds: z.coerce
+  //TODO: gimana caranya biar ini facilitate integer values only tapi ga float
     .number({
       invalid_type_error: "Dana harus berupa angka",
       required_error: "Dana harus diisi",
