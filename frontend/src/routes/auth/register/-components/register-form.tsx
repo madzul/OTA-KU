@@ -177,7 +177,7 @@ export default function RegisterForm({ role }: { role: string }) {
                 type="submit"
                 disabled={registerCallbackMutation.isPending}
               >
-                Daftar
+                Buat Akun
               </Button>
             </div>
 
