@@ -4,7 +4,6 @@ import { useContext } from "react";
 
 import PendaftaranMahasiswa from "./-components/pendaftaran-mahasiswa";
 import PendaftaranOrangTua from "./-components/pendaftaran-orang-tua";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/pendaftaran/")({
   component: RouteComponent,
@@ -16,7 +15,6 @@ function RouteComponent() {
   const isAdmin = session?.type === "admin";
 
   if (isAdmin) {
-    toast.error("Anda tidak diperbolehkan mengakses halaman ini");
     return <Navigate to="/" />;
   }
 
@@ -24,7 +22,6 @@ function RouteComponent() {
 
   // TODO: Handle applicationStatus === "reapply"
   if (applicationStatus === "accepted") {
-    toast.success("Anda sudah mendaftar dan telah terverifikasi oleh Admin");
     return <Navigate to="/profile" />;
   }
 
