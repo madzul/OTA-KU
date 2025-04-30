@@ -22,7 +22,7 @@ interface SidebarProps {
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeItem, setActiveItem] = useState<string>("dashboard");
+  const [activeItem, setActiveItem] = useState<string>("");
 
   const { data } = useQuery({
     queryKey: ["verify"],
@@ -33,9 +33,12 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     refetchInterval: 30 * 60 * 1000,
   });
 
-  const userRole = data?.body.type || "ota";
+  const applicationStatus = data?.body.applicationStatus;
 
-  const menuItems = getMenuItems(userRole);
+  // TODO: handle case if data is empty string
+  const userRole = data?.body.type || "";
+
+  const menuItems = getMenuItems(userRole, applicationStatus);
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -87,16 +90,22 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   );
 };
 
-const getMenuItems = (role: string): MenuItem[] => {
+
+const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
+  if (applicationStatus === "unregistered" || applicationStatus === "pending" || applicationStatus === "rejected") {
+    return [
+      {
+        id: "pendaftaran",
+        label: "Pendaftaran",
+        icon: "/icon/Type=form.svg",
+        path: "/pendaftaran",
+      },
+    ];
+  }
+
   switch (role) {
     case "mahasiswa":
       return [
-        {
-          id: "dashboard",
-          label: "Dasbor",
-          icon: "/icon/Type=dashboard.svg",
-          path: "/dashboard",
-        },
         {
           id: "ota-saya",
           label: "Orang Tua Asuh Saya",
@@ -115,12 +124,6 @@ const getMenuItems = (role: string): MenuItem[] => {
     case "admin":
       return [
         {
-          id: "dashboard",
-          label: "Dasbor",
-          icon: "/icon/Type=dashboard.svg",
-          path: "/dashboard",
-        },
-        {
           id: "verification",
           label: "Verifikasi",
           icon: "/icon/Type=shield.svg",
@@ -128,14 +131,7 @@ const getMenuItems = (role: string): MenuItem[] => {
         },
       ];
     case "ota":
-    default:
       return [
-        {
-          id: "dashboard",
-          label: "Dasbor",
-          icon: "/icon/Type=dashboard.svg",
-          path: "/dasbor",
-        },
         {
           id: "student-list",
           label: "Cari Mahasiswa",
@@ -157,6 +153,9 @@ const getMenuItems = (role: string): MenuItem[] => {
           bgColorClass: "bg-destructive/10",
         },
       ];
+    default:
+      console.log("User role is empty or unrecognized.");
+      return [];
   }
 };
 
