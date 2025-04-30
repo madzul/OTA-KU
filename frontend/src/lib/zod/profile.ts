@@ -226,7 +226,7 @@ export const OrangTuaPageTwoSchema = z.object({
       invalid_type_error: "Kriteria harus berupa string",
       required_error: "Kriteria harus diisi",
     })
-    .min(3, {
+    .min(1, {
       message: "Kriteria terlalu pendek",
     }),
   checked: z
@@ -336,7 +336,7 @@ export const OrangTuaRegistrationSchema = z.object({
       invalid_type_error: "Kriteria harus berupa string",
       required_error: "Kriteria harus diisi",
     })
-    .min(3, {
+    .min(1, {
       message: "Kriteria terlalu pendek",
     }),
 });

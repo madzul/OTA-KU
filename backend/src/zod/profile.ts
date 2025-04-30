@@ -196,6 +196,7 @@ export const OrangTuaRegistrationSchema = z.object({
     description: "Hubungan dengan mahasiswa",
   }),
   funds: z.coerce
+  //TODO: gimana caranya biar ini facilitate integer values only tapi ga float
     .number({
       invalid_type_error: "Dana harus berupa angka",
       required_error: "Dana harus diisi",
@@ -263,7 +264,7 @@ export const OrangTuaRegistrationSchema = z.object({
       invalid_type_error: "Kriteria harus berupa string",
       required_error: "Kriteria harus diisi",
     })
-    .min(3, {
+    .min(1, {
       message: "Kriteria terlalu pendek",
     })
     .openapi({ example: "Kriteria orang tua" }),
