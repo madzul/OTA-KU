@@ -168,7 +168,7 @@ function RouteComponent() {
                     alt="Microsoft Logo"
                     className="w-6"
                   />
-                  Masuk dengan akun ITB
+                  Masuk dengan akun Mahasiswa ITB
                 </a>
               </Button>
 
