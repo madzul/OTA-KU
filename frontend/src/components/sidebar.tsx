@@ -156,8 +156,10 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           bgColorClass: "bg-destructive/10",
         },
       ];
-    default:
+    case "":
       console.log("User role is empty or unrecognized.");
+      return [];
+    default:
       return [];
   }
 };
