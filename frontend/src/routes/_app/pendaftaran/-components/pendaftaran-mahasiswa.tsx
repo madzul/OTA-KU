@@ -17,7 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { FileUp } from "lucide-react";
 import type React from "react";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
@@ -72,7 +72,6 @@ export default function PendaftaranMahasiswa({
 
   const [dragStates, setDragStates] = useState<Record<string, boolean>>({});
 
-
   const navigate = useNavigate();
   const mahasiswaRegistrationCallbackMutation = useMutation({
     mutationFn: (data: MahasiswaRegistrationFormValues) =>
@@ -122,14 +121,6 @@ export default function PendaftaranMahasiswa({
       form.setValue(field, file);
     }
   };
-
-  useEffect(() => {
-    if (Object.keys(form.formState.errors).length > 0) {
-      Object.entries(form.formState.errors).forEach(([field, error]) => {
-        toast.error(`Error in ${field}: ${error?.message || "Invalid input"}`);
-      });
-    }
-  }, [form.formState.errors]);
 
   async function onSubmit(values: MahasiswaRegistrationFormValues) {
     if (Object.keys(form.formState.errors).length > 0) {
@@ -300,13 +291,17 @@ export default function PendaftaranMahasiswa({
                   render={() => {
                     const isDragging = dragStates[name];
 
-                    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+                    const handleDragOver = (
+                      e: React.DragEvent<HTMLDivElement>,
+                    ) => {
                       e.preventDefault();
                       e.stopPropagation();
                       setDragStates((prev) => ({ ...prev, [name]: true }));
                     };
 
-                    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+                    const handleDragLeave = (
+                      e: React.DragEvent<HTMLDivElement>,
+                    ) => {
                       e.preventDefault();
                       e.stopPropagation();
                       setDragStates((prev) => ({ ...prev, [name]: false }));
@@ -357,7 +352,8 @@ export default function PendaftaranMahasiswa({
                               <p className="text-sm font-medium">
                                 {isDragging
                                   ? "Geser berkas kesini untuk upload"
-                                  : fileNames[name] || `Klik untuk upload atau drag & drop`}
+                                  : fileNames[name] ||
+                                    `Klik untuk upload atau drag & drop`}
                               </p>
                               <Button
                                 type="button"
