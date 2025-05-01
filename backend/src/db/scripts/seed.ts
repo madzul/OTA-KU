@@ -25,6 +25,18 @@ export async function seed() {
     const ota1Id = uuidv4();
     const ota2Id = uuidv4();
 
+    const currentDateTime = new Date();
+    // Due date time is 6 months from now
+    const dueDateTime = new Date(
+      currentDateTime.getFullYear(),
+      currentDateTime.getMonth() + 6,
+      currentDateTime.getDate(),
+      currentDateTime.getHours(),
+      currentDateTime.getMinutes(),
+      currentDateTime.getSeconds(),
+      currentDateTime.getMilliseconds(),
+    );
+
     await db.transaction(async (tx) => {
       await tx
         .insert(accountTable)
@@ -132,6 +144,9 @@ export async function seed() {
             ditmawaRecommendationLetter: "https://example.com/ditmawa1.pdf",
             notes: "Mahasiswa muslim with GPA 3.8",
             adminOnlyNotes: "Mahasiswa has a scholarship from the government",
+            createdAt: currentDateTime,
+            updatedAt: currentDateTime,
+            dueNextUpdateAt: dueDateTime,
           },
           {
             accountId: mahasiswa2Id,
@@ -154,6 +169,9 @@ export async function seed() {
             ditmawaRecommendationLetter: "https://example.com/ditmawa2.pdf",
             notes: "Mahasiswa non-muslim with GPA 3.5",
             adminOnlyNotes: "Mahasiswa has a scholarship from the university",
+            createdAt: currentDateTime,
+            updatedAt: currentDateTime,
+            dueNextUpdateAt: dueDateTime,
           },
           {
             accountId: mahasiswa3Id,
@@ -176,6 +194,9 @@ export async function seed() {
             ditmawaRecommendationLetter: "https://example.com/ditmawa3.pdf",
             notes: "Mahasiswa muslim with GPA 3.9",
             adminOnlyNotes: "Mahasiswa has a scholarship from the government",
+            createdAt: currentDateTime,
+            updatedAt: currentDateTime,
+            dueNextUpdateAt: dueDateTime,
           },
           {
             accountId: mahasiswa4Id,
@@ -195,6 +216,9 @@ export async function seed() {
             salaryReport: "https://example.com/salary4.pdf",
             pbb: "https://example.com/pbb4.pdf",
             electricityBill: "https://example.com/electricity4.pdf",
+            createdAt: currentDateTime,
+            updatedAt: currentDateTime,
+            dueNextUpdateAt: dueDateTime,
           },
           {
             accountId: mahasiswa5Id,
@@ -217,6 +241,9 @@ export async function seed() {
             ditmawaRecommendationLetter: "https://example.com/ditmawa5.pdf",
             notes: "Rejected because of not a good student",
             adminOnlyNotes: "Mahasiswa had fight with other students",
+            createdAt: currentDateTime,
+            updatedAt: currentDateTime,
+            dueNextUpdateAt: dueDateTime,
           },
         ])
         .onConflictDoNothing();

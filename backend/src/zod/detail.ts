@@ -45,6 +45,20 @@ export const MahasiswaDetailResponse = z.object({
     faculty: z.string().openapi({ example: "Engineering" }),
     cityOfOrigin: z.string().openapi({ example: "Jakarta" }),
     highschoolAlumni: z.string().openapi({ example: "SMA Negeri 1 Jakarta" }),
+    religion: z
+      .enum([
+        "Islam",
+        "Kristen Protestan",
+        "Katolik",
+        "Hindu",
+        "Buddha",
+        "Konghucu",
+      ])
+      .openapi({
+        example: "Islam",
+      }),
+    gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+    gpa: z.number().openapi({ example: 3.5 }),
     kk: z.string().openapi({ example: "https://example.com/file.pdf" }),
     ktm: z.string().openapi({ example: "https://example.com/file.pdf" }),
     waliRecommendationLetter: z

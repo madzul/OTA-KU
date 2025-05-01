@@ -49,6 +49,30 @@ export const MahasiswaRegistrationSchema = z.object({
     .min(1, "Asal sekolah harus diisi")
     .max(255)
     .openapi({ example: "SMA Negeri 1 Bandung", description: "Asal SMA" }),
+  religion: z
+    .enum([
+      "Islam",
+      "Kristen Protestan",
+      "Katolik",
+      "Hindu",
+      "Buddha",
+      "Konghucu",
+    ])
+    .openapi({
+      example: "Islam",
+    }),
+  gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" })
+    .openapi({ example: 3.5, description: "IPK mahasiswa" }),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",
@@ -103,6 +127,30 @@ export const MahasiswaRegistrationFormSchema = z.object({
     .min(1, "Asal sekolah harus diisi")
     .max(255)
     .openapi({ example: "SMA Negeri 1 Bandung", description: "Asal SMA" }),
+  religion: z
+    .enum([
+      "Islam",
+      "Kristen Protestan",
+      "Katolik",
+      "Hindu",
+      "Buddha",
+      "Konghucu",
+    ])
+    .openapi({
+      example: "Islam",
+    }),
+  gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" })
+    .openapi({ example: 3.5, description: "IPK mahasiswa" }),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",
@@ -196,7 +244,7 @@ export const OrangTuaRegistrationSchema = z.object({
     description: "Hubungan dengan mahasiswa",
   }),
   funds: z.coerce
-  //TODO: gimana caranya biar ini facilitate integer values only tapi ga float
+    //TODO: gimana caranya biar ini facilitate integer values only tapi ga float
     .number({
       invalid_type_error: "Dana harus berupa angka",
       required_error: "Dana harus diisi",
@@ -336,6 +384,20 @@ export const ProfileMahasiswaResponse = z.object({
       .string()
       .optional()
       .openapi({ example: "SMAN 3 Bandung" }),
+    religion: z
+      .enum([
+        "Islam",
+        "Kristen Protestan",
+        "Katolik",
+        "Hindu",
+        "Buddha",
+        "Konghucu",
+      ])
+      .openapi({
+        example: "Islam",
+      }),
+    gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+    gpa: z.number().openapi({ example: 3.5 }),
     description: z
       .string()
       .optional()
