@@ -38,6 +38,8 @@ export async function resetDatabase() {
       console.log("Running migrations...");
       await migrate(tx, {
         migrationsFolder: path.resolve(__dirname, "../migrations"),
+      }).then(() => {
+        console.log("Migrations completed successfully");
       });
     });
 

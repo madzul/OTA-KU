@@ -141,6 +141,13 @@
       "when": 1745314563996,
       "tag": "0019_sturdy_nick_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1746079254655,
+      "tag": "0020_narrow_shard",
+      "breakpoints": true
     }
   ]
 }
