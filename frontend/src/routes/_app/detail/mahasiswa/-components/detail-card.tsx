@@ -59,7 +59,7 @@ const DetailCardsMahasiswaAsuh: React.FC<DetailCardsMahasiswaAsuhProps> = ({
           <div className="space-y-3 text-sm text-primary xl:text-base">
             <div className="flex items-center space-x-3">
               <Mail className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm">{email}</span>
+              <span className="break-all">{email}</span>
             </div>
             <div className="flex items-center space-x-3">
               <Phone className="h-5 w-5 text-muted-foreground" />
