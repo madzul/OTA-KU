@@ -72,14 +72,19 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         faculty: accountMahasiswaDetailTable.faculty,
         cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
         highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        religion: accountMahasiswaDetailTable.religion,
+        gender: accountMahasiswaDetailTable.gender,
+        gpa: accountMahasiswaDetailTable.gpa,
         kk: accountMahasiswaDetailTable.kk,
         ktm: accountMahasiswaDetailTable.ktm,
-        waliRecommendationLetter: accountMahasiswaDetailTable.waliRecommendationLetter,
+        waliRecommendationLetter:
+          accountMahasiswaDetailTable.waliRecommendationLetter,
         transcript: accountMahasiswaDetailTable.transcript,
         salaryReport: accountMahasiswaDetailTable.salaryReport,
         pbb: accountMahasiswaDetailTable.pbb,
         electricityBill: accountMahasiswaDetailTable.electricityBill,
-        ditmawaRecommendationLetter: accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        ditmawaRecommendationLetter:
+          accountMahasiswaDetailTable.ditmawaRecommendationLetter,
         notes: accountMahasiswaDetailTable.notes,
         adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
       })
@@ -128,6 +133,9 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
             faculty: mahasiswa.faculty || "",
             cityOfOrigin: mahasiswa.cityOfOrigin || "",
             highschoolAlumni: mahasiswa.highschoolAlumni || "",
+            religion: mahasiswa.religion!,
+            gender: mahasiswa.gender!,
+            gpa: mahasiswa.gpa!,
             kk: mahasiswa.kk || "",
             ktm: mahasiswa.ktm || "",
             waliRecommendationLetter: mahasiswa.waliRecommendationLetter || "",
@@ -135,7 +143,8 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
             salaryReport: mahasiswa.salaryReport || "",
             pbb: mahasiswa.pbb || "",
             electricityBill: mahasiswa.electricityBill || "",
-            ditmawaRecommendationLetter: mahasiswa.ditmawaRecommendationLetter || "",
+            ditmawaRecommendationLetter:
+              mahasiswa.ditmawaRecommendationLetter || "",
             notes: mahasiswa.notes || "",
             adminOnlyNotes: mahasiswa.adminOnlyNotes || "",
           })),
@@ -219,7 +228,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         provider: accountTable.provider,
         status: accountTable.status,
         applicationStatus: accountTable.applicationStatus,
-        type: accountTable.type, // Add the missing 'type' field
+        type: accountTable.type,
         name: accountMahasiswaDetailTable.name,
         nim: accountMahasiswaDetailTable.nim,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
@@ -229,14 +238,19 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         faculty: accountMahasiswaDetailTable.faculty,
         cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
         highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        religion: accountMahasiswaDetailTable.religion,
+        gender: accountMahasiswaDetailTable.gender,
+        gpa: accountMahasiswaDetailTable.gpa,
         kk: accountMahasiswaDetailTable.kk,
         ktm: accountMahasiswaDetailTable.ktm,
-        waliRecommendationLetter: accountMahasiswaDetailTable.waliRecommendationLetter,
+        waliRecommendationLetter:
+          accountMahasiswaDetailTable.waliRecommendationLetter,
         transcript: accountMahasiswaDetailTable.transcript,
         salaryReport: accountMahasiswaDetailTable.salaryReport,
         pbb: accountMahasiswaDetailTable.pbb,
         electricityBill: accountMahasiswaDetailTable.electricityBill,
-        ditmawaRecommendationLetter: accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        ditmawaRecommendationLetter:
+          accountMahasiswaDetailTable.ditmawaRecommendationLetter,
         notes: accountMahasiswaDetailTable.notes,
         adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
       })
@@ -274,7 +288,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             provider: mahasiswa.provider,
             status: mahasiswa.status,
             applicationStatus: mahasiswa.applicationStatus,
-            type: mahasiswa.type, // Include the 'type' field in the response
+            type: mahasiswa.type,
             name: mahasiswa.name!,
             nim: mahasiswa.nim!,
             mahasiswaStatus: mahasiswa.mahasiswaStatus!,
@@ -284,6 +298,9 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             faculty: mahasiswa.faculty || "",
             cityOfOrigin: mahasiswa.cityOfOrigin || "",
             highschoolAlumni: mahasiswa.highschoolAlumni || "",
+            religion: mahasiswa.religion!,
+            gender: mahasiswa.gender!,
+            gpa: mahasiswa.gpa!,
             kk: mahasiswa.kk || "",
             ktm: mahasiswa.ktm || "",
             waliRecommendationLetter: mahasiswa.waliRecommendationLetter || "",
@@ -291,7 +308,8 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             salaryReport: mahasiswa.salaryReport || "",
             pbb: mahasiswa.pbb || "",
             electricityBill: mahasiswa.electricityBill || "",
-            ditmawaRecommendationLetter: mahasiswa.ditmawaRecommendationLetter || "",
+            ditmawaRecommendationLetter:
+              mahasiswa.ditmawaRecommendationLetter || "",
             notes: mahasiswa.notes || "",
             adminOnlyNotes: mahasiswa.adminOnlyNotes || "",
           })),
@@ -387,6 +405,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
         maxSemester: accountOtaDetailTable.maxSemester,
         transferDate: accountOtaDetailTable.transferDate,
         criteria: accountOtaDetailTable.criteria,
+        allowAdminSelection: accountOtaDetailTable.allowAdminSelection,
       })
       .from(accountTable)
       .innerJoin(
@@ -425,6 +444,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
             maxSemester: orangTua.maxSemester,
             transferDate: orangTua.transferDate,
             criteria: orangTua.criteria,
+            allowAdminSelection: orangTua.allowAdminSelection,
           })),
           totalPagination: countsPagination[0].count,
           totalData: Number(counts[0].total),

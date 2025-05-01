@@ -60,6 +60,9 @@ const uploadFieldLabels: Record<MahasiswaRegistrationField, string> = {
   cityOfOrigin: "Kota Asal",
   highschoolAlumni: "Asal SMA",
   description: "Alasan Keperluan Bantuan",
+  gender: "Jenis Kelamin",
+  gpa: "IPK",
+  religion: "Agama",
 };
 
 const ProfileFormMA: React.FC = () => {

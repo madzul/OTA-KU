@@ -188,6 +188,7 @@ export default function RegisterForm({ role }: { role: string }) {
                   type="button"
                   disabled={registerCallbackMutation.isPending}
                   asChild
+                  variant={"outline"}
                 >
                   <a
                     href={`https://login.microsoftonline.com/db6e1183-4c65-405c-82ce-7cd53fa6e9dc/oauth2/v2.0/authorize?client_id=${clientId}&response_type=code&redirect_uri=${window.location.origin}/integrations/azure-key-vault/oauth2/callback&response_mode=query&scope=https://vault.azure.net/.default openid offline_access&state=${state}&prompt=select_account`}

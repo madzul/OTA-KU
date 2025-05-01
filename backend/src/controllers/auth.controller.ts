@@ -306,7 +306,7 @@ authRouter.openapi(oauthRoute, async (c) => {
           accountData = await tx
             .update(accountTable)
             .set({
-              password: await hash(randomPassword, 10),
+              updatedAt: new Date(Date.now()),
             })
             .where(eq(accountTable.id, existingAccount[0].id))
             .returning();
@@ -328,7 +328,7 @@ authRouter.openapi(oauthRoute, async (c) => {
             .update(accountTable)
             .set({
               email,
-              password: await hash(randomPassword, 10),
+              updatedAt: new Date(Date.now()),
             })
             .where(eq(accountTable.oid, oid))
             .returning();

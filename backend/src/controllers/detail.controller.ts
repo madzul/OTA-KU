@@ -66,6 +66,9 @@ detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
           cityOfOrigin: mahasiswa.account_mahasiswa_detail.cityOfOrigin!,
           highschoolAlumni:
             mahasiswa.account_mahasiswa_detail.highschoolAlumni!,
+          religion: mahasiswa.account_mahasiswa_detail.religion!,
+          gender: mahasiswa.account_mahasiswa_detail.gender!,
+          gpa: mahasiswa.account_mahasiswa_detail.gpa!,
           kk: mahasiswa.account_mahasiswa_detail.kk!,
           ktm: mahasiswa.account_mahasiswa_detail.ktm!,
           waliRecommendationLetter:
@@ -146,6 +149,7 @@ detailProtectedRouter.openapi(getOtaDetailRoute, async (c) => {
           maxSemester: ota.account_ota_detail.maxSemester,
           transferDate: ota.account_ota_detail.transferDate,
           criteria: ota.account_ota_detail.criteria,
+          allowAdminSelection: ota.account_ota_detail.allowAdminSelection,
         },
       },
       200,

@@ -142,7 +142,14 @@ export const UserAuthenticatedResponse = z.object({
         .enum(["verified", "unverified"])
         .openapi({ example: "verified" }),
       applicationStatus: z
-        .enum(["accepted", "rejected", "pending", "unregistered"])
+        .enum([
+          "accepted",
+          "rejected",
+          "pending",
+          "unregistered",
+          "reapply",
+          "outdated",
+        ])
         .openapi({ example: "accepted" }),
       oid: z.string().nullable().openapi({ example: "1" }),
       createdAt: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
@@ -177,7 +184,14 @@ export const JWTPayloadSchema = z
       .openapi({ example: "credentials" }),
     status: z.enum(["verified", "unverified"]).openapi({ example: "verified" }),
     applicationStatus: z
-      .enum(["accepted", "rejected", "pending", "unregistered"])
+      .enum([
+        "accepted",
+        "rejected",
+        "pending",
+        "unregistered",
+        "reapply",
+        "outdated",
+      ])
       .openapi({ example: "accepted" }),
     oid: z.string().nullable().openapi({ example: "1" }),
     createdAt: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),

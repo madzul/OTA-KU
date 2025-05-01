@@ -1,9 +1,12 @@
 import { z } from "zod";
 
 export const NotesVerificationRequestSchema = z.object({
-  status: z.enum(["accepted", "rejected", "pending", "unregistered"], {
-    message: "Status harus berupa accepted atau rejected",
-  }),
+  status: z.enum(
+    ["accepted", "rejected", "pending", "unregistered", "reapply", "outdated"],
+    {
+      message: "Status harus berupa accepted atau rejected",
+    },
+  ),
   notes: z
     .string({
       invalid_type_error: "Catatan untuk Orang Tua Asuh harus berupa string",

@@ -20,7 +20,7 @@ function RouteComponent() {
 
   const applicationStatus = session?.applicationStatus;
 
-  // TODO: Handle applicationStatus === "reapply"
+  // TODO: Handle applicationStatus === "reapply" dan "outdated"
   if (applicationStatus === "accepted") {
     return <Navigate to="/profile" />;
   }
