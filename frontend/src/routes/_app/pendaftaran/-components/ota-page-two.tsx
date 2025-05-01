@@ -90,7 +90,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
     mainForm.setValue("startDate", data.startDate);
     mainForm.setValue("maxSemester", data.maxSemester);
     mainForm.setValue("transferDate", data.transferDate);
-    mainForm.setValue("criteria", data.criteria);
+    mainForm.setValue("criteria", data.criteria || "");
     mainForm.handleSubmit(
       async (data) => {
         await orangTuaRegistrationCallbackMutation.mutateAsync(data);
