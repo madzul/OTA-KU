@@ -11,6 +11,7 @@ import { useSidebar } from "@/context/sidebar";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
+
 // import { useEffect } from "react";
 
 import Sidebar from "../sidebar";
@@ -91,7 +92,7 @@ export default function NavBar() {
                 alt="Logo"
               />
               {/* Title visible from md (desktop) and up */}
-              <div className="hidden md:flex flex-col leading-tight">
+              <div className="hidden flex-col leading-tight md:flex">
                 <span className="text-primary text-lg font-bold">
                   Ikatan Orang Tua Mahasiswa
                 </span>
@@ -117,7 +118,6 @@ export default function NavBar() {
                 </Button>
               </Link>
             )}
-            {/* TODO: Nanti ganti linknya */}
             {!isLoading && isLoggedIn && (
               <Link className="w-fit" to="/auth/login">
                 <img
@@ -146,13 +146,12 @@ export default function NavBar() {
                     <MenubarItem
                       className="text-dark"
                       onClick={() => {
-                        // TODO: Ini detail sama profile page sama?
                         const detailId = data?.body.id;
                         const userType = data?.body.type;
 
                         if (!detailId || !userType) return;
 
-                        const path = '/profile';
+                        const path = "/profile";
 
                         navigate({
                           to: path,
