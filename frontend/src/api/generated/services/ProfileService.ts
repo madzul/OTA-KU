@@ -50,39 +50,39 @@ export class ProfileService {
       /**
        * File Essay Mahasiswa
        */
-      file: any;
+      file?: string;
       /**
        * Kartu Keluarga
        */
-      kk: any;
+      kk?: string;
       /**
        * Kartu Tanda Mahasiswa
        */
-      ktm: any;
+      ktm?: string;
       /**
        * Surat Rekomendasi Wali
        */
-      waliRecommendationLetter: any;
+      waliRecommendationLetter?: string;
       /**
        * Transkrip Nilai
        */
-      transcript: any;
+      transcript?: string;
       /**
        * Slip Gaji Orang Tua
        */
-      salaryReport: any;
+      salaryReport?: string;
       /**
        * Bukti Pembayaran PBB
        */
-      pbb: any;
+      pbb?: string;
       /**
        * Tagihan Listrik
        */
-      electricityBill: any;
+      electricityBill?: string;
       /**
        * Surat Rekomendasi Ditmawa
        */
-      ditmawaRecommendationLetter: any;
+      ditmawaRecommendationLetter?: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -421,6 +421,7 @@ export class ProfileService {
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun belum terverifikasi.`,
+        404: `Data tidak ditemukan.`,
         500: `Internal server error`,
       },
     });
@@ -467,41 +468,41 @@ export class ProfileService {
        */
       description: string;
       /**
-       * File Essay Mahasiswa
+       * PDF file or string (optional)
        */
-      file: any;
+      file?: string;
       /**
-       * Kartu Keluarga
+       * PDF file or string (optional)
        */
-      kk: any;
+      kk?: string;
       /**
-       * Kartu Tanda Mahasiswa
+       * PDF file or string (optional)
        */
-      ktm: any;
+      ktm?: string;
       /**
-       * Surat Rekomendasi Wali
+       * PDF file or string (optional)
        */
-      waliRecommendationLetter: any;
+      waliRecommendationLetter?: string;
       /**
-       * Transkrip Nilai
+       * PDF file or string (optional)
        */
-      transcript: any;
+      transcript?: string;
       /**
-       * Slip Gaji Orang Tua
+       * PDF file or string (optional)
        */
-      salaryReport: any;
+      salaryReport?: string;
       /**
-       * Bukti Pembayaran PBB
+       * PDF file or string (optional)
        */
-      pbb: any;
+      pbb?: string;
       /**
-       * Tagihan Listrik
+       * PDF file or string (optional)
        */
-      electricityBill: any;
+      electricityBill?: string;
       /**
-       * Surat Rekomendasi Ditmawa
+       * PDF file or string (optional)
        */
-      ditmawaRecommendationLetter: any;
+      ditmawaRecommendationLetter?: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -634,6 +635,7 @@ export class ProfileService {
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun belum terverifikasi.`,
+        404: `Data tidak ditemukan.`,
         500: `Internal server error`,
       },
     });

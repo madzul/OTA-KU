@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SessionContext } from "@/context/session";
 import { Fakultas, Jurusan } from "@/lib/nim";
-import { MahasiswaRegistrationFormSchema } from "@/lib/zod/profile";
+import { MahasiswaProfileFormSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { FileUp } from "lucide-react";
@@ -24,13 +24,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-type MahasiswaRegistrationFormValues = z.infer<
-  typeof MahasiswaRegistrationFormSchema
->;
+type MahasiswaProfileFormValues = z.infer<typeof MahasiswaProfileFormSchema>;
 
-type MahasiswaRegistrationField = keyof MahasiswaRegistrationFormValues;
+type MahasiswaProfileField = keyof MahasiswaProfileFormValues;
 
-const uploadFields: MahasiswaRegistrationField[] = [
+const uploadFields: MahasiswaProfileField[] = [
   "file",
   "kk",
   "ktm",
@@ -42,7 +40,7 @@ const uploadFields: MahasiswaRegistrationField[] = [
   "ditmawaRecommendationLetter",
 ];
 
-const uploadFieldLabels: Record<MahasiswaRegistrationField, string> = {
+const uploadFieldLabels: Record<MahasiswaProfileField, string> = {
   file: "Berkas Utama",
   kk: "Kartu Keluarga",
   ktm: "Kartu Tanda Mahasiswa",
@@ -66,10 +64,13 @@ const ProfileFormMA: React.FC = () => {
   const session = useContext(SessionContext);
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [previouslyUploadedFiles, setPreviouslyUploadedFiles] = useState<
+    Record<string, string>
+  >({});
 
   // Create form with zod validation
-  const form = useForm<MahasiswaRegistrationFormValues>({
-    resolver: zodResolver(MahasiswaRegistrationFormSchema),
+  const form = useForm<MahasiswaProfileFormValues>({
+    resolver: zodResolver(MahasiswaProfileFormSchema),
     defaultValues: {
       phoneNumber: session?.phoneNumber ?? "",
     },
@@ -81,6 +82,8 @@ const ProfileFormMA: React.FC = () => {
     queryFn: () => api.profile.profileMahasiswa({ id: session?.id ?? "" }),
     enabled: !!session?.id,
   });
+
+  console.log("Profile Data:", profileData);
 
   // Set form values once profile data is loaded
   useEffect(() => {
@@ -104,7 +107,8 @@ const ProfileFormMA: React.FC = () => {
 
       // Set data file yang sudah diupload sebelumnya
       // dan update state fileNames untuk menampilkan nama file di UI
-      const newFileNames = { ...fileNames };
+      const newFileNames: Record<string, string> = {};
+      const newPreviouslyUploadedFiles: Record<string, string> = {};
 
       uploadFields.forEach((fieldName) => {
         // Map form field names to API response field names if needed
@@ -121,19 +125,39 @@ const ProfileFormMA: React.FC = () => {
           // Ekstrak nama file dari URL Cloudinary untuk ditampilkan di UI
           const fileName = profileData.body[apiFieldName].split("/").pop();
           newFileNames[fieldName] = fileName || "File sudah terupload";
+
+          // Save the URL of previously uploaded file
+          newPreviouslyUploadedFiles[fieldName] =
+            profileData.body[apiFieldName];
         }
       });
 
       setFileNames(newFileNames);
+      setPreviouslyUploadedFiles(newPreviouslyUploadedFiles);
     }
-  }, [profileData, form, setFileNames, fileNames]);
+  }, [profileData, form]);
 
   // Mutation for updating profile
   const updateProfileMutation = useMutation({
-    mutationFn: (data: MahasiswaRegistrationFormValues) =>
-      api.profile.editProfileMa({
-        formData: data,
-      }),
+    mutationFn: (data: MahasiswaProfileFormValues) => {
+      // Replace the current form data with previously uploaded URLs for fields
+      // where a file was uploaded before and no new file is being uploaded now
+      const formDataWithAllFiles: any = { ...data };
+      uploadFields.forEach((field) => {
+        // If this field is not a File object but we have a previous upload for it,
+        // reuse the previous URL
+        if (
+          !(formDataWithAllFiles[field] instanceof File) &&
+          previouslyUploadedFiles[field]
+        ) {
+          formDataWithAllFiles[field] = previouslyUploadedFiles[field];
+        }
+      });
+
+      return api.profile.editProfileMa({
+        formData: formDataWithAllFiles,
+      });
+    },
     onSuccess: () => {
       toast.success("Profil berhasil diperbarui", {
         description: "Data profil Anda telah disimpan",
@@ -147,19 +171,50 @@ const ProfileFormMA: React.FC = () => {
   });
 
   const handleFileChange = (
-    field: MahasiswaRegistrationField,
+    field: MahasiswaProfileField,
     file: File | null,
   ) => {
-    setFileNames((prev) => ({
-      ...prev,
-      [field]: file?.name || "",
-    }));
-    // Set file in form
-    form.setValue(field, file ?? "");
+    if (file) {
+      setFileNames((prev) => ({
+        ...prev,
+        [field]: file.name,
+      }));
+      // Set file in form
+      form.setValue(field, file);
+    } else {
+      // If user clears the file input
+      setFileNames((prev) => {
+        const newFileNames = { ...prev };
+        delete newFileNames[field];
+        return newFileNames;
+      });
+
+      if (previouslyUploadedFiles[field]) {
+        // If there was a previously uploaded file, restore it
+        form.setValue(field, previouslyUploadedFiles[field]);
+      } else {
+        // Clear the form value if there was no previously uploaded file
+        form.setValue(field, undefined);
+      }
+    }
   };
 
-  const onSubmit = (values: MahasiswaRegistrationFormValues) => {
-    updateProfileMutation.mutate(values);
+  const onSubmit = (values: MahasiswaProfileFormValues) => {
+    const dataToSubmit = { ...values };
+
+    // Hapus field file yang tidak diubah (masih berupa string URL)
+    uploadFields.forEach((field) => {
+      if (
+        typeof dataToSubmit[field] === "string" &&
+        previouslyUploadedFiles[field]
+      ) {
+        // Jika field berupa string URL dan ada di previouslyUploadedFiles,
+        // artinya tidak diubah, bisa dihapus dari data yang dikirim
+        delete dataToSubmit[field];
+      }
+    });
+
+    updateProfileMutation.mutate(dataToSubmit);
   };
 
   return (
@@ -312,7 +367,14 @@ const ProfileFormMA: React.FC = () => {
                     ) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setFileNames((prev) => ({ ...prev, [name]: "" }));
+                      // Only clear if it was just showing "Dragging..."
+                      if (fileNames[name] === "Dragging...") {
+                        setFileNames((prev) => {
+                          const newNames = { ...prev };
+                          delete newNames[name];
+                          return newNames;
+                        });
+                      }
                     };
                     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
                       e.preventDefault();
@@ -320,17 +382,35 @@ const ProfileFormMA: React.FC = () => {
                       const file = e.dataTransfer.files?.[0] || null;
                       handleFileChange(name, file);
                     };
+
+                    const hasExistingFile = !!previouslyUploadedFiles[name];
+
+                    // Display status message for the file
+                    let fileStatus = "";
+                    if (fileNames[name] === "Dragging...") {
+                      fileStatus = "Dragging...";
+                    } else if (fileNames[name]) {
+                      fileStatus = fileNames[name];
+                    } else if (hasExistingFile) {
+                      fileStatus = "File sudah terupload";
+                    } else {
+                      fileStatus = "Klik untuk upload atau drag & drop";
+                    }
+
                     return (
                       <FormItem>
                         <FormLabel className="text-primary text-sm">
                           {uploadFieldLabels[name] || name}
+                          {hasExistingFile && " (Sudah Terupload)"}
                         </FormLabel>
                         <FormControl>
                           <div
                             className={`flex flex-col items-center justify-center rounded-md border-2 ${
                               fileNames[name] === "Dragging..."
                                 ? "border-primary bg-primary/5 border-dashed"
-                                : "border-muted-foreground/25 hover:border-muted-foreground/50 border-dashed"
+                                : hasExistingFile
+                                  ? "border-dashed border-green-500/50 bg-green-50/20"
+                                  : "border-muted-foreground/25 hover:border-muted-foreground/50 border-dashed"
                             } p-6 transition-all`}
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}
@@ -349,10 +429,11 @@ const ProfileFormMA: React.FC = () => {
                               }}
                             />
                             <div className="flex flex-col items-center gap-2 text-center">
-                              <FileUp className="text-muted-foreground h-8 w-8" />
+                              <FileUp
+                                className={`h-8 w-8 ${hasExistingFile ? "text-green-500" : "text-muted-foreground"}`}
+                              />
                               <p className="text-sm font-medium">
-                                {fileNames[name] ||
-                                  `Klik untuk upload atau drag & drop`}
+                                {fileStatus}
                               </p>
                               <Button
                                 type="button"
@@ -362,7 +443,9 @@ const ProfileFormMA: React.FC = () => {
                                   fileInputRefs.current[name]?.click()
                                 }
                               >
-                                Pilih {uploadFieldLabels[name] || name}
+                                {hasExistingFile
+                                  ? `Ganti ${uploadFieldLabels[name]}`
+                                  : `Pilih ${uploadFieldLabels[name]}`}
                               </Button>
                             </div>
                           </div>

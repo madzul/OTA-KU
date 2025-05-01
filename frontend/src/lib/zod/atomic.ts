@@ -14,6 +14,15 @@ export const PDFSchema = z
     return allowedPdfTypes.includes(file.type);
   }, "Only PDF files are allowed");
 
+export const ProfilePDFSchema = z.union([
+  z.instanceof(File, { message: "File harus diupload" })
+    .refine((file) => file.type === "application/pdf", {
+      message: "File harus berupa PDF",
+    }),
+  z.string().url(), // Menerima URL string
+  z.undefined() // Benar-benar opsional
+]);
+
 export const EmailSchema = z
   .string({
     invalid_type_error: "Email harus berupa string",

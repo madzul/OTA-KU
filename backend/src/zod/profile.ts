@@ -125,6 +125,60 @@ export const MahasiswaRegistrationFormSchema = z.object({
   }),
 });
 
+export const MahasiswaProfileFormSchema = z.object({
+  name: z
+    .string({
+      invalid_type_error: "Nama harus berupa string",
+      required_error: "Nama harus diisi",
+    })
+    .min(3, { message: "Nama terlalu pendek" })
+    .max(255, { message: "Nama terlalu panjang" })
+    .openapi({ example: "John Doe", description: "Nama mahasiswa" }),
+  phoneNumber: PhoneNumberSchema,
+  nim: NIMSchema,
+  major: z
+    .enum(jurusanEnum.enumValues, {
+      required_error: "Jurusan harus dipilih",
+      invalid_type_error: "Jurusan tidak valid",
+    })
+    .openapi({
+      example: "Teknik Informatika",
+      description: "Jurusan mahasiswa",
+    }),
+  faculty: z
+    .enum(fakultasEnum.enumValues, {
+      required_error: "Fakultas harus dipilih",
+      invalid_type_error: "Fakultas tidak valid",
+    })
+    .openapi({ example: "STEI-R", description: "Fakultas mahasiswa" }),
+  cityOfOrigin: z
+    .string()
+    .min(1, "Asal kota harus diisi")
+    .max(255)
+    .openapi({ example: "Bandung", description: "Kota asal mahasiswa" }),
+  highschoolAlumni: z
+    .string()
+    .min(1, "Asal sekolah harus diisi")
+    .max(255)
+    .openapi({ example: "SMA Negeri 1 Bandung", description: "Asal SMA" }),
+  description: z
+    .string({
+      required_error: "Deskripsi harus diisi",
+      invalid_type_error: "Deskripsi harus berupa string",
+    })
+    .min(3, { message: "Deskripsi terlalu pendek" })
+    .openapi({ example: "Mahasiswa baru", description: "Deskripsi mahasiswa" }),
+  file: PDFSchema.optional(),
+  kk: PDFSchema.optional(),
+  ktm: PDFSchema.optional(),
+  waliRecommendationLetter: PDFSchema.optional(),
+  transcript: PDFSchema.optional(),
+  salaryReport: PDFSchema.optional(),
+  pbb: PDFSchema.optional(),
+  electricityBill: PDFSchema.optional(),
+  ditmawaRecommendationLetter: PDFSchema.optional(),
+});
+
 export const MahasiswaRegistrationSuccessfulResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mendaftar" }),
