@@ -15,6 +15,7 @@ import {
   OrangTuaUnverifiedResponse,
   ProfileMahasiswaResponse,
   ProfileOrangTuaResponse,
+  MahasiswaProfileFormSchema
 } from "../zod/profile.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 
@@ -237,7 +238,7 @@ export const editProfileMahasiswaRoute = createRoute({
     body: {
       content: {
         "multipart/form-data": {
-          schema: MahasiswaRegistrationFormSchema,
+          schema: MahasiswaProfileFormSchema,
         },
       },
     },
