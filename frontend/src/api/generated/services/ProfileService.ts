@@ -56,39 +56,39 @@ export class ProfileService {
       /**
        * File Essay Mahasiswa
        */
-      file?: string;
+      file: any;
       /**
        * Kartu Keluarga
        */
-      kk?: string;
+      kk: any;
       /**
        * Kartu Tanda Mahasiswa
        */
-      ktm?: string;
+      ktm: any;
       /**
        * Surat Rekomendasi Wali
        */
-      waliRecommendationLetter?: string;
+      waliRecommendationLetter: any;
       /**
        * Transkrip Nilai
        */
-      transcript?: string;
+      transcript: any;
       /**
        * Slip Gaji Orang Tua
        */
-      salaryReport?: string;
+      salaryReport: any;
       /**
        * Bukti Pembayaran PBB
        */
-      pbb?: string;
+      pbb: any;
       /**
        * Tagihan Listrik
        */
-      electricityBill?: string;
+      electricityBill: any;
       /**
        * Surat Rekomendasi Ditmawa
        */
-      ditmawaRecommendationLetter?: string;
+      ditmawaRecommendationLetter: any;
     },
   }): CancelablePromise<{
     success: boolean;
