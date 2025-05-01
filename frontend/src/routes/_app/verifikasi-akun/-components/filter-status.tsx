@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const statuses = [
   {
@@ -30,12 +30,18 @@ const statuses = [
 ];
 
 interface FilterStatusProps {
-  setStatus: (status: "accepted" | "pending" | "rejected") => void;
+  setStatus: (status: "accepted" | "pending" | "rejected" | null) => void;
 }
 
 function FilterStatus({ setStatus }: FilterStatusProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
+
+  useEffect(() => {
+    if (value === "") {
+      setStatus(null);
+    }
+  }, [setStatus, value]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -65,7 +71,9 @@ function FilterStatus({ setStatus }: FilterStatusProps) {
                   value={status.value}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
-                    setStatus(status.value as "accepted" | "pending" | "rejected");
+                    setStatus(
+                      status.value as "accepted" | "pending" | "rejected",
+                    );
                     setOpen(false);
                   }}
                 >
