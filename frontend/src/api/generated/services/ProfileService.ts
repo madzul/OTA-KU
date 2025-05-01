@@ -43,6 +43,12 @@ export class ProfileService {
        * Asal SMA
        */
       highschoolAlumni: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      /**
+       * IPK mahasiswa
+       */
+      gpa: number | null;
       /**
        * Deskripsi mahasiswa
        */
@@ -112,6 +118,12 @@ export class ProfileService {
        * Asal SMA
        */
       highschoolAlumni: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      /**
+       * IPK mahasiswa
+       */
+      gpa: number | null;
       /**
        * Deskripsi mahasiswa
        */
@@ -212,7 +224,8 @@ export class ProfileService {
        * Tanggal transfer
        */
       transferDate: number | null;
-      criteria: string;
+      criteria?: string;
+      allowAdminSelection?: 'true' | 'false';
     },
   }): CancelablePromise<{
     success: boolean;
@@ -254,7 +267,8 @@ export class ProfileService {
        * Tanggal transfer
        */
       transferDate: number | null;
-      criteria: string;
+      criteria?: string;
+      allowAdminSelection?: 'true' | 'false';
     };
   }> {
     return this.httpRequest.request({
@@ -317,7 +331,8 @@ export class ProfileService {
        * Tanggal transfer
        */
       transferDate: number | null;
-      criteria: string;
+      criteria?: string;
+      allowAdminSelection?: 'true' | 'false';
     },
   }): CancelablePromise<{
     success: boolean;
@@ -359,7 +374,8 @@ export class ProfileService {
        * Tanggal transfer
        */
       transferDate: number | null;
-      criteria: string;
+      criteria?: string;
+      allowAdminSelection?: 'true' | 'false';
     };
   }> {
     return this.httpRequest.request({
@@ -410,6 +426,7 @@ export class ProfileService {
       maxSemester?: number;
       transferDate?: number;
       criteria?: string;
+      allowAdminSelection?: boolean;
     };
   }> {
     return this.httpRequest.request({
@@ -463,6 +480,12 @@ export class ProfileService {
        * Asal SMA
        */
       highschoolAlumni: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      /**
+       * IPK mahasiswa
+       */
+      gpa: number | null;
       /**
        * Deskripsi mahasiswa
        */
@@ -532,6 +555,12 @@ export class ProfileService {
        * Asal SMA
        */
       highschoolAlumni: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      /**
+       * IPK mahasiswa
+       */
+      gpa: number | null;
       /**
        * Deskripsi mahasiswa
        */
@@ -614,6 +643,9 @@ export class ProfileService {
       faculty?: string;
       cityOfOrigin?: string;
       highschoolAlumni?: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      gpa: number;
       description?: string;
       file?: string;
       kk?: string;

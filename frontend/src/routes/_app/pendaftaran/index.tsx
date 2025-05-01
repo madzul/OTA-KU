@@ -15,11 +15,12 @@ function RouteComponent() {
   const isAdmin = session?.type === "admin";
 
   if (isAdmin) {
-    return <Navigate to="/profile" />;
+    return <Navigate to="/" />;
   }
 
   const applicationStatus = session?.applicationStatus;
 
+  // TODO: Handle applicationStatus === "reapply" dan "outdated"
   if (applicationStatus === "accepted") {
     return <Navigate to="/profile" />;
   }

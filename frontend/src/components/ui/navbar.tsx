@@ -11,7 +11,7 @@ import { useSidebar } from "@/context/sidebar";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+// import { useEffect } from "react";
 
 import Sidebar from "../sidebar";
 import { Button } from "./button";
@@ -34,31 +34,31 @@ export default function NavBar() {
   const isLoggedIn = !!data;
 
   // Close sidebar when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const navbar = document.getElementById("navbar");
-      const sidebar = document.querySelector("[data-sidebar='true']");
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     const navbar = document.getElementById("navbar");
+  //     const sidebar = document.querySelector("[data-sidebar='true']");
 
-      // If click is not on the navbar, sidebar, or their children, close the sidebar
-      if (
-        isSidebarOpen &&
-        navbar &&
-        sidebar &&
-        !navbar.contains(event.target as Node) &&
-        !sidebar.contains(event.target as Node)
-      ) {
-        closeSidebar();
-      }
-    };
+  //     // If click is not on the navbar, sidebar, or their children, close the sidebar
+  //     if (
+  //       isSidebarOpen &&
+  //       navbar &&
+  //       sidebar &&
+  //       !navbar.contains(event.target as Node) &&
+  //       !sidebar.contains(event.target as Node)
+  //     ) {
+  //       closeSidebar();
+  //     }
+  //   };
 
-    if (isSidebarOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+  //   if (isSidebarOpen) {
+  //     document.addEventListener("mousedown", handleClickOutside);
+  //   }
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isSidebarOpen, closeSidebar]);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [isSidebarOpen, closeSidebar]);
 
   return (
     <>

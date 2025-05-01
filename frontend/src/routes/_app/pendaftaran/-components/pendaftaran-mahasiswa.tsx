@@ -21,13 +21,27 @@ import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
+import { getNimJurusanCodeMap, getNimFakultasFromNimJurusanMap, getNimFakultasCodeMap } from "@/lib/nim";
 
-type MahasiswaRegistrationFormValues = z.infer<
+import Combobox from "./combobox";
+
+export type MahasiswaRegistrationFormValues = z.infer<
   typeof MahasiswaRegistrationFormSchema
 >;
 
-type MahasiswaRegistrationField = keyof MahasiswaRegistrationFormValues;
-const uploadFields: MahasiswaRegistrationField[] = [
+type MahasiswaUploadField =
+  | "file"
+  | "kk"
+  | "ktm"
+  | "waliRecommendationLetter"
+  | "transcript"
+  | "salaryReport"
+  | "pbb"
+  | "electricityBill"
+  | "ditmawaRecommendationLetter";
+
+// type MahasiswaRegistrationField = keyof MahasiswaRegistrationFormValues;
+const uploadFields: MahasiswaUploadField[] = [
   "file",
   "kk",
   "ktm",
@@ -39,6 +53,18 @@ const uploadFields: MahasiswaRegistrationField[] = [
   "ditmawaRecommendationLetter",
 ];
 
+const documentDisplayNames: Record<MahasiswaUploadField, string> = {
+  file: "Essay",
+  kk: "Kartu Keluarga",
+  ktm: "Kartu Tanda Mahasiswa",
+  waliRecommendationLetter: "Surat Rekomendasi Wali",
+  transcript: "Transkrip Nilai",
+  salaryReport: "Surat Keterangan Gaji",
+  pbb: "Pajak Bumi Bangunan",
+  electricityBill: "Tagihan Listrik",
+  ditmawaRecommendationLetter: "Surat Rekomendasi Ditmawa",
+};
+
 export default function PendaftaranMahasiswa({
   session,
 }: {
@@ -46,6 +72,8 @@ export default function PendaftaranMahasiswa({
 }) {
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  const [dragStates, setDragStates] = useState<Record<string, boolean>>({});
 
   const navigate = useNavigate();
   const mahasiswaRegistrationCallbackMutation = useMutation({
@@ -76,27 +104,42 @@ export default function PendaftaranMahasiswa({
     },
   });
 
+  const nim = session.email.split("@")[0];
+  const nimCode = nim.slice(0, 3);
+  const jurusan = getNimJurusanCodeMap()[nimCode] || "TPB";
+  const fakultas =
+    getNimFakultasCodeMap()[
+      getNimFakultasFromNimJurusanMap()[nimCode]
+    ] || getNimFakultasCodeMap()[nimCode];
+
   const form = useForm<MahasiswaRegistrationFormValues>({
     resolver: zodResolver(MahasiswaRegistrationFormSchema),
     defaultValues: {
       phoneNumber: session.phoneNumber ?? "",
+      nim,
+      major: jurusan,
+      faculty: fakultas,
     },
+    mode: "onSubmit",
   });
 
   const handleFileChange = (
     field: keyof MahasiswaRegistrationFormValues,
     file: File | null,
   ) => {
-    setFileNames((prev) => ({
-      ...prev,
-      [field]: file?.name || "",
-    }));
-
-    // Kalau tidak ada file, set ke undefined atau string kosong
-    form.setValue(field, file ?? "");
+    if (file) {
+      setFileNames((prev) => ({
+        ...prev,
+        [field]: file.name,
+      }));
+      form.setValue(field, file);
+    }
   };
 
   async function onSubmit(values: MahasiswaRegistrationFormValues) {
+    if (Object.keys(form.formState.errors).length > 0) {
+      return; // Prevent submission if there are errors
+    }
     mahasiswaRegistrationCallbackMutation.mutate(values);
   }
 
@@ -121,6 +164,9 @@ export default function PendaftaranMahasiswa({
             {/* TODO: Disable input kalo udah ada nama, NIM, jurusan, dan fakultas (login oauth)
             1. Pake session context (useContext), session itu isinya JWT
             2. Harus ngecek dulu provider si user itu azure atau ga, kalo azure -> disable */}
+
+            {/* TODO: yang atas persis udah di implement,
+            tapi blm ada conditional kek if provider === azure, then name autofilled */}
             <FormField
               control={form.control}
               name="name"
@@ -166,7 +212,7 @@ export default function PendaftaranMahasiswa({
                 <FormItem>
                   <FormLabel className="text-primary text-sm">NIM</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan NIM Anda" {...field} />
+                    <Input {...field} disabled />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -182,7 +228,7 @@ export default function PendaftaranMahasiswa({
                     Jurusan
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan jurusan Anda" {...field} />
+                    <Input {...field} disabled />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -198,7 +244,7 @@ export default function PendaftaranMahasiswa({
                     Fakultas
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan fakultas Anda" {...field} />
+                    <Input {...field} disabled />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -237,6 +283,24 @@ export default function PendaftaranMahasiswa({
               )}
             />
 
+            <Combobox form={form} name="religion" />
+
+            <Combobox form={form} name="gender" />
+
+            <FormField
+              control={form.control}
+              name="gpa"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary text-sm">IPK</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan IPK" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="description"
@@ -260,15 +324,14 @@ export default function PendaftaranMahasiswa({
                   control={form.control}
                   name={name}
                   render={() => {
+                    const isDragging = dragStates[name];
+
                     const handleDragOver = (
                       e: React.DragEvent<HTMLDivElement>,
                     ) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setFileNames((prev) => ({
-                        ...prev,
-                        [name]: "Dragging...",
-                      }));
+                      setDragStates((prev) => ({ ...prev, [name]: true }));
                     };
 
                     const handleDragLeave = (
@@ -276,12 +339,13 @@ export default function PendaftaranMahasiswa({
                     ) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      setFileNames((prev) => ({ ...prev, [name]: "" }));
+                      setDragStates((prev) => ({ ...prev, [name]: false }));
                     };
 
                     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
                       e.preventDefault();
                       e.stopPropagation();
+                      setDragStates((prev) => ({ ...prev, [name]: false }));
                       const file = e.dataTransfer.files?.[0] || null;
                       handleFileChange(name, file);
                     };
@@ -289,15 +353,15 @@ export default function PendaftaranMahasiswa({
                     return (
                       <FormItem>
                         <FormLabel className="text-primary text-sm">
-                          {name}
+                          {documentDisplayNames[name]}
                         </FormLabel>
                         <FormControl>
                           <div
                             className={`flex flex-col items-center justify-center rounded-md border-2 ${
-                              fileNames[name] === "Dragging..."
-                                ? "border-primary bg-primary/5 border-dashed"
-                                : "border-muted-foreground/25 hover:border-muted-foreground/50 border-dashed"
-                            } p-6 transition-all`}
+                              isDragging
+                                ? "border-primary bg-primary/5"
+                                : "border-muted-foreground/25 hover:border-muted-foreground/50"
+                            } border-dashed p-6 transition-all`}
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}
                             onDrop={handleDrop}
@@ -309,6 +373,10 @@ export default function PendaftaranMahasiswa({
                               onChange={(e) => {
                                 const file = e.target.files?.[0] || null;
                                 handleFileChange(name, file);
+                                // Reset the input value to allow re-selecting the same file
+                                if (!file) {
+                                  e.target.value = "";
+                                }
                               }}
                               ref={(el) => {
                                 fileInputRefs.current[name] = el;
@@ -317,8 +385,10 @@ export default function PendaftaranMahasiswa({
                             <div className="flex flex-col items-center gap-2 text-center">
                               <FileUp className="text-muted-foreground h-8 w-8" />
                               <p className="text-sm font-medium">
-                                {fileNames[name] ||
-                                  `Klik untuk upload atau drag & drop`}
+                                {isDragging
+                                  ? "Geser berkas kesini untuk upload"
+                                  : fileNames[name] ||
+                                    `Klik untuk upload atau drag & drop`}
                               </p>
                               <Button
                                 type="button"
@@ -328,7 +398,7 @@ export default function PendaftaranMahasiswa({
                                   fileInputRefs.current[name]?.click()
                                 }
                               >
-                                Pilih {name}
+                                Pilih {documentDisplayNames[name]}
                               </Button>
                             </div>
                           </div>

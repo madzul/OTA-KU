@@ -23,7 +23,14 @@ export const MahasiswaDetailResponse = z.object({
       .enum(["credentials", "azure"])
       .openapi({ example: "credentials" }),
     applicationStatus: z
-      .enum(["pending", "accepted", "rejected", "unregistered"])
+      .enum([
+        "pending",
+        "accepted",
+        "rejected",
+        "unregistered",
+        "reapply",
+        "outdated",
+      ])
       .openapi({ example: "pending" }),
     name: z.string().openapi({ example: "John Doe" }),
     nim: z.string().openapi({ example: "13522005" }),
@@ -38,6 +45,20 @@ export const MahasiswaDetailResponse = z.object({
     faculty: z.string().openapi({ example: "Engineering" }),
     cityOfOrigin: z.string().openapi({ example: "Jakarta" }),
     highschoolAlumni: z.string().openapi({ example: "SMA Negeri 1 Jakarta" }),
+    religion: z
+      .enum([
+        "Islam",
+        "Kristen Protestan",
+        "Katolik",
+        "Hindu",
+        "Buddha",
+        "Konghucu",
+      ])
+      .openapi({
+        example: "Islam",
+      }),
+    gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+    gpa: z.string().openapi({ example: "3.5" }),
     kk: z.string().openapi({ example: "https://example.com/file.pdf" }),
     ktm: z.string().openapi({ example: "https://example.com/file.pdf" }),
     waliRecommendationLetter: z
@@ -84,7 +105,14 @@ export const OtaDetailResponse = z.object({
       .enum(["credentials", "azure"])
       .openapi({ example: "credentials" }),
     applicationStatus: z
-      .enum(["pending", "accepted", "rejected", "unregistered"])
+      .enum([
+        "pending",
+        "accepted",
+        "rejected",
+        "unregistered",
+        "reapply",
+        "outdated",
+      ])
       .openapi({ example: "pending" }),
     name: z.string().openapi({ example: "OTA Organization One" }),
     job: z.string().openapi({ example: "Scholarship Provider" }),
@@ -100,5 +128,8 @@ export const OtaDetailResponse = z.object({
     criteria: z
       .string()
       .openapi({ example: "GPA minimum 3.5, active in organizations" }),
+    allowAdminSelection: z.boolean().openapi({
+      example: true,
+    }),
   }),
 });

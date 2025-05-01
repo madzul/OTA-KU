@@ -157,6 +157,7 @@ function RouteComponent() {
               <Button
                 type="button"
                 disabled={loginCallbackMutation.isPending}
+                variant={"outline"}
                 asChild
               >
                 <a
@@ -174,7 +175,7 @@ function RouteComponent() {
               <p className="text-primary text-center text-base">
                 Belum punya akun?{" "}
                 <Link to="/auth/register" className="underline">
-                  Daftar disini sekarang
+                  Buat Akun disini sekarang
                 </Link>
               </p>
             </form>
