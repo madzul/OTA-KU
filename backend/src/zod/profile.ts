@@ -209,6 +209,30 @@ export const MahasiswaProfileFormSchema = z.object({
     .min(1, "Asal sekolah harus diisi")
     .max(255)
     .openapi({ example: "SMA Negeri 1 Bandung", description: "Asal SMA" }),
+  religion: z
+    .enum([
+      "Islam",
+      "Kristen Protestan",
+      "Katolik",
+      "Hindu",
+      "Buddha",
+      "Konghucu",
+    ])
+    .openapi({
+      example: "Islam",
+    }),
+  gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" })
+    .openapi({ example: 3.5, description: "IPK mahasiswa" }),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",
@@ -216,15 +240,23 @@ export const MahasiswaProfileFormSchema = z.object({
     })
     .min(3, { message: "Deskripsi terlalu pendek" })
     .openapi({ example: "Mahasiswa baru", description: "Deskripsi mahasiswa" }),
-  file: PDFSchema.optional(),
-  kk: PDFSchema.optional(),
-  ktm: PDFSchema.optional(),
-  waliRecommendationLetter: PDFSchema.optional(),
-  transcript: PDFSchema.optional(),
-  salaryReport: PDFSchema.optional(),
-  pbb: PDFSchema.optional(),
-  electricityBill: PDFSchema.optional(),
-  ditmawaRecommendationLetter: PDFSchema.optional(),
+  file: PDFSchema.openapi({ description: "File Essay Mahasiswa" }).optional(),
+  kk: PDFSchema.openapi({ description: "Kartu Keluarga" }).optional(),
+  ktm: PDFSchema.openapi({ description: "Kartu Tanda Mahasiswa" }).optional(),
+  waliRecommendationLetter: PDFSchema.openapi({
+    description: "Surat Rekomendasi Wali",
+  }).optional(),
+  transcript: PDFSchema.openapi({ description: "Transkrip Nilai" }).optional(),
+  salaryReport: PDFSchema.openapi({
+    description: "Slip Gaji Orang Tua",
+  }).optional(),
+  pbb: PDFSchema.openapi({ description: "Bukti Pembayaran PBB" }).optional(),
+  electricityBill: PDFSchema.openapi({
+    description: "Tagihan Listrik",
+  }).optional(),
+  ditmawaRecommendationLetter: PDFSchema.openapi({
+    description: "Surat Rekomendasi Ditmawa",
+  }).optional(),
 });
 
 export const MahasiswaRegistrationSuccessfulResponse = z.object({
