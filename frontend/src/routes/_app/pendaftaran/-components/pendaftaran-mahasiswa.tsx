@@ -21,6 +21,7 @@ import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
+import { getNimJurusanCodeMap, getNimFakultasFromNimJurusanMap, getNimFakultasCodeMap } from "@/lib/nim";
 
 type MahasiswaRegistrationFormValues = z.infer<
   typeof MahasiswaRegistrationFormSchema
@@ -101,10 +102,21 @@ export default function PendaftaranMahasiswa({
     },
   });
 
+  const nim = session.email.split("@")[0];
+  const nimCode = nim.slice(0, 3);
+  const jurusan = getNimJurusanCodeMap()[nimCode] || "TPB";
+  const fakultas =
+    getNimFakultasCodeMap()[
+      getNimFakultasFromNimJurusanMap()[nimCode]
+    ] || getNimFakultasCodeMap()[nimCode];
+
   const form = useForm<MahasiswaRegistrationFormValues>({
     resolver: zodResolver(MahasiswaRegistrationFormSchema),
     defaultValues: {
       phoneNumber: session.phoneNumber ?? "",
+      nim,
+      major: jurusan,
+      faculty: fakultas,
     },
     mode: "onSubmit",
   });
@@ -150,6 +162,9 @@ export default function PendaftaranMahasiswa({
             {/* TODO: Disable input kalo udah ada nama, NIM, jurusan, dan fakultas (login oauth)
             1. Pake session context (useContext), session itu isinya JWT
             2. Harus ngecek dulu provider si user itu azure atau ga, kalo azure -> disable */}
+
+            {/* TODO: yang atas persis udah di implement,
+            tapi blm ada conditional kek if provider === azure, then name autofilled */}
             <FormField
               control={form.control}
               name="name"
@@ -195,7 +210,7 @@ export default function PendaftaranMahasiswa({
                 <FormItem>
                   <FormLabel className="text-primary text-sm">NIM</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan NIM Anda" {...field} />
+                    <Input {...field} disabled />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -211,7 +226,7 @@ export default function PendaftaranMahasiswa({
                     Jurusan
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan jurusan Anda" {...field} />
+                    <Input {...field} disabled />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -227,7 +242,7 @@ export default function PendaftaranMahasiswa({
                     Fakultas
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan fakultas Anda" {...field} />
+                    <Input {...field} disabled />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
