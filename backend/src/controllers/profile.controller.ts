@@ -121,7 +121,7 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
           highschoolAlumni,
           religion,
           gender,
-          gpa,
+          gpa: String(gpa),
           file: fileResult.secure_url,
           kk: kkResult.secure_url,
           ktm: ktmResult.secure_url,
@@ -148,7 +148,7 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
             highschoolAlumni,
             religion,
             gender,
-            gpa,
+            gpa: String(gpa),
             file: fileResult.secure_url,
             kk: kkResult.secure_url,
             ktm: ktmResult.secure_url,
@@ -256,6 +256,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
     maxSemester,
     startDate,
     transferDate,
+    allowAdminSelection,
   } = zodParseResult;
 
   if (user.status === "unverified") {
@@ -283,6 +284,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
         startDate: new Date(startDate),
         name,
         transferDate,
+        allowAdminSelection: allowAdminSelection === "true",
       });
 
       await tx
@@ -331,6 +333,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
           maxSemester,
           startDate,
           transferDate,
+          allowAdminSelection,
         },
       },
       200,
@@ -365,6 +368,7 @@ profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
     maxSemester,
     startDate,
     transferDate,
+    allowAdminSelection,
   } = zodParseResult;
 
   if (user.status === "unverified") {
@@ -409,6 +413,7 @@ profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
           maxSemester,
           startDate,
           transferDate,
+          allowAdminSelection,
         },
       },
       200,
@@ -507,7 +512,7 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           highschoolAlumni,
           religion,
           gender,
-          gpa,
+          gpa: String(gpa),
           file: fileResult.secure_url,
           kk: kkResult.secure_url,
           ktm: ktmResult.secure_url,
@@ -592,6 +597,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
         maxSemester: accountOtaDetailTable.maxSemester,
         transferDate: accountOtaDetailTable.transferDate,
         criteria: accountOtaDetailTable.criteria,
+        allowAdminSelection: accountOtaDetailTable.allowAdminSelection,
       })
       .from(accountTable)
       .innerJoin(
@@ -627,6 +633,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       maxSemester: profileDataOTA[0].maxSemester,
       transferDate: profileDataOTA[0].transferDate,
       criteria: profileDataOTA[0].criteria,
+      allowAdminSelection: profileDataOTA[0].allowAdminSelection!,
       join_date: new Date(profileDataOTA[0].join_date).toLocaleString("en-US", {
         month: "long",
         year: "numeric",
@@ -728,7 +735,7 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
       highschoolAlumni: profileDataMahasiswa[0].highschoolAlumni ?? undefined,
       religion: profileDataMahasiswa[0].religion!,
       gender: profileDataMahasiswa[0].gender!,
-      gpa: profileDataMahasiswa[0].gpa!,
+      gpa: Number(profileDataMahasiswa[0].gpa!),
       file: profileDataMahasiswa[0].file ?? undefined,
       kk: profileDataMahasiswa[0].kk ?? undefined,
       ktm: profileDataMahasiswa[0].ktm ?? undefined,

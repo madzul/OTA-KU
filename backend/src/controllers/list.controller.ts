@@ -405,6 +405,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
         maxSemester: accountOtaDetailTable.maxSemester,
         transferDate: accountOtaDetailTable.transferDate,
         criteria: accountOtaDetailTable.criteria,
+        allowAdminSelection: accountOtaDetailTable.allowAdminSelection,
       })
       .from(accountTable)
       .innerJoin(
@@ -443,6 +444,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
             maxSemester: orangTua.maxSemester,
             transferDate: orangTua.transferDate,
             criteria: orangTua.criteria,
+            allowAdminSelection: orangTua.allowAdminSelection,
           })),
           totalPagination: countsPagination[0].count,
           totalData: Number(counts[0].total),

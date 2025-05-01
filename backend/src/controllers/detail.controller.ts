@@ -149,6 +149,7 @@ detailProtectedRouter.openapi(getOtaDetailRoute, async (c) => {
           maxSemester: ota.account_ota_detail.maxSemester,
           transferDate: ota.account_ota_detail.transferDate,
           criteria: ota.account_ota_detail.criteria,
+          allowAdminSelection: ota.account_ota_detail.allowAdminSelection,
         },
       },
       200,

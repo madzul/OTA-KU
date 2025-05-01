@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  decimal,
   integer,
   pgEnum,
   pgTable,
@@ -173,7 +174,7 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
   highschoolAlumni: varchar({ length: 255 }),
   religion: religionEnum("religion"),
   gender: genderEnum("gender"),
-  gpa: integer("gpa"),
+  gpa: decimal("gpa", { precision: 3, scale: 2 }),
   description: text("description"),
   // Files (links)
   // Field file di bawah ini maksudnya file essay

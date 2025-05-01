@@ -316,6 +316,14 @@ export const OrangTuaRegistrationSchema = z.object({
       message: "Kriteria terlalu pendek",
     })
     .openapi({ example: "Kriteria orang tua" }),
+  allowAdminSelection: z
+    .enum(["true", "false"], {
+      required_error: "Checkbox harus diisi",
+      invalid_type_error: "Checkbox tidak valid",
+    })
+    .openapi({
+      example: "true",
+    }),
 });
 
 export const OrangTuaRegistrationSuccessfulResponse = z.object({
@@ -365,6 +373,14 @@ export const ProfileOrangTuaResponse = z.object({
       .string()
       .optional()
       .openapi({ example: "Mahasiswa dari daerah Indonesia Timur" }),
+    allowAdminSelection: z
+      .boolean({
+        required_error: "Checkbox harus diisi",
+      })
+      .optional()
+      .openapi({
+        example: true,
+      }),
   }),
 });
 

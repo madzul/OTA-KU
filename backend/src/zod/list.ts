@@ -69,7 +69,7 @@ export const VerifiedMahasiswaListQueryResponse = z.object({
             example: "Islam",
           }),
         gender: z.enum(["M", "F"]).openapi({ example: "M" }),
-        gpa: z.number().openapi({ example: 3.5 }),
+        gpa: z.string().openapi({ example: "3.5" }),
         kk: z.string().openapi({ example: "https://example.com/file.pdf" }),
         ktm: z.string().openapi({ example: "https://example.com/file.pdf" }),
         waliRecommendationLetter: z
@@ -170,7 +170,7 @@ export const MahasiswaDetailsListQueryResponse = z.object({
             example: "Islam",
           }),
         gender: z.enum(["M", "F"]).openapi({ example: "M" }),
-        gpa: z.number().openapi({ example: 3.5 }),
+        gpa: z.string().openapi({ example: "3.5" }),
         kk: z.string().openapi({ example: "https://example.com/file.pdf" }),
         ktm: z.string().openapi({ example: "https://example.com/file.pdf" }),
         waliRecommendationLetter: z
@@ -255,6 +255,9 @@ export const OrangTuaDetailsListQueryResponse = z.object({
         maxSemester: z.coerce.number().openapi({ example: 8 }),
         transferDate: z.coerce.number().openapi({ example: 1 }),
         criteria: z.string().openapi({ example: "Kriteria orang tua" }),
+        allowAdminSelection: z.boolean().openapi({
+          example: true,
+        }),
       }),
     ),
     totalPagination: z.number().openapi({ example: 10 }),

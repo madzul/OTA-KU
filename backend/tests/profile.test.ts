@@ -356,6 +356,7 @@ describe("Pendaftaran Orang Tua Asuh", () => {
     formData.append("maxSemester", 8);
     formData.append("startDate", new Date().toISOString());
     formData.append("transferDate", 25);
+    formData.append("allowAdminSelection", "true");
 
     const headers = formData.getHeaders();
     headers["Authorization"] = `Bearer ${token}`;
@@ -451,6 +452,7 @@ describe("Pendaftaran Orang Tua Asuh", () => {
     formData.append("maxSemester", 8);
     formData.append("startDate", new Date().toISOString());
     formData.append("transferDate", 25);
+    formData.append("allowAdminSelection", "true");
 
     const headers = formData.getHeaders();
     headers["Authorization"] = `Bearer ${token}`;
@@ -504,6 +506,7 @@ describe("Pendaftaran Orang Tua Asuh", () => {
     formData.append("maxSemester", 8);
     formData.append("startDate", new Date().toISOString());
     formData.append("transferDate", 25);
+    formData.append("allowAdminSelection", "true");
 
     const headers = formData.getHeaders();
     headers["Authorization"] = `Bearer ${token}`;

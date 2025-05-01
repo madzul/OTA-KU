@@ -58,7 +58,7 @@ export const MahasiswaDetailResponse = z.object({
         example: "Islam",
       }),
     gender: z.enum(["M", "F"]).openapi({ example: "M" }),
-    gpa: z.number().openapi({ example: 3.5 }),
+    gpa: z.string().openapi({ example: "3.5" }),
     kk: z.string().openapi({ example: "https://example.com/file.pdf" }),
     ktm: z.string().openapi({ example: "https://example.com/file.pdf" }),
     waliRecommendationLetter: z
@@ -128,5 +128,8 @@ export const OtaDetailResponse = z.object({
     criteria: z
       .string()
       .openapi({ example: "GPA minimum 3.5, active in organizations" }),
+    allowAdminSelection: z.boolean().openapi({
+      example: true,
+    }),
   }),
 });
