@@ -22,10 +22,6 @@ export default function SessionProvider({
     return <div>Loading...</div>;
   }
 
-  if (data.body.status === "unverified") {
-    return <Navigate to="/auth/otp-verification" />;
-  }
-
   return (
     <SessionContext.Provider value={data.body}>
       {children}

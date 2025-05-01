@@ -1,5 +1,6 @@
+import { api } from "@/api/client";
 import { SessionContext } from "@/context/session";
-import { Navigate, createFileRoute } from "@tanstack/react-router";
+import { Navigate, createFileRoute, redirect } from "@tanstack/react-router";
 import { useContext } from "react";
 
 import PendaftaranMahasiswa from "./-components/pendaftaran-mahasiswa";
@@ -7,10 +8,38 @@ import PendaftaranOrangTua from "./-components/pendaftaran-orang-tua";
 
 export const Route = createFileRoute("/_app/pendaftaran/")({
   component: RouteComponent,
+  beforeLoad: async () => {
+    // TODO: Nanti ganti pake route context
+    const user = await api.auth.verif().catch(() => null);
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    const applicationStatus = await api.status
+      .getApplicationStatus({ id: user?.body.id })
+      .catch(() => null);
+
+    if (!applicationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (applicationStatus?.body.status === "accepted") {
+      throw redirect({ to: "/profile" });
+    }
+
+    return {
+      status: applicationStatus?.body.status,
+    };
+  },
+  loader: ({ context: { status } }) => {
+    return { applicationStatus: status };
+  },
 });
 
 function RouteComponent() {
   const session = useContext(SessionContext);
+  const { applicationStatus } = Route.useLoaderData();
 
   const isAdmin = session?.type === "admin";
 
@@ -18,15 +47,7 @@ function RouteComponent() {
     return <Navigate to="/" />;
   }
 
-  const applicationStatus = session?.applicationStatus;
-
   // TODO: Handle applicationStatus === "reapply" dan "outdated"
-  if (applicationStatus === "accepted") {
-    return <Navigate to="/profile" />;
-  }
-
-  // TODO: Kayanya better ngeceknya jangan pake session, soalnya kalo belom logout sessionnya ga berubah
-
   // TODO: Sesuaiin datanya sesuai apa yang diinginkan IOM nanti
   if (applicationStatus === "pending") {
     return (

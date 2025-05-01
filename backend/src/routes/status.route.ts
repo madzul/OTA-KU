@@ -6,6 +6,9 @@ import {
   ApplicationStatusParams,
   ApplicationStatusSchema,
   ApplicationStatusSuccessResponse,
+  GetApplicationStatusForbiddenResponse,
+  GetApplicationStatusSuccessResponse,
+  GetVerificationStatusSuccessResponse,
 } from "../zod/status.js";
 
 export const applicationStatusRoute = createRoute({
@@ -34,6 +37,74 @@ export const applicationStatusRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const getApplicationStatusRoute = createRoute({
+  operationId: "getApplicationStatus",
+  tags: ["Status"],
+  method: "get",
+  path: "/status/application/{id}",
+  description: "Mengambil status pendaftaran.",
+  request: {
+    params: ApplicationStatusParams,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mengambil status pendaftaran",
+      content: {
+        "application/json": {
+          schema: GetApplicationStatusSuccessResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": { schema: GetApplicationStatusForbiddenResponse },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const getVerificationStatusRoute = createRoute({
+  operationId: "getVerificationStatus",
+  tags: ["Status"],
+  method: "get",
+  path: "/status/verification/{id}",
+  description: "Mengambil status verifikasi.",
+  request: {
+    params: ApplicationStatusParams,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mengambil status verifikasi",
+      content: {
+        "application/json": {
+          schema: GetVerificationStatusSuccessResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": { schema: GetApplicationStatusForbiddenResponse },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {

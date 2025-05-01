@@ -26,12 +26,22 @@ import { CountdownTimer } from "./-components/countdown-timer";
 export const Route = createFileRoute("/auth/otp-verification/")({
   component: RouteComponent,
   beforeLoad: async () => {
+    // TODO: Nanti ganti pake route context
     const user = await api.auth.verif().catch(() => null);
-    if (!user?.success) {
-      throw redirect({ to: "/" });
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
     }
 
-    if (user.body.status === "verified") {
+    const status = await api.status
+      .getVerificationStatus({ id: user?.body.id })
+      .catch(() => null);
+
+    if (!status) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (status.body.status === "verified") {
       throw redirect({ to: "/pendaftaran" });
     }
   },
