@@ -51,6 +51,9 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
     salaryReport,
     transcript,
     waliRecommendationLetter,
+    gender,
+    gpa,
+    religion,
   } = zodParseResult;
 
   if (user.status === "unverified") {
@@ -88,6 +91,18 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
     ]);
 
     await db.transaction(async (tx) => {
+      const currentDateTime = new Date();
+      // Due date time is 6 months from now
+      const dueDateTime = new Date(
+        currentDateTime.getFullYear(),
+        currentDateTime.getMonth() + 6,
+        currentDateTime.getDate(),
+        currentDateTime.getHours(),
+        currentDateTime.getMinutes(),
+        currentDateTime.getSeconds(),
+        currentDateTime.getMilliseconds(),
+      );
+
       await tx
         .update(accountTable)
         .set({ phoneNumber })
@@ -104,6 +119,9 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
           faculty,
           cityOfOrigin,
           highschoolAlumni,
+          religion,
+          gender,
+          gpa: String(gpa),
           file: fileResult.secure_url,
           kk: kkResult.secure_url,
           ktm: ktmResult.secure_url,
@@ -114,6 +132,9 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
           electricityBill: electricityBillResult.secure_url,
           ditmawaRecommendationLetter:
             ditmawaRecommendationLetterResult.secure_url,
+          createdAt: currentDateTime,
+          updatedAt: currentDateTime,
+          dueNextUpdateAt: dueDateTime,
         })
         .onConflictDoUpdate({
           target: [accountMahasiswaDetailTable.accountId],
@@ -125,6 +146,9 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
             faculty,
             cityOfOrigin,
             highschoolAlumni,
+            religion,
+            gender,
+            gpa: String(gpa),
             file: fileResult.secure_url,
             kk: kkResult.secure_url,
             ktm: ktmResult.secure_url,
@@ -135,6 +159,9 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
             electricityBill: electricityBillResult.secure_url,
             ditmawaRecommendationLetter:
               ditmawaRecommendationLetterResult.secure_url,
+            createdAt: currentDateTime,
+            updatedAt: currentDateTime,
+            dueNextUpdateAt: dueDateTime,
           },
         });
 
@@ -181,6 +208,9 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
           faculty,
           cityOfOrigin,
           highschoolAlumni,
+          religion,
+          gender,
+          gpa,
           file: fileResult.secure_url,
           kk: kkResult.secure_url,
           ktm: ktmResult.secure_url,
@@ -226,6 +256,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
     maxSemester,
     startDate,
     transferDate,
+    allowAdminSelection,
   } = zodParseResult;
 
   if (user.status === "unverified") {
@@ -244,7 +275,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
       await tx.insert(accountOtaDetailTable).values({
         accountId: user.id,
         address,
-        criteria,
+        criteria: criteria ?? "",
         funds,
         job,
         linkage,
@@ -253,6 +284,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
         startDate: new Date(startDate),
         name,
         transferDate,
+        allowAdminSelection: allowAdminSelection === "true",
       });
 
       await tx
@@ -301,6 +333,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
           maxSemester,
           startDate,
           transferDate,
+          allowAdminSelection,
         },
       },
       200,
@@ -335,6 +368,7 @@ profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
     maxSemester,
     startDate,
     transferDate,
+    allowAdminSelection,
   } = zodParseResult;
 
   if (user.status === "unverified") {
@@ -379,6 +413,7 @@ profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
           maxSemester,
           startDate,
           transferDate,
+          allowAdminSelection,
         },
       },
       200,
@@ -420,6 +455,9 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
     salaryReport,
     transcript,
     waliRecommendationLetter,
+    gender,
+    gpa,
+    religion,
   } = zodParseResult;
 
   if (user.status === "unverified") {
@@ -472,6 +510,9 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           faculty,
           cityOfOrigin,
           highschoolAlumni,
+          religion,
+          gender,
+          gpa: String(gpa),
           file: fileResult.secure_url,
           kk: kkResult.secure_url,
           ktm: ktmResult.secure_url,
@@ -498,6 +539,9 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           faculty,
           cityOfOrigin,
           highschoolAlumni,
+          religion,
+          gender,
+          gpa,
           file: fileResult.secure_url,
           kk: kkResult.secure_url,
           ktm: ktmResult.secure_url,
@@ -553,6 +597,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
         maxSemester: accountOtaDetailTable.maxSemester,
         transferDate: accountOtaDetailTable.transferDate,
         criteria: accountOtaDetailTable.criteria,
+        allowAdminSelection: accountOtaDetailTable.allowAdminSelection,
       })
       .from(accountTable)
       .innerJoin(
@@ -588,6 +633,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       maxSemester: profileDataOTA[0].maxSemester,
       transferDate: profileDataOTA[0].transferDate,
       criteria: profileDataOTA[0].criteria,
+      allowAdminSelection: profileDataOTA[0].allowAdminSelection!,
       join_date: new Date(profileDataOTA[0].join_date).toLocaleString("en-US", {
         month: "long",
         year: "numeric",
@@ -642,6 +688,9 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
         faculty: accountMahasiswaDetailTable.faculty,
         cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
         highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        religion: accountMahasiswaDetailTable.religion,
+        gender: accountMahasiswaDetailTable.gender,
+        gpa: accountMahasiswaDetailTable.gpa,
         file: accountMahasiswaDetailTable.file,
         kk: accountMahasiswaDetailTable.kk,
         ktm: accountMahasiswaDetailTable.ktm,
@@ -684,6 +733,9 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
       faculty: profileDataMahasiswa[0].faculty ?? undefined,
       cityOfOrigin: profileDataMahasiswa[0].cityOfOrigin ?? undefined,
       highschoolAlumni: profileDataMahasiswa[0].highschoolAlumni ?? undefined,
+      religion: profileDataMahasiswa[0].religion!,
+      gender: profileDataMahasiswa[0].gender!,
+      gpa: Number(profileDataMahasiswa[0].gpa!),
       file: profileDataMahasiswa[0].file ?? undefined,
       kk: profileDataMahasiswa[0].kk ?? undefined,
       ktm: profileDataMahasiswa[0].ktm ?? undefined,

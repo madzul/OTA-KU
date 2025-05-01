@@ -108,6 +108,27 @@ export const MahasiswaRegistrationFormSchema = z.object({
     })
     .min(1, "Asal sekolah harus diisi")
     .max(255),
+  religion: z.enum(
+    ["Islam", "Kristen Protestan", "Katolik", "Hindu", "Buddha", "Konghucu"],
+    {
+      required_error: "Agama harus dipilih",
+      invalid_type_error: "Agama tidak valid",
+    },
+  ),
+  gender: z.enum(["M", "F"], {
+    required_error: "Jenis kelamin harus dipilih",
+    invalid_type_error: "Jenis kelamin tidak valid",
+  }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" }),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",
@@ -221,14 +242,7 @@ export const OrangTuaPageTwoSchema = z.object({
     .max(28, {
       message: "Tanggal transfer tidak valid",
     }),
-  criteria: z
-    .string({
-      invalid_type_error: "Kriteria harus berupa string",
-      required_error: "Kriteria harus diisi",
-    })
-    .min(1, {
-      message: "Kriteria terlalu pendek",
-    }),
+  criteria: z.string().optional(),
   checked: z
     .boolean({
       invalid_type_error: "Checked harus berupa boolean",
@@ -239,6 +253,7 @@ export const OrangTuaPageTwoSchema = z.object({
       message: "Harus diisi",
       path: ["checked"],
     }),
+  allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
 
 export const OrangTuaRegistrationSchema = z.object({
@@ -331,12 +346,6 @@ export const OrangTuaRegistrationSchema = z.object({
     .max(31, {
       message: "Tanggal transfer tidak valid",
     }),
-  criteria: z
-    .string({
-      invalid_type_error: "Kriteria harus berupa string",
-      required_error: "Kriteria harus diisi",
-    })
-    .min(1, {
-      message: "Kriteria terlalu pendek",
-    }),
+  criteria: z.string().optional(),
+  allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });

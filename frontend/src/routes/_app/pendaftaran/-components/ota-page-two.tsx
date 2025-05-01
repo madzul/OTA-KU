@@ -80,6 +80,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
     resolver: zodResolver(OrangTuaPageTwoSchema),
     defaultValues: {
       checked: false,
+      allowAdminSelection: "false",
     },
   });
 
@@ -185,9 +186,14 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
                     <PopoverContent className="w-auto p-0" align="end">
                       <Calendar
                         mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={
-                          (date) => form.setValue("startDate", date ? date.toISOString() : "")
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
+                        onSelect={(date) =>
+                          form.setValue(
+                            "startDate",
+                            date ? date.toISOString() : "",
+                          )
                         }
                         disabled={(date) => date <= new Date()}
                         initialFocus
@@ -278,7 +284,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-primary text-sm">
-                    Adapun Kriteria Anak Asuh yang saya inginkan (opsional)
+                    Adapun Kriteria Anak Asuh yang saya inginkan (Opsional)
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -311,6 +317,29 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
                   </FormControl>
                   <span className="ml-2">
                     Saya tidak keberatan untuk berkomunikasi dengan anak asuh
+                  </span>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="allowAdminSelection"
+              render={({ field }) => (
+                <FormItem className="text-primary flex items-center gap-2 text-base">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value === "true"}
+                      onCheckedChange={(checked) => {
+                        field.onChange(checked ? "true" : "false");
+                      }}
+                      className="text-primary"
+                    />
+                  </FormControl>
+                  <span className="ml-2">
+                    Saya memberikan izin kepada IOM untuk memilihkan anak asuh
+                    (Opsional)
                   </span>
                   <FormMessage />
                 </FormItem>

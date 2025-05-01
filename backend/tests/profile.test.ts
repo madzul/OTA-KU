@@ -40,6 +40,9 @@ describe("Pendaftaran Mahasiswa", () => {
     formData.append("cityOfOrigin", "Bandung");
     formData.append("highschoolAlumni", "SMA Negeri 1 Bandung");
     formData.append("description", "Test description");
+    formData.append("religion", "Islam");
+    formData.append("gender", "M");
+    formData.append("gpa", 3.5);
 
     const fileFields = [
       "file",
@@ -183,6 +186,9 @@ describe("Pendaftaran Mahasiswa", () => {
     formData.append("cityOfOrigin", "Bandung");
     formData.append("highschoolAlumni", "SMA Negeri 1 Bandung");
     formData.append("description", "Test description");
+    formData.append("religion", "Islam");
+    formData.append("gender", "M");
+    formData.append("gpa", 3.5);
 
     const fileFields = [
       "file",
@@ -254,6 +260,9 @@ describe("Pendaftaran Mahasiswa", () => {
     formData.append("cityOfOrigin", "Bandung");
     formData.append("highschoolAlumni", "SMA Negeri 1 Bandung");
     formData.append("description", "Test description");
+    formData.append("religion", "Islam");
+    formData.append("gender", "M");
+    formData.append("gpa", 3.5);
 
     const fileFields = [
       "file",
@@ -347,6 +356,7 @@ describe("Pendaftaran Orang Tua Asuh", () => {
     formData.append("maxSemester", 8);
     formData.append("startDate", new Date().toISOString());
     formData.append("transferDate", 25);
+    formData.append("allowAdminSelection", "true");
 
     const headers = formData.getHeaders();
     headers["Authorization"] = `Bearer ${token}`;
@@ -442,6 +452,7 @@ describe("Pendaftaran Orang Tua Asuh", () => {
     formData.append("maxSemester", 8);
     formData.append("startDate", new Date().toISOString());
     formData.append("transferDate", 25);
+    formData.append("allowAdminSelection", "true");
 
     const headers = formData.getHeaders();
     headers["Authorization"] = `Bearer ${token}`;
@@ -495,6 +506,7 @@ describe("Pendaftaran Orang Tua Asuh", () => {
     formData.append("maxSemester", 8);
     formData.append("startDate", new Date().toISOString());
     formData.append("transferDate", 25);
+    formData.append("allowAdminSelection", "true");
 
     const headers = formData.getHeaders();
     headers["Authorization"] = `Bearer ${token}`;
