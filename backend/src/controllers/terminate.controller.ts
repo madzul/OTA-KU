@@ -3,185 +3,206 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
-  connectionTable
+  accountTable,
+  connectionTable,
 } from "../db/schema.js";
-import { createAuthRouter } from "./router-factory.js";
-import { requestTerminateFromMARoute, requestTerminateFromOTARoute, validateTerminateRoute } from "../routes/terminate.route.js";
+import {
+  requestTerminateFromMARoute,
+  requestTerminateFromOTARoute,
+  validateTerminateRoute,
+} from "../routes/terminate.route.js";
 import { TerminateRequestSchema } from "../zod/terminate.js";
+import { createAuthRouter } from "./router-factory.js";
 
 export const terminateProtectedRouter = createAuthRouter();
 
-terminateProtectedRouter.openapi(requestTerminateFromMARoute, async(c) => {
-    const user = c.var.user;
-    const body = await c.req.formData();
-    const data = Object.fromEntries(body.entries());
+terminateProtectedRouter.openapi(requestTerminateFromMARoute, async (c) => {
+  const user = c.var.user;
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
 
-    const zodParseResult = TerminateRequestSchema.parse(data)
-    const { mahasiswaId, otaId } = zodParseResult;
+  const zodParseResult = TerminateRequestSchema.parse(data);
+  const { mahasiswaId, otaId } = zodParseResult;
 
-    if (user.status === "unverified") {
-        return c.json(
-          {
-            success: false,
-            message: "Akun anda belum diverifikasi.",
-            error: {},
-          },
-          403,
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "unverified") {
+    return c.json(
+      {
+        success: false,
+        message: "Akun anda belum diverifikasi.",
+        error: {},
+      },
+      403,
+    );
+  }
+
+  try {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(connectionTable)
+        .set({ connectionStatus: "pending" }) //TODO: on relation connection, attribute connection_status tambahine enum pending_terminate biar bisa dibedain pending pengajuan sama pending termination
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+          ),
         );
-    }
+    });
 
-    try{
-        await db.transaction(async (tx) => {
-            await tx
-            .update(connectionTable)
-            .set({ connectionStatus: "pending" }) //TODO: on relation connection, attribute connection_status tambahine enum pending_terminate biar bisa dibedain pending pengajuan sama pending termination
-            .where(
-                and(
-                    eq(connectionTable.mahasiswaId, mahasiswaId),
-                    eq(connectionTable.otaId, otaId)
-                )
-            )
-        })
+    return c.json(
+      {
+        success: true,
+        message:
+          "Berhasil mengirimkan request terminate hubungan asuh dari akun MA",
+        body: {
+          mahasiswaId,
+          otaId,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
 
-        return c.json(
-            {
-              success: true,
-              message: "Berhasil mengirimkan request terminate hubungan asuh dari akun MA",
-              body: {
-                mahasiswaId,
-                otaId,
-              },
-            },
-            200,
+terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
+  const user = c.var.user;
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+
+  const zodParseResult = TerminateRequestSchema.parse(data);
+  const { mahasiswaId, otaId } = zodParseResult;
+
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "unverified") {
+    return c.json(
+      {
+        success: false,
+        message: "Akun anda belum diverifikasi.",
+        error: {},
+      },
+      403,
+    );
+  }
+
+  try {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(connectionTable)
+        .set({ connectionStatus: "pending" }) //TODO: on relation connection, attribute connection_status tambahine enum pending_terminate biar bisa dibedain pending pengajuan sama pending termination
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+          ),
         );
-    } catch (error) {
-        console.error(error);
-        return c.json(
-          {
-            success: false,
-            message: "Internal server error",
-            error: {},
-          },
-          500,
-        );
-    }
-})
+    });
 
-terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async(c) => {
-    const user = c.var.user;
-    const body = await c.req.formData();
-    const data = Object.fromEntries(body.entries());
+    return c.json(
+      {
+        success: true,
+        message:
+          "Berhasil mengirimkan request terminate hubungan asuh dari akun OTA",
+        body: {
+          mahasiswaId,
+          otaId,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
 
-    const zodParseResult = TerminateRequestSchema.parse(data)
-    const { mahasiswaId, otaId } = zodParseResult;
+terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
+  const user = c.var.user;
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
 
-    if (user.status === "unverified") {
-        return c.json(
-          {
-            success: false,
-            message: "Akun anda belum diverifikasi.",
-            error: {},
-          },
-          403,
-        );
-    }
+  const zodParseResult = TerminateRequestSchema.parse(data);
+  const { mahasiswaId, otaId } = zodParseResult;
 
-    try{
-        await db.transaction(async (tx) => {
-            await tx
-            .update(connectionTable)
-            .set({ connectionStatus: "pending" }) //TODO: on relation connection, attribute connection_status tambahine enum pending_terminate biar bisa dibedain pending pengajuan sama pending termination
-            .where(
-                and(
-                    eq(connectionTable.mahasiswaId, mahasiswaId),
-                    eq(connectionTable.otaId, otaId)
-                )
-            )
-        })
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
 
-        return c.json(
-            {
-              success: true,
-              message: "Berhasil mengirimkan request terminate hubungan asuh dari akun OTA",
-              body: {
-                mahasiswaId,
-                otaId,
-              },
-            },
-            200,
-        );
-    } catch (error) {
-        console.error(error);
-        return c.json(
-          {
-            success: false,
-            message: "Internal server error",
-            error: {},
-          },
-          500,
-        );
-    }
-})
+  if (userAccount[0].status === "unverified") {
+    return c.json(
+      {
+        success: false,
+        message: "Akun anda belum diverifikasi.",
+        error: {},
+      },
+      403,
+    );
+  }
 
-terminateProtectedRouter.openapi(validateTerminateRoute, async(c) => {
-    const user = c.var.user;
-    const body = await c.req.formData();
-    const data = Object.fromEntries(body.entries());
+  try {
+    await db.transaction(async (tx) => {
+      await tx.delete(connectionTable).where(
+        and(
+          eq(connectionTable.mahasiswaId, mahasiswaId),
+          eq(connectionTable.otaId, otaId),
+          eq(connectionTable.connectionStatus, "pending"), //TODO: on relation connection, attribute connection_status tambahine enum pending_terminate biar bisa dibedain pending pengajuan sama pending termination
+        ),
+      );
 
-    const zodParseResult = TerminateRequestSchema.parse(data)
-    const { mahasiswaId, otaId } = zodParseResult;
+      await tx
+        .update(accountMahasiswaDetailTable)
+        .set({ mahasiswaStatus: "inactive" })
+        .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId));
+    });
 
-    if (user.status === "unverified") {
-        return c.json(
-          {
-            success: false,
-            message: "Akun anda belum diverifikasi.",
-            error: {},
-          },
-          403,
-        );
-    }
-
-    try{
-        await db.transaction(async (tx) => {
-            await tx
-            .delete(connectionTable)
-            .where(
-                and(
-                    eq(connectionTable.mahasiswaId, mahasiswaId),
-                    eq(connectionTable.otaId, otaId),
-                    eq(connectionTable.connectionStatus, "pending") //TODO: on relation connection, attribute connection_status tambahine enum pending_terminate biar bisa dibedain pending pengajuan sama pending termination
-                )
-            )
-
-            await tx
-            .update(accountMahasiswaDetailTable)
-            .set({ mahasiswaStatus : "inactive" })
-            .where(
-                eq(accountMahasiswaDetailTable.accountId, mahasiswaId)
-            )
-        })
-
-        return c.json(
-            {
-              success: true,
-              message: "Berhasil memvalidasi terminasi hubungan",
-              body: {
-                mahasiswaId,
-                otaId,
-              },
-            },
-            200,
-        );
-    } catch (error) {
-        console.error(error);
-        return c.json(
-          {
-            success: false,
-            message: "Internal server error",
-            error: {},
-          },
-          500,
-        );
-    }
-})
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil memvalidasi terminasi hubungan",
+        body: {
+          mahasiswaId,
+          otaId,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});

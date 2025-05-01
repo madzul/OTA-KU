@@ -8,6 +8,7 @@ import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
+  accountOtaDetailTable,
   accountTable,
   otpTable,
 } from "../db/schema.js";
@@ -85,15 +86,38 @@ authRouter.openapi(loginRoute, async (c) => {
       );
     }
 
+    const accountId = account[0].id;
+
+    let name = null;
+
+    const mahasiswaDetail = await db
+      .select({ name: accountMahasiswaDetailTable.name })
+      .from(accountMahasiswaDetailTable)
+      .where(eq(accountMahasiswaDetailTable.accountId, accountId))
+      .limit(1);
+
+    const otaDetail = await db
+      .select({ name: accountOtaDetailTable.name })
+      .from(accountOtaDetailTable)
+      .where(eq(accountOtaDetailTable.accountId, accountId))
+      .limit(1);
+
+    if (mahasiswaDetail && mahasiswaDetail.length > 0) {
+      name = mahasiswaDetail[0].name;
+    } else if (otaDetail && otaDetail.length > 0) {
+      name = otaDetail[0].name;
+    } else {
+      name = "Admin";
+    }
+
     const accessToken = await sign(
       {
         id: account[0].id,
+        name,
         email: account[0].email,
         phoneNumber: account[0].phoneNumber,
         type: account[0].type,
         provider: account[0].provider,
-        status: account[0].status,
-        applicationStatus: account[0].applicationStatus,
         oid: account[0].oid,
         createdAt: account[0].createdAt,
         iat: Math.floor(Date.now() / 1000),
@@ -197,12 +221,11 @@ authRouter.openapi(regisRoute, async (c) => {
     const accessToken = await sign(
       {
         id: newUser[0].id,
+        name: null,
         email: newUser[0].email,
         phoneNumber: newUser[0].phoneNumber,
         type: newUser[0].type,
         provider: newUser[0].provider,
-        status: newUser[0].status,
-        applicationStatus: newUser[0].applicationStatus,
         oid: newUser[0].oid,
         createdAt: newUser[0].createdAt,
         iat: Math.floor(Date.now() / 1000),
@@ -360,7 +383,6 @@ authRouter.openapi(oauthRoute, async (c) => {
             type: "mahasiswa",
             phoneNumber: null,
             provider: "azure",
-            status: "verified",
             oid,
           })
           .returning();
@@ -383,12 +405,11 @@ authRouter.openapi(oauthRoute, async (c) => {
       const accessToken = await sign(
         {
           id: accountData.id,
+          name,
           email: accountData.email,
           phoneNumber: accountData.phoneNumber || null,
           type: accountData.type,
           provider: accountData.provider,
-          status: accountData.status,
-          applicationStatus: accountData.applicationStatus,
           oid: accountData.oid,
           createdAt: accountData.createdAt,
           iat: Math.floor(Date.now() / 1000),
@@ -461,7 +482,13 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
   const zodParseResult = OTPVerificationRequestSchema.parse(data);
   const { pin } = zodParseResult;
 
-  if (user.status === "verified") {
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "verified") {
     return c.json(
       {
         success: false,
@@ -500,13 +527,32 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
   }
 
   try {
-    // TODO: Abis OTP valid, langsung isi nim sama email mahasiswa detail
-    await db
-      .update(accountTable)
-      .set({
-        status: "verified",
-      })
-      .where(eq(accountTable.id, user.id));
+    await db.transaction(async (tx) => {
+      const data = await tx
+        .update(accountTable)
+        .set({
+          status: "verified",
+        })
+        .where(eq(accountTable.id, user.id))
+        .returning();
+
+      const type = data[0].type;
+
+      if (type === "mahasiswa") {
+        const nim = data[0].email.split("@")[0];
+        await tx
+          .update(accountMahasiswaDetailTable)
+          .set({
+            nim: nim,
+            major: getNimJurusanCodeMap()[nim.slice(0, 3)],
+            faculty:
+              getNimFakultasCodeMap()[
+                getNimFakultasFromNimJurusanMap()[nim.slice(0, 3)]
+              ],
+          })
+          .where(eq(accountMahasiswaDetailTable.accountId, user.id));
+      }
+    });
 
     const accessToken = await sign(
       {
@@ -515,8 +561,6 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
         phoneNumber: user.phoneNumber,
         type: user.type,
         provider: user.provider,
-        status: "verified",
-        applicationStatus: user.applicationStatus,
         oid: user.oid,
         createdAt: user.createdAt,
         iat: Math.floor(Date.now() / 1000),

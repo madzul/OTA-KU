@@ -22,7 +22,13 @@ connectProtectedRouter.openapi(connectOtaMahasiswaRoute, async (c) => {
   const zodParseResult = MahasiwaConnectSchema.parse(data);
   const { mahasiswaId, otaId } = zodParseResult;
 
-  if (user.status === "unverified") {
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "unverified") {
     return c.json(
       {
         success: false,
