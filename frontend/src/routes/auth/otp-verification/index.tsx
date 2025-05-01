@@ -32,7 +32,7 @@ export const Route = createFileRoute("/auth/otp-verification/")({
     }
 
     if (user.body.status === "verified") {
-      throw redirect({ to: "/profile" }); //TODO: redirect ke dashboard bukan profile, ini juga gatau kenapa profile budi santoso (masih placeholder kah?)
+      throw redirect({ to: "/pendaftaran" });
     }
   },
 });
@@ -53,7 +53,7 @@ function RouteComponent() {
       queryClient.invalidateQueries({ queryKey: ["verify"] });
 
       setTimeout(() => {
-        navigate({ to: "/profile" });
+        navigate({ to: "/pendaftaran" });
       }, 1500); // 1.5 seconds delay
     },
     onError: (error, _variables, context) => {
@@ -130,8 +130,6 @@ function RouteComponent() {
     const formData = { email: data.body.email };
     otpResendCallbackMutation.mutate(formData);
   };
-
-  console.log("otpExpiredData", otpExpiredData);
 
   return (
     <main className="text-primary flex min-h-screen flex-col items-center justify-center p-8">

@@ -104,6 +104,10 @@ export function formatAllowedAdminSelection(
   return allowedAdminSelection ? "Bersedia" : "Tidak Bersedia";
 }
 
+export function formatSemester(semester: number): string {
+  return `${semester} semester`;
+}
+
 export function formatValue(
   key: string,
   val: string | number | boolean,
@@ -115,8 +119,6 @@ export function formatValue(
       return formatPhoneNumber(String(val));
     case "provider":
       return formatProvieder(String(val));
-    case "applicationStatus":
-      return formatApplicationStatus(String(val));
     case "mahasiswaStatus":
       return formatMahasiswaStatus(String(val));
     case "linkage":
@@ -129,6 +131,8 @@ export function formatValue(
       return formatGender(String(val) as "M" | "F");
     case "allowedAdminSelection":
       return formatAllowedAdminSelection(Boolean(val));
+    case "maxSemester":
+      return formatSemester(Number(val));
     default:
       return String(val);
   }

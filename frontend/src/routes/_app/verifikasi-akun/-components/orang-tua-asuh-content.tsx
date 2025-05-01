@@ -23,7 +23,9 @@ function OrangTuaAsuhContent() {
 
   const [search, setSearch] = useState<string>("");
   const [value] = useDebounce(search, 500);
-  const [status, setStatus] = useState<"accepted" | "pending" | "rejected">();
+  const [status, setStatus] = useState<
+    "accepted" | "pending" | "rejected" | null
+  >(null);
 
   const { data, isSuccess } = useQuery({
     queryKey: ["listOrangTuaAdmin"],
@@ -45,7 +47,7 @@ function OrangTuaAsuhContent() {
         api.list.listOrangTuaAdmin({
           page: 1,
           q: value,
-          status,
+          status: status as "accepted" | "pending" | "rejected",
         }),
     });
 
