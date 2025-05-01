@@ -13,6 +13,8 @@ interface DetailCardsMahasiswaAsuhProps {
   faculty: string;
   batch: string;
   gpa?: number;
+  gender?: string;
+  religion?: string;
 }
 
 const DetailCardsMahasiswaAsuh: React.FC<DetailCardsMahasiswaAsuhProps> = ({
@@ -26,11 +28,13 @@ const DetailCardsMahasiswaAsuh: React.FC<DetailCardsMahasiswaAsuhProps> = ({
   faculty,
   batch,
   gpa,
+  gender,
+  religion,
 }) => {
   return (
     <div className="grid gap-6 md:grid-cols-[300px_1fr]">
       <Card className="mx-auto w-full max-w-sm">
-        <CardHeader className="flex flex-col items-center justify-center pt-6 pb-4">
+        <CardHeader className="flex flex-col items-center justify-center pb-4 pt-6">
           <div className="mb-4 h-24 w-24 overflow-hidden rounded-full">
             {avatarSrc ? (
               <img
@@ -52,26 +56,26 @@ const DetailCardsMahasiswaAsuh: React.FC<DetailCardsMahasiswaAsuhProps> = ({
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-primary space-y-3 text-sm xl:text-base">
+          <div className="space-y-3 text-sm text-primary xl:text-base">
             <div className="flex items-center space-x-3">
-              <Mail className="text-muted-foreground h-5 w-5" />
-              <span>{email}</span>
+              <Mail className="h-5 w-5 text-muted-foreground" />
+              <span className="break-all">{email}</span>
             </div>
             <div className="flex items-center space-x-3">
-              <Phone className="text-muted-foreground h-5 w-5" />
-              <span>{phone}</span>
+              <Phone className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm">{phone}</span>
             </div>
             <div className="flex items-center space-x-3">
-              <Calendar className="text-muted-foreground h-5 w-5" />
-              <span>{joinDate}</span>
+              <Calendar className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm">{joinDate}</span>
             </div>
           </div>
         </CardContent>
       </Card>
-      <Card className="text-primary w-full">
+      <Card className="w-full text-primary">
         <div className="space-y-3 p-4">
           <h3 className="mb-8 text-lg font-bold xl:text-xl">Data Diri</h3>
-          <div className="xl:text-md space-y-2">
+          <div className="space-y-2 xl:text-md">
             <div className="flex items-center space-x-3">
               <span className="font-semibold">NIM:</span>
               <span>{email.split('@')[0]}</span>
@@ -88,10 +92,22 @@ const DetailCardsMahasiswaAsuh: React.FC<DetailCardsMahasiswaAsuhProps> = ({
               <span className="font-semibold">Angkatan:</span>
               <span>{batch}</span>
             </div>
-            {gpa && (
+            {gpa !== undefined && (
               <div className="flex items-center space-x-3">
                 <span className="font-semibold">IPK:</span>
-                <span>{gpa}</span>
+                <span>{gpa.toFixed(1)}</span>
+              </div>
+            )}
+            {gender && (
+              <div className="flex items-center space-x-3">
+                <span className="font-semibold">Jenis Kelamin:</span>
+                <span>{gender}</span>
+              </div>
+            )}
+            {religion && (
+              <div className="flex items-center space-x-3">
+                <span className="font-semibold">Agama:</span>
+                <span>{religion}</span>
               </div>
             )}
           </div>

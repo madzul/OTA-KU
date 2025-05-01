@@ -64,16 +64,16 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
         </CardHeader>
         <CardContent>
           <div className="text-primary space-y-3 text-sm xl:text-base">
-            <div className="flex items-center space-x-3">
-              <Mail className="text-muted-foreground h-5 w-5" />
-              <span>{email}</span>
+            <div className="flex items-start space-x-3">
+              <Mail className="text-primary h-5 w-5 mt-0.5" />
+              <span className="text-primary break-all">{email}</span>
             </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="text-muted-foreground h-5 w-5" />
+            <div className="flex items-start space-x-3">
+              <Phone className="text-primary h-5 w-5 mt-0.5" />
               <span>{phone}</span>
             </div>
-            <div className="flex items-center space-x-3">
-              <Calendar className="text-muted-foreground h-5 w-5" />
+            <div className="flex items-start space-x-3">
+              <Calendar className="text-primary h-5 w-5 mt-0.5" />
               <span>{joinDate}</span>
             </div>
           </div>
@@ -105,8 +105,17 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
                 </div>
                 <div className="flex items-center space-x-3">
                   <span className="font-semibold">Tipe Keterkaitan:</span>
-                  {/* TODO: Ini ga cuma OTM sama alumni doang */}
-                  <span>{linkage === "otm" ? "OTM" : "Alumni"}</span>
+                  <span>
+                    {linkage === "otm" 
+                      ? "OTM" 
+                      : linkage === "alumni" 
+                        ? "Alumni"
+                        : linkage === "dosen"
+                          ? "Dosen"
+                          : linkage === "lainnya"
+                            ? "Lainnya"
+                            : "Tidak Ada"}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <span className="font-semibold">Jumlah Mahasiswa Asuh:</span>
@@ -141,7 +150,7 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
                 </div>
                 <div className="space-y-2">
                   <span className="font-semibold">Kriteria:</span>
-                  <p className="mt-1 text-sm text-muted-foreground">{criteria}</p>
+                  <p className="mt-1 text-muted-foreground">{criteria}</p>
                 </div>
               </div>
             </div>
