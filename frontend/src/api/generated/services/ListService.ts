@@ -27,7 +27,7 @@ export class ListService {
         type: 'mahasiswa' | 'admin' | 'ota';
         phoneNumber: string;
         provider: 'credentials' | 'azure';
-        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered';
+        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
         name: string;
         nim: string;
         mahasiswaStatus: 'active' | 'inactive';
@@ -37,6 +37,9 @@ export class ListService {
         faculty: string;
         cityOfOrigin: string;
         highschoolAlumni: string;
+        religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+        gender: 'M' | 'F';
+        gpa: string;
         kk: string;
         ktm: string;
         waliRecommendationLetter: string;
@@ -89,7 +92,7 @@ export class ListService {
         type: 'mahasiswa' | 'admin' | 'ota';
         phoneNumber: string;
         provider: 'credentials' | 'azure';
-        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered';
+        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
         name: string;
         nim: string;
         mahasiswaStatus: 'active' | 'inactive';
@@ -99,6 +102,9 @@ export class ListService {
         faculty: string;
         cityOfOrigin: string;
         highschoolAlumni: string;
+        religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+        gender: 'M' | 'F';
+        gpa: string;
         kk: string;
         ktm: string;
         waliRecommendationLetter: string;
@@ -156,7 +162,7 @@ export class ListService {
         phoneNumber: string;
         provider: 'credentials' | 'azure';
         status: 'verified' | 'unverified';
-        applicationStatus: 'accepted' | 'rejected' | 'pending' | 'unregistered';
+        applicationStatus: 'accepted' | 'rejected' | 'pending' | 'unregistered' | 'reapply' | 'outdated';
         job: string;
         address: string;
         linkage: 'otm' | 'dosen' | 'alumni' | 'lainnya' | 'none';
@@ -166,6 +172,7 @@ export class ListService {
         maxSemester: number | null;
         transferDate: number | null;
         criteria: string;
+        allowAdminSelection: boolean;
       }>;
       totalPagination: number;
       totalData: number;

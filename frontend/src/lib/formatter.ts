@@ -87,7 +87,10 @@ export function formatStartDate(date: string): string {
   return dateObj.toLocaleDateString("id-ID", options);
 }
 
-export function formatValue(key: string, val: string | number): string {
+export function formatValue(
+  key: string,
+  val: string | number | boolean,
+): string {
   switch (key) {
     case "type":
       return formatRole(String(val));

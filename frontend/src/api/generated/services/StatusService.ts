@@ -20,7 +20,7 @@ export class StatusService {
       /**
        * Status aplikasi
        */
-      status: 'accepted' | 'rejected' | 'pending' | 'unregistered';
+      status: 'accepted' | 'rejected' | 'pending' | 'unregistered' | 'reapply' | 'outdated';
       notes?: string;
       adminOnlyNotes?: string;
     },
@@ -31,7 +31,7 @@ export class StatusService {
       /**
        * Status aplikasi
        */
-      status: 'accepted' | 'rejected' | 'pending' | 'unregistered';
+      status: 'accepted' | 'rejected' | 'pending' | 'unregistered' | 'reapply' | 'outdated';
     };
   }> {
     return this.httpRequest.request({

@@ -43,6 +43,12 @@ export class ProfileService {
        * Asal SMA
        */
       highschoolAlumni: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      /**
+       * IPK mahasiswa
+       */
+      gpa: number | null;
       /**
        * Deskripsi mahasiswa
        */
@@ -112,6 +118,12 @@ export class ProfileService {
        * Asal SMA
        */
       highschoolAlumni: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      /**
+       * IPK mahasiswa
+       */
+      gpa: number | null;
       /**
        * Deskripsi mahasiswa
        */
@@ -213,6 +225,7 @@ export class ProfileService {
        */
       transferDate: number | null;
       criteria: string;
+      allowAdminSelection: 'true' | 'false';
     },
   }): CancelablePromise<{
     success: boolean;
@@ -255,6 +268,7 @@ export class ProfileService {
        */
       transferDate: number | null;
       criteria: string;
+      allowAdminSelection: 'true' | 'false';
     };
   }> {
     return this.httpRequest.request({
@@ -318,6 +332,7 @@ export class ProfileService {
        */
       transferDate: number | null;
       criteria: string;
+      allowAdminSelection: 'true' | 'false';
     },
   }): CancelablePromise<{
     success: boolean;
@@ -360,6 +375,7 @@ export class ProfileService {
        */
       transferDate: number | null;
       criteria: string;
+      allowAdminSelection: 'true' | 'false';
     };
   }> {
     return this.httpRequest.request({
@@ -410,6 +426,7 @@ export class ProfileService {
       maxSemester?: number;
       transferDate?: number;
       criteria?: string;
+      allowAdminSelection?: boolean;
     };
   }> {
     return this.httpRequest.request({
@@ -421,6 +438,7 @@ export class ProfileService {
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun belum terverifikasi.`,
+        404: `Data tidak ditemukan.`,
         500: `Internal server error`,
       },
     });
@@ -462,6 +480,12 @@ export class ProfileService {
        * Asal SMA
        */
       highschoolAlumni: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      /**
+       * IPK mahasiswa
+       */
+      gpa: number | null;
       /**
        * Deskripsi mahasiswa
        */
@@ -531,6 +555,12 @@ export class ProfileService {
        * Asal SMA
        */
       highschoolAlumni: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      /**
+       * IPK mahasiswa
+       */
+      gpa: number | null;
       /**
        * Deskripsi mahasiswa
        */
@@ -613,6 +643,9 @@ export class ProfileService {
       faculty?: string;
       cityOfOrigin?: string;
       highschoolAlumni?: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      gpa: number;
       description?: string;
       file?: string;
       kk?: string;
@@ -634,6 +667,7 @@ export class ProfileService {
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun belum terverifikasi.`,
+        404: `Data tidak ditemukan.`,
         500: `Internal server error`,
       },
     });
