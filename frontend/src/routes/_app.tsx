@@ -1,29 +1,79 @@
-import { queryClient } from "@/api/client";
-import { UserSchema } from "@/api/generated";
+import { api, queryClient } from "@/api/client";
+import NavBar from "@/components/navbar";
 import SessionProvider from "@/components/session";
-import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { SidebarProvider, useSidebar } from "@/context/sidebar";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
-  loader: () => {
-    const queryClientUser = queryClient.getQueryData<UserSchema | null>([
-      "verify",
-    ]);
-
-    if (queryClientUser === null) {
-      throw redirect({ to: "/auth/login" });
+  loader: async ({ context }) => {
+    if (context.session === undefined) {
+      try {
+        const response = await api.auth.verif();
+        queryClient.setQueryData(["verify"], response.body);
+        context.setSession(response.body);
+        return response.body;
+      } catch {
+        context.setSession(null);
+        queryClient.setQueryData(["verify"], null);
+        return null;
+      }
     }
 
-    if (queryClientUser) {
-      queryClient.setQueryData(["verify"], queryClientUser);
-    }
+    return context.session;
   },
 });
+
+function SidebarLayout({ children }: { children: React.ReactNode }) {
+  const { isSidebarOpen } = useSidebar();
+  const [isLargeScreen, setIsLargeScreen] = useState<boolean>(false);
+
+  // Handle screen size detection
+  useEffect(() => {
+    // Check initial screen size
+    const checkScreenSize = () => {
+      // lg breakpoint in Tailwind is 1024px
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+
+    // Set initial value
+    checkScreenSize();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", checkScreenSize);
+
+    // Clean up
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  return (
+    <motion.div
+      className="min-h-[75vh] px-4 py-8 md:px-11"
+      animate={{
+        marginLeft: isLargeScreen && isSidebarOpen ? "255px" : "0px",
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 function AppLayout() {
   return (
     <SessionProvider>
-      <Outlet />
+      <SidebarProvider>
+        <NavBar />
+        <SidebarLayout>
+          <Outlet />
+        </SidebarLayout>
+      </SidebarProvider>
     </SessionProvider>
   );
 }

@@ -1,9 +1,10 @@
 import { api, queryClient } from "@/api/client";
 import SidebarContent from "@/components/sidebar-content";
 import SidebarOverlay from "@/components/sidebar-overlay";
+import { SessionContext } from "@/context/session";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 interface MenuItem {
   id: string;
@@ -20,46 +21,36 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
-  // TODO: Nanti pindahin aja ke _app, jangan di root, biar ga boros api call
+  const session = useContext(SessionContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [activeItem, setActiveItem] = useState<string>("");
 
   const { data } = useQuery({
-    queryKey: ["verify"],
-    queryFn: () => api.auth.verif().catch(() => null),
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 30 * 60 * 1000,
-  });
-
-  const { data: applicationStatusData } = useQuery({
     queryKey: ["getApplicationStatus"],
     queryFn: () => {
-      if (!data?.body.id) return null;
+      if (!session) return null;
 
       return api.status
-        .getApplicationStatus({ id: data?.body.id })
+        .getApplicationStatus({ id: session.id })
         .catch(() => null);
     },
   });
 
-  const applicationStatus = applicationStatusData?.body.status;
+  const applicationStatus = data?.body.status;
 
-  // TODO: handle case if data is empty string
-  const userRole = data?.body.type || "";
+  const userRole = session?.type;
 
-  const menuItems = getMenuItems(userRole, applicationStatus);
+  const menuItems = getMenuItems(userRole!, applicationStatus);
 
   useEffect(() => {
-    if (data?.body.id) {
+    if (session) {
       queryClient.refetchQueries({
         queryKey: ["getApplicationStatus"],
         exact: true,
       });
     }
-  }, [data, applicationStatusData]);
+  }, [session]);
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -98,6 +89,10 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     }
   };
 
+  if (!session) {
+    return null;
+  }
+
   return (
     <>
       <SidebarOverlay isOpen={isOpen} onClose={onClose} />
@@ -107,7 +102,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         menuItems={menuItems}
         activeItem={activeItem}
         handleItemClick={handleItemClick}
-        userData={data?.body}
+        userData={session}
       />
     </>
   );
@@ -182,7 +177,6 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
         },
       ];
     default:
-      console.log("User role is empty or unrecognized.");
       return [];
   }
 };

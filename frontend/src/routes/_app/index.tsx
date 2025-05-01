@@ -1,7 +1,8 @@
-import LandingPage from "./-components/landing-page";
 import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/")({
+import LandingPage from "./-components/landing-page";
+
+export const Route = createFileRoute("/_app/")({
   component: Index,
 });
 

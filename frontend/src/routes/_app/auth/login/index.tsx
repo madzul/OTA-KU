@@ -20,11 +20,12 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-export const Route = createFileRoute("/auth/login/")({
+export const Route = createFileRoute("/_app/auth/login/")({
   component: RouteComponent,
-  beforeLoad: async () => {
-    const user = await api.auth.verif().catch(() => null);
-    if (user?.success) {
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (user) {
       throw redirect({ to: "/" });
     }
   },

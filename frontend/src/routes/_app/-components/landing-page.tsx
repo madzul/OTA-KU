@@ -1,17 +1,12 @@
 import { Button } from "@/components/ui/button";
+import { SessionContext } from "@/context/session";
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/api/client";
+import { useContext } from "react";
 
 function LandingPage() {
-  const { data: user, isLoading } = useQuery({
-    queryKey: ["verify"],
-    queryFn: () => api.auth.verif().catch(() => null),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: true,
-  });
+  const session = useContext(SessionContext);
 
-  const isLoggedIn = !!user;
+  const isLoggedIn = !!session;
 
   return (
     <div className="h-[calc(100vh-70px-64px)] lg:h-[calc(100vh-96px-64px)]">
@@ -39,7 +34,7 @@ function LandingPage() {
           </div>
         </div>
         {/* Button */}
-        {!isLoading && !isLoggedIn && (
+        {!isLoggedIn && (
           <Button variant={"outline"} size={"xl"} className="w-[350px]" asChild>
             <Link to="/auth/login">Bergabung Sekarang</Link>
           </Button>

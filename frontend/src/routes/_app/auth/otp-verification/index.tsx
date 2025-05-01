@@ -13,28 +13,29 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { SessionContext } from "@/context/session";
 import { OTPVerificationRequestSchema } from "@/lib/zod/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
 import { CountdownTimer } from "./-components/countdown-timer";
 
-export const Route = createFileRoute("/auth/otp-verification/")({
+export const Route = createFileRoute("/_app/auth/otp-verification/")({
   component: RouteComponent,
-  beforeLoad: async () => {
-    // TODO: Nanti ganti pake route context
-    const user = await api.auth.verif().catch(() => null);
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
 
     if (!user) {
       throw redirect({ to: "/auth/login" });
     }
 
     const status = await api.status
-      .getVerificationStatus({ id: user?.body.id })
+      .getVerificationStatus({ id: user.id })
       .catch(() => null);
 
     if (!status) {
@@ -50,6 +51,7 @@ export const Route = createFileRoute("/auth/otp-verification/")({
 type OTPVerificationFormValues = z.infer<typeof OTPVerificationRequestSchema>;
 
 function RouteComponent() {
+  const session = useContext(SessionContext);
   const navigate = useNavigate();
   const otpCallbackMutation = useMutation({
     mutationFn: (data: OTPVerificationFormValues) =>
@@ -105,17 +107,6 @@ function RouteComponent() {
     },
   });
 
-  // Only fetch authentication status when component mounts
-  // Enable refetching on window focus and set a stale time
-  const { data } = useQuery({
-    queryKey: ["verify"],
-    queryFn: () => api.auth.verif().catch(() => null),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
-  });
-
   const { data: otpExpiredData } = useQuery({
     queryKey: ["otp-expired"],
     queryFn: () => api.otp.getOtpExpiredDate().catch(() => null),
@@ -130,14 +121,14 @@ function RouteComponent() {
   }
 
   const handleResend = () => {
-    if (!data?.body.email) {
+    if (!session?.email) {
       toast.warning("Email tidak ditemukan", {
         description: "Silakan coba lagi",
       });
       return;
     }
 
-    const formData = { email: data.body.email };
+    const formData = { email: session?.email };
     otpResendCallbackMutation.mutate(formData);
   };
 
@@ -159,7 +150,7 @@ function RouteComponent() {
             <p className="">
               Kami telah mengirimkan kode 6 digit ke email Anda:
             </p>
-            <p className="mt-1 font-medium">{data?.body.email}</p>
+            <p className="mt-1 font-medium">{session?.email}</p>
             <p className="mt-1">
               Silahkan masukkan kode tersebut untuk melanjutkan
             </p>

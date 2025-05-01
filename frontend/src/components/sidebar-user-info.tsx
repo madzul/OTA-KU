@@ -1,6 +1,10 @@
 import { UserSchema } from "@/api/generated";
 
-const SidebarUserInfo = ({ userData }: { userData: UserSchema | undefined }) => (
+const SidebarUserInfo = ({
+  userData,
+}: {
+  userData: UserSchema | undefined;
+}) => (
   <div className="flex flex-col gap-2">
     <div className="flex items-center gap-5 transition-all hover:scale-105">
       <img

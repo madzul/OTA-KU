@@ -1,30 +1,31 @@
 import { api } from "@/api/client";
 import { SessionContext } from "@/context/session";
-import { useQuery } from "@tanstack/react-query";
-import { Navigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 export default function SessionProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const queryClient = useQueryClient();
+
   const { data } = useQuery({
     queryKey: ["verify"],
-    queryFn: () => api.auth.verif().catch(() => null),
+    queryFn: async () => {
+      const data = await api.auth.verif();
+      if (!data) return null;
+      return data.body;
+    },
   });
 
-  if (data === null) {
-    return <Navigate to="/auth/login" />;
-  }
-
-  // TODO: Handle loading state
-  if (!data) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    if (data) {
+      queryClient.setQueryData(["verify"], data);
+    }
+  }, [data, queryClient]);
 
   return (
-    <SessionContext.Provider value={data.body}>
-      {children}
-    </SessionContext.Provider>
+    <SessionContext.Provider value={data}>{children}</SessionContext.Provider>
   );
 }

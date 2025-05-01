@@ -1,4 +1,3 @@
-import { api } from "@/api/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -8,9 +7,10 @@ import OrangTuaAsuhContent from "./-components/orang-tua-asuh-content";
 
 export const Route = createFileRoute("/_app/verifikasi-akun/")({
   component: RouteComponent,
-  beforeLoad: async () => {
-    const user = await api.auth.verif().catch(() => null);
-    if (user?.body.type !== "admin") {
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (user?.type !== "admin") {
       throw redirect({ to: "/" });
     }
   },

@@ -1,4 +1,3 @@
-import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Link, createFileRoute, redirect } from "@tanstack/react-router";
@@ -6,11 +5,12 @@ import { useState } from "react";
 
 import RegisterForm from "./-components/register-form";
 
-export const Route = createFileRoute("/auth/register/")({
+export const Route = createFileRoute("/_app/auth/register/")({
   component: RouteComponent,
-  beforeLoad: async () => {
-    const user = await api.auth.verif().catch(() => null);
-    if (user?.success) {
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (user) {
       throw redirect({ to: "/" });
     }
   },
