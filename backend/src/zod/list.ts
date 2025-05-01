@@ -20,29 +20,60 @@ export const VerifiedMahasiswaListQueryResponse = z.object({
   body: z.object({
     data: z.array(
       z.object({
-        accountId: z.string().openapi({ example: "3fc0317f-f143-43bf-aa65-13a7a8eca788" }),
+        accountId: z
+          .string()
+          .openapi({ example: "3fc0317f-f143-43bf-aa65-13a7a8eca788" }),
         email: z.string().openapi({ example: "johndoe@example.com" }),
-        type: z.enum(["mahasiswa", "admin", "ota"]).openapi({ example: "mahasiswa" }),
+        type: z
+          .enum(["mahasiswa", "admin", "ota"])
+          .openapi({ example: "mahasiswa" }),
         phoneNumber: z.string().openapi({ example: "+6281234567890" }),
-        provider: z.enum(["credentials", "azure"]).openapi({ example: "credentials" }),
-        applicationStatus: z.enum(["pending", "accepted", "rejected", "unregistered"]).openapi({ example: "pending" }),
+        provider: z
+          .enum(["credentials", "azure"])
+          .openapi({ example: "credentials" }),
+        applicationStatus: z
+          .enum([
+            "pending",
+            "accepted",
+            "rejected",
+            "unregistered",
+            "reapply",
+            "outdated",
+          ])
+          .openapi({ example: "pending" }),
         name: z.string().openapi({ example: "John Doe" }),
         nim: z.string().openapi({ example: "13522005" }),
-        mahasiswaStatus: z.enum(["active", "inactive"]).openapi({ example: "inactive" }),
-        description: z.string().openapi({ example: "Mahasiswa aktif yang sedang mencari orang tua asuh" }),
+        mahasiswaStatus: z
+          .enum(["active", "inactive"])
+          .openapi({ example: "inactive" }),
+        description: z.string().openapi({
+          example: "Mahasiswa aktif yang sedang mencari orang tua asuh",
+        }),
         file: z.string().openapi({ example: "https://example.com/file.pdf" }),
         major: z.string().openapi({ example: "Teknik Informatika" }),
         faculty: z.string().openapi({ example: "STEI-K" }),
         cityOfOrigin: z.string().openapi({ example: "Jakarta" }),
-        highschoolAlumni: z.string().openapi({ example: "SMA Negeri 1 Jakarta" }),
+        highschoolAlumni: z
+          .string()
+          .openapi({ example: "SMA Negeri 1 Jakarta" }),
         kk: z.string().openapi({ example: "https://example.com/file.pdf" }),
         ktm: z.string().openapi({ example: "https://example.com/file.pdf" }),
-        waliRecommendationLetter: z.string().openapi({ example: "https://example.com/file.pdf" }),
-        transcript: z.string().openapi({ example: "https://example.com/file.pdf" }),
-        salaryReport: z.string().openapi({ example: "https://example.com/file.pdf" }),
+        waliRecommendationLetter: z
+          .string()
+          .openapi({ example: "https://example.com/file.pdf" }),
+        transcript: z
+          .string()
+          .openapi({ example: "https://example.com/file.pdf" }),
+        salaryReport: z
+          .string()
+          .openapi({ example: "https://example.com/file.pdf" }),
         pbb: z.string().openapi({ example: "https://example.com/file.pdf" }),
-        electricityBill: z.string().openapi({ example: "https://example.com/file.pdf" }),
-        ditmawaRecommendationLetter: z.string().openapi({ example: "https://example.com/file.pdf" }),
+        electricityBill: z
+          .string()
+          .openapi({ example: "https://example.com/file.pdf" }),
+        ditmawaRecommendationLetter: z
+          .string()
+          .openapi({ example: "https://example.com/file.pdf" }),
         notes: z.string().openapi({ example: "Mahasiswa aktif" }),
         adminOnlyNotes: z.string().openapi({ example: "Catatan admin" }),
       }),
@@ -76,29 +107,60 @@ export const MahasiswaDetailsListQueryResponse = z.object({
   body: z.object({
     data: z.array(
       z.object({
-        id: z.string().openapi({ example: "3fc0317f-f143-43bf-aa65-13a7a8eca788" }),
+        id: z
+          .string()
+          .openapi({ example: "3fc0317f-f143-43bf-aa65-13a7a8eca788" }),
         email: z.string().openapi({ example: "johndoe@example.com" }),
-        type: z.enum(["mahasiswa", "admin", "ota"]).openapi({ example: "mahasiswa" }),
+        type: z
+          .enum(["mahasiswa", "admin", "ota"])
+          .openapi({ example: "mahasiswa" }),
         phoneNumber: z.string().openapi({ example: "+6281234567890" }),
-        provider: z.enum(["credentials", "azure"]).openapi({ example: "credentials" }),
-        applicationStatus: z.enum(["pending", "accepted", "rejected", "unregistered"]).openapi({ example: "pending" }),
+        provider: z
+          .enum(["credentials", "azure"])
+          .openapi({ example: "credentials" }),
+        applicationStatus: z
+          .enum([
+            "pending",
+            "accepted",
+            "rejected",
+            "unregistered",
+            "reapply",
+            "outdated",
+          ])
+          .openapi({ example: "pending" }),
         name: z.string().openapi({ example: "John Doe" }),
         nim: z.string().openapi({ example: "13522005" }),
-        mahasiswaStatus: z.enum(["active", "inactive"]).openapi({ example: "inactive" }),
-        description: z.string().openapi({ example: "Mahasiswa aktif yang sedang mencari orang tua asuh" }),
+        mahasiswaStatus: z
+          .enum(["active", "inactive"])
+          .openapi({ example: "inactive" }),
+        description: z.string().openapi({
+          example: "Mahasiswa aktif yang sedang mencari orang tua asuh",
+        }),
         file: z.string().openapi({ example: "https://example.com/file.pdf" }),
         major: z.string().openapi({ example: "Computer Science" }),
         faculty: z.string().openapi({ example: "Engineering" }),
         cityOfOrigin: z.string().openapi({ example: "Jakarta" }),
-        highschoolAlumni: z.string().openapi({ example: "SMA Negeri 1 Jakarta" }),
+        highschoolAlumni: z
+          .string()
+          .openapi({ example: "SMA Negeri 1 Jakarta" }),
         kk: z.string().openapi({ example: "https://example.com/file.pdf" }),
         ktm: z.string().openapi({ example: "https://example.com/file.pdf" }),
-        waliRecommendationLetter: z.string().openapi({ example: "https://example.com/file.pdf" }),
-        transcript: z.string().openapi({ example: "https://example.com/file.pdf" }),
-        salaryReport: z.string().openapi({ example: "https://example.com/file.pdf" }),
+        waliRecommendationLetter: z
+          .string()
+          .openapi({ example: "https://example.com/file.pdf" }),
+        transcript: z
+          .string()
+          .openapi({ example: "https://example.com/file.pdf" }),
+        salaryReport: z
+          .string()
+          .openapi({ example: "https://example.com/file.pdf" }),
         pbb: z.string().openapi({ example: "https://example.com/file.pdf" }),
-        electricityBill: z.string().openapi({ example: "https://example.com/file.pdf" }),
-        ditmawaRecommendationLetter: z.string().openapi({ example: "https://example.com/file.pdf" }),
+        electricityBill: z
+          .string()
+          .openapi({ example: "https://example.com/file.pdf" }),
+        ditmawaRecommendationLetter: z
+          .string()
+          .openapi({ example: "https://example.com/file.pdf" }),
         notes: z.string().openapi({ example: "Mahasiswa aktif" }),
         adminOnlyNotes: z.string().openapi({ example: "Catatan admin" }),
       }),
@@ -143,7 +205,14 @@ export const OrangTuaDetailsListQueryResponse = z.object({
           .enum(["verified", "unverified"])
           .openapi({ example: "unverified" }),
         applicationStatus: z
-          .enum(["accepted", "rejected", "pending", "unregistered"])
+          .enum([
+            "accepted",
+            "rejected",
+            "pending",
+            "unregistered",
+            "reapply",
+            "outdated",
+          ])
           .openapi({
             example: "pending",
           }),

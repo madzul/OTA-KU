@@ -23,7 +23,14 @@ export const MahasiswaDetailResponse = z.object({
       .enum(["credentials", "azure"])
       .openapi({ example: "credentials" }),
     applicationStatus: z
-      .enum(["pending", "accepted", "rejected", "unregistered"])
+      .enum([
+        "pending",
+        "accepted",
+        "rejected",
+        "unregistered",
+        "reapply",
+        "outdated",
+      ])
       .openapi({ example: "pending" }),
     name: z.string().openapi({ example: "John Doe" }),
     nim: z.string().openapi({ example: "13522005" }),
@@ -84,7 +91,14 @@ export const OtaDetailResponse = z.object({
       .enum(["credentials", "azure"])
       .openapi({ example: "credentials" }),
     applicationStatus: z
-      .enum(["pending", "accepted", "rejected", "unregistered"])
+      .enum([
+        "pending",
+        "accepted",
+        "rejected",
+        "unregistered",
+        "reapply",
+        "outdated",
+      ])
       .openapi({ example: "pending" }),
     name: z.string().openapi({ example: "OTA Organization One" }),
     job: z.string().openapi({ example: "Scholarship Provider" }),

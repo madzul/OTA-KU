@@ -25,6 +25,10 @@ export function formatApplicationStatus(status: string): string {
       return "Tertolak";
     case "unregistered":
       return "Belum Terdaftar";
+    case "reapply":
+      return "Daftar Ulang";
+    case "outdated":
+      return "Kadaluarsa";
     default:
       return status;
   }
