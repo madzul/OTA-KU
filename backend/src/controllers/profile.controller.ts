@@ -275,7 +275,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
       await tx.insert(accountOtaDetailTable).values({
         accountId: user.id,
         address,
-        criteria,
+        criteria: criteria ?? "",
         funds,
         job,
         linkage,

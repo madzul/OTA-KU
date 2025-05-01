@@ -147,6 +147,9 @@ export async function seed() {
             createdAt: currentDateTime,
             updatedAt: currentDateTime,
             dueNextUpdateAt: dueDateTime,
+            gender: "M",
+            religion: "Islam",
+            gpa: "3.8",
           },
           {
             accountId: mahasiswa2Id,
@@ -172,6 +175,9 @@ export async function seed() {
             createdAt: currentDateTime,
             updatedAt: currentDateTime,
             dueNextUpdateAt: dueDateTime,
+            gender: "F",
+            religion: "Kristen Protestan",
+            gpa: "3.5",
           },
           {
             accountId: mahasiswa3Id,
@@ -197,6 +203,9 @@ export async function seed() {
             createdAt: currentDateTime,
             updatedAt: currentDateTime,
             dueNextUpdateAt: dueDateTime,
+            gender: "M",
+            religion: "Islam",
+            gpa: "3.9",
           },
           {
             accountId: mahasiswa4Id,
@@ -219,6 +228,9 @@ export async function seed() {
             createdAt: currentDateTime,
             updatedAt: currentDateTime,
             dueNextUpdateAt: dueDateTime,
+            religion: "Hindu",
+            gpa: "3.2",
+            gender: "F",
           },
           {
             accountId: mahasiswa5Id,
@@ -244,6 +256,9 @@ export async function seed() {
             createdAt: currentDateTime,
             updatedAt: currentDateTime,
             dueNextUpdateAt: dueDateTime,
+            gender: "M",
+            religion: "Islam",
+            gpa: "2.5",
           },
         ])
         .onConflictDoNothing();
@@ -265,6 +280,7 @@ export async function seed() {
             maxSemester: 8,
             transferDate: 10,
             criteria: "GPA minimum 3.5, active in organizations",
+            allowAdminSelection: true,
           },
           {
             accountId: ota2Id,
@@ -278,6 +294,7 @@ export async function seed() {
             maxSemester: 6,
             transferDate: 15,
             criteria: "From underprivileged family, GPA minimum 3.0",
+            allowAdminSelection: false,
           },
         ])
         .onConflictDoNothing();

@@ -224,8 +224,8 @@ export class ProfileService {
        * Tanggal transfer
        */
       transferDate: number | null;
-      criteria: string;
-      allowAdminSelection: 'true' | 'false';
+      criteria?: string;
+      allowAdminSelection?: 'true' | 'false';
     },
   }): CancelablePromise<{
     success: boolean;
@@ -267,8 +267,8 @@ export class ProfileService {
        * Tanggal transfer
        */
       transferDate: number | null;
-      criteria: string;
-      allowAdminSelection: 'true' | 'false';
+      criteria?: string;
+      allowAdminSelection?: 'true' | 'false';
     };
   }> {
     return this.httpRequest.request({
@@ -331,8 +331,8 @@ export class ProfileService {
        * Tanggal transfer
        */
       transferDate: number | null;
-      criteria: string;
-      allowAdminSelection: 'true' | 'false';
+      criteria?: string;
+      allowAdminSelection?: 'true' | 'false';
     },
   }): CancelablePromise<{
     success: boolean;
@@ -374,8 +374,8 @@ export class ProfileService {
        * Tanggal transfer
        */
       transferDate: number | null;
-      criteria: string;
-      allowAdminSelection: 'true' | 'false';
+      criteria?: string;
+      allowAdminSelection?: 'true' | 'false';
     };
   }> {
     return this.httpRequest.request({

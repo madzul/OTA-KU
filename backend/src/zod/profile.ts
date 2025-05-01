@@ -308,19 +308,15 @@ export const OrangTuaRegistrationSchema = z.object({
     })
     .openapi({ example: 1, description: "Tanggal transfer" }),
   criteria: z
-    .string({
-      invalid_type_error: "Kriteria harus berupa string",
-      required_error: "Kriteria harus diisi",
-    })
-    .min(1, {
-      message: "Kriteria terlalu pendek",
-    })
-    .openapi({ example: "Kriteria orang tua" }),
+    .string()
+    .optional()
+    .openapi({ example: "Mahasiswa dari daerah Indonesia Timur" }),
   allowAdminSelection: z
     .enum(["true", "false"], {
       required_error: "Checkbox harus diisi",
       invalid_type_error: "Checkbox tidak valid",
     })
+    .default("false")
     .openapi({
       example: "true",
     }),

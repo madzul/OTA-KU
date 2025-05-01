@@ -22,7 +22,9 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
-type MahasiswaRegistrationFormValues = z.infer<
+import Combobox from "./combobox";
+
+export type MahasiswaRegistrationFormValues = z.infer<
   typeof MahasiswaRegistrationFormSchema
 >;
 
@@ -260,6 +262,24 @@ export default function PendaftaranMahasiswa({
                   </FormLabel>
                   <FormControl>
                     <Input placeholder="Masukkan asal SMA Anda" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Combobox form={form} name="religion" />
+
+            <Combobox form={form} name="gender" />
+
+            <FormField
+              control={form.control}
+              name="gpa"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary text-sm">IPK</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Masukkan IPK" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

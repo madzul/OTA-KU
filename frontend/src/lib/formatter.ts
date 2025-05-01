@@ -87,6 +87,23 @@ export function formatStartDate(date: string): string {
   return dateObj.toLocaleDateString("id-ID", options);
 }
 
+export function formatGender(gender: "M" | "F"): string {
+  switch (gender) {
+    case "M":
+      return "Laki-Laki";
+    case "F":
+      return "Perempuan";
+    default:
+      return "Tidak Diketahui";
+  }
+}
+
+export function formatAllowedAdminSelection(
+  allowedAdminSelection: boolean,
+): string {
+  return allowedAdminSelection ? "Bersedia" : "Tidak Bersedia";
+}
+
 export function formatValue(
   key: string,
   val: string | number | boolean,
@@ -108,6 +125,10 @@ export function formatValue(
       return formatFunding(Number(val));
     case "startDate":
       return formatStartDate(String(val));
+    case "gender":
+      return formatGender(String(val) as "M" | "F");
+    case "allowedAdminSelection":
+      return formatAllowedAdminSelection(Boolean(val));
     default:
       return String(val);
   }

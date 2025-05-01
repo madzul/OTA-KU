@@ -190,7 +190,7 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
                             ? linkages.find(
                                 (linkage) => linkage.value === field.value,
                               )?.label
-                            : "Select linkage"}
+                            : "Pilih keterkaitan dengan ITB"}
                           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>

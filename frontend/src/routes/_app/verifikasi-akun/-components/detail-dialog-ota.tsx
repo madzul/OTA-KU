@@ -138,7 +138,9 @@ function DetailDialogOta({
               <p className="line-clamp-1 text-[#003A6E] sm:line-clamp-none">
                 {formatValue(
                   key,
-                  data?.body[key as keyof typeof data.body] ?? "-",
+                  data?.body[key as keyof typeof data.body] === ""
+                    ? "-"
+                    : (data?.body[key as keyof typeof data.body] ?? "-"),
                 )}
               </p>
             </div>

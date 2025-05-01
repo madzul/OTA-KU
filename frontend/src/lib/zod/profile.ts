@@ -242,14 +242,7 @@ export const OrangTuaPageTwoSchema = z.object({
     .max(28, {
       message: "Tanggal transfer tidak valid",
     }),
-  criteria: z
-    .string({
-      invalid_type_error: "Kriteria harus berupa string",
-      required_error: "Kriteria harus diisi",
-    })
-    .min(1, {
-      message: "Kriteria terlalu pendek",
-    }),
+  criteria: z.string().optional(),
   checked: z
     .boolean({
       invalid_type_error: "Checked harus berupa boolean",
@@ -260,10 +253,7 @@ export const OrangTuaPageTwoSchema = z.object({
       message: "Harus diisi",
       path: ["checked"],
     }),
-  allowAdminSelection: z.enum(["true", "false"], {
-    required_error: "Checkbox harus diisi",
-    invalid_type_error: "Checkbox tidak valid",
-  }),
+  allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
 
 export const OrangTuaRegistrationSchema = z.object({
@@ -356,16 +346,6 @@ export const OrangTuaRegistrationSchema = z.object({
     .max(31, {
       message: "Tanggal transfer tidak valid",
     }),
-  criteria: z
-    .string({
-      invalid_type_error: "Kriteria harus berupa string",
-      required_error: "Kriteria harus diisi",
-    })
-    .min(1, {
-      message: "Kriteria terlalu pendek",
-    }),
-  allowAdminSelection: z.enum(["true", "false"], {
-    required_error: "Checkbox harus diisi",
-    invalid_type_error: "Checkbox tidak valid",
-  }),
+  criteria: z.string().optional(),
+  allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
