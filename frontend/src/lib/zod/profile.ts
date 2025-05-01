@@ -156,8 +156,8 @@ export const MahasiswaProfileFormSchema = z.object({
     .max(255, { message: "Nama terlalu panjang" }),
   phoneNumber: PhoneNumberSchema,
   nim: NIMSchema,
-  major: z
-    .enum([
+  major: z.enum(
+    [
       "Matematika",
       "Fisika",
       "Astronomi",
@@ -210,12 +210,14 @@ export const MahasiswaProfileFormSchema = z.object({
       "Manajemen",
       "Kewirausahaan",
       "TPB",
-    ], {
+    ],
+    {
       required_error: "Jurusan harus dipilih",
       invalid_type_error: "Jurusan tidak valid",
-    }),
-  faculty: z
-    .enum([
+    },
+  ),
+  faculty: z.enum(
+    [
       "FMIPA",
       "SITH-S",
       "SF",
@@ -230,18 +232,47 @@ export const MahasiswaProfileFormSchema = z.object({
       "SBM",
       "SITH-R",
       "SAPPK",
-    ], {
+    ],
+    {
       required_error: "Fakultas harus dipilih",
       invalid_type_error: "Fakultas tidak valid",
-    }),
+    },
+  ),
   cityOfOrigin: z
-    .string()
+    .string({
+      required_error: "Asal kota harus diisi",
+      invalid_type_error: "Asal kota harus berupa string",
+    })
     .min(1, "Asal kota harus diisi")
     .max(255),
   highschoolAlumni: z
-    .string()
+    .string({
+      required_error: "Asal sekolah harus diisi",
+      invalid_type_error: "Asal sekolah harus berupa string",
+    })
     .min(1, "Asal sekolah harus diisi")
     .max(255),
+  religion: z.enum(
+    ["Islam", "Kristen Protestan", "Katolik", "Hindu", "Buddha", "Konghucu"],
+    {
+      required_error: "Agama harus dipilih",
+      invalid_type_error: "Agama tidak valid",
+    },
+  ),
+  gender: z.enum(["M", "F"], {
+    required_error: "Jenis kelamin harus dipilih",
+    invalid_type_error: "Jenis kelamin tidak valid",
+  }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" }),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",

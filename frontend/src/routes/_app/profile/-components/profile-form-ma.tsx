@@ -12,6 +12,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger,
+  SelectValue 
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { SessionContext } from "@/context/session";
 import { Fakultas, Jurusan } from "@/lib/nim";
@@ -41,7 +48,7 @@ const uploadFields: MahasiswaProfileField[] = [
 ];
 
 const uploadFieldLabels: Record<MahasiswaProfileField, string> = {
-  file: "Berkas Utama",
+  file: "Essay",
   kk: "Kartu Keluarga",
   ktm: "Kartu Tanda Mahasiswa",
   waliRecommendationLetter: "Surat Rekomendasi Wali",
@@ -63,6 +70,22 @@ const uploadFieldLabels: Record<MahasiswaProfileField, string> = {
   religion: "Agama",
 };
 
+// Religion options from enum
+const religionOptions = [
+  "Islam",
+  "Kristen Protestan",
+  "Katolik",
+  "Hindu",
+  "Buddha",
+  "Konghucu",
+];
+
+// Gender options from enum
+const genderOptions = [
+  { value: "M", label: "Laki-laki" },
+  { value: "F", label: "Perempuan" },
+];
+
 const ProfileFormMA: React.FC = () => {
   const session = useContext(SessionContext);
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
@@ -76,6 +99,7 @@ const ProfileFormMA: React.FC = () => {
     resolver: zodResolver(MahasiswaProfileFormSchema),
     defaultValues: {
       phoneNumber: session?.phoneNumber ?? "",
+      gpa: 0,
     },
   });
 
@@ -107,6 +131,12 @@ const ProfileFormMA: React.FC = () => {
         form.setValue("highschoolAlumni", profileData.body.highschoolAlumni);
       if (profileData.body.description)
         form.setValue("description", profileData.body.description);
+      if (profileData.body.gender)
+        form.setValue("gender", profileData.body.gender);
+      if (profileData.body.religion)
+        form.setValue("religion", profileData.body.religion);
+      if (profileData.body.gpa)
+        form.setValue("gpa", profileData.body.gpa);
 
       // Set data file yang sudah diupload sebelumnya
       // dan update state fileNames untuk menampilkan nama file di UI
@@ -298,6 +328,88 @@ const ProfileFormMA: React.FC = () => {
                   </FormItem>
                 )}
               />
+              
+              {/* Gender field */}
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{uploadFieldLabels.gender}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih jenis kelamin" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {genderOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* Religion field */}
+              <FormField
+                control={form.control}
+                name="religion"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{uploadFieldLabels.religion}</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih agama" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {religionOptions.map((religion) => (
+                          <SelectItem key={religion} value={religion}>
+                            {religion}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {/* GPA field */}
+              <FormField
+                control={form.control}
+                name="gpa"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{uploadFieldLabels.gpa}</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        placeholder="Masukkan IPK Anda"
+                        {...field}
+                        onChange={e => field.onChange(parseFloat(e.target.value))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
               <FormField
                 control={form.control}
                 name="cityOfOrigin"
@@ -388,7 +500,7 @@ const ProfileFormMA: React.FC = () => {
 
                     const hasExistingFile = !!previouslyUploadedFiles[name];
 
-                    // Display status message for the file
+                    // Determine display status message
                     let fileStatus = "";
                     if (fileNames[name] === "Dragging...") {
                       fileStatus = "Dragging...";
@@ -399,12 +511,14 @@ const ProfileFormMA: React.FC = () => {
                     } else {
                       fileStatus = "Klik untuk upload atau drag & drop";
                     }
+                    
+                    // URL for previously uploaded file
+                    const fileUrl = hasExistingFile ? previouslyUploadedFiles[name] : null;
 
                     return (
                       <FormItem>
                         <FormLabel className="text-primary text-sm">
                           {uploadFieldLabels[name] || name}
-                          {hasExistingFile && " (Sudah Terupload)"}
                         </FormLabel>
                         <FormControl>
                           <div
@@ -435,21 +549,38 @@ const ProfileFormMA: React.FC = () => {
                               <FileUp
                                 className={`h-8 w-8 ${hasExistingFile ? "text-green-500" : "text-muted-foreground"}`}
                               />
+                              
+                              {/* Display status message without showing the filename for uploaded files */}
                               <p className="text-sm font-medium">
-                                {fileStatus}
+                                {hasExistingFile ? "File sudah terupload" : fileStatus}
                               </p>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                  fileInputRefs.current[name]?.click()
-                                }
-                              >
-                                {hasExistingFile
-                                  ? `Ganti ${uploadFieldLabels[name]}`
-                                  : `Pilih ${uploadFieldLabels[name]}`}
-                              </Button>
+                              
+                              <div className="flex gap-2">
+                                {hasExistingFile && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      if (fileUrl) window.open(fileUrl, '_blank');
+                                    }}
+                                  >
+                                    Lihat
+                                  </Button>
+                                )}
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() =>
+                                    fileInputRefs.current[name]?.click()
+                                  }
+                                >
+                                  {hasExistingFile
+                                    ? `Ganti`
+                                    : `Pilih`}
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </FormControl>

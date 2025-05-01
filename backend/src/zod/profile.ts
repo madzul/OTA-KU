@@ -7,6 +7,7 @@ import {
   PDFSchema,
   PhoneNumberSchema,
   cloudinaryUrlSchema,
+  ProfilePDFSchema
 } from "./atomic.js";
 
 // Mahasiswa Registration
@@ -240,21 +241,21 @@ export const MahasiswaProfileFormSchema = z.object({
     })
     .min(3, { message: "Deskripsi terlalu pendek" })
     .openapi({ example: "Mahasiswa baru", description: "Deskripsi mahasiswa" }),
-  file: PDFSchema.openapi({ description: "File Essay Mahasiswa" }).optional(),
-  kk: PDFSchema.openapi({ description: "Kartu Keluarga" }).optional(),
-  ktm: PDFSchema.openapi({ description: "Kartu Tanda Mahasiswa" }).optional(),
-  waliRecommendationLetter: PDFSchema.openapi({
+  file: ProfilePDFSchema.openapi({ description: "File Essay Mahasiswa" }).optional(),
+  kk: ProfilePDFSchema.openapi({ description: "Kartu Keluarga" }).optional(),
+  ktm: ProfilePDFSchema.openapi({ description: "Kartu Tanda Mahasiswa" }).optional(),
+  waliRecommendationLetter: ProfilePDFSchema.openapi({
     description: "Surat Rekomendasi Wali",
   }).optional(),
-  transcript: PDFSchema.openapi({ description: "Transkrip Nilai" }).optional(),
-  salaryReport: PDFSchema.openapi({
+  transcript: ProfilePDFSchema.openapi({ description: "Transkrip Nilai" }).optional(),
+  salaryReport: ProfilePDFSchema.openapi({
     description: "Slip Gaji Orang Tua",
   }).optional(),
-  pbb: PDFSchema.openapi({ description: "Bukti Pembayaran PBB" }).optional(),
-  electricityBill: PDFSchema.openapi({
+  pbb: ProfilePDFSchema.openapi({ description: "Bukti Pembayaran PBB" }).optional(),
+  electricityBill: ProfilePDFSchema.openapi({
     description: "Tagihan Listrik",
   }).optional(),
-  ditmawaRecommendationLetter: PDFSchema.openapi({
+  ditmawaRecommendationLetter: ProfilePDFSchema.openapi({
     description: "Surat Rekomendasi Ditmawa",
   }).optional(),
 });

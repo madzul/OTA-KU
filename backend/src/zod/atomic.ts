@@ -5,8 +5,17 @@ import { getNimFakultasCodeMap, getNimJurusanCodeMap } from "../lib/nim.js";
 const allowedPdfTypes = ["application/pdf"];
 const maxPdfSize = 5242880; // 5 MB
 
-export const PDFSchema = z.union([
-  z.instanceof(File, { message: "File harus berupa PDF bro" })
+export const PDFSchema = z
+  .instanceof(File, { message: "File harus berupa PDF" })
+  .refine((file) => {
+    return file.size <= maxPdfSize;
+  }, "PDF file size should be less than 5 MB")
+  .refine((file) => {
+    return allowedPdfTypes.includes(file.type);
+  }, "Only PDF files are allowed");
+
+export const ProfilePDFSchema = z.union([
+  z.instanceof(File, { message: "File harus berupa PDF" })
     .refine((file) => {
       return file.size <= maxPdfSize;
     }, "PDF file size should be less than 5 MB")
