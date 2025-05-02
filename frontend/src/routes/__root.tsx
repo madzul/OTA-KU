@@ -16,7 +16,6 @@ const RootComponent = () => {
         <Outlet />
         <Footer />
         <Toaster />
-
         <ReactQueryDevtools />
       </QueryClientProvider>
       {/* <TanStackRouterDevtools /> */}

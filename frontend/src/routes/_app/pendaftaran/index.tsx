@@ -13,10 +13,6 @@ export const Route = createFileRoute("/_app/pendaftaran/")({
       throw redirect({ to: "/auth/login" });
     }
 
-    if (user.type !== "ota") {
-      throw redirect({ to: "/" });
-    }
-
     const applicationStatus = await api.status
       .getApplicationStatus({ id: user.id })
       .catch(() => null);
