@@ -1,4 +1,3 @@
-import { api, queryClient } from "@/api/client";
 import NavBar from "@/components/navbar";
 import SessionProvider from "@/components/session";
 import { SidebarProvider, useSidebar } from "@/context/sidebar";
@@ -8,22 +7,6 @@ import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_app")({
   component: AppLayout,
-  loader: async ({ context }) => {
-    if (context.session === undefined) {
-      try {
-        const response = await api.auth.verif();
-        queryClient.setQueryData(["verify"], response.body);
-        context.setSession(response.body);
-        return response.body;
-      } catch {
-        context.setSession(null);
-        queryClient.setQueryData(["verify"], null);
-        return null;
-      }
-    }
-
-    return context.session;
-  },
 });
 
 function SidebarLayout({ children }: { children: React.ReactNode }) {

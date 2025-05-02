@@ -1,23 +1,24 @@
 import { api } from "@/api/client";
-import { SessionContext } from "@/context/session";
 import { Navigate, createFileRoute, redirect } from "@tanstack/react-router";
-import { useContext } from "react";
 
 import PendaftaranMahasiswa from "./-components/pendaftaran-mahasiswa";
 import PendaftaranOrangTua from "./-components/pendaftaran-orang-tua";
 
 export const Route = createFileRoute("/_app/pendaftaran/")({
   component: RouteComponent,
-  beforeLoad: async () => {
-    // TODO: Nanti ganti pake route context
-    const user = await api.auth.verif().catch(() => null);
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
 
     if (!user) {
       throw redirect({ to: "/auth/login" });
     }
 
+    if (user.type !== "ota") {
+      throw redirect({ to: "/" });
+    }
+
     const applicationStatus = await api.status
-      .getApplicationStatus({ id: user?.body.id })
+      .getApplicationStatus({ id: user.id })
       .catch(() => null);
 
     if (!applicationStatus) {
@@ -28,20 +29,20 @@ export const Route = createFileRoute("/_app/pendaftaran/")({
       throw redirect({ to: "/profile" });
     }
 
-    return {
-      status: applicationStatus?.body.status,
-    };
+    return { session: user, applicationStatus: applicationStatus.body.status };
   },
-  loader: ({ context: { status } }) => {
-    return { applicationStatus: status };
+  loader: ({ context }) => {
+    return {
+      session: context.session,
+      applicationStatus: context.applicationStatus,
+    };
   },
 });
 
 function RouteComponent() {
-  const session = useContext(SessionContext);
-  const { applicationStatus } = Route.useLoaderData();
+  const { session, applicationStatus } = Route.useLoaderData();
 
-  const isAdmin = session?.type === "admin";
+  const isAdmin = session.type === "admin";
 
   if (isAdmin) {
     return <Navigate to="/" />;
@@ -95,7 +96,7 @@ function RouteComponent() {
     );
   }
 
-  return session?.type === "mahasiswa" ? (
+  return session.type === "mahasiswa" ? (
     <PendaftaranMahasiswa session={session} />
   ) : (
     <PendaftaranOrangTua />

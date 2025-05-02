@@ -14,7 +14,6 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AppImport } from './routes/_app'
 import { Route as AppIndexImport } from './routes/_app/index'
 import { Route as AppVerifikasiAkunIndexImport } from './routes/_app/verifikasi-akun/index'
-import { Route as AppProtectedExampleIndexImport } from './routes/_app/protected-example/index'
 import { Route as AppProfileIndexImport } from './routes/_app/profile/index'
 import { Route as AppPersetujuanAsuhIndexImport } from './routes/_app/persetujuan-asuh/index'
 import { Route as AppPendaftaranIndexImport } from './routes/_app/pendaftaran/index'
@@ -28,7 +27,7 @@ import { Route as AppAuthOtpVerificationIndexImport } from './routes/_app/auth/o
 import { Route as AppAuthLoginIndexImport } from './routes/_app/auth/login/index'
 import { Route as AppDetailOrangTuaAsuhDetailIdImport } from './routes/_app/detail/orang-tua-asuh/$detailId'
 import { Route as AppDetailMahasiswaDetailIdImport } from './routes/_app/detail/mahasiswa/$detailId'
-import { Route as AppDetailMahasiswaStatusBayarIndexImport } from './routes/_app/detail/mahasiswa/status-bayar/index'
+import { Route as AppDetailMahasiswaDetailIdStatusBayarImport } from './routes/_app/detail/mahasiswa_/$detailId/status-bayar'
 import { Route as AppIntegrationsAzureKeyVaultOauth2CallbackIndexImport } from './routes/_app/integrations/azure-key-vault/oauth2/callback/index'
 
 // Create/Update Routes
@@ -47,12 +46,6 @@ const AppIndexRoute = AppIndexImport.update({
 const AppVerifikasiAkunIndexRoute = AppVerifikasiAkunIndexImport.update({
   id: '/verifikasi-akun/',
   path: '/verifikasi-akun/',
-  getParentRoute: () => AppRoute,
-} as any)
-
-const AppProtectedExampleIndexRoute = AppProtectedExampleIndexImport.update({
-  id: '/protected-example/',
-  path: '/protected-example/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -138,10 +131,10 @@ const AppDetailMahasiswaDetailIdRoute = AppDetailMahasiswaDetailIdImport.update(
   } as any,
 )
 
-const AppDetailMahasiswaStatusBayarIndexRoute =
-  AppDetailMahasiswaStatusBayarIndexImport.update({
-    id: '/detail/mahasiswa/status-bayar/',
-    path: '/detail/mahasiswa/status-bayar/',
+const AppDetailMahasiswaDetailIdStatusBayarRoute =
+  AppDetailMahasiswaDetailIdStatusBayarImport.update({
+    id: '/detail/mahasiswa_/$detailId/status-bayar',
+    path: '/detail/mahasiswa/$detailId/status-bayar',
     getParentRoute: () => AppRoute,
   } as any)
 
@@ -226,13 +219,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileIndexImport
       parentRoute: typeof AppImport
     }
-    '/_app/protected-example/': {
-      id: '/_app/protected-example/'
-      path: '/protected-example'
-      fullPath: '/protected-example'
-      preLoaderRoute: typeof AppProtectedExampleIndexImport
-      parentRoute: typeof AppImport
-    }
     '/_app/verifikasi-akun/': {
       id: '/_app/verifikasi-akun/'
       path: '/verifikasi-akun'
@@ -275,11 +261,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAuthRegisterIndexImport
       parentRoute: typeof AppImport
     }
-    '/_app/detail/mahasiswa/status-bayar/': {
-      id: '/_app/detail/mahasiswa/status-bayar/'
-      path: '/detail/mahasiswa/status-bayar'
-      fullPath: '/detail/mahasiswa/status-bayar'
-      preLoaderRoute: typeof AppDetailMahasiswaStatusBayarIndexImport
+    '/_app/detail/mahasiswa_/$detailId/status-bayar': {
+      id: '/_app/detail/mahasiswa_/$detailId/status-bayar'
+      path: '/detail/mahasiswa/$detailId/status-bayar'
+      fullPath: '/detail/mahasiswa/$detailId/status-bayar'
+      preLoaderRoute: typeof AppDetailMahasiswaDetailIdStatusBayarImport
       parentRoute: typeof AppImport
     }
     '/_app/integrations/azure-key-vault/oauth2/callback/': {
@@ -304,14 +290,13 @@ interface AppRouteChildren {
   AppPendaftaranIndexRoute: typeof AppPendaftaranIndexRoute
   AppPersetujuanAsuhIndexRoute: typeof AppPersetujuanAsuhIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
-  AppProtectedExampleIndexRoute: typeof AppProtectedExampleIndexRoute
   AppVerifikasiAkunIndexRoute: typeof AppVerifikasiAkunIndexRoute
   AppDetailMahasiswaDetailIdRoute: typeof AppDetailMahasiswaDetailIdRoute
   AppDetailOrangTuaAsuhDetailIdRoute: typeof AppDetailOrangTuaAsuhDetailIdRoute
   AppAuthLoginIndexRoute: typeof AppAuthLoginIndexRoute
   AppAuthOtpVerificationIndexRoute: typeof AppAuthOtpVerificationIndexRoute
   AppAuthRegisterIndexRoute: typeof AppAuthRegisterIndexRoute
-  AppDetailMahasiswaStatusBayarIndexRoute: typeof AppDetailMahasiswaStatusBayarIndexRoute
+  AppDetailMahasiswaDetailIdStatusBayarRoute: typeof AppDetailMahasiswaDetailIdStatusBayarRoute
   AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute: typeof AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -325,15 +310,14 @@ const AppRouteChildren: AppRouteChildren = {
   AppPendaftaranIndexRoute: AppPendaftaranIndexRoute,
   AppPersetujuanAsuhIndexRoute: AppPersetujuanAsuhIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
-  AppProtectedExampleIndexRoute: AppProtectedExampleIndexRoute,
   AppVerifikasiAkunIndexRoute: AppVerifikasiAkunIndexRoute,
   AppDetailMahasiswaDetailIdRoute: AppDetailMahasiswaDetailIdRoute,
   AppDetailOrangTuaAsuhDetailIdRoute: AppDetailOrangTuaAsuhDetailIdRoute,
   AppAuthLoginIndexRoute: AppAuthLoginIndexRoute,
   AppAuthOtpVerificationIndexRoute: AppAuthOtpVerificationIndexRoute,
   AppAuthRegisterIndexRoute: AppAuthRegisterIndexRoute,
-  AppDetailMahasiswaStatusBayarIndexRoute:
-    AppDetailMahasiswaStatusBayarIndexRoute,
+  AppDetailMahasiswaDetailIdStatusBayarRoute:
+    AppDetailMahasiswaDetailIdStatusBayarRoute,
   AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute:
     AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute,
 }
@@ -351,14 +335,13 @@ export interface FileRoutesByFullPath {
   '/pendaftaran': typeof AppPendaftaranIndexRoute
   '/persetujuan-asuh': typeof AppPersetujuanAsuhIndexRoute
   '/profile': typeof AppProfileIndexRoute
-  '/protected-example': typeof AppProtectedExampleIndexRoute
   '/verifikasi-akun': typeof AppVerifikasiAkunIndexRoute
   '/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
   '/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
   '/auth/login': typeof AppAuthLoginIndexRoute
   '/auth/otp-verification': typeof AppAuthOtpVerificationIndexRoute
   '/auth/register': typeof AppAuthRegisterIndexRoute
-  '/detail/mahasiswa/status-bayar': typeof AppDetailMahasiswaStatusBayarIndexRoute
+  '/detail/mahasiswa/$detailId/status-bayar': typeof AppDetailMahasiswaDetailIdStatusBayarRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -372,14 +355,13 @@ export interface FileRoutesByTo {
   '/pendaftaran': typeof AppPendaftaranIndexRoute
   '/persetujuan-asuh': typeof AppPersetujuanAsuhIndexRoute
   '/profile': typeof AppProfileIndexRoute
-  '/protected-example': typeof AppProtectedExampleIndexRoute
   '/verifikasi-akun': typeof AppVerifikasiAkunIndexRoute
   '/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
   '/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
   '/auth/login': typeof AppAuthLoginIndexRoute
   '/auth/otp-verification': typeof AppAuthOtpVerificationIndexRoute
   '/auth/register': typeof AppAuthRegisterIndexRoute
-  '/detail/mahasiswa/status-bayar': typeof AppDetailMahasiswaStatusBayarIndexRoute
+  '/detail/mahasiswa/$detailId/status-bayar': typeof AppDetailMahasiswaDetailIdStatusBayarRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -395,14 +377,13 @@ export interface FileRoutesById {
   '/_app/pendaftaran/': typeof AppPendaftaranIndexRoute
   '/_app/persetujuan-asuh/': typeof AppPersetujuanAsuhIndexRoute
   '/_app/profile/': typeof AppProfileIndexRoute
-  '/_app/protected-example/': typeof AppProtectedExampleIndexRoute
   '/_app/verifikasi-akun/': typeof AppVerifikasiAkunIndexRoute
   '/_app/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
   '/_app/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
   '/_app/auth/login/': typeof AppAuthLoginIndexRoute
   '/_app/auth/otp-verification/': typeof AppAuthOtpVerificationIndexRoute
   '/_app/auth/register/': typeof AppAuthRegisterIndexRoute
-  '/_app/detail/mahasiswa/status-bayar/': typeof AppDetailMahasiswaStatusBayarIndexRoute
+  '/_app/detail/mahasiswa_/$detailId/status-bayar': typeof AppDetailMahasiswaDetailIdStatusBayarRoute
   '/_app/integrations/azure-key-vault/oauth2/callback/': typeof AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute
 }
 
@@ -419,14 +400,13 @@ export interface FileRouteTypes {
     | '/pendaftaran'
     | '/persetujuan-asuh'
     | '/profile'
-    | '/protected-example'
     | '/verifikasi-akun'
     | '/detail/mahasiswa/$detailId'
     | '/detail/orang-tua-asuh/$detailId'
     | '/auth/login'
     | '/auth/otp-verification'
     | '/auth/register'
-    | '/detail/mahasiswa/status-bayar'
+    | '/detail/mahasiswa/$detailId/status-bayar'
     | '/integrations/azure-key-vault/oauth2/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -439,14 +419,13 @@ export interface FileRouteTypes {
     | '/pendaftaran'
     | '/persetujuan-asuh'
     | '/profile'
-    | '/protected-example'
     | '/verifikasi-akun'
     | '/detail/mahasiswa/$detailId'
     | '/detail/orang-tua-asuh/$detailId'
     | '/auth/login'
     | '/auth/otp-verification'
     | '/auth/register'
-    | '/detail/mahasiswa/status-bayar'
+    | '/detail/mahasiswa/$detailId/status-bayar'
     | '/integrations/azure-key-vault/oauth2/callback'
   id:
     | '__root__'
@@ -460,14 +439,13 @@ export interface FileRouteTypes {
     | '/_app/pendaftaran/'
     | '/_app/persetujuan-asuh/'
     | '/_app/profile/'
-    | '/_app/protected-example/'
     | '/_app/verifikasi-akun/'
     | '/_app/detail/mahasiswa/$detailId'
     | '/_app/detail/orang-tua-asuh/$detailId'
     | '/_app/auth/login/'
     | '/_app/auth/otp-verification/'
     | '/_app/auth/register/'
-    | '/_app/detail/mahasiswa/status-bayar/'
+    | '/_app/detail/mahasiswa_/$detailId/status-bayar'
     | '/_app/integrations/azure-key-vault/oauth2/callback/'
   fileRoutesById: FileRoutesById
 }
@@ -505,14 +483,13 @@ export const routeTree = rootRoute
         "/_app/pendaftaran/",
         "/_app/persetujuan-asuh/",
         "/_app/profile/",
-        "/_app/protected-example/",
         "/_app/verifikasi-akun/",
         "/_app/detail/mahasiswa/$detailId",
         "/_app/detail/orang-tua-asuh/$detailId",
         "/_app/auth/login/",
         "/_app/auth/otp-verification/",
         "/_app/auth/register/",
-        "/_app/detail/mahasiswa/status-bayar/",
+        "/_app/detail/mahasiswa_/$detailId/status-bayar",
         "/_app/integrations/azure-key-vault/oauth2/callback/"
       ]
     },
@@ -552,10 +529,6 @@ export const routeTree = rootRoute
       "filePath": "_app/profile/index.tsx",
       "parent": "/_app"
     },
-    "/_app/protected-example/": {
-      "filePath": "_app/protected-example/index.tsx",
-      "parent": "/_app"
-    },
     "/_app/verifikasi-akun/": {
       "filePath": "_app/verifikasi-akun/index.tsx",
       "parent": "/_app"
@@ -580,8 +553,8 @@ export const routeTree = rootRoute
       "filePath": "_app/auth/register/index.tsx",
       "parent": "/_app"
     },
-    "/_app/detail/mahasiswa/status-bayar/": {
-      "filePath": "_app/detail/mahasiswa/status-bayar/index.tsx",
+    "/_app/detail/mahasiswa_/$detailId/status-bayar": {
+      "filePath": "_app/detail/mahasiswa_/$detailId/status-bayar.tsx",
       "parent": "/_app"
     },
     "/_app/integrations/azure-key-vault/oauth2/callback/": {

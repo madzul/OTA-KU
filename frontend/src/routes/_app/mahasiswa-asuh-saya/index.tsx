@@ -1,3 +1,4 @@
+import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -6,14 +7,13 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createFileRoute } from "@tanstack/react-router";
-import { Search, User } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Search, User } from "lucide-react";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
-import { api } from "@/api/client";
-import { Skeleton } from "@/components/ui/skeleton";
 
 interface StudentCardProps {
   student: {
@@ -59,6 +59,19 @@ function StudentCard({ student }: StudentCardProps) {
 
 export const Route = createFileRoute("/_app/mahasiswa-asuh-saya/")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (user.type !== "ota") {
+      throw redirect({ to: "/" });
+    }
+
+    return { user };
+  },
 });
 
 function RouteComponent() {
@@ -84,13 +97,15 @@ function RouteComponent() {
   });
 
   // TODO: Boros
-  const activeStudents = activeStudentsData?.body.data.map((student) => ({
-    name: student.name,
-  })) ?? [];
+  const activeStudents =
+    activeStudentsData?.body.data.map((student) => ({
+      name: student.name,
+    })) ?? [];
 
-  const pendingStudents = pendingStudentsData?.body.data.map((student) => ({
-    name: student.name,
-  })) ?? [];
+  const pendingStudents =
+    pendingStudentsData?.body.data.map((student) => ({
+      name: student.name,
+    })) ?? [];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -100,10 +115,16 @@ function RouteComponent() {
 
       <Tabs defaultValue="aktif" className="flex w-full flex-col gap-4">
         <TabsList className="w-full bg-[#BBBAB8]">
-          <TabsTrigger value="aktif" className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white">
+          <TabsTrigger
+            value="aktif"
+            className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white"
+          >
             Aktif
           </TabsTrigger>
-          <TabsTrigger value="menunggu" className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white">
+          <TabsTrigger
+            value="menunggu"
+            className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white"
+          >
             Menunggu
           </TabsTrigger>
         </TabsList>

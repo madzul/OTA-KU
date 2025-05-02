@@ -1,6 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_app/persetujuan-asuh/")({
+export const Route = createFileRoute(
+  "/_app/detail/mahasiswa_/$detailId/status-bayar",
+)({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
     const user = context.session;
@@ -9,7 +11,7 @@ export const Route = createFileRoute("/_app/persetujuan-asuh/")({
       throw redirect({ to: "/auth/login" });
     }
 
-    if (user.type !== "admin") {
+    if (user.type !== "ota") {
       throw redirect({ to: "/" });
     }
 
@@ -20,7 +22,8 @@ export const Route = createFileRoute("/_app/persetujuan-asuh/")({
 function RouteComponent() {
   return (
     <div>
-      Hello "/_app/persetujuan-asuh/"! Halaman ini hanya bisa diakses oleh admin
+      Hello "/_app/detail/mahasiswa/$detailId/status-bayar"! Halaman ini hanya
+      bisa dilihat oleh verified OTA yang mengasuh mahasiswa ini
     </div>
   );
 }

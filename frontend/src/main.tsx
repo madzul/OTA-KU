@@ -2,7 +2,7 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { StrictMode, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 
-import { queryClient } from "./api/client";
+import { api, queryClient } from "./api/client";
 import { UserSchema } from "./api/generated";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -25,22 +25,41 @@ function App() {
   const [session, setSession] = useState<UserSchema | null | undefined>(
     undefined,
   );
+  const [isSessionLoaded, setIsSessionLoaded] = useState(false);
 
   useEffect(() => {
-    if (session) {
-      router.update({
-        context: {
-          ...router.options.context,
-          session,
-          setSession,
-        },
-      });
+    async function verifySession() {
+      try {
+        const response = await api.auth.verif();
+        setSession(response.body);
+        queryClient.setQueryData(["verify"], response.body);
+      } catch {
+        setSession(null);
+        queryClient.setQueryData(["verify"], null);
+      } finally {
+        setIsSessionLoaded(true);
+      }
     }
-  }, [session]);
+
+    verifySession();
+  }, []);
 
   function updateSession(newSession: UserSchema | null) {
     setSession(newSession);
     queryClient.setQueryData(["verify"], newSession);
+  }
+
+  useEffect(() => {
+    if (isSessionLoaded) {
+      router.update({
+        context: { session, setSession: updateSession },
+      });
+    }
+  }, [session, isSessionLoaded]);
+
+  // TODO: Add a loading state or spinner while the session is being verified
+  if (!isSessionLoaded) {
+    return <div>Loading...</div>; // Add a loading indicator
   }
 
   return (

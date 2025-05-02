@@ -1,11 +1,8 @@
+import { UserSchema } from "@/api/generated";
 import { Button } from "@/components/ui/button";
-import { SessionContext } from "@/context/session";
 import { Link } from "@tanstack/react-router";
-import { useContext } from "react";
 
-function LandingPage() {
-  const session = useContext(SessionContext);
-
+function LandingPage({ session }: { session: UserSchema | null | undefined }) {
   const isLoggedIn = !!session;
 
   return (

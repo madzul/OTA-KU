@@ -1,4 +1,4 @@
-import { useParams } from "@tanstack/react-router";
+import { redirect, useParams } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -25,6 +25,19 @@ interface OtaDetailResponse {
 
 export const Route = createFileRoute("/_app/detail/orang-tua-asuh/$detailId")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (user.type !== "mahasiswa") {
+      throw redirect({ to: "/" });
+    }
+
+    return { user };
+  },
 });
 
 function RouteComponent() {

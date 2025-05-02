@@ -1,4 +1,4 @@
-import { useParams } from "@tanstack/react-router";
+import { redirect, useParams } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -19,6 +19,19 @@ interface MahasiswaDetailResponse {
 
 export const Route = createFileRoute("/_app/detail/mahasiswa/$detailId")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (user.type !== "ota") {
+      throw redirect({ to: "/" });
+    }
+
+    return { user };
+  },
 });
 
 function RouteComponent() {

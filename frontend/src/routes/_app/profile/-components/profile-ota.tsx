@@ -2,14 +2,15 @@ import { api } from "@/api/client";
 import { UserSchema } from "@/api/generated";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
+
 import ProfileCard from "./profile-card";
 import ProfileFormOTA from "./profile-form-ota";
 
 function ProfileOta({ session }: { session: UserSchema }) {
   const { data: profileData, isLoading } = useQuery({
-    queryKey: ["otaProfile", session?.id],
-    queryFn: () => api.profile.profileOrangTua({ id: session?.id ?? "" }),
-    enabled: !!session?.id,
+    queryKey: ["otaProfile", session.id],
+    queryFn: () => api.profile.profileOrangTua({ id: session.id ?? "" }),
+    enabled: !!session.id,
   });
 
   return (
@@ -34,7 +35,7 @@ function ProfileOta({ session }: { session: UserSchema }) {
           )}
         </div>
         <div>
-          <ProfileFormOTA />
+          <ProfileFormOTA session={session} />
         </div>
       </div>
     </div>

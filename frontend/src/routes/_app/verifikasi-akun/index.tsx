@@ -10,9 +10,15 @@ export const Route = createFileRoute("/_app/verifikasi-akun/")({
   beforeLoad: async ({ context }) => {
     const user = context.session;
 
-    if (user?.type !== "admin") {
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (user.type !== "admin") {
       throw redirect({ to: "/" });
     }
+
+    return { user };
   },
 });
 

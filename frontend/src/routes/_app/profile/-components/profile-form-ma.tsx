@@ -1,6 +1,5 @@
-"use client";
-
 import { api } from "@/api/client";
+import { UserSchema } from "@/api/generated";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -13,13 +12,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { SessionContext } from "@/context/session";
 import { Fakultas, Jurusan } from "@/lib/nim";
 import { MahasiswaRegistrationFormSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { FileUp } from "lucide-react";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -65,8 +63,11 @@ const uploadFieldLabels: Record<MahasiswaRegistrationField, string> = {
   religion: "Agama",
 };
 
-const ProfileFormMA: React.FC = () => {
-  const session = useContext(SessionContext);
+interface ProfileFormProps {
+  session: UserSchema;
+}
+
+const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 

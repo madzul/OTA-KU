@@ -13,12 +13,10 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { SessionContext } from "@/context/session";
 import { OTPVerificationRequestSchema } from "@/lib/zod/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -45,13 +43,18 @@ export const Route = createFileRoute("/_app/auth/otp-verification/")({
     if (status.body.status === "verified") {
       throw redirect({ to: "/pendaftaran" });
     }
+
+    return { session: user };
+  },
+  loader: async ({ context }) => {
+    return { session: context.session };
   },
 });
 
 type OTPVerificationFormValues = z.infer<typeof OTPVerificationRequestSchema>;
 
 function RouteComponent() {
-  const session = useContext(SessionContext);
+  const { session } = Route.useLoaderData();
   const navigate = useNavigate();
   const otpCallbackMutation = useMutation({
     mutationFn: (data: OTPVerificationFormValues) =>
