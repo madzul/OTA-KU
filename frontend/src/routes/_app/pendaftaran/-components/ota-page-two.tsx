@@ -58,7 +58,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
       });
 
       setTimeout(() => {
-        navigate({ to: "/profile" });
+        navigate({ to: "/profile", reloadDocument: true });
       }, 1000);
     },
     onError: (error, _variables, context) => {

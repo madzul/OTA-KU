@@ -13,6 +13,20 @@ export const Route = createFileRoute("/_app/pendaftaran/")({
       throw redirect({ to: "/auth/login" });
     }
 
+    const verificationStatus = await api.status
+      .getVerificationStatus({
+        id: user.id,
+      })
+      .catch(() => null);
+
+    if (!verificationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (verificationStatus.body.status !== "verified") {
+      throw redirect({ to: "/auth/otp-verification" });
+    }
+
     const applicationStatus = await api.status
       .getApplicationStatus({ id: user.id })
       .catch(() => null);
@@ -21,7 +35,7 @@ export const Route = createFileRoute("/_app/pendaftaran/")({
       throw redirect({ to: "/auth/login" });
     }
 
-    if (applicationStatus?.body.status === "accepted") {
+    if (applicationStatus.body.status === "accepted") {
       throw redirect({ to: "/profile" });
     }
 

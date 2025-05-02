@@ -35,7 +35,7 @@ function RouteComponent() {
         })
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["verify"] });
-          navigate({ to: "/" });
+          navigate({ to: "/", reloadDocument: true });
         })
         .catch((error) => {
           console.error(error);

@@ -112,7 +112,6 @@ export default function NavBar() {
 
                         navigate({
                           to: path,
-                          replace: false,
                           reloadDocument: true,
                         });
                       }}

@@ -102,6 +102,7 @@ authRouter.openapi(loginRoute, async (c) => {
       .where(eq(accountOtaDetailTable.accountId, accountId))
       .limit(1);
 
+    // TODO: Logicnya masih salah
     if (mahasiswaDetail && mahasiswaDetail.length > 0) {
       name = mahasiswaDetail[0].name;
     } else if (otaDetail && otaDetail.length > 0) {
@@ -557,6 +558,7 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
     const accessToken = await sign(
       {
         id: user.id,
+        name: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber,
         type: user.type,

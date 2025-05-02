@@ -49,7 +49,7 @@ function RouteComponent() {
       queryClient.invalidateQueries({ queryKey: ["verify"] });
 
       setTimeout(() => {
-        navigate({ to: "/" });
+        navigate({ to: "/", reloadDocument: true });
       }, 1500); // 1.5 seconds delay
     },
     onError: (_error, _variables, context) => {
