@@ -491,41 +491,41 @@ export class ProfileService {
        */
       description: string;
       /**
-       * File Essay Mahasiswa
+       * PDF file or string (optional)
        */
-      file: any;
+      file?: string;
       /**
-       * Kartu Keluarga
+       * PDF file or string (optional)
        */
-      kk: any;
+      kk?: string;
       /**
-       * Kartu Tanda Mahasiswa
+       * PDF file or string (optional)
        */
-      ktm: any;
+      ktm?: string;
       /**
-       * Surat Rekomendasi Wali
+       * PDF file or string (optional)
        */
-      waliRecommendationLetter: any;
+      waliRecommendationLetter?: string;
       /**
-       * Transkrip Nilai
+       * PDF file or string (optional)
        */
-      transcript: any;
+      transcript?: string;
       /**
-       * Slip Gaji Orang Tua
+       * PDF file or string (optional)
        */
-      salaryReport: any;
+      salaryReport?: string;
       /**
-       * Bukti Pembayaran PBB
+       * PDF file or string (optional)
        */
-      pbb: any;
+      pbb?: string;
       /**
-       * Tagihan Listrik
+       * PDF file or string (optional)
        */
-      electricityBill: any;
+      electricityBill?: string;
       /**
-       * Surat Rekomendasi Ditmawa
+       * PDF file or string (optional)
        */
-      ditmawaRecommendationLetter: any;
+      ditmawaRecommendationLetter?: string;
     },
   }): CancelablePromise<{
     success: boolean;

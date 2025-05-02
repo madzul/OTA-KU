@@ -21,6 +21,7 @@ import {
 import {
   MahasiswaRegistrationFormSchema,
   OrangTuaRegistrationSchema,
+  MahasiswaProfileFormSchema,
 } from "../zod/profile.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -436,7 +437,7 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = MahasiswaRegistrationFormSchema.parse(data);
+  const zodParseResult = MahasiswaProfileFormSchema.parse(data);
   const {
     name,
     nim,
@@ -472,29 +473,45 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
   }
 
   try {
-    const [
-      fileResult,
-      kkResult,
-      ktmResult,
-      waliRecommendationLetterResult,
-      transcriptResult,
-      salaryReportResult,
-      pbbResult,
-      electricityBillResult,
-      ditmawaRecommendationLetterResult,
-    ] = await Promise.all([
-      uploadPdfToCloudinary(file),
-      uploadPdfToCloudinary(kk),
-      uploadPdfToCloudinary(ktm),
-      uploadPdfToCloudinary(waliRecommendationLetter),
-      uploadPdfToCloudinary(transcript),
-      uploadPdfToCloudinary(salaryReport),
-      uploadPdfToCloudinary(pbb),
-      uploadPdfToCloudinary(electricityBill),
-      uploadPdfToCloudinary(ditmawaRecommendationLetter),
-    ]);
+    // Get existing profile data first
+    const [existingProfile] = await db
+      .select()
+      .from(accountMahasiswaDetailTable)
+      .where(eq(accountMahasiswaDetailTable.accountId, user.id))
+      .limit(1);
+
+    // Prepare upload tasks only for files that are actually File objects
+    const uploadTasks = {
+      file,
+      kk,
+      ktm,
+      waliRecommendationLetter,
+      transcript,
+      salaryReport,
+      pbb,
+      electricityBill,
+      ditmawaRecommendationLetter,
+    };
+
+    // Process uploads in parallel
+    const uploadResults = await Promise.all(
+      Object.entries(uploadTasks).map(async ([field, value]) => {
+        if (value instanceof File) {
+          const result = await uploadPdfToCloudinary(value);
+          return { field, url: result?.secure_url };
+        }
+        return { field, url: value }; // This could be string URL or undefined
+      })
+    );
+
+    // Convert upload results to an object
+    const resultUrls = uploadResults.reduce((acc, { field, url }) => {
+      acc[field] = url || (existingProfile && field in existingProfile ? existingProfile[field as keyof typeof existingProfile] as string : "");
+      return acc;
+    }, {} as Record<string, string>);
 
     await db.transaction(async (tx) => {
+      // Update phone number in account table
       await tx
         .update(accountTable)
         .set({ phoneNumber })
@@ -513,16 +530,15 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           religion,
           gender,
           gpa: String(gpa),
-          file: fileResult.secure_url,
-          kk: kkResult.secure_url,
-          ktm: ktmResult.secure_url,
-          waliRecommendationLetter: waliRecommendationLetterResult.secure_url,
-          transcript: transcriptResult.secure_url,
-          salaryReport: salaryReportResult.secure_url,
-          pbb: pbbResult.secure_url,
-          electricityBill: electricityBillResult.secure_url,
-          ditmawaRecommendationLetter:
-            ditmawaRecommendationLetterResult.secure_url,
+          file: resultUrls.file,
+          kk: resultUrls.kk,
+          ktm: resultUrls.ktm,
+          waliRecommendationLetter: resultUrls.waliRecommendationLetter,
+          transcript: resultUrls.transcript,
+          salaryReport: resultUrls.salaryReport,
+          pbb: resultUrls.pbb,
+          electricityBill: resultUrls.electricityBill,
+          ditmawaRecommendationLetter: resultUrls.ditmawaRecommendationLetter,
         })
         .where(eq(accountMahasiswaDetailTable.accountId, user.id));
     });
@@ -542,16 +558,15 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           religion,
           gender,
           gpa,
-          file: fileResult.secure_url,
-          kk: kkResult.secure_url,
-          ktm: ktmResult.secure_url,
-          waliRecommendationLetter: waliRecommendationLetterResult.secure_url,
-          transcript: transcriptResult.secure_url,
-          salaryReport: salaryReportResult.secure_url,
-          pbb: pbbResult.secure_url,
-          electricityBill: electricityBillResult.secure_url,
-          ditmawaRecommendationLetter:
-            ditmawaRecommendationLetterResult.secure_url,
+          file: resultUrls.file,
+          kk: resultUrls.kk,
+          ktm: resultUrls.ktm,
+          waliRecommendationLetter: resultUrls.waliRecommendationLetter,
+          transcript: resultUrls.transcript,
+          salaryReport: resultUrls.salaryReport,
+          pbb: resultUrls.pbb,
+          electricityBill: resultUrls.electricityBill,
+          ditmawaRecommendationLetter: resultUrls.ditmawaRecommendationLetter,
         },
       },
       200,
@@ -562,7 +577,7 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error instanceof Error ? { message: error.message } : {},
       },
       500,
     );

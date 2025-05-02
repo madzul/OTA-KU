@@ -1,5 +1,5 @@
 .frontend-base:
-  image: node:20-alpine
+  image: node:22-alpine
   cache:
     key: ${CI_COMMIT_REF_SLUG}-frontend
     paths:
@@ -28,7 +28,7 @@ frontend-build-job:
       - frontend/package-lock.json
 
 .frontend-cypress-base:
-  image: node:20-bookworm
+  image: node:22-bookworm
   cache:
     key: ${CI_COMMIT_REF_SLUG}-cypress
     paths:

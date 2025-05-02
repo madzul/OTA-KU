@@ -144,7 +144,7 @@ function RouteComponent() {
               />
 
               {/* TODO: Ganti ke route aslinya nanti */}
-              <Link to="." className="text-primary underline">
+              <Link to="." className="text-primary text-sm underline">
                 Lupa kata sandi?
               </Link>
 

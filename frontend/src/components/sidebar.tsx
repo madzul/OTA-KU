@@ -47,6 +47,8 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     );
     if (matchingItem) {
       setActiveItem(matchingItem.id);
+    } else {
+      setActiveItem("");
     }
   }, [location.pathname, menuItems]);
 
