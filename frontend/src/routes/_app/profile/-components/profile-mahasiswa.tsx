@@ -14,7 +14,7 @@ function ProfileMahasiswa({ session }: { session: UserSchema }) {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="flex min-h-[calc(100vh-96px)] flex-col p-2 px-6 py-8 md:px-12">
       <p className="text-primary mb-6 text-4xl font-bold">Profile</p>
       <div className="grid gap-6 md:grid-cols-[300px_1fr]">
         <div>
@@ -38,7 +38,7 @@ function ProfileMahasiswa({ session }: { session: UserSchema }) {
           <ProfileFormMA session={session} />
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

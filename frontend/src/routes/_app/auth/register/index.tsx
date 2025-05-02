@@ -21,7 +21,7 @@ function RouteComponent() {
   const [isClicked, setIsClicked] = useState<boolean>(false);
 
   return (
-    <div className="md:px-auto min-h-[100vh] bg-[#F3F4F6] px-9 pt-16 pb-16">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col justify-center p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <div
         className={cn(
           "flex flex-col items-center gap-9",
@@ -74,7 +74,7 @@ function RouteComponent() {
                 alt="icon-parent"
                 className="h-[46px] w-[46px] md:h-16 md:w-16"
               />
-              <span className="text-dark">Orang Tua Asuh</span>
+              <span className="text-dark line-clamp-1">Orang Tua Asuh</span>
             </button>
           </div>
           <p className="text-primary text-center text-base">
@@ -108,6 +108,6 @@ function RouteComponent() {
       </div>
 
       {isClicked && role && <RegisterForm role={role} />}
-    </div>
+    </main>
   );
 }

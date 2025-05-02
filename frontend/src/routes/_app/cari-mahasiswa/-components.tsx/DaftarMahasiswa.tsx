@@ -187,7 +187,7 @@ function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
               <p>Catatan:</p>
               <p>{mahasiswa.notes}</p>
             </div>
-            <div className="mt-4 flex gap-2">
+            <div className="mt-4 grid grid-cols-2 gap-2">
               {/* TODO: page detail belom nampilin schema db detail mahasiswa yang terbaru */}
               <Button
                 variant="outline"

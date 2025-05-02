@@ -27,8 +27,8 @@ function RouteComponent() {
   const { session } = Route.useLoaderData();
 
   return (
-    <div>
+    <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <DaftarMahasiswa session={session} />
-    </div>
+    </main>
   );
 }

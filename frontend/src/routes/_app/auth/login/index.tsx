@@ -87,7 +87,7 @@ function RouteComponent() {
   }, [azureClientId]);
 
   return (
-    <div className="md:px-auto min-h-[100vh] bg-[#F3F4F6] px-9 pt-16 pb-16">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-16 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <div className="flex flex-col items-center gap-9">
         <img
           src="/icon/logo-basic.png"
@@ -183,6 +183,6 @@ function RouteComponent() {
           </Form>
         </section>
       </div>
-    </div>
+    </main>
   );
 }

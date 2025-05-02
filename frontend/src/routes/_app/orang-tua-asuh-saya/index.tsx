@@ -21,8 +21,8 @@ export const Route = createFileRoute("/_app/orang-tua-asuh-saya/")({
 
 function RouteComponent() {
   return (
-    <div className="container py-8">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <DaftarOrangTua />
-    </div>
+    </main>
   );
 }

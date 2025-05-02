@@ -33,7 +33,7 @@ function SidebarLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <motion.div
-      className="min-h-[75vh] px-4 py-8 md:px-11"
+      // className="min-h-[75vh] px-4 py-8 md:px-12"
       animate={{
         marginLeft: isLargeScreen && isSidebarOpen ? "255px" : "0px",
       }}

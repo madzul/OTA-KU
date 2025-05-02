@@ -384,6 +384,7 @@ authRouter.openapi(oauthRoute, async (c) => {
             type: "mahasiswa",
             phoneNumber: null,
             provider: "azure",
+            status: "verified",
             oid,
           })
           .returning();

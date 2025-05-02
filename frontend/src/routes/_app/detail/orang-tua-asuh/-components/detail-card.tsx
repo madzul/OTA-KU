@@ -40,7 +40,7 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
 }) => {
   return (
     <div className="grid gap-6 md:grid-cols-[300px_1fr]">
-      <Card className="mx-auto w-full max-w-sm">
+      <Card className="mx-auto w-full md:max-w-sm">
         <CardHeader className="flex flex-col items-center justify-center pt-6 pb-4">
           <div className="mb-4 h-24 w-24 overflow-hidden rounded-full">
             {avatarSrc ? (

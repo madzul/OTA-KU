@@ -78,7 +78,7 @@ export default function RegisterForm({ role }: { role: string }) {
   }, [azureClientId]);
 
   return (
-    <div className="flex flex-col items-center gap-9">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col items-center justify-center gap-9 p-2 px-4 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <img
         src="/icon/logo-basic.png"
         alt="logo"
@@ -206,6 +206,6 @@ export default function RegisterForm({ role }: { role: string }) {
           </form>
         </Form>
       </section>
-    </div>
+    </main>
   );
 }

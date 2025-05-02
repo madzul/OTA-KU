@@ -13,8 +13,8 @@ function Index() {
   const { session } = Route.useLoaderData();
 
   return (
-    <div className="p-2 text-4xl">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col items-center justify-center px-4 py-8 text-4xl md:px-12 lg:min-h-[calc(100vh-96px)]">
       <LandingPage session={session} />
-    </div>
+    </main>
   );
 }

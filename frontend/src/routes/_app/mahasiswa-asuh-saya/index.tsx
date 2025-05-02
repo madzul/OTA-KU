@@ -108,7 +108,7 @@ function RouteComponent() {
     })) ?? [];
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <h1 className="mb-6 text-3xl font-bold text-[#003087]">
         Mahasiswa Asuh Saya
       </h1>
@@ -181,6 +181,6 @@ function RouteComponent() {
           )}
         </TabsContent>
       </Tabs>
-    </div>
+    </main>
   );
 }

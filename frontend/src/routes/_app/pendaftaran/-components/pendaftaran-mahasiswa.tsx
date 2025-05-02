@@ -148,14 +148,14 @@ export default function PendaftaranMahasiswa({
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 md:px-[34px]">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col items-center justify-center gap-8 p-2 px-6 py-16 md:gap-12 md:px-12 lg:min-h-[calc(100vh-96px)] lg:gap-16">
       <img
         src="/icon/logo-basic.png"
         alt="logo"
         className="mx-auto h-[81px] w-[123px]"
       />
 
-      <h1 className="text-primary text-center text-[32px] font-bold md:text-left md:text-[50px]">
+      <h1 className="text-primary text-center text-[32px] font-bold md:text-[50px]">
         Formulir Pendaftaran Calon Mahasiswa Asuh
       </h1>
 
@@ -419,6 +419,6 @@ export default function PendaftaranMahasiswa({
           </form>
         </Form>
       </section>
-    </div>
+    </main>
   );
 }
