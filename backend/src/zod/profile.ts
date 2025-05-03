@@ -7,6 +7,7 @@ import {
   PDFSchema,
   PhoneNumberSchema,
   cloudinaryUrlSchema,
+  ProfilePDFSchema
 } from "./atomic.js";
 
 // Mahasiswa Registration
@@ -171,6 +172,92 @@ export const MahasiswaRegistrationFormSchema = z.object({
   ditmawaRecommendationLetter: PDFSchema.openapi({
     description: "Surat Rekomendasi Ditmawa",
   }),
+});
+
+export const MahasiswaProfileFormSchema = z.object({
+  name: z
+    .string({
+      invalid_type_error: "Nama harus berupa string",
+      required_error: "Nama harus diisi",
+    })
+    .min(3, { message: "Nama terlalu pendek" })
+    .max(255, { message: "Nama terlalu panjang" })
+    .openapi({ example: "John Doe", description: "Nama mahasiswa" }),
+  phoneNumber: PhoneNumberSchema,
+  nim: NIMSchema,
+  major: z
+    .enum(jurusanEnum.enumValues, {
+      required_error: "Jurusan harus dipilih",
+      invalid_type_error: "Jurusan tidak valid",
+    })
+    .openapi({
+      example: "Teknik Informatika",
+      description: "Jurusan mahasiswa",
+    }),
+  faculty: z
+    .enum(fakultasEnum.enumValues, {
+      required_error: "Fakultas harus dipilih",
+      invalid_type_error: "Fakultas tidak valid",
+    })
+    .openapi({ example: "STEI-R", description: "Fakultas mahasiswa" }),
+  cityOfOrigin: z
+    .string()
+    .min(1, "Asal kota harus diisi")
+    .max(255)
+    .openapi({ example: "Bandung", description: "Kota asal mahasiswa" }),
+  highschoolAlumni: z
+    .string()
+    .min(1, "Asal sekolah harus diisi")
+    .max(255)
+    .openapi({ example: "SMA Negeri 1 Bandung", description: "Asal SMA" }),
+  religion: z
+    .enum([
+      "Islam",
+      "Kristen Protestan",
+      "Katolik",
+      "Hindu",
+      "Buddha",
+      "Konghucu",
+    ])
+    .openapi({
+      example: "Islam",
+    }),
+  gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" })
+    .openapi({ example: 3.5, description: "IPK mahasiswa" }),
+  description: z
+    .string({
+      required_error: "Deskripsi harus diisi",
+      invalid_type_error: "Deskripsi harus berupa string",
+    })
+    .min(3, { message: "Deskripsi terlalu pendek" })
+    .openapi({ example: "Mahasiswa baru", description: "Deskripsi mahasiswa" }),
+  file: ProfilePDFSchema.openapi({ description: "File Essay Mahasiswa" }).optional(),
+  kk: ProfilePDFSchema.openapi({ description: "Kartu Keluarga" }).optional(),
+  ktm: ProfilePDFSchema.openapi({ description: "Kartu Tanda Mahasiswa" }).optional(),
+  waliRecommendationLetter: ProfilePDFSchema.openapi({
+    description: "Surat Rekomendasi Wali",
+  }).optional(),
+  transcript: ProfilePDFSchema.openapi({ description: "Transkrip Nilai" }).optional(),
+  salaryReport: ProfilePDFSchema.openapi({
+    description: "Slip Gaji Orang Tua",
+  }).optional(),
+  pbb: ProfilePDFSchema.openapi({ description: "Bukti Pembayaran PBB" }).optional(),
+  electricityBill: ProfilePDFSchema.openapi({
+    description: "Tagihan Listrik",
+  }).optional(),
+  ditmawaRecommendationLetter: ProfilePDFSchema.openapi({
+    description: "Surat Rekomendasi Ditmawa",
+  }).optional(),
 });
 
 export const MahasiswaRegistrationSuccessfulResponse = z.object({

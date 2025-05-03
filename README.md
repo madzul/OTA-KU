@@ -20,6 +20,8 @@ OTA-ku adalah sistem berbasis web yang dirancang untuk mengelola program Orang T
     ./migrate.bat
     ```
 
+     kalo ada perubahan db, tinggal `npm run db:reset` aja langsung otomatis ngulang db nya ke state awal terus skema dbnya udah ikut ke migrate jadi yang terbaru juga
+
 3. Untuk melakukan development, jalankan command berikut pada terminal:
 
     ```bash

@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_app/daftar-pengasuhan/")({
+export const Route = createFileRoute("/_app/pemasangan-bota/")({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
     const user = context.session;
@@ -20,8 +20,7 @@ export const Route = createFileRoute("/_app/daftar-pengasuhan/")({
 function RouteComponent() {
   return (
     <div>
-      Hello "/_app/daftar-pengasuhan/"! Halaman ini hanya bisa diakses oleh
-      admin
+      Hello "/_app/pemasangan-bota/"! Halaman ini hanya bisa diakses oleh admin
     </div>
   );
 }
