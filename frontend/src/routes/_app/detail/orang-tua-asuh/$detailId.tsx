@@ -1,4 +1,4 @@
-import { useParams } from "@tanstack/react-router";
+import { redirect, useParams } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { UserX } from "lucide-react";
@@ -31,6 +31,19 @@ interface OtaDetailResponse {
 
 export const Route = createFileRoute("/_app/detail/orang-tua-asuh/$detailId")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (user.type !== "mahasiswa") {
+      throw redirect({ to: "/" });
+    }
+
+    return { user };
+  },
 });
 
 function RouteComponent() {
@@ -189,7 +202,7 @@ function RouteComponent() {
   const beneficiaryCount = Math.floor(Math.random() * (otaData.maxCapacity || 1)); 
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <h1 className="text-primary mb-4 text-2xl font-bold">
         Detail Orang Tua Asuh
       </h1>
@@ -218,7 +231,7 @@ function RouteComponent() {
         transferDate={otaData.transferDate}
         criteria={otaData.criteria}
       />
-    </div>
+    </main>
   );
 }
 

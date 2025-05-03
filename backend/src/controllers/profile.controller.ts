@@ -57,7 +57,13 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
     religion,
   } = zodParseResult;
 
-  if (user.status === "unverified") {
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "unverified") {
     return c.json(
       {
         success: false,
@@ -175,12 +181,11 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
     const accessToken = await sign(
       {
         id: user.id,
+        name,
         email: user.email,
         phoneNumber: phoneNumber,
         type: user.type,
         provider: user.provider,
-        status: user.status,
-        applicationStatus: "pending",
         oid: user.oid,
         createdAt: user.createdAt,
         iat: Math.floor(Date.now() / 1000),
@@ -260,7 +265,13 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
     allowAdminSelection,
   } = zodParseResult;
 
-  if (user.status === "unverified") {
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "unverified") {
     return c.json(
       {
         success: false,
@@ -297,12 +308,11 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
     const accessToken = await sign(
       {
         id: user.id,
+        name,
         email: user.email,
         phoneNumber: user.phoneNumber,
         type: user.type,
         provider: user.provider,
-        status: user.status,
-        applicationStatus: "pending",
         oid: user.oid,
         createdAt: user.createdAt,
         iat: Math.floor(Date.now() / 1000),
@@ -372,7 +382,13 @@ profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
     allowAdminSelection,
   } = zodParseResult;
 
-  if (user.status === "unverified") {
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "unverified") {
     return c.json(
       {
         success: false,
@@ -461,7 +477,13 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
     religion,
   } = zodParseResult;
 
-  if (user.status === "unverified") {
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "unverified") {
     return c.json(
       {
         success: false,
@@ -586,7 +608,14 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
 
 profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
   const user = c.var.user;
-  if (user.status === "unverified") {
+
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "unverified") {
     return c.json(
       {
         success: false,
@@ -596,6 +625,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       403,
     );
   }
+
   try {
     const profileDataOTA = await db
       .select({
@@ -679,7 +709,13 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
 profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
   const user = c.var.user;
 
-  if (user.status === "unverified") {
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "unverified") {
     return c.json(
       {
         success: false,

@@ -1,40 +1,65 @@
-import { SessionContext } from "@/context/session";
-import { createFileRoute } from "@tanstack/react-router";
+import { api } from "@/api/client";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Navigate } from "@tanstack/react-router";
-import { useContext } from "react";
 
 import ProfileMahasiswa from "./-components/profile-mahasiswa";
 import ProfileOta from "./-components/profile-ota";
 
 export const Route = createFileRoute("/_app/profile/")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    const verificationStatus = await api.status
+      .getVerificationStatus({
+        id: user.id,
+      })
+      .catch(() => null);
+
+    if (!verificationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (verificationStatus.body.status !== "verified") {
+      throw redirect({ to: "/auth/otp-verification" });
+    }
+
+    const applicationStatus = await api.status
+      .getApplicationStatus({ id: user.id })
+      .catch(() => null);
+
+    if (!applicationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (applicationStatus.body.status === "unregistered") {
+      throw redirect({ to: "/pendaftaran" });
+    }
+
+    return { session: user };
+  },
+  loader: async ({ context }) => {
+    return { session: context.session };
+  },
 });
 
 function RouteComponent() {
-  const session = useContext(SessionContext);
-
-  // Redirect if user is admin
-  if (session?.type === "admin") {
-    return <Navigate to="/" />;
-  }
+  const { session } = Route.useLoaderData();
 
   // For mahasiswa users
-  if (session?.type === "mahasiswa") {
+  if (session.type === "mahasiswa") {
     return <ProfileMahasiswa session={session} />;
   }
 
   // For OTA users
-  else if (session?.type === "ota") {
+  if (session.type === "ota") {
     return <ProfileOta session={session} />;
   }
 
-  // Fallback for users with no type set
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <p className="text-primary mb-6 text-4xl font-bold">Profile</p>
-      <div className="p-8 text-center">
-        <p>Tipe akun tidak dikenali. Silakan hubungi administrator.</p>
-      </div>
-    </div>
-  );
+  // Redirect if user is admin
+  return <Navigate to="/" />;
 }

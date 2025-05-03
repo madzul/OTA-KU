@@ -1,32 +1,64 @@
-import { SessionContext } from "@/context/session";
-import { Navigate, createFileRoute } from "@tanstack/react-router";
-import { useContext } from "react";
+import { api } from "@/api/client";
+import { Navigate, createFileRoute, redirect } from "@tanstack/react-router";
 
 import PendaftaranMahasiswa from "./-components/pendaftaran-mahasiswa";
 import PendaftaranOrangTua from "./-components/pendaftaran-orang-tua";
 
 export const Route = createFileRoute("/_app/pendaftaran/")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    const verificationStatus = await api.status
+      .getVerificationStatus({
+        id: user.id,
+      })
+      .catch(() => null);
+
+    if (!verificationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (verificationStatus.body.status !== "verified") {
+      throw redirect({ to: "/auth/otp-verification" });
+    }
+
+    const applicationStatus = await api.status
+      .getApplicationStatus({ id: user.id })
+      .catch(() => null);
+
+    if (!applicationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (applicationStatus.body.status === "accepted") {
+      throw redirect({ to: "/profile" });
+    }
+
+    return { session: user, applicationStatus: applicationStatus.body.status };
+  },
+  loader: ({ context }) => {
+    return {
+      session: context.session,
+      applicationStatus: context.applicationStatus,
+    };
+  },
 });
 
 function RouteComponent() {
-  const session = useContext(SessionContext);
+  const { session, applicationStatus } = Route.useLoaderData();
 
-  const isAdmin = session?.type === "admin";
+  const isAdmin = session.type === "admin";
 
   if (isAdmin) {
     return <Navigate to="/" />;
   }
 
-  const applicationStatus = session?.applicationStatus;
-
   // TODO: Handle applicationStatus === "reapply" dan "outdated"
-  if (applicationStatus === "accepted") {
-    return <Navigate to="/profile" />;
-  }
-
-  // TODO: Kayanya better ngeceknya jangan pake session, soalnya kalo belom logout sessionnya ga berubah
-
   // TODO: Sesuaiin datanya sesuai apa yang diinginkan IOM nanti
   if (applicationStatus === "pending") {
     return (
@@ -74,7 +106,7 @@ function RouteComponent() {
     );
   }
 
-  return session?.type === "mahasiswa" ? (
+  return session.type === "mahasiswa" ? (
     <PendaftaranMahasiswa session={session} />
   ) : (
     <PendaftaranOrangTua />

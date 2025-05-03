@@ -1,4 +1,3 @@
-import { api } from "@/api/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -8,11 +7,18 @@ import OrangTuaAsuhContent from "./-components/orang-tua-asuh-content";
 
 export const Route = createFileRoute("/_app/verifikasi-akun/")({
   component: RouteComponent,
-  beforeLoad: async () => {
-    const user = await api.auth.verif().catch(() => null);
-    if (user?.body.type !== "admin") {
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (user.type !== "admin") {
       throw redirect({ to: "/" });
     }
+
+    return { user };
   },
 });
 
@@ -22,7 +28,7 @@ function RouteComponent() {
   const [value, setValue] = useState("mahasiswa");
 
   return (
-    <main className="flex min-h-[calc(100vh-96px)] w-full flex-col gap-4">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col gap-4 p-2 px-6 py-16 md:px-12 lg:min-h-[calc(100vh-96px)]">
       {value === "mahasiswa" ? (
         <h1 className="text-dark text-3xl font-bold md:text-[50px]">
           Verifikasi Pendaftaran Mahasiswa Asuh

@@ -2,7 +2,11 @@ import { eq } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import { accountMahasiswaDetailTable, accountTable } from "../db/schema.js";
-import { applicationStatusRoute } from "../routes/status.route.js";
+import {
+  applicationStatusRoute,
+  getApplicationStatusRoute,
+  getVerificationStatusRoute,
+} from "../routes/status.route.js";
 import { ApplicationStatusSchema } from "../zod/status.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -58,6 +62,90 @@ statusProtectedRouter.openapi(applicationStatusRoute, async (c) => {
       {
         success: false,
         message: "Gagal mengubah status pendaftaran",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+statusProtectedRouter.openapi(getApplicationStatusRoute, async (c) => {
+  const user = c.var.user;
+  const id = c.req.param("id");
+
+  if (user.id !== id) {
+    return c.json(
+      {
+        success: false,
+        message: "Unauthorized",
+        error: {},
+      },
+      403,
+    );
+  }
+
+  try {
+    const user = await db
+      .select()
+      .from(accountTable)
+      .where(eq(accountTable.id, id));
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil mengambil status pendaftaran",
+        body: { status: user[0].applicationStatus },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Gagal mengambil status pendaftaran",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+statusProtectedRouter.openapi(getVerificationStatusRoute, async (c) => {
+  const user = c.var.user;
+  const id = c.req.param("id");
+
+  if (user.id !== id) {
+    return c.json(
+      {
+        success: false,
+        message: "Unauthorized",
+        error: {},
+      },
+      403,
+    );
+  }
+
+  try {
+    const user = await db
+      .select()
+      .from(accountTable)
+      .where(eq(accountTable.id, id));
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil mengambil status pendaftaran",
+        body: { status: user[0].status },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Gagal mengambil status pendaftaran",
         error: {},
       },
       500,

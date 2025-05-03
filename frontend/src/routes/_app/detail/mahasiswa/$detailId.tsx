@@ -1,14 +1,14 @@
-import { useParams } from "@tanstack/react-router";
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { UserX, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { redirect, useParams } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { FileText, UserX } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import DetailCardsMahasiswaAsuh from "./-components/detail-card";
 
 const genderMap = {
-  "M": "Laki-laki",
-  "F": "Perempuan"
+  M: "Laki-laki",
+  F: "Perempuan",
 };
 
 interface MahasiswaDetailResponse {
@@ -48,6 +48,19 @@ interface MahasiswaDetailResponse {
 
 export const Route = createFileRoute("/_app/detail/mahasiswa/$detailId")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (user.type !== "ota") {
+      throw redirect({ to: "/" });
+    }
+
+    return { user };
+  },
 });
 
 function RouteComponent() {
@@ -66,7 +79,7 @@ function RouteComponent() {
       try {
         setLoading(true);
         setNotFound(false);
-        
+
         const response = await fetch(
           `http://localhost:3000/api/detail/mahasiswa/${id}`,
           { credentials: "include" },
@@ -74,32 +87,34 @@ function RouteComponent() {
         console.log("Response:", response);
 
         let data: MahasiswaDetailResponse;
-        
+
         try {
           data = await response.json();
           console.log("Data:", data);
-          
-          if (!data.success && 
-              (data.message.toLowerCase().includes("not found") || 
-               data.message.toLowerCase().includes("tidak ditemukan") ||
-               data.message.toLowerCase().includes("tidak ada") ||
-               response.status === 404)) {
+
+          if (
+            !data.success &&
+            (data.message.toLowerCase().includes("not found") ||
+              data.message.toLowerCase().includes("tidak ditemukan") ||
+              data.message.toLowerCase().includes("tidak ada") ||
+              response.status === 404)
+          ) {
             setNotFound(true);
             throw new Error("Mahasiswa Tidak Ditemukan");
           }
-          
+
           if (!data.success) {
             throw new Error(data.message);
           }
-        } catch (jsonError) {
+        } catch {
           if (response.status === 404 || response.status === 400) {
             setNotFound(true);
             throw new Error("Mahasiswa Tidak Ditemukan");
           }
-          
+
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-        
+
         if (!response.ok) {
           if (response.status === 404 || response.status === 400) {
             setNotFound(true);
@@ -107,7 +122,7 @@ function RouteComponent() {
           }
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-        
+
         setMahasiswaData(data.body);
         setError(null);
       } catch (err) {
@@ -143,7 +158,9 @@ function RouteComponent() {
           <div className="mb-4 flex justify-center">
             <UserX size={64} className="text-primary" />
           </div>
-          <h1 className="text-primary text-2xl font-bold">Mahasiswa Tidak Ditemukan</h1>
+          <h1 className="text-primary text-2xl font-bold">
+            Mahasiswa Tidak Ditemukan
+          </h1>
           <p className="text-muted-foreground mt-4 text-lg">
             Data mahasiswa dengan ID tersebut tidak dapat ditemukan di sistem
           </p>
@@ -161,7 +178,9 @@ function RouteComponent() {
             <div className="mb-4 flex justify-center">
               <UserX size={64} className="text-primary" />
             </div>
-            <h1 className="text-primary text-2xl font-bold">Mahasiswa Tidak Ditemukan</h1>
+            <h1 className="text-primary text-2xl font-bold">
+              Mahasiswa Tidak Ditemukan
+            </h1>
             <p className="text-muted-foreground mt-4 text-lg">
               Data mahasiswa dengan ID tersebut tidak dapat ditemukan di sistem
             </p>
@@ -169,7 +188,7 @@ function RouteComponent() {
         </div>
       );
     }
-    
+
     return (
       <div className="container mx-auto flex items-center justify-center px-4 py-16">
         <div className="text-center">
@@ -182,20 +201,24 @@ function RouteComponent() {
     );
   }
 
-  const nim = mahasiswaData.nim || mahasiswaData.email.split('@')[0];
-  
+  const nim = mahasiswaData.nim || mahasiswaData.email.split("@")[0];
+
   const angkatan = nim.length >= 4 ? "20" + nim.substring(0, 2) : "-";
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-primary mb-6 text-2xl font-bold">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
+      <h1 className="text-primary mb-4 text-2xl font-bold">
         Detail Mahasiswa Asuh
       </h1>
-      
+
       {/* Data diri */}
       <DetailCardsMahasiswaAsuh
         name={mahasiswaData.name}
-        role={mahasiswaData.mahasiswaStatus === "active" ? "Mahasiswa Aktif" : "Mahasiswa Tidak Aktif"}
+        role={
+          mahasiswaData.mahasiswaStatus === "active"
+            ? "Mahasiswa Aktif"
+            : "Mahasiswa Tidak Aktif"
+        }
         email={mahasiswaData.email}
         phone={mahasiswaData.phoneNumber || "-"}
         joinDate={`Terdaftar sejak ${angkatan}`}
@@ -207,12 +230,12 @@ function RouteComponent() {
         gender={mahasiswaData.gender ? genderMap[mahasiswaData.gender] : "-"}
         religion={mahasiswaData.religion || "-"}
       />
-      
+
       {/* Essay and IOM Notes */}
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card className="p-6">
           <div className="mb-4 flex items-center">
-            <FileText className="mr-2 h-5 w-5 text-primary" />
+            <FileText className="text-primary mr-2 h-5 w-5" />
             <h3 className="text-lg font-semibold">Essay</h3>
           </div>
           <div className="text-gray-600">
@@ -230,10 +253,10 @@ function RouteComponent() {
             )}
           </div>
         </Card>
-        
+
         <Card className="p-6">
           <div className="mb-4 flex items-center">
-            <FileText className="mr-2 h-5 w-5 text-primary" />
+            <FileText className="text-primary mr-2 h-5 w-5" />
             <h3 className="text-lg font-semibold">Catatan dari IOM</h3>
           </div>
           <div className="text-gray-600">
@@ -241,7 +264,7 @@ function RouteComponent() {
           </div>
         </Card>
       </div>
-      
+
       {/* Status */}
       <div className="mt-6">
         <Card className="p-6">
@@ -261,7 +284,7 @@ function RouteComponent() {
           </div>
         </Card>
       </div>
-    </div>
+    </main>
   );
 }
 

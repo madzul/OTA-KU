@@ -7,58 +7,21 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import { SessionContext } from "@/context/session";
 import { useSidebar } from "@/context/sidebar";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-// import { useEffect } from "react";
+import { useContext } from "react";
 
-import Sidebar from "../sidebar";
-import { Button } from "./button";
+import Sidebar from "./sidebar";
+import { Button } from "./ui/button";
 
 export default function NavBar() {
+  const session = useContext(SessionContext);
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
 
-  // Only fetch authentication status when component mounts
-  // Enable refetching on window focus and set a stale time
-  const { data, isLoading } = useQuery({
-    queryKey: ["verify"],
-    queryFn: () => api.auth.verif().catch(() => null),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
-  });
-
-  const isLoggedIn = !!data;
-
-  // Close sidebar when clicking outside
-  // useEffect(() => {
-  //   const handleClickOutside = (event: MouseEvent) => {
-  //     const navbar = document.getElementById("navbar");
-  //     const sidebar = document.querySelector("[data-sidebar='true']");
-
-  //     // If click is not on the navbar, sidebar, or their children, close the sidebar
-  //     if (
-  //       isSidebarOpen &&
-  //       navbar &&
-  //       sidebar &&
-  //       !navbar.contains(event.target as Node) &&
-  //       !sidebar.contains(event.target as Node)
-  //     ) {
-  //       closeSidebar();
-  //     }
-  //   };
-
-  //   if (isSidebarOpen) {
-  //     document.addEventListener("mousedown", handleClickOutside);
-  //   }
-
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, [isSidebarOpen, closeSidebar]);
+  const isLoggedIn = !!session;
 
   return (
     <>
@@ -91,7 +54,7 @@ export default function NavBar() {
                 alt="Logo"
               />
               {/* Title visible from md (desktop) and up */}
-              <div className="hidden md:flex flex-col leading-tight">
+              <div className="hidden flex-col leading-tight md:flex">
                 <span className="text-primary text-lg font-bold">
                   Ikatan Orang Tua Mahasiswa
                 </span>
@@ -103,22 +66,21 @@ export default function NavBar() {
           </div>
 
           <div className="flex items-center space-x-8">
-            {!isLoading && !isLoggedIn && (
+            {!isLoggedIn && (
               <Link className="w-fit" to="/auth/login">
                 <Button size="lg" variant={"outline"} className="w-[90px]">
                   Masuk
                 </Button>
               </Link>
             )}
-            {!isLoading && !isLoggedIn && (
+            {!isLoggedIn && (
               <Link className="w-fit" to="/auth/register">
                 <Button size="lg" className="w-[90px]">
                   Daftar
                 </Button>
               </Link>
             )}
-            {/* TODO: Nanti ganti linknya */}
-            {!isLoading && isLoggedIn && (
+            {isLoggedIn && (
               <Link className="w-fit" to="/auth/login">
                 <img
                   src="/icon/Type=notification.svg"
@@ -127,7 +89,7 @@ export default function NavBar() {
                 />
               </Link>
             )}
-            {!isLoading && isLoggedIn && (
+            {isLoggedIn && (
               <Menubar className="border-none bg-transparent p-0 shadow-none">
                 <MenubarMenu>
                   <MenubarTrigger className="cursor-pointer border-none bg-transparent p-0 shadow-none outline-none hover:bg-transparent focus:bg-transparent">
@@ -146,17 +108,10 @@ export default function NavBar() {
                     <MenubarItem
                       className="text-dark"
                       onClick={() => {
-                        // TODO: Ini detail sama profile page sama?
-                        const detailId = data?.body.id;
-                        const userType = data?.body.type;
-
-                        if (!detailId || !userType) return;
-
-                        const path = '/profile';
+                        const path = "/profile";
 
                         navigate({
                           to: path,
-                          replace: false,
                           reloadDocument: true,
                         });
                       }}

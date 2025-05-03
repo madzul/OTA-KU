@@ -61,13 +61,13 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 md:px-[34px]">
+    <main className="flex flex-col items-center gap-4 md:px-[34px]">
       <img
         src="/icon/logo-basic.png"
         alt="logo"
         className="mx-auto h-[81px] w-[123px]"
       />
-      <h1 className="text-primary text-center text-[32px] font-bold md:text-left md:text-[50px]">
+      <h1 className="text-primary text-center text-[32px] font-bold md:text-[50px]">
         Formulir Pendaftaran Orang Tua Asuh
       </h1>
       {/* Deskripsi Title */}
@@ -235,6 +235,6 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
           </form>
         </Form>
       </section>
-    </div>
+    </main>
   );
 }

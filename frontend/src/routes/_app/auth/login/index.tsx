@@ -20,11 +20,12 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-export const Route = createFileRoute("/auth/login/")({
+export const Route = createFileRoute("/_app/auth/login/")({
   component: RouteComponent,
-  beforeLoad: async () => {
-    const user = await api.auth.verif().catch(() => null);
-    if (user?.success) {
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (user) {
       throw redirect({ to: "/" });
     }
   },
@@ -48,7 +49,7 @@ function RouteComponent() {
       queryClient.invalidateQueries({ queryKey: ["verify"] });
 
       setTimeout(() => {
-        navigate({ to: "/" });
+        navigate({ to: "/", reloadDocument: true });
       }, 1500); // 1.5 seconds delay
     },
     onError: (_error, _variables, context) => {
@@ -86,7 +87,7 @@ function RouteComponent() {
   }, [azureClientId]);
 
   return (
-    <div className="md:px-auto min-h-[100vh] bg-[#F3F4F6] px-9 pt-16 pb-16">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-16 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <div className="flex flex-col items-center gap-9">
         <img
           src="/icon/logo-basic.png"
@@ -182,6 +183,6 @@ function RouteComponent() {
           </Form>
         </section>
       </div>
-    </div>
+    </main>
   );
 }

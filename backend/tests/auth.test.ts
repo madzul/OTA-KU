@@ -440,7 +440,7 @@ describe("OTP", () => {
   });
 
   test("POST 500 /api/auth/otp (Database Error)", async () => {
-    vi.spyOn(db, "update").mockImplementationOnce(() => {
+    vi.spyOn(db, "transaction").mockImplementationOnce(() => {
       throw new Error("Database connection failed");
     });
 

@@ -1,6 +1,5 @@
-"use client";
-
 import { api } from "@/api/client";
+import { UserSchema } from "@/api/generated";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -12,21 +11,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
   SelectTrigger,
-  SelectValue 
+  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { SessionContext } from "@/context/session";
 import { Fakultas, Jurusan } from "@/lib/nim";
 import { MahasiswaProfileFormSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { FileUp } from "lucide-react";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -86,8 +84,11 @@ const genderOptions = [
   { value: "F", label: "Perempuan" },
 ];
 
-const ProfileFormMA: React.FC = () => {
-  const session = useContext(SessionContext);
+interface ProfileFormProps {
+  session: UserSchema;
+}
+
+const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [previouslyUploadedFiles, setPreviouslyUploadedFiles] = useState<
@@ -135,8 +136,7 @@ const ProfileFormMA: React.FC = () => {
         form.setValue("gender", profileData.body.gender);
       if (profileData.body.religion)
         form.setValue("religion", profileData.body.religion);
-      if (profileData.body.gpa)
-        form.setValue("gpa", profileData.body.gpa);
+      if (profileData.body.gpa) form.setValue("gpa", profileData.body.gpa);
 
       // Set data file yang sudah diupload sebelumnya
       // dan update state fileNames untuk menampilkan nama file di UI
@@ -328,7 +328,7 @@ const ProfileFormMA: React.FC = () => {
                   </FormItem>
                 )}
               />
-              
+
               {/* Gender field */}
               <FormField
                 control={form.control}
@@ -358,7 +358,7 @@ const ProfileFormMA: React.FC = () => {
                   </FormItem>
                 )}
               />
-              
+
               {/* Religion field */}
               <FormField
                 control={form.control}
@@ -388,7 +388,7 @@ const ProfileFormMA: React.FC = () => {
                   </FormItem>
                 )}
               />
-              
+
               {/* GPA field */}
               <FormField
                 control={form.control}
@@ -397,19 +397,21 @@ const ProfileFormMA: React.FC = () => {
                   <FormItem>
                     <FormLabel>{uploadFieldLabels.gpa}</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        step="0.01" 
+                      <Input
+                        type="number"
+                        step="0.01"
                         placeholder="Masukkan IPK Anda"
                         {...field}
-                        onChange={e => field.onChange(parseFloat(e.target.value))}
+                        onChange={(e) =>
+                          field.onChange(parseFloat(e.target.value))
+                        }
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="cityOfOrigin"
@@ -511,9 +513,11 @@ const ProfileFormMA: React.FC = () => {
                     } else {
                       fileStatus = "Klik untuk upload atau drag & drop";
                     }
-                    
+
                     // URL for previously uploaded file
-                    const fileUrl = hasExistingFile ? previouslyUploadedFiles[name] : null;
+                    const fileUrl = hasExistingFile
+                      ? previouslyUploadedFiles[name]
+                      : null;
 
                     return (
                       <FormItem>
@@ -549,12 +553,14 @@ const ProfileFormMA: React.FC = () => {
                               <FileUp
                                 className={`h-8 w-8 ${hasExistingFile ? "text-green-500" : "text-muted-foreground"}`}
                               />
-                              
+
                               {/* Display status message without showing the filename for uploaded files */}
                               <p className="text-sm font-medium">
-                                {hasExistingFile ? "File sudah terupload" : fileStatus}
+                                {hasExistingFile
+                                  ? "File sudah terupload"
+                                  : fileStatus}
                               </p>
-                              
+
                               <div className="flex gap-2">
                                 {hasExistingFile && (
                                   <Button
@@ -562,7 +568,8 @@ const ProfileFormMA: React.FC = () => {
                                     variant="outline"
                                     size="sm"
                                     onClick={() => {
-                                      if (fileUrl) window.open(fileUrl, '_blank');
+                                      if (fileUrl)
+                                        window.open(fileUrl, "_blank");
                                     }}
                                   >
                                     Lihat
@@ -576,9 +583,7 @@ const ProfileFormMA: React.FC = () => {
                                     fileInputRefs.current[name]?.click()
                                   }
                                 >
-                                  {hasExistingFile
-                                    ? `Ganti`
-                                    : `Pilih`}
+                                  {hasExistingFile ? `Ganti` : `Pilih`}
                                 </Button>
                               </div>
                             </div>

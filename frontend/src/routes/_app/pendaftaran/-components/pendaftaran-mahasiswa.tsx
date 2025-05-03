@@ -11,6 +11,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  getNimFakultasCodeMap,
+  getNimFakultasFromNimJurusanMap,
+  getNimJurusanCodeMap,
+} from "@/lib/nim";
 import { MahasiswaRegistrationFormSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -21,7 +26,6 @@ import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { getNimJurusanCodeMap, getNimFakultasFromNimJurusanMap, getNimFakultasCodeMap } from "@/lib/nim";
 
 import Combobox from "./combobox";
 
@@ -86,7 +90,7 @@ export default function PendaftaranMahasiswa({
       });
 
       setTimeout(() => {
-        navigate({ to: "/profile" });
+        navigate({ to: "/profile", reloadDocument: true });
       }, 1000);
     },
     onError: (error, _variables, context) => {
@@ -108,13 +112,13 @@ export default function PendaftaranMahasiswa({
   const nimCode = nim.slice(0, 3);
   const jurusan = getNimJurusanCodeMap()[nimCode] || "TPB";
   const fakultas =
-    getNimFakultasCodeMap()[
-      getNimFakultasFromNimJurusanMap()[nimCode]
-    ] || getNimFakultasCodeMap()[nimCode];
+    getNimFakultasCodeMap()[getNimFakultasFromNimJurusanMap()[nimCode]] ||
+    getNimFakultasCodeMap()[nimCode];
 
   const form = useForm<MahasiswaRegistrationFormValues>({
     resolver: zodResolver(MahasiswaRegistrationFormSchema),
     defaultValues: {
+      name: session.name ?? "",
       phoneNumber: session.phoneNumber ?? "",
       nim,
       major: jurusan,
@@ -144,14 +148,14 @@ export default function PendaftaranMahasiswa({
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 md:px-[34px]">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col items-center justify-center gap-8 p-2 px-6 py-16 md:gap-12 md:px-12 lg:min-h-[calc(100vh-96px)] lg:gap-16">
       <img
         src="/icon/logo-basic.png"
         alt="logo"
         className="mx-auto h-[81px] w-[123px]"
       />
 
-      <h1 className="text-primary text-center text-[32px] font-bold md:text-left md:text-[50px]">
+      <h1 className="text-primary text-center text-[32px] font-bold md:text-[50px]">
         Formulir Pendaftaran Calon Mahasiswa Asuh
       </h1>
 
@@ -161,12 +165,6 @@ export default function PendaftaranMahasiswa({
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex w-full flex-col gap-5"
           >
-            {/* TODO: Disable input kalo udah ada nama, NIM, jurusan, dan fakultas (login oauth)
-            1. Pake session context (useContext), session itu isinya JWT
-            2. Harus ngecek dulu provider si user itu azure atau ga, kalo azure -> disable */}
-
-            {/* TODO: yang atas persis udah di implement,
-            tapi blm ada conditional kek if provider === azure, then name autofilled */}
             <FormField
               control={form.control}
               name="name"
@@ -176,7 +174,11 @@ export default function PendaftaranMahasiswa({
                     Nama Lengkap
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan nama Anda" {...field} />
+                    <Input
+                      placeholder="Masukkan nama Anda"
+                      {...field}
+                      disabled={!!session.name}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -417,6 +419,6 @@ export default function PendaftaranMahasiswa({
           </form>
         </Form>
       </section>
-    </div>
+    </main>
   );
 }

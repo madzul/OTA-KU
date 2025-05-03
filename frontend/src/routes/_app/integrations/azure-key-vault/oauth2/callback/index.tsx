@@ -1,11 +1,18 @@
 import { api, queryClient } from "@/api/client";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/integrations/azure-key-vault/oauth2/callback/",
+  "/_app/integrations/azure-key-vault/oauth2/callback/",
 )({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (user) {
+      throw redirect({ to: "/" });
+    }
+  },
 });
 
 function RouteComponent() {
@@ -28,13 +35,13 @@ function RouteComponent() {
         })
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["verify"] });
-          navigate({ to: "/" });
+          navigate({ to: "/", reloadDocument: true });
         })
         .catch((error) => {
           console.error(error);
         });
     }
-  }, []);
+  }, [navigate]);
 
   return <div>Waiting to redirect</div>;
 }

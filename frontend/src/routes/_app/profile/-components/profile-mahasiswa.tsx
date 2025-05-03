@@ -8,13 +8,13 @@ import ProfileFormMA from "./profile-form-ma";
 
 function ProfileMahasiswa({ session }: { session: UserSchema }) {
   const { data: profileData, isLoading } = useQuery({
-    queryKey: ["mahasiswaProfile", session?.id],
-    queryFn: () => api.profile.profileMahasiswa({ id: session?.id ?? "" }),
-    enabled: !!session?.id,
+    queryKey: ["mahasiswaProfile", session.id],
+    queryFn: () => api.profile.profileMahasiswa({ id: session.id }),
+    enabled: !!session.id,
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="flex min-h-[calc(100vh-96px)] flex-col p-2 px-6 py-8 md:px-12">
       <p className="text-primary mb-6 text-4xl font-bold">Profile</p>
       <div className="grid gap-6 md:grid-cols-[300px_1fr]">
         <div>
@@ -26,19 +26,19 @@ function ProfileMahasiswa({ session }: { session: UserSchema }) {
             <ProfileCard
               name={profileData?.body?.name || "Mahasiswa Asuh"}
               role="Mahasiswa Asuh"
-              email={session?.email || "-"}
+              email={session.email}
               phone={
-                profileData?.body?.phone_number || session?.phoneNumber || "-"
+                profileData?.body?.phone_number || session.phoneNumber || "-"
               }
               joinDate={"Belum tersedia"}
             />
           )}
         </div>
         <div>
-          <ProfileFormMA />
+          <ProfileFormMA session={session} />
         </div>
       </div>
-    </div>
+    </main>
   );
 }
 

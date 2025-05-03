@@ -1,6 +1,5 @@
-"use client";
-
 import { api } from "@/api/client";
+import { UserSchema } from "@/api/generated";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
@@ -27,14 +26,13 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { SessionContext } from "@/context/session";
 import { cn } from "@/lib/utils";
 import { OrangTuaRegistrationSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -43,8 +41,11 @@ type OrangTuaRegistrationFormValues = z.infer<
   typeof OrangTuaRegistrationSchema
 >;
 
-const ProfileFormOTA: React.FC = () => {
-  const session = useContext(SessionContext);
+interface ProfileFormProps {
+  session: UserSchema;
+}
+
+const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   // Create form with zod validation
