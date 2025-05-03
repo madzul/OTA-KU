@@ -1,3 +1,4 @@
+import Metadata from "@/components/metadata";
 import { createFileRoute } from "@tanstack/react-router";
 
 import LandingPage from "./-components/landing-page";
@@ -14,6 +15,7 @@ function Index() {
 
   return (
     <main className="flex min-h-[calc(100vh-70px)] flex-col items-center justify-center px-4 py-8 text-4xl md:px-12 lg:min-h-[calc(100vh-96px)]">
+      <Metadata title="Beranda | BOTA" />
       <LandingPage session={session} />
     </main>
   );

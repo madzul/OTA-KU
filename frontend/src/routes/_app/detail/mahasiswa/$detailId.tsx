@@ -1,3 +1,4 @@
+import Metadata from "@/components/metadata";
 import { Card } from "@/components/ui/card";
 import { redirect, useParams } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
@@ -143,6 +144,7 @@ function RouteComponent() {
   if (loading) {
     return (
       <div className="container mx-auto flex items-center justify-center px-4 py-16">
+        <Metadata title="Detail Mahasiswa | BOTA" />
         <div className="text-center">
           <p className="text-primary text-lg">Loading...</p>
         </div>
@@ -154,6 +156,7 @@ function RouteComponent() {
   if (notFound) {
     return (
       <div className="container mx-auto flex items-center justify-center px-4 py-16">
+        <Metadata title="Detail Mahasiswa | BOTA" />
         <div className="text-center">
           <div className="mb-4 flex justify-center">
             <UserX size={64} className="text-primary" />
@@ -174,6 +177,7 @@ function RouteComponent() {
       setNotFound(true);
       return (
         <div className="container mx-auto flex items-center justify-center px-4 py-16">
+          <Metadata title="Detail Mahasiswa | BOTA" />
           <div className="text-center">
             <div className="mb-4 flex justify-center">
               <UserX size={64} className="text-primary" />
@@ -191,6 +195,7 @@ function RouteComponent() {
 
     return (
       <div className="container mx-auto flex items-center justify-center px-4 py-16">
+        <Metadata title="Detail Mahasiswa | BOTA" />
         <div className="text-center">
           <h1 className="text-primary text-2xl font-bold">Error</h1>
           <p className="text-muted-foreground mt-4 text-lg">
@@ -207,6 +212,7 @@ function RouteComponent() {
 
   return (
     <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
+      <Metadata title="Detail Mahasiswa | BOTA" />
       <h1 className="text-primary mb-4 text-2xl font-bold">
         Detail Mahasiswa Asuh
       </h1>

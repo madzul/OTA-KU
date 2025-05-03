@@ -1,3 +1,4 @@
+import Metadata from "@/components/metadata";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -29,6 +30,7 @@ function RouteComponent() {
 
   return (
     <main className="flex min-h-[calc(100vh-70px)] flex-col gap-4 p-2 px-6 py-16 md:px-12 lg:min-h-[calc(100vh-96px)]">
+      <Metadata title="Verifikasi Akun | BOTA" />
       {value === "mahasiswa" ? (
         <h1 className="text-dark text-3xl font-bold md:text-[50px]">
           Verifikasi Pendaftaran Mahasiswa Asuh
