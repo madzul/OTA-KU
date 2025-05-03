@@ -1,4 +1,5 @@
 import { api, queryClient } from "@/api/client";
+import Metadata from "@/components/metadata";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
@@ -43,5 +44,10 @@ function RouteComponent() {
     }
   }, [navigate]);
 
-  return <div>Waiting to redirect</div>;
+  return (
+    <div>
+      <Metadata title="Login | BOTA" />
+      Waiting to redirect
+    </div>
+  );
 }

@@ -1,7 +1,8 @@
+import Metadata from "@/components/metadata";
 import { redirect, useParams } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { UserX } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import DetailCardsOrangTuaAsuh from "./-components/detail-card";
 
@@ -62,7 +63,7 @@ function RouteComponent() {
       try {
         setLoading(true);
         setNotFound(false); // Reset not found state
-        
+
         const response = await fetch(
           // TODO: Nanti ganti pake generated API
           `http://localhost:3000/api/detail/orang-tua/${id}`,
@@ -71,36 +72,38 @@ function RouteComponent() {
         console.log("Response:", response);
 
         let data: OtaDetailResponse;
-        
+
         try {
           data = await response.json();
           console.log("Data:", data);
-          
+
           // Check if the response message indicates "not found" regardless of HTTP status
-          if (!data.success && 
-              (data.message.toLowerCase().includes("not found") || 
-               data.message.toLowerCase().includes("tidak ditemukan") ||
-               data.message.toLowerCase().includes("tidak ada") ||
-               response.status === 404)) {
+          if (
+            !data.success &&
+            (data.message.toLowerCase().includes("not found") ||
+              data.message.toLowerCase().includes("tidak ditemukan") ||
+              data.message.toLowerCase().includes("tidak ada") ||
+              response.status === 404)
+          ) {
             setNotFound(true);
             throw new Error("Orang Tua Asuh Tidak Ditemukan");
           }
-          
+
           // General data error handling
           if (!data.success) {
             throw new Error(data.message);
           }
-        } catch (jsonError) {
+        } catch {
           // If JSON parsing fails or we don't get proper data format
           if (response.status === 404 || response.status === 400) {
             setNotFound(true);
             throw new Error("Orang Tua Asuh Tidak Ditemukan");
           }
-          
+
           // Re-throw for other errors
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
-        
+
         // Handle case where response is not OK but we still got JSON
         if (!response.ok) {
           if (response.status === 404 || response.status === 400) {
@@ -132,6 +135,7 @@ function RouteComponent() {
   if (loading) {
     return (
       <div className="container mx-auto flex items-center justify-center px-4 py-16">
+        <Metadata title="Detail Orang Tua Asuh | BOTA" />
         <div className="text-center">
           <p className="text-primary text-lg">Loading...</p>
         </div>
@@ -143,13 +147,17 @@ function RouteComponent() {
   if (notFound) {
     return (
       <div className="container mx-auto flex items-center justify-center px-4 py-16">
+        <Metadata title="Detail Orang Tua Asuh | BOTA" />
         <div className="text-center">
           <div className="mb-4 flex justify-center">
             <UserX size={64} className="text-primary" />
           </div>
-          <h1 className="text-primary text-2xl font-bold">Orang Tua Asuh Tidak Ditemukan</h1>
+          <h1 className="text-primary text-2xl font-bold">
+            Orang Tua Asuh Tidak Ditemukan
+          </h1>
           <p className="text-muted-foreground mt-4 text-lg">
-            Data orang tua asuh dengan ID tersebut tidak dapat ditemukan di sistem
+            Data orang tua asuh dengan ID tersebut tidak dapat ditemukan di
+            sistem
           </p>
         </div>
       </div>
@@ -162,21 +170,26 @@ function RouteComponent() {
       setNotFound(true);
       return (
         <div className="container mx-auto flex items-center justify-center px-4 py-16">
+          <Metadata title="Detail Orang Tua Asuh | BOTA" />
           <div className="text-center">
             <div className="mb-4 flex justify-center">
               <UserX size={64} className="text-primary" />
             </div>
-            <h1 className="text-primary text-2xl font-bold">Orang Tua Asuh Tidak Ditemukan</h1>
+            <h1 className="text-primary text-2xl font-bold">
+              Orang Tua Asuh Tidak Ditemukan
+            </h1>
             <p className="text-muted-foreground mt-4 text-lg">
-              Data orang tua asuh dengan ID tersebut tidak dapat ditemukan di sistem
+              Data orang tua asuh dengan ID tersebut tidak dapat ditemukan di
+              sistem
             </p>
           </div>
         </div>
       );
     }
-    
+
     return (
       <div className="container mx-auto flex items-center justify-center px-4 py-16">
+        <Metadata title="Detail Orang Tua Asuh | BOTA" />
         <div className="text-center">
           <h1 className="text-primary text-2xl font-bold">Error</h1>
           <p className="text-muted-foreground mt-4 text-lg">
@@ -188,10 +201,10 @@ function RouteComponent() {
   }
 
   // Format the startDate to a more human-readable form
-  const startDate = otaData.startDate 
-    ? new Date(otaData.startDate) 
+  const startDate = otaData.startDate
+    ? new Date(otaData.startDate)
     : new Date();
-    
+
   const formattedStartDate = startDate.toLocaleDateString("id-ID", {
     day: "numeric",
     month: "long",
@@ -199,24 +212,29 @@ function RouteComponent() {
   });
 
   // Calculate random beneficiary count for demo
-  const beneficiaryCount = Math.floor(Math.random() * (otaData.maxCapacity || 1)); 
+  const beneficiaryCount = Math.floor(
+    Math.random() * (otaData.maxCapacity || 1),
+  );
 
   return (
     <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
+      <Metadata title="Detail Orang Tua Asuh | BOTA" />
       <h1 className="text-primary mb-4 text-2xl font-bold">
         Detail Orang Tua Asuh
       </h1>
       <DetailCardsOrangTuaAsuh
         name={otaData.name}
-        role={otaData.linkage === "otm" 
-          ? "Orang Tua Asuh" 
-          : otaData.linkage === "alumni" 
-            ? "Alumni ITB" 
-            : otaData.linkage === "dosen" 
-              ? "Dosen ITB" 
-              : otaData.linkage === "lainnya" 
-                ? "Lainnya" 
-                : "Tidak Ada"}
+        role={
+          otaData.linkage === "otm"
+            ? "Orang Tua Asuh"
+            : otaData.linkage === "alumni"
+              ? "Alumni ITB"
+              : otaData.linkage === "dosen"
+                ? "Dosen ITB"
+                : otaData.linkage === "lainnya"
+                  ? "Lainnya"
+                  : "Tidak Ada"
+        }
         email={otaData.email}
         phone={otaData.phoneNumber || "-"}
         joinDate={`Bergabung sejak ${formattedStartDate}`}

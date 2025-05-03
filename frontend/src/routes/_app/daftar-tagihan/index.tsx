@@ -1,3 +1,4 @@
+import Metadata from "@/components/metadata";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/daftar-tagihan/")({
@@ -19,8 +20,9 @@ export const Route = createFileRoute("/_app/daftar-tagihan/")({
 
 function RouteComponent() {
   return (
-    <div>
+    <main>
+      <Metadata title="Daftar Tagihan | BOTA" />
       Hello "/_app/daftar-tagihan/"! Halaman ini hanya bisa diakses oleh admin
-    </div>
+    </main>
   );
 }
