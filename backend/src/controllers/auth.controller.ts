@@ -165,6 +165,29 @@ authRouter.openapi(regisRoute, async (c) => {
   const zodParseResult = UserRegisRequestSchema.parse(data);
   const { email, phoneNumber, password, type } = zodParseResult;
 
+  const account = await db
+    .select()
+    .from(accountTable)
+    .where(
+      or(
+        eq(accountTable.email, email),
+        eq(accountTable.phoneNumber, phoneNumber),
+      ),
+    )
+    .limit(1);
+
+  if (account.length > 0) {
+    console.error("Invalid email");
+    return c.json(
+      {
+        success: false,
+        message: "Invalid credentials",
+        error: "Invalid email or phone number",
+      },
+      401,
+    );
+  }
+
   const hashedPassword = await hash(password, 10);
 
   try {

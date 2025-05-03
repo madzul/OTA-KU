@@ -491,39 +491,39 @@ export class ProfileService {
        */
       description: string;
       /**
-       * PDF file or string (optional)
+       * File Essay Mahasiswa
        */
       file?: string;
       /**
-       * PDF file or string (optional)
+       * Kartu Keluarga
        */
       kk?: string;
       /**
-       * PDF file or string (optional)
+       * Kartu Tanda Mahasiswa
        */
       ktm?: string;
       /**
-       * PDF file or string (optional)
+       * Surat Rekomendasi Wali
        */
       waliRecommendationLetter?: string;
       /**
-       * PDF file or string (optional)
+       * Transkrip Nilai
        */
       transcript?: string;
       /**
-       * PDF file or string (optional)
+       * Slip Gaji Orang Tua
        */
       salaryReport?: string;
       /**
-       * PDF file or string (optional)
+       * Bukti Pembayaran PBB
        */
       pbb?: string;
       /**
-       * PDF file or string (optional)
+       * Tagihan Listrik
        */
       electricityBill?: string;
       /**
-       * PDF file or string (optional)
+       * Surat Rekomendasi Ditmawa
        */
       ditmawaRecommendationLetter?: string;
     },
