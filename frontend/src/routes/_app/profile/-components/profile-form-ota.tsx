@@ -154,14 +154,22 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <Tabs defaultValue="personalInfo" className="w-full">
-            <TabsList className="bg-placeholder grid w-full grid-cols-2">
-              <TabsTrigger value="personalInfo">Data Diri</TabsTrigger>
-              <TabsTrigger value="sponsorshipDetails">
+            <TabsList className="w-full bg-[#BBBAB8]">
+              <TabsTrigger
+                value="personalInfo"
+                className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white"
+              >
+                Data Diri
+              </TabsTrigger>
+              <TabsTrigger
+                value="sponsorshipDetails"
+                className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white"
+              >
                 Detail Pendaftaran
               </TabsTrigger>
             </TabsList>
 
-            <Card className="text-primary w-full">
+            <Card className="w-full">
               {/* Personal Info Tab */}
               <TabsContent value="personalInfo">
                 <div className="space-y-4 p-4">
@@ -170,7 +178,9 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nama Lengkap</FormLabel>
+                        <FormLabel className="text-primary">
+                          Nama Lengkap
+                        </FormLabel>
                         <FormControl>
                           <Input placeholder="Nama Lengkap" {...field} />
                         </FormControl>
@@ -183,7 +193,9 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                     name="job"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Pekerjaan</FormLabel>
+                        <FormLabel className="text-primary">
+                          Pekerjaan
+                        </FormLabel>
                         <FormControl>
                           <Input placeholder="Pekerjaan" {...field} />
                         </FormControl>
@@ -196,7 +208,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Alamat</FormLabel>
+                        <FormLabel className="text-primary">Alamat</FormLabel>
                         <FormControl>
                           <Textarea placeholder="Alamat" {...field} />
                         </FormControl>
@@ -209,7 +221,9 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                     name="linkage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Keterkaitan dengan ITB</FormLabel>
+                        <FormLabel className="text-primary">
+                          Keterkaitan dengan ITB
+                        </FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -244,7 +258,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                     name="funds"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
+                        <FormLabel className="text-primary">
                           Bersedia memberikan dana setiap bulan sebesar (dalam
                           Rp)
                         </FormLabel>
@@ -267,7 +281,9 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                     name="maxCapacity"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Jumlah Anak Asuh Maksimal</FormLabel>
+                        <FormLabel className="text-primary">
+                          Jumlah Anak Asuh Maksimal
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -287,7 +303,9 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                     name="startDate"
                     render={({ field }) => (
                       <FormItem className="flex flex-col">
-                        <FormLabel>Dana akan mulai diberikan pada</FormLabel>
+                        <FormLabel className="text-primary">
+                          Dana akan mulai diberikan pada
+                        </FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
                             <FormControl>
@@ -332,7 +350,9 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                     name="maxSemester"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Semester Maksimal</FormLabel>
+                        <FormLabel className="text-primary">
+                          Semester Maksimal
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -352,7 +372,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                     name="transferDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
+                        <FormLabel className="text-primary">
                           Dana akan ditransfer ke rekening IOM setiap tanggal
                         </FormLabel>
                         <FormControl>
@@ -377,7 +397,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                     name="criteria"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
+                        <FormLabel className="text-primary">
                           Adapun Kriteria Anak Asuh yang Diinginkan
                         </FormLabel>
                         <FormControl>

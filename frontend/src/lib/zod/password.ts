@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { PasswordSchema } from "./atomic";
 
-export const ChangePasswordRequestSchema = z
+export const ChangePasswordSchema = z
   .object({
     password: PasswordSchema,
     confirmPassword: PasswordSchema,

@@ -1,3 +1,4 @@
+import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -7,32 +8,25 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { ChangePasswordSchema } from "@/lib/zod/password";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const changePasswordSchema = z
-  .object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
+type ChangePasswordValues = z.infer<typeof ChangePasswordSchema>;
 
 interface ChangePasswordFormProps {
   userId: string;
 }
 
-export default function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
+export default function ChangePasswordForm({
+  userId,
+}: ChangePasswordFormProps) {
   const form = useForm<ChangePasswordValues>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: zodResolver(ChangePasswordSchema),
     defaultValues: {
       password: "",
       confirmPassword: "",
@@ -41,40 +35,26 @@ export default function ChangePasswordForm({ userId }: ChangePasswordFormProps) 
 
   const mutation = useMutation({
     mutationFn: async (data: ChangePasswordValues) => {
-      const formData = new FormData();
-      formData.append('password', data.password);
-      formData.append('confirmPassword', data.confirmPassword);
-
-      // Check where your backend is actually serving this endpoint
-      // Based on your routes, it might be one of these:
-      // - /api/password/change/{id}
-      // - /api/v1/password/change/{id}
-      // - /change/{id}
-      
-      const response = await fetch(`http://localhost:3000/api/password/change/${userId}`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
+      return api.password.changePassword({ id: userId, formData: data });
+    },
+    onSuccess: (_data, _variables, context) => {
+      toast.dismiss(context);
+      toast.success("Berhasil mengubah kata sandi", {
+        description: "Anda dapat login menggunakan kata sandi baru",
       });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(responseData.message || 'Failed to change password');
-      }
-
-      return responseData;
     },
-    onSuccess: (data) => {
-      if (data.success) {
-        toast.success("Password changed successfully");
-        form.reset();
-      } else {
-        toast.error(data.message || "Failed to change password");
-      }
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal mengubah kata sandi", {
+        description: error.message,
+      });
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to change password");
+    onMutate: () => {
+      const loading = toast.loading("Sedang mengubah kata sandi...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 
@@ -83,8 +63,10 @@ export default function ChangePasswordForm({ userId }: ChangePasswordFormProps) 
   };
 
   return (
-    <div className="rounded-lg border bg-card p-6">
-      <h2 className="mb-4 text-xl font-semibold">Change Password</h2>
+    <div className="bg-card rounded-lg border p-6">
+      <h2 className="text-primary mb-4 text-xl font-semibold">
+        Ubah Kata Sandi
+      </h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -92,11 +74,10 @@ export default function ChangePasswordForm({ userId }: ChangePasswordFormProps) 
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>New Password</FormLabel>
+                <FormLabel className="text-primary">Kata Sandi Baru</FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Enter new password"
+                  <PasswordInput
+                    placeholder="Masukkan kata sandi Anda"
                     {...field}
                   />
                 </FormControl>
@@ -109,11 +90,12 @@ export default function ChangePasswordForm({ userId }: ChangePasswordFormProps) 
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
+                <FormLabel className="text-primary">
+                  Konfirmasi Kata Sandi Baru
+                </FormLabel>
                 <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="Confirm new password"
+                  <PasswordInput
+                    placeholder="Masukkan kata sandi Anda"
                     {...field}
                   />
                 </FormControl>

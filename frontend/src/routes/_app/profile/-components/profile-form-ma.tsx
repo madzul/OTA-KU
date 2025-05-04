@@ -111,8 +111,6 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
     enabled: !!session?.id,
   });
 
-  console.log("Profile Data:", profileData);
-
   // Set form values once profile data is loaded
   useEffect(() => {
     if (profileData?.body) {
@@ -254,7 +252,7 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
     <div className="mx-auto w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Card className="text-primary w-full">
+          <Card className="w-full">
             <p className="text-primary px-4 py-4 text-2xl font-bold">
               Data Diri
             </p>
@@ -264,7 +262,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.name}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.name}
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Masukkan nama Anda" {...field} />
                     </FormControl>
@@ -277,7 +277,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.phoneNumber}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.phoneNumber}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Masukkan nomor WA Anda"
@@ -294,7 +296,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="nim"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.nim}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.nim}
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Masukkan NIM Anda" {...field} />
                     </FormControl>
@@ -307,7 +311,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="major"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.major}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.major}
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Masukkan jurusan Anda" {...field} />
                     </FormControl>
@@ -320,7 +326,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="faculty"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.faculty}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.faculty}
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Masukkan fakultas Anda" {...field} />
                     </FormControl>
@@ -335,7 +343,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.gender}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.gender}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -365,7 +375,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="religion"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.religion}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.religion}
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -395,11 +407,11 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="gpa"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.gpa}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.gpa}
+                    </FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        step="0.01"
                         placeholder="Masukkan IPK Anda"
                         {...field}
                         onChange={(e) =>
@@ -417,7 +429,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="cityOfOrigin"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.cityOfOrigin}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.cityOfOrigin}
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Masukkan kota asal Anda" {...field} />
                     </FormControl>
@@ -430,7 +444,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="highschoolAlumni"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.highschoolAlumni}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.highschoolAlumni}
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Masukkan asal SMA Anda" {...field} />
                     </FormControl>
@@ -443,7 +459,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{uploadFieldLabels.description}</FormLabel>
+                    <FormLabel className="text-primary">
+                      {uploadFieldLabels.description}
+                    </FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Alasan keperluan bantuan"
