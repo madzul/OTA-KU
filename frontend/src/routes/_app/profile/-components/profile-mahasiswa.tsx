@@ -1,18 +1,35 @@
 import { api } from "@/api/client";
 import { UserSchema } from "@/api/generated";
+import Metadata from "@/components/metadata";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 
 import ProfileCard from "./profile-card";
 import ProfileFormMA from "./profile-form-ma";
-import Metadata from "@/components/metadata";
 
-function ProfileMahasiswa({ session }: { session: UserSchema }) {
+function ProfileMahasiswa({
+  session,
+  applicationStatus,
+}: {
+  session: UserSchema;
+  applicationStatus:
+    | "accepted"
+    | "rejected"
+    | "pending"
+    | "unregistered"
+    | "reapply"
+    | "outdated";
+}) {
   const { data: profileData, isLoading } = useQuery({
     queryKey: ["mahasiswaProfile", session.id],
     queryFn: () => api.profile.profileMahasiswa({ id: session.id }),
     enabled: !!session.id,
   });
+
+  // TODO: Implemen ini ran
+  if (applicationStatus === "unregistered") {
+    return <main>Not Registered</main>;
+  }
 
   return (
     <main className="flex min-h-[calc(100vh-96px)] flex-col p-2 px-6 py-8 md:px-12">

@@ -291,6 +291,21 @@ export const otpTable = pgTable(
   (table) => [primaryKey({ columns: [table.accountId, table.code] })],
 );
 
+export const temporaryPasswordTable = pgTable(
+  "temporary_password",
+  {
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accountTable.id, {
+        onDelete: "cascade",
+      }),
+    password: varchar({ length: 255 }).notNull(),
+    expiredAt: timestamp("expired_at").notNull(),
+    used: boolean("used").default(false).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.accountId, table.password] })],
+);
+
 export const accountRelations = relations(accountTable, ({ one, many }) => ({
   accountMahasiswaDetail: one(accountMahasiswaDetailTable, {
     fields: [accountTable.id],
@@ -301,6 +316,7 @@ export const accountRelations = relations(accountTable, ({ one, many }) => ({
     references: [accountOtaDetailTable.accountId],
   }),
   otps: many(otpTable),
+  temporaryPasswords: many(temporaryPasswordTable),
 }));
 
 export const accountMahasiswaDetailRelations = relations(
@@ -355,3 +371,14 @@ export const otpRelations = relations(otpTable, ({ one }) => ({
     references: [accountTable.id],
   }),
 }));
+
+export const temporaryPasswordRelations = relations(
+  temporaryPasswordTable,
+  ({ one }) => ({
+    account: one(accountTable, {
+      fields: [temporaryPasswordTable.accountId],
+      references: [accountTable.id],
+    }),
+  }),
+);
+

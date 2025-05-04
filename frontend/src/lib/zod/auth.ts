@@ -52,3 +52,8 @@ export const OTPVerificationRequestSchema = z.object({
     message: "Kode OTP harus terdiri dari 6 karakter.",
   }),
 });
+
+// Forgot Password
+export const ForgotPasswordSchema = z.object({
+  email: EmailSchema,
+});

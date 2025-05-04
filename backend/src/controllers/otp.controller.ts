@@ -41,7 +41,7 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
     const code = generateOTP();
     await db
       .update(otpTable)
-      .set({ code, expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24) })
+      .set({ code, expiredAt: new Date(Date.now() + 1000 * 60 * 15) })
       .where(eq(otpTable.accountId, user[0].account.id));
 
     const transporter = nodemailer.createTransport({

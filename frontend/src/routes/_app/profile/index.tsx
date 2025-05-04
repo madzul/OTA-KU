@@ -36,28 +36,34 @@ export const Route = createFileRoute("/_app/profile/")({
       throw redirect({ to: "/auth/login" });
     }
 
-    if (applicationStatus.body.status === "unregistered") {
-      throw redirect({ to: "/pendaftaran" });
-    }
-
-    return { session: user };
+    return { session: user, applicationStatus: applicationStatus.body.status };
   },
   loader: async ({ context }) => {
-    return { session: context.session };
+    return {
+      session: context.session,
+      applicationStatus: context.applicationStatus,
+    };
   },
 });
 
 function RouteComponent() {
-  const { session } = Route.useLoaderData();
+  const { session, applicationStatus } = Route.useLoaderData();
 
   // For mahasiswa users
   if (session.type === "mahasiswa") {
-    return <ProfileMahasiswa session={session} />;
+    return (
+      <ProfileMahasiswa
+        session={session}
+        applicationStatus={applicationStatus}
+      />
+    );
   }
 
   // For OTA users
   if (session.type === "ota") {
-    return <ProfileOta session={session} />;
+    return (
+      <ProfileOta session={session} applicationStatus={applicationStatus} />
+    );
   }
 
   // Redirect if user is admin
