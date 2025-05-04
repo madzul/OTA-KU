@@ -10,6 +10,7 @@ import { ConnectService } from './services/ConnectService';
 import { DetailService } from './services/DetailService';
 import { ListService } from './services/ListService';
 import { OtpService } from './services/OtpService';
+import { PasswordService } from './services/PasswordService';
 import { ProfileService } from './services/ProfileService';
 import { StatusService } from './services/StatusService';
 import { TerminateService } from './services/TerminateService';
@@ -20,6 +21,7 @@ export class ApiClient {
   public readonly detail: DetailService;
   public readonly list: ListService;
   public readonly otp: OtpService;
+  public readonly password: PasswordService;
   public readonly profile: ProfileService;
   public readonly status: StatusService;
   public readonly terminate: TerminateService;
@@ -41,6 +43,7 @@ export class ApiClient {
     this.detail = new DetailService(this.request);
     this.list = new ListService(this.request);
     this.otp = new OtpService(this.request);
+    this.password = new PasswordService(this.request);
     this.profile = new ProfileService(this.request);
     this.status = new StatusService(this.request);
     this.terminate = new TerminateService(this.request);

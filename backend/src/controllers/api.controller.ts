@@ -1,12 +1,14 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
+
 import { authProtectedRouter, authRouter } from "./auth.controller.js";
 import { connectProtectedRouter, connectRouter } from "./connect.controller.js";
 import { detailProtectedRouter, detailRouter } from "./detail.controller.js";
 import { listProtectedRouter, listRouter } from "./list.controller.js";
+import { otpProtectedRouter, otpRouter } from "./otp.controller.js";
 import { profileProtectedRouter, profileRouter } from "./profile.controller.js";
 import { statusProtectedRouter, statusRouter } from "./status.controller.js";
-import { otpProtectedRouter, otpRouter } from "./otp.controller.js";
 import { terminateProtectedRouter } from "./terminate.controller.js";
+import { passwordProtectedRouter } from "./password.controller.js";
 
 const unprotectedApiRouter = new OpenAPIHono();
 unprotectedApiRouter.route("/auth", authRouter);
@@ -26,6 +28,7 @@ protectedApiRouter.route("/status", statusProtectedRouter);
 protectedApiRouter.route("/detail", detailProtectedRouter);
 protectedApiRouter.route("/otp", otpProtectedRouter);
 protectedApiRouter.route("/terminate", terminateProtectedRouter);
+protectedApiRouter.route("/password", passwordProtectedRouter);
 
 export const apiRouter = new OpenAPIHono();
 apiRouter.route("/", unprotectedApiRouter);
