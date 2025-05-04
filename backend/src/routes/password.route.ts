@@ -1,12 +1,11 @@
-import { createRoute } from "@hono/zod-openapi";
-
-import { AuthorizationErrorResponse } from "../types/response.js";
+import { createRoute, z } from "@hono/zod-openapi";
 import {
   ChangePasswordRequestSchema,
   InvalidChangePasswordResponse,
   SuccessfulChangePasswordResponse,
 } from "../zod/password.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
+import { AuthorizationErrorResponse } from "../types/response.js";
 
 export const changePasswordRoute = createRoute({
   operationId: "changePassword",
@@ -15,6 +14,16 @@ export const changePasswordRoute = createRoute({
   path: "/change/{id}",
   description: "Change password.",
   request: {
+    params: z.object({
+      id: z.string().openapi({
+        param: {
+          name: "id",
+          in: "path",
+          required: true,
+          description: "User ID",
+        },
+      }),
+    }),
     body: {
       content: {
         "multipart/form-data": {

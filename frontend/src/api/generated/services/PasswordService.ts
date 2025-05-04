@@ -12,8 +12,13 @@ export class PasswordService {
    * @throws ApiError
    */
   public changePassword({
+    id,
     formData,
   }: {
+    /**
+     * User ID
+     */
+    id: string,
     formData?: {
       /**
        * The user's password.
@@ -31,6 +36,9 @@ export class PasswordService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/password/change/{id}',
+      path: {
+        'id': id,
+      },
       formData: formData,
       mediaType: 'multipart/form-data',
       errors: {

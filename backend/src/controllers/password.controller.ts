@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 import { db } from "../db/drizzle.js";
 import { accountTable } from "../db/schema.js";
@@ -30,9 +31,13 @@ passwordProtectedRouter.openapi(changePasswordRoute, async (c) => {
   const { password } = zodParseResult;
 
   try {
+    // Hash the password before storing it
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
     await db
       .update(accountTable)
-      .set({ password })
+      .set({ password: hashedPassword })
       .where(eq(accountTable.id, id));
 
     return c.json(
