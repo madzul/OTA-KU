@@ -1,7 +1,11 @@
 import { z } from "@hono/zod-openapi";
 
-const SubscriptionKeysSchema = z
+export const SubscriptionSchema = z
   .object({
+    endpoint: z.string().url().openapi({
+      example: "https://fcm.googleapis.com/fcm/send/eQ-gK1x...",
+      description: "The endpoint URL to send push notifications to.",
+    }),
     p256dh: z.string().openapi({
       example: "BOrK1Vs8vS6O...long-base64-key...",
       description: "The user's public key for the push subscription.",
@@ -10,16 +14,6 @@ const SubscriptionKeysSchema = z
       example: "OvUeHG3qRxE...",
       description: "Authentication secret for the push subscription.",
     }),
-  })
-  .openapi("SubscriptionKeysSchema");
-
-export const SubscriptionSchema = z
-  .object({
-    endpoint: z.string().url().openapi({
-      example: "https://fcm.googleapis.com/fcm/send/eQ-gK1x...",
-      description: "The endpoint URL to send push notifications to.",
-    }),
-    keys: SubscriptionKeysSchema,
   })
   .openapi("SubscriptionSchema");
 
@@ -64,11 +58,9 @@ export const GetPushSubscriptionErrorResponseSchema = z.object({
 });
 
 // Create Push Subscription
-export const CreatePushSubscriptionSchema = z
-  .object({
-    subscription: SubscriptionSchema,
-  })
-  .openapi("CreatePushSubscriptionSchema");
+export const CreatePushSubscriptionSchema = SubscriptionSchema.openapi(
+  "CreatePushSubscriptionSchema",
+);
 
 export const CreatePushSubscriptionParamsSchema = z.object({
   id: z.string().openapi({

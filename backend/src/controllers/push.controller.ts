@@ -6,7 +6,7 @@ import { sendNotification } from "../lib/web-push.js";
 import {
   createPushSubscription,
   deletePushSubscription,
-  sendBatchPushNotification,
+  getPushSubscription,
   sendPushNotification,
 } from "../routes/push.route.js";
 import {
@@ -19,7 +19,7 @@ import { createAuthRouter, createRouter } from "./router-factory.js";
 export const pushRouter = createRouter();
 export const pushProtectedRouter = createAuthRouter();
 
-pushProtectedRouter.openapi(createPushSubscription, async (c) => {
+pushProtectedRouter.openapi(getPushSubscription, async (c) => {
   const { id } = c.req.param();
   const user = c.var.user;
 
@@ -95,15 +95,20 @@ pushProtectedRouter.openapi(createPushSubscription, async (c) => {
   }
 
   const zodParseResult = CreatePushSubscriptionSchema.parse(data);
-  const { subscription } = zodParseResult;
+  const { auth, endpoint, p256dh } = zodParseResult;
+
+  const keys = {
+    p256dh: p256dh,
+    auth: auth,
+  };
 
   try {
     await db
       .insert(pushSubscriptionTable)
       .values({
         accountId: id,
-        endpoint: subscription.endpoint,
-        keys: JSON.stringify(subscription.keys),
+        endpoint: endpoint,
+        keys: JSON.stringify(keys),
       })
       .onConflictDoUpdate({
         target: [
@@ -111,7 +116,7 @@ pushProtectedRouter.openapi(createPushSubscription, async (c) => {
           pushSubscriptionTable.endpoint,
         ],
         set: {
-          keys: JSON.stringify(subscription.keys),
+          keys: JSON.stringify(keys),
         },
       });
 
@@ -224,7 +229,14 @@ pushProtectedRouter.openapi(sendPushNotification, async (c) => {
       );
     }
 
-    const { endpoint, keys } = SubscriptionSchema.parse(subscription[0]);
+    const { endpoint, auth, p256dh } = SubscriptionSchema.parse(
+      subscription[0],
+    );
+
+    const keys = {
+      p256dh,
+      auth,
+    };
 
     const pushSubscription = {
       endpoint,
