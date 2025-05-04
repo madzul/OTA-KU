@@ -146,8 +146,10 @@ function RouteComponent() {
                 )}
               />
 
-              {/* TODO: Ganti ke route aslinya nanti */}
-              <Link to="." className="text-primary text-sm underline">
+              <Link
+                to="/auth/lupa-password"
+                className="text-primary text-sm underline"
+              >
                 Lupa kata sandi?
               </Link>
 

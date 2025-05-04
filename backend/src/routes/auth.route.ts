@@ -6,6 +6,8 @@ import {
   BadRequestOAuthLoginResponse,
   BadRequestOTPVerificationResponse,
   BadRequestRegisResponse,
+  ForgotPasswordResponse,
+  ForgotPasswordSchema,
   InvalidLoginResponse,
   InvalidRegisResponse,
   LogoutSuccessfulResponse,
@@ -227,6 +229,37 @@ export const otpRoute = createRoute({
       description: "Invalid OTP.",
       content: {
         "application/json": { schema: BadRequestOTPVerificationResponse },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const forgotPasswordRoute = createRoute({
+  operationId: "forgotPassword",
+  tags: ["Auth"],
+  method: "post",
+  path: "/forgot-password",
+  description: "Sends a password reset email to the user.",
+  request: {
+    body: {
+      content: {
+        "multipart/form-data": {
+          schema: ForgotPasswordSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Password reset email sent.",
+      content: {
+        "application/json": { schema: ForgotPasswordResponse },
       },
     },
     500: {

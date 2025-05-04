@@ -20,6 +20,7 @@ export { ConnectService } from './services/ConnectService';
 export { DetailService } from './services/DetailService';
 export { ListService } from './services/ListService';
 export { OtpService } from './services/OtpService';
+export { PasswordService } from './services/PasswordService';
 export { ProfileService } from './services/ProfileService';
 export { StatusService } from './services/StatusService';
 export { TerminateService } from './services/TerminateService';

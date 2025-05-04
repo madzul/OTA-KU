@@ -24,6 +24,7 @@ import { Route as AppDaftarTagihanIndexImport } from './routes/_app/daftar-tagih
 import { Route as AppCariMahasiswaIndexImport } from './routes/_app/cari-mahasiswa/index'
 import { Route as AppAuthRegisterIndexImport } from './routes/_app/auth/register/index'
 import { Route as AppAuthOtpVerificationIndexImport } from './routes/_app/auth/otp-verification/index'
+import { Route as AppAuthLupaPasswordIndexImport } from './routes/_app/auth/lupa-password/index'
 import { Route as AppAuthLoginIndexImport } from './routes/_app/auth/login/index'
 import { Route as AppMahasiswaAsuhSayaDetailIdStatusBayarImport } from './routes/_app/mahasiswa-asuh-saya_/$detailId/status-bayar'
 import { Route as AppDetailOrangTuaAsuhDetailIdImport } from './routes/_app/detail/orang-tua-asuh/$detailId'
@@ -109,6 +110,12 @@ const AppAuthOtpVerificationIndexRoute =
     path: '/auth/otp-verification/',
     getParentRoute: () => AppRoute,
   } as any)
+
+const AppAuthLupaPasswordIndexRoute = AppAuthLupaPasswordIndexImport.update({
+  id: '/auth/lupa-password/',
+  path: '/auth/lupa-password/',
+  getParentRoute: () => AppRoute,
+} as any)
 
 const AppAuthLoginIndexRoute = AppAuthLoginIndexImport.update({
   id: '/auth/login/',
@@ -254,6 +261,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAuthLoginIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/auth/lupa-password/': {
+      id: '/_app/auth/lupa-password/'
+      path: '/auth/lupa-password'
+      fullPath: '/auth/lupa-password'
+      preLoaderRoute: typeof AppAuthLupaPasswordIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/auth/otp-verification/': {
       id: '/_app/auth/otp-verification/'
       path: '/auth/otp-verification'
@@ -295,6 +309,7 @@ interface AppRouteChildren {
   AppDetailOrangTuaAsuhDetailIdRoute: typeof AppDetailOrangTuaAsuhDetailIdRoute
   AppMahasiswaAsuhSayaDetailIdStatusBayarRoute: typeof AppMahasiswaAsuhSayaDetailIdStatusBayarRoute
   AppAuthLoginIndexRoute: typeof AppAuthLoginIndexRoute
+  AppAuthLupaPasswordIndexRoute: typeof AppAuthLupaPasswordIndexRoute
   AppAuthOtpVerificationIndexRoute: typeof AppAuthOtpVerificationIndexRoute
   AppAuthRegisterIndexRoute: typeof AppAuthRegisterIndexRoute
   AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute: typeof AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -316,6 +331,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppMahasiswaAsuhSayaDetailIdStatusBayarRoute:
     AppMahasiswaAsuhSayaDetailIdStatusBayarRoute,
   AppAuthLoginIndexRoute: AppAuthLoginIndexRoute,
+  AppAuthLupaPasswordIndexRoute: AppAuthLupaPasswordIndexRoute,
   AppAuthOtpVerificationIndexRoute: AppAuthOtpVerificationIndexRoute,
   AppAuthRegisterIndexRoute: AppAuthRegisterIndexRoute,
   AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute:
@@ -340,6 +356,7 @@ export interface FileRoutesByFullPath {
   '/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
   '/mahasiswa-asuh-saya/$detailId/status-bayar': typeof AppMahasiswaAsuhSayaDetailIdStatusBayarRoute
   '/auth/login': typeof AppAuthLoginIndexRoute
+  '/auth/lupa-password': typeof AppAuthLupaPasswordIndexRoute
   '/auth/otp-verification': typeof AppAuthOtpVerificationIndexRoute
   '/auth/register': typeof AppAuthRegisterIndexRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -360,6 +377,7 @@ export interface FileRoutesByTo {
   '/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
   '/mahasiswa-asuh-saya/$detailId/status-bayar': typeof AppMahasiswaAsuhSayaDetailIdStatusBayarRoute
   '/auth/login': typeof AppAuthLoginIndexRoute
+  '/auth/lupa-password': typeof AppAuthLupaPasswordIndexRoute
   '/auth/otp-verification': typeof AppAuthOtpVerificationIndexRoute
   '/auth/register': typeof AppAuthRegisterIndexRoute
   '/integrations/azure-key-vault/oauth2/callback': typeof AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -382,6 +400,7 @@ export interface FileRoutesById {
   '/_app/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
   '/_app/mahasiswa-asuh-saya_/$detailId/status-bayar': typeof AppMahasiswaAsuhSayaDetailIdStatusBayarRoute
   '/_app/auth/login/': typeof AppAuthLoginIndexRoute
+  '/_app/auth/lupa-password/': typeof AppAuthLupaPasswordIndexRoute
   '/_app/auth/otp-verification/': typeof AppAuthOtpVerificationIndexRoute
   '/_app/auth/register/': typeof AppAuthRegisterIndexRoute
   '/_app/integrations/azure-key-vault/oauth2/callback/': typeof AppIntegrationsAzureKeyVaultOauth2CallbackIndexRoute
@@ -405,6 +424,7 @@ export interface FileRouteTypes {
     | '/detail/orang-tua-asuh/$detailId'
     | '/mahasiswa-asuh-saya/$detailId/status-bayar'
     | '/auth/login'
+    | '/auth/lupa-password'
     | '/auth/otp-verification'
     | '/auth/register'
     | '/integrations/azure-key-vault/oauth2/callback'
@@ -424,6 +444,7 @@ export interface FileRouteTypes {
     | '/detail/orang-tua-asuh/$detailId'
     | '/mahasiswa-asuh-saya/$detailId/status-bayar'
     | '/auth/login'
+    | '/auth/lupa-password'
     | '/auth/otp-verification'
     | '/auth/register'
     | '/integrations/azure-key-vault/oauth2/callback'
@@ -444,6 +465,7 @@ export interface FileRouteTypes {
     | '/_app/detail/orang-tua-asuh/$detailId'
     | '/_app/mahasiswa-asuh-saya_/$detailId/status-bayar'
     | '/_app/auth/login/'
+    | '/_app/auth/lupa-password/'
     | '/_app/auth/otp-verification/'
     | '/_app/auth/register/'
     | '/_app/integrations/azure-key-vault/oauth2/callback/'
@@ -488,6 +510,7 @@ export const routeTree = rootRoute
         "/_app/detail/orang-tua-asuh/$detailId",
         "/_app/mahasiswa-asuh-saya_/$detailId/status-bayar",
         "/_app/auth/login/",
+        "/_app/auth/lupa-password/",
         "/_app/auth/otp-verification/",
         "/_app/auth/register/",
         "/_app/integrations/azure-key-vault/oauth2/callback/"
@@ -547,6 +570,10 @@ export const routeTree = rootRoute
     },
     "/_app/auth/login/": {
       "filePath": "_app/auth/login/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/auth/lupa-password/": {
+      "filePath": "_app/auth/lupa-password/index.tsx",
       "parent": "/_app"
     },
     "/_app/auth/otp-verification/": {

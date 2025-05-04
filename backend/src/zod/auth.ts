@@ -198,3 +198,13 @@ export const BadRequestOTPVerificationResponse = z.object({
   message: z.string().openapi({ example: "Missing required fields" }),
   error: z.string().openapi({ example: "OTP is required" }),
 });
+
+// Forgot Password
+export const ForgotPasswordSchema = z.object({
+  email: EmailSchema,
+});
+
+export const ForgotPasswordResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Forgot password email sent" }),
+});

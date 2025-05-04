@@ -76,6 +76,14 @@ export const testRegisterUsers = [
     password: "testuser123",
     confirmPassword: "testuser123",
   },
+  // Valid
+  {
+    type: "ota",
+    email: "user7@test.com",
+    phoneNumber: "6281234567895",
+    password: "testuser123",
+    confirmPassword: "testuser123",
+  }
 ];
 
 // Add otp data for testUsers
@@ -83,7 +91,7 @@ export const otpDatas = [
   {
     accountId: testUsers[0].id,
     code: "123456",
-    expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+    expiredAt: new Date(Date.now() + 1000 * 60 * 15),
   },
   {
     accountId: testUsers[1].id,
@@ -98,6 +106,6 @@ export const otpDatas = [
   {
     accountId: testUsers[3].id,
     code: "123456",
-    expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+    expiredAt: new Date(Date.now() + 1000 * 60 * 15),
   },
 ];
