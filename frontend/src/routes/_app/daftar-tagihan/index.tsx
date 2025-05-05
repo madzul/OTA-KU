@@ -18,6 +18,7 @@ export const Route = createFileRoute("/_app/daftar-tagihan/")({
 
     return { user };
   },
+
 });
 
 function RouteComponent() {

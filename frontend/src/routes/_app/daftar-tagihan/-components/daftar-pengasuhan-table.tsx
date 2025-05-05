@@ -30,6 +30,7 @@ export interface PengasuhanItem {
   waktuBayar: string;
   tanggalWaktu: string;
   status: StatusType;
+  date: Date; // Added date field for filtering
   paymentDetails?: {
     amount: string;
   };
