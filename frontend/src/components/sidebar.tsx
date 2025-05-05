@@ -152,6 +152,12 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           icon: "/icon/Type=shield.svg",
           path: "/verifikasi-akun",
         },
+        {
+          id: "transaction",
+          label: "Daftar Tagihan",
+          icon: "/icon/Type=transaction.svg",
+          path: "/daftar-tagihan",
+        },
       ];
     case "ota":
       return [
