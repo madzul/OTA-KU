@@ -12,6 +12,7 @@ import { ListService } from './services/ListService';
 import { OtpService } from './services/OtpService';
 import { PasswordService } from './services/PasswordService';
 import { ProfileService } from './services/ProfileService';
+import { PushSubscriptionService } from './services/PushSubscriptionService';
 import { StatusService } from './services/StatusService';
 import { TerminateService } from './services/TerminateService';
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
@@ -23,6 +24,7 @@ export class ApiClient {
   public readonly otp: OtpService;
   public readonly password: PasswordService;
   public readonly profile: ProfileService;
+  public readonly pushSubscription: PushSubscriptionService;
   public readonly status: StatusService;
   public readonly terminate: TerminateService;
   public readonly request: BaseHttpRequest;
@@ -45,6 +47,7 @@ export class ApiClient {
     this.otp = new OtpService(this.request);
     this.password = new PasswordService(this.request);
     this.profile = new ProfileService(this.request);
+    this.pushSubscription = new PushSubscriptionService(this.request);
     this.status = new StatusService(this.request);
     this.terminate = new TerminateService(this.request);
   }

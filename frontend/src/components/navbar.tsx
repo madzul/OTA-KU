@@ -1,4 +1,5 @@
 import { api, queryClient } from "@/api/client";
+import { CreatePushSubscriptionSchema } from "@/api/generated";
 import {
   Menubar,
   MenubarContent,
@@ -10,8 +11,11 @@ import {
 import { SessionContext } from "@/context/session";
 import { useSidebar } from "@/context/sidebar";
 import { cn } from "@/lib/utils";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useContext } from "react";
+import { Bell, BellOff } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import Sidebar from "./sidebar";
 import { Button } from "./ui/button";
@@ -21,7 +25,144 @@ export default function NavBar() {
   const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
   const navigate = useNavigate();
 
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
   const isLoggedIn = !!session;
+
+  const { data, refetch } = useQuery({
+    queryKey: ["getPushSubscription", session?.id],
+    queryFn: () => {
+      if (!session?.id) return null;
+      return api.pushSubscription.getPushSubscription({ id: session.id });
+    },
+    enabled: !!session?.id,
+  });
+
+  const registerServiceWorkerCallbackMutation = useMutation({
+    mutationKey: ["registerServiceWorkerCallback"],
+    mutationFn: async () => {
+      if (!session?.id) return null;
+
+      if (!("serviceWorker" in navigator)) {
+        console.error("Service workers are not supported in this browser.");
+        return;
+      }
+
+      const registration = await navigator.serviceWorker.register("/sw.js");
+
+      if (!registration.pushManager) {
+        console.error("Push manager unavailable.");
+        return;
+      }
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY,
+      });
+
+      const payload = {
+        endpoint: subscription.endpoint,
+        p256dh: subscription.toJSON().keys?.p256dh,
+        auth: subscription.toJSON().keys?.auth,
+      } as CreatePushSubscriptionSchema;
+
+      return api.pushSubscription.createPushSubscription({
+        id: session.id,
+        formData: {
+          auth: payload.auth,
+          endpoint: payload.endpoint,
+          p256dh: payload.p256dh,
+        },
+      });
+    },
+    onSuccess: (_data, _variables, context) => {
+      setNotificationsEnabled(true);
+      toast.dismiss(context);
+      toast.success("Berhasil mengubah pengaturan notifikasi", {
+        description: "Anda akan menerima notifikasi dari kami",
+      });
+    },
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal mengubah pengaturan notifikasi", {
+        description: error.message,
+      });
+    },
+    onMutate: () => {
+      const loading = toast.loading(
+        "Sedang mengubah pengaturan notifikasi...",
+        {
+          description: "Mohon tunggu sebentar",
+          duration: Infinity,
+        },
+      );
+      return loading;
+    },
+  });
+
+  const unregisterServiceWorkerCallbackMutation = useMutation({
+    mutationKey: ["unregisterServiceWorkerCallback"],
+    mutationFn: async () => {
+      if (!session?.id) return null;
+
+      if (!("serviceWorker" in navigator)) {
+        console.error("Service workers are not supported in this browser.");
+        return;
+      }
+
+      const registration = await navigator.serviceWorker.getRegistration();
+
+      if (!registration) {
+        console.error("No service worker registration found.");
+        return;
+      }
+
+      const subscription = await registration.pushManager.getSubscription();
+
+      if (subscription) {
+        await subscription.unsubscribe();
+      }
+
+      return api.pushSubscription.deletePushSubscription({ id: session.id });
+    },
+    onSuccess: (_data, _variables, context) => {
+      setNotificationsEnabled(false);
+      toast.dismiss(context);
+      toast.success("Berhasil mengubah pengaturan notifikasi", {
+        description: "Anda tidak akan menerima notifikasi dari kami",
+      });
+    },
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal mengubah pengaturan notifikasi", {
+        description: error.message,
+      });
+    },
+    onMutate: () => {
+      const loading = toast.loading(
+        "Sedang mengubah pengaturan notifikasi...",
+        {
+          description: "Mohon tunggu sebentar",
+          duration: Infinity,
+        },
+      );
+      return loading;
+    },
+  });
+
+  useEffect(() => {
+    if (session) {
+      refetch();
+    }
+  }, [refetch, session]);
+
+  useEffect(() => {
+    if (data?.body.isSubscribed) {
+      setNotificationsEnabled(true);
+    } else {
+      setNotificationsEnabled(false);
+    }
+  }, [data]);
 
   return (
     <>
@@ -81,13 +222,23 @@ export default function NavBar() {
               </Link>
             )}
             {isLoggedIn && (
-              <Link className="w-fit" to="/auth/login">
-                <img
-                  src="/icon/Type=notification.svg"
-                  alt="Notifications"
-                  className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
-                />
-              </Link>
+              <>
+                {notificationsEnabled ? (
+                  <Bell
+                    className="text-dark h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125 hover:cursor-pointer"
+                    onClick={() => {
+                      unregisterServiceWorkerCallbackMutation.mutate();
+                    }}
+                  />
+                ) : (
+                  <BellOff
+                    className="text-dark h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125 hover:cursor-pointer"
+                    onClick={() => {
+                      registerServiceWorkerCallbackMutation.mutate();
+                    }}
+                  />
+                )}
+              </>
             )}
             {isLoggedIn && (
               <Menubar className="border-none bg-transparent p-0 shadow-none">
