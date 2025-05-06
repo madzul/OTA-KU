@@ -195,7 +195,7 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
       });
     },
     onError: (error) => {
-      toast.error("Gagal memperbarui profil", {
+      toast.warning("Gagal memperbarui profil", {
         description: error.message,
       });
     },

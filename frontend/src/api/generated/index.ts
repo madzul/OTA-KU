@@ -10,6 +10,9 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
+export type { CreatePushSubscriptionSchema } from './models/CreatePushSubscriptionSchema';
+export type { NotificationAction } from './models/NotificationAction';
+export type { NotificationDataSchema } from './models/NotificationDataSchema';
 export type { SendOtpRequestSchema } from './models/SendOtpRequestSchema';
 export type { UserLoginRequestSchema } from './models/UserLoginRequestSchema';
 export type { UserRegisRequestSchema } from './models/UserRegisRequestSchema';
@@ -22,5 +25,6 @@ export { ListService } from './services/ListService';
 export { OtpService } from './services/OtpService';
 export { PasswordService } from './services/PasswordService';
 export { ProfileService } from './services/ProfileService';
+export { PushSubscriptionService } from './services/PushSubscriptionService';
 export { StatusService } from './services/StatusService';
 export { TerminateService } from './services/TerminateService';
