@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, sql, or } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -173,7 +173,11 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
         and(
           eq(connectionTable.mahasiswaId, mahasiswaId),
           eq(connectionTable.otaId, otaId),
-          eq(connectionTable.connectionStatus, "pending"), //TODO: on relation connection, attribute connection_status tambahine enum pending_terminate biar bisa dibedain pending pengajuan sama pending termination
+          eq(connectionTable.connectionStatus, "pending"),
+          or(
+            eq(connectionTable.requestTerminateMahasiswa, true),
+            eq(connectionTable.requestTerminateOta, true)
+          )
         ),
       );
 

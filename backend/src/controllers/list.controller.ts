@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, isNotNull, or, sql } from "drizzle-orm";
+import { and, count, eq, ilike, isNotNull, or, sql, not } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -679,6 +679,8 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         and(
           eq(connectionTable.otaId, otaId),
           eq(connectionTable.connectionStatus, "pending"),
+          eq(connectionTable.requestTerminateMahasiswa, false),
+          eq(connectionTable.requestTerminateOta, false),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
             ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
@@ -706,6 +708,8 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         and(
           eq(connectionTable.otaId, otaId),
           eq(connectionTable.connectionStatus, "pending"),
+          eq(connectionTable.requestTerminateMahasiswa, false),
+          eq(connectionTable.requestTerminateOta, false),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
             ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
