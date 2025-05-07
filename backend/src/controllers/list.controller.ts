@@ -1,5 +1,4 @@
-import { and, count, eq, ilike, isNotNull, or, sql, not } from "drizzle-orm";
-
+import { and, count, eq, ilike, isNotNull, lt, or, sql, not } from "drizzle-orm";
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
@@ -14,6 +13,7 @@ import {
   listMahasiswaOtaRoute,
   listOrangTuaAdminRoute,
   listOtaKuRoute,
+  listAvailableOTARoute,
 } from "../routes/list.route.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -742,6 +742,108 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
     );
   } catch (error) {
     console.error("Error fetching MA pending list:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
+  const { q, page } = c.req.query();
+
+  // Validate page to be a positive integer
+  let pageNumber = Number(page);
+  if (isNaN(pageNumber) || pageNumber < 1) {
+    pageNumber = 1;
+  }
+
+  try {
+    const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
+
+    const countsQuery = db
+      .select({ count: count() })
+      .from(accountOtaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .where(
+        and(
+          eq(accountOtaDetailTable.allowAdminSelection, true),
+          eq(accountTable.applicationStatus, "accepted"),
+          ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+        ),
+      );
+
+    const otaListQuery = db
+      .select({
+        id: accountOtaDetailTable.accountId,
+        name: accountOtaDetailTable.name,
+        funds: accountOtaDetailTable.funds,
+        maxCapacity: accountOtaDetailTable.maxCapacity,
+        currentCount: sql<number>`COUNT(${connectionTable.mahasiswaId})`,
+        criteria: accountOtaDetailTable.criteria,
+      })
+      .from(accountOtaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .leftJoin(
+        connectionTable,
+        and(
+          eq(connectionTable.otaId, accountOtaDetailTable.accountId),
+          eq(connectionTable.connectionStatus, "accepted"),
+        ),
+      )
+      .where(
+        and(
+          eq(accountOtaDetailTable.allowAdminSelection, true),
+          eq(accountTable.applicationStatus, "accepted"),
+          ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+        ),
+      )
+      .groupBy(
+        accountOtaDetailTable.accountId,
+        accountOtaDetailTable.name,
+        accountOtaDetailTable.funds,
+        accountOtaDetailTable.maxCapacity,
+        accountOtaDetailTable.criteria,
+      )
+      .having(
+        lt(
+          sql<number>`COUNT(${connectionTable.mahasiswaId})`,
+          accountOtaDetailTable.maxCapacity,
+        ),
+      )
+      .limit(LIST_PAGE_SIZE)
+      .offset(offset);
+
+    const [otaList, counts] = await Promise.all([otaListQuery, countsQuery]);
+  
+      return c.json(
+        {
+          success: true,
+          message: "Daftar OTA yang tersedia berhasil diambil",
+          body: {
+            data: otaList.map((ota) => ({
+              accountId: ota.id,
+              name: ota.name,
+              phoneNumber: "", // Adding empty phoneNumber to match expected type
+              nominal: ota.funds, // Mapping funds to nominal to match expected type
+            })),
+            totalData: counts[0].count,
+          },
+        },
+        200,
+      );
+  } catch (error) {
+    console.error("Error fetching available OTA list:", error);
     return c.json(
       {
         success: false,

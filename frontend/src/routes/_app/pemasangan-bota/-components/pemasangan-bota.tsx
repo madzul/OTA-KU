@@ -3,6 +3,8 @@ import { SelectOTA } from "./select-ota";
 import { SelectMahasiswa } from "./select-mahasiswa";
 import { ConfirmationPage } from "./confirmation-page";
 import { OTAInfo } from "./ota-info";
+import { api } from "@/api/client";
+import { toast } from "sonner";
 
 // Steps for the OTA pairing process
 enum PemasanganStep {
@@ -11,55 +13,40 @@ enum PemasanganStep {
   CONFIRMATION = 3,
 }
 
-// Mock data for OTAs
-export const mockOTAList = [
-  { 
-    name: "Ayi Purbasari Lorem Ipsum", 
-    whatsapp: "6281112233445",
-    contribution: "300.000 per bulan",
-    maxStudents: 4,
-    criteria: "Baik, soleh, agama, jenis kelamin, tinggi, alumni sma yang sama, dll lorem ipsum lorem ipsum lorem ipsum"
-  },
-  { 
-    name: "Budi Santoso", 
-    whatsapp: "6281223344556",
-    contribution: "500.000 per bulan",
-    maxStudents: 2,
-    criteria: "Prestasi akademik tinggi, aktif organisasi"
-  },
-  { 
-    name: "Citra Dewi", 
-    whatsapp: "6281334455667",
-    contribution: "400.000 per bulan",
-    maxStudents: 3,
-    criteria: "Mahasiswa dari keluarga tidak mampu, IPK minimal 3.0"
-  },
-  { 
-    name: "Dedi Pratama", 
-    whatsapp: "6281445566778",
-    contribution: "350.000 per bulan",
-    maxStudents: 2,
-    criteria: "Mahasiswa asal daerah terpencil"
-  },
-  { 
-    name: "Eka Putri", 
-    whatsapp: "6281556677889",
-    contribution: "450.000 per bulan",
-    maxStudents: 3,
-    criteria: "Mahasiswa berprestasi di bidang olahraga atau seni"
-  }
-];
+interface OTAType {
+  accountId: string;
+  name: string;
+  phoneNumber: string;
+  nominal: number;
+  criteria?: string;
+  maxCapacity?: number;
+}
 
 export function PemasanganBOTA() {
   const [currentStep, setCurrentStep] = useState<PemasanganStep>(PemasanganStep.SELECT_OTA);
-  const [selectedOTA, setSelectedOTA] = useState<(typeof mockOTAList)[0] | null>(null);
+  const [selectedOTA, setSelectedOTA] = useState<OTAType | null>(null);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
 
-  const handleOTASelect = (otaName: string) => {
-    const ota = mockOTAList.find(o => o.name === otaName);
-    if (ota) {
-      setSelectedOTA(ota);
-      setCurrentStep(PemasanganStep.SELECT_MAHASISWA);
+  const handleOTASelect = async (otaId: string) => {
+    try {
+      // Get detailed OTA info
+      const response = await api.detail.getOtaDetail({ id: otaId });
+      console.log("Selected OTA ID:", otaId);
+      if (response.success) {
+        const otaData = {
+          accountId: otaId,
+          name: response.body.name,
+          phoneNumber: response.body.phoneNumber,
+          nominal: response.body.funds,
+          criteria: response.body.criteria,
+          maxCapacity: response.body.maxCapacity
+        };
+        setSelectedOTA(otaData);
+        setCurrentStep(PemasanganStep.SELECT_MAHASISWA);
+      }
+    } catch (error) {
+      toast.warning("Failed to fetch OTA details. Please try again.");
+      console.error("Error fetching OTA details:", error);
     }
   };
 
@@ -68,13 +55,30 @@ export function PemasanganBOTA() {
     setCurrentStep(PemasanganStep.CONFIRMATION);
   };
 
-  const handleConfirmation = () => {
-    // Here would be the API call to confirm the pairing
-    console.log("Pairing confirmed:", { selectedOTA, selectedStudents });
-    // Reset the flow or show success message
-    setCurrentStep(PemasanganStep.SELECT_OTA);
-    setSelectedOTA(null);
-    setSelectedStudents([]);
+  const handleConfirmation = async () => {
+    if (!selectedOTA || selectedStudents.length === 0) return;
+    
+    try {
+      // Process each student connection sequentially
+      for (const studentId of selectedStudents) {
+        await api.connect.connectOtaMahasiswa({
+          formData: {
+            otaId: selectedOTA.accountId,
+            mahasiswaId: studentId
+          }
+        });
+      }
+      
+      toast
+      
+      // Reset the flow
+      setCurrentStep(PemasanganStep.SELECT_OTA);
+      setSelectedOTA(null);
+      setSelectedStudents([]);
+    } catch (error) {
+      toast.error("Gagal memasangkan OTA dengan mahasiswa. Silakan coba lagi.");
+      console.error("Error connecting OTA with students:", error);
+    }
   };
 
   const handleBack = () => {
@@ -97,7 +101,7 @@ export function PemasanganBOTA() {
            
             {currentStep === PemasanganStep.SELECT_MAHASISWA && selectedOTA && (
               <>
-                <OTAInfo ota={selectedOTA} onChangeOTA={handleBack} />
+                <OTAInfo ota={selectedOTA} onChangeOTA={() => handleBack()} />
                 <SelectMahasiswa onSelect={handleStudentSelect} onBack={handleBack} />
               </>
             )}
