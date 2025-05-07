@@ -1,5 +1,5 @@
 import Metadata from "@/components/metadata";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 
 import { DaftarTagihanPage } from "./-components/DaftarTagihan";
 
@@ -18,7 +18,6 @@ export const Route = createFileRoute("/_app/daftar-tagihan/")({
 
     return { user };
   },
-
 });
 
 function RouteComponent() {
