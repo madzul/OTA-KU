@@ -1,10 +1,11 @@
+import { api } from "@/api/client";
 import { useState } from "react";
-import { SelectOTA } from "./select-ota";
-import { SelectMahasiswa } from "./select-mahasiswa";
+import { toast } from "sonner";
+
 import { ConfirmationPage } from "./confirmation-page";
 import { OTAInfo } from "./ota-info";
-import { api } from "@/api/client";
-import { toast } from "sonner";
+import { SelectMahasiswa } from "./select-mahasiswa";
+import { SelectOTA } from "./select-ota";
 
 // Steps for the OTA pairing process
 enum PemasanganStep {
@@ -23,7 +24,9 @@ interface OTAType {
 }
 
 export function PemasanganBOTA() {
-  const [currentStep, setCurrentStep] = useState<PemasanganStep>(PemasanganStep.SELECT_OTA);
+  const [currentStep, setCurrentStep] = useState<PemasanganStep>(
+    PemasanganStep.SELECT_OTA,
+  );
   const [selectedOTA, setSelectedOTA] = useState<OTAType | null>(null);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
 
@@ -39,7 +42,7 @@ export function PemasanganBOTA() {
           phoneNumber: response.body.phoneNumber,
           nominal: response.body.funds,
           criteria: response.body.criteria,
-          maxCapacity: response.body.maxCapacity
+          maxCapacity: response.body.maxCapacity,
         };
         setSelectedOTA(otaData);
         setCurrentStep(PemasanganStep.SELECT_MAHASISWA);
@@ -57,20 +60,20 @@ export function PemasanganBOTA() {
 
   const handleConfirmation = async () => {
     if (!selectedOTA || selectedStudents.length === 0) return;
-    
+
     try {
       // Process each student connection sequentially
       for (const studentId of selectedStudents) {
         await api.connect.connectOtaMahasiswa({
           formData: {
             otaId: selectedOTA.accountId,
-            mahasiswaId: studentId
-          }
+            mahasiswaId: studentId,
+          },
         });
       }
-      
-      toast
-      
+
+      toast;
+
       // Reset the flow
       setCurrentStep(PemasanganStep.SELECT_OTA);
       setSelectedOTA(null);
@@ -91,21 +94,24 @@ export function PemasanganBOTA() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <div className="flex-1">
         <div className="mx-auto p-6">
-          <div className="bg-white rounded-lg border shadow-sm p-6">
+          <div className="rounded-lg border bg-white p-6 shadow-sm">
             {currentStep === PemasanganStep.SELECT_OTA && (
               <SelectOTA onSelect={handleOTASelect} />
             )}
-           
+
             {currentStep === PemasanganStep.SELECT_MAHASISWA && selectedOTA && (
               <>
-                <OTAInfo ota={selectedOTA} onChangeOTA={() => handleBack()} />
-                <SelectMahasiswa onSelect={handleStudentSelect} onBack={handleBack} />
+                <OTAInfo ota={selectedOTA} onChangeOTA={handleOTASelect} />
+                <SelectMahasiswa
+                  onSelect={handleStudentSelect}
+                  onBack={handleBack}
+                />
               </>
             )}
-           
+
             {currentStep === PemasanganStep.CONFIRMATION && selectedOTA && (
               <ConfirmationPage
                 ota={selectedOTA}

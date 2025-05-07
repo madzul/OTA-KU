@@ -22,14 +22,13 @@ export function SelectOTA({ onSelect }: SelectOTAProps) {
   const [otaList, setOtaList] = useState<OTAItem[]>([]);
   const [filteredOTAs, setFilteredOTAs] = useState<OTAItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalData, setTotalData] = useState(0);
+  const [currentPage] = useState(1);
 
   useEffect(() => {
     if (isSearchOpen) {
       fetchAvailableOTAs();
     }
-  }, [isSearchOpen, page]);
+  }, [isSearchOpen]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -44,13 +43,12 @@ export function SelectOTA({ onSelect }: SelectOTAProps) {
     try {
       const response = await api.list.listAvailableOta({
         q: searchTerm,
-        page
+        page: currentPage
       });
      
       if (response.success) {
         setOtaList(response.body.data);
         setFilteredOTAs(response.body.data);
-        setTotalData(response.body.totalData);
       }
     } catch (error) {
       console.error("Error fetching available OTAs:", error);
@@ -105,7 +103,7 @@ export function SelectOTA({ onSelect }: SelectOTAProps) {
           <div className="relative border-b">
             <Input
               type="text"
-              placeholder="Cari nama atau no. telepon"
+              placeholder="Cari nama Orang Tua Asuh"
               value={searchTerm}
               onChange={handleSearchChange}
               className="pl-10 py-3 w-full border-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
