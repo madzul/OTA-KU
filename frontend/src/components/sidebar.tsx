@@ -152,6 +152,12 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           icon: "/icon/Type=shield.svg",
           path: "/verifikasi-akun",
         },
+        {
+          id: "persetujuan-asuh",
+          label: "Persetujuan Asuh",
+          icon: "/icon/Type=user-round-check.svg",
+          path: "/persetujuan-asuh",
+        },
       ];
     case "ota":
       return [
