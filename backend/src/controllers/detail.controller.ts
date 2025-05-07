@@ -5,10 +5,12 @@ import {
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
+  connectionTable,
 } from "../db/schema.js";
 import {
   getMahasiswaDetailRoute,
   getOtaDetailRoute,
+  getMyOtaDetailRoute
 } from "../routes/detail.route.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -110,6 +112,88 @@ detailProtectedRouter.openapi(getOtaDetailRoute, async (c) => {
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
       .where(eq(accountTable.id, id))
+      .limit(1);
+
+    if (otaDetail.length === 0) {
+      return c.json(
+        {
+          success: false,
+          message: "Orang tua asuh tidak ditemukan",
+          error: {
+            code: "NOT_FOUND",
+            message: "Orang tua asuh dengan ID tersebut tidak ditemukan",
+          },
+        },
+        404,
+      );
+    }
+
+    const ota = otaDetail[0];
+
+    return c.json(
+      {
+        success: true,
+        message: "Detail orang tua asuh berhasil diambil",
+        body: {
+          id: ota.account.id,
+          email: ota.account.email,
+          type: ota.account.type,
+          phoneNumber: ota.account.phoneNumber!,
+          provider: ota.account.provider,
+          applicationStatus: ota.account.applicationStatus,
+          name: ota.account_ota_detail.name!,
+          job: ota.account_ota_detail.job!,
+          address: ota.account_ota_detail.address!,
+          linkage: ota.account_ota_detail.linkage,
+          funds: ota.account_ota_detail.funds,
+          maxCapacity: ota.account_ota_detail.maxCapacity,
+          startDate: ota.account_ota_detail.startDate.toISOString(),
+          maxSemester: ota.account_ota_detail.maxSemester,
+          transferDate: ota.account_ota_detail.transferDate,
+          criteria: ota.account_ota_detail.criteria,
+          allowAdminSelection: ota.account_ota_detail.allowAdminSelection,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error("Error fetching orang tua asuh detail:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
+  const user = c.var.user;
+
+  try {
+    const [connection] = await db
+      .select({
+        otaId: connectionTable.otaId
+      })
+      .from(connectionTable)
+      .where(eq(connectionTable.mahasiswaId, user.id))
+      .limit(1);
+    
+    // Check if a connection was found
+    if (!connection) {
+      throw new Error("No OTA connection found for this mahasiswa.");
+    }
+    
+    const otaDetail = await db
+      .select()
+      .from(accountTable)
+      .innerJoin(
+        accountOtaDetailTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .where(eq(accountTable.id, connection.otaId))
       .limit(1);
 
     if (otaDetail.length === 0) {

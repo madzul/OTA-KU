@@ -75,3 +75,34 @@ export const getOtaDetailRoute = createRoute({
       },
     },
 });
+
+export const getMyOtaDetailRoute = createRoute({
+  operationId: "getMyOtaDetail",
+  tags: ["Detail"],
+  method: "get",
+  path: "my-orang-tua",
+  description: "Get detailed information of my current orang tua asuh.",
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan detail orang tua asuh saya.",
+      content: {
+        "application/json": {
+          schema: OtaDetailResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    404: {
+      description: "Orang tua asuh saya tidak ditemukan",
+      content: {
+        "application/json": { schema: NotFoundResponse },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  }
+})
