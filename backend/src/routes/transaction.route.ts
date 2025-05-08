@@ -97,7 +97,7 @@ export const detailTransactionRoute = createRoute({
 export const uploadReceiptRoute = createRoute({
     operationId: "uploadReceipt",
     tags: ["Transaction"],
-    method: "get",
+    method: "post",
     path: "/upload-receipt",
     description: "Upload bukti pembayaran dari OTA",
     request: {
@@ -123,17 +123,17 @@ export const uploadReceiptRoute = createRoute({
 })
 
 export const verifyTransactionAccRoute = createRoute({
-    operationId: "uploadReceipt",
+    operationId: "verifyTransactionAcc",
     tags: ["Transaction"],
-    method: "get",
+    method: "post",
     path: "/verify-acc",
-    description: "Melakukan verifikasi pembayaran oleh admin",
+    description: "Melakukan penerimaan verifikasi pembayaran oleh admin",
     request: {
         params: VerifyTransactionAcceptSchema,
     },
     responses: {
       200: {
-        description: "Berhasil melakukan verifikasi pembayaran",
+        description: "Berhasil melakukan penerimaan verifikasi pembayaran",
         content: {
         "application/json": {
             schema: VerifyTransactionResponse,
@@ -152,17 +152,17 @@ export const verifyTransactionAccRoute = createRoute({
 
 
 export const verifyTransactionRejectRoute = createRoute({
-  operationId: "uploadReceipt",
+  operationId: "verifyTransactionReject",
   tags: ["Transaction"],
-  method: "get",
+  method: "post",
   path: "/verify-reject",
-  description: "Melakukan verifikasi pembayaran oleh admin",
+  description: "Melakukan penolakan verifikasi pembayaran oleh admin",
   request: {
-      params: VerifyTransactionAcceptSchema,
+      params: VerifyTransactionRejectSchema,
   },
   responses: {
     200: {
-      description: "Berhasil melakukan verifikasi pembayaran",
+      description: "Berhasil melakukan penolakan verifikasi pembayaran",
       content: {
       "application/json": {
           schema: VerifyTransactionResponse,

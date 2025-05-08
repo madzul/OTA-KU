@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -7,7 +7,7 @@ import {
   accountTable,
   connectionTable,
 } from "../db/schema.js";
-import { connectOtaMahasiswaRoute } from "../routes/connect.route.js";
+import { connectOtaMahasiswaRoute, verifyConnectionAccRoute, verifyConnectionRejectRoute } from "../routes/connect.route.js";
 import { MahasiwaConnectSchema } from "../zod/connect.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -115,3 +115,82 @@ connectProtectedRouter.openapi(connectOtaMahasiswaRoute, async (c) => {
     );
   }
 });
+
+connectProtectedRouter.openapi(verifyConnectionAccRoute, async(c) => {
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+  const zodParseResult = MahasiwaConnectSchema.parse(data);
+  const { mahasiswaId, otaId } = zodParseResult;
+
+  try{
+    await db.transaction(async (tx) => {
+      await tx
+        .update(connectionTable)
+        .set({ connectionStatus: "accepted" })
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId)
+          )
+        )
+    })
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil melakukan penerimaan verifikasi connection oleh Admin",
+      },
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+connectProtectedRouter.openapi(verifyConnectionRejectRoute, async(c) => {
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+  const zodParseResult = MahasiwaConnectSchema.parse(data);
+  const { mahasiswaId, otaId } = zodParseResult;
+
+  try{
+    await db.transaction(async (tx) => {
+      await tx
+        .update(connectionTable)
+        .set({ connectionStatus: "rejected" })
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId)
+          )
+        )
+    })
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil melakukan penolakan verifikasi connection oleh Admin",
+      },
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+

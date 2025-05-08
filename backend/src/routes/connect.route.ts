@@ -6,6 +6,7 @@ import {
   OrangTuaFailedResponse,
   OrangTuaSuccessResponse,
   OrangTuaUnverifiedResponse,
+  verifyConnectionResponse,
 } from "../zod/connect.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 
@@ -59,3 +60,73 @@ export const connectOtaMahasiswaRoute = createRoute({
     },
   },
 });
+
+export const verifyConnectionAccRoute = createRoute({
+  operationId: "verifyConnectionAccept",
+  tags: ["Connect"],
+  method: "post",
+  path: "/verify-connect-acc",
+  description: "Melakukan penerimaan verifikasi connection oleh admin",
+  request: {
+    body: {
+      content: {
+        "multipart/form-data": {
+          schema: MahasiwaConnectSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description:
+        "Berhasil melakukan penerimaan verifikasi connection oleh admin",
+      content: {
+        "application/json": {
+          schema: verifyConnectionResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  }
+})
+
+export const verifyConnectionRejectRoute = createRoute({
+  operationId: "verifyConnectionReject",
+  tags: ["Connect"],
+  method: "post",
+  path: "/verify-connect-reject",
+  description: "Melakukan penolakan verifikasi connection oleh admin",
+  request: {
+    body: {
+      content: {
+        "multipart/form-data": {
+          schema: MahasiwaConnectSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description:
+        "Berhasil melakukan penolakan verifikasi connection oleh admin",
+      content: {
+        "application/json": {
+          schema: verifyConnectionResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  }
+})
