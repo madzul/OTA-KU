@@ -143,3 +143,111 @@ export const DetailTransactionParams = z.object({
     }),
 });
 
+export const UploadReceiptSchema = z.object({
+  mahasiswaId: z
+    .string({
+      required_error: "ID mahasiswa asuh harus diisi",
+      invalid_type_error: "ID mahasiswa asuh harus berupa string",
+    })
+    .uuid({
+      message: "ID mahasiswa asuh tidak valid",
+    })
+    .openapi({
+      description: "ID mahasiswa asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+  receipt: z
+    .string()
+    .openapi({ example: "https://example.com/file.pdf" }),
+});
+
+export const UploadReceiptResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Berhasil melakukan upload bukti pembayaran dari OTA" }),
+  body: z.object({
+    bukti_bayar: z.string().openapi({ example: "https://example.com/file.pdf" }),
+  })
+})
+
+export const VerifyTransactionAcceptSchema = z.object({
+  otaId: z
+    .string({
+      required_error: "ID orang tua asuh harus diisi",
+      invalid_type_error: "ID orang tua asuh harus berupa string",
+    })
+    .uuid({
+      message: "ID orang tua asuh tidak valid",
+    })
+    .openapi({
+      description: "ID orang tua asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+  mahasiswaId: z
+    .string({
+      required_error: "ID mahasiswa asuh harus diisi",
+      invalid_type_error: "ID mahasiswa asuh harus berupa string",
+    })
+    .uuid({
+      message: "ID mahasiswa asuh tidak valid",
+    })
+    .openapi({
+      description: "ID mahasiswa asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+})
+
+export const VerifyTransactionRejectSchema = z.object({
+  otaId: z
+    .string({
+      required_error: "ID orang tua asuh harus diisi",
+      invalid_type_error: "ID orang tua asuh harus berupa string",
+    })
+    .uuid({
+      message: "ID orang tua asuh tidak valid",
+    })
+    .openapi({
+      description: "ID orang tua asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+  mahasiswaId: z
+    .string({
+      required_error: "ID mahasiswa asuh harus diisi",
+      invalid_type_error: "ID mahasiswa asuh harus berupa string",
+    })
+    .uuid({
+      message: "ID mahasiswa asuh tidak valid",
+    })
+    .openapi({
+      description: "ID mahasiswa asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+    amountPaid: z
+      .number()
+      .int("Nominal yang telah dibayarkan harus berupa sebuah bilangan bulat")
+      .openapi({
+        description: "Nominal yang telah dibayarkan",
+        example: 300000
+    })
+})
+
+export const VerifyTransactionResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({
+    example: "Berhasil melakukan accept verifikasi pembayaran",
+  }),
+  body: z.object({
+    mahasiswaId: z.string().uuid().openapi({
+      description: "ID mahasiswa asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+    otaId: z.string().uuid().openapi({
+      description: "ID orang tua asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+    amountPaid: z.number().int("Nominal yang dibayarkan harus berupa sebuah bilangan bulat").openapi({
+      description: "Nominal yang telah dibayarkan",
+      example: 300000
+    })
+  }),
+});
+

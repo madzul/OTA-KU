@@ -2,8 +2,8 @@ import { eq, sql, count, and, or, ilike } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import { createAuthRouter } from "./router-factory.js";
-import { detailTransactionRoute, listTransactionAdminRoute, listTransactionOTARoute } from "../routes/transaction.route.js";
-import { DetailTransactionParams, TransactionListAdminQuerySchema, TransactionListOTAQuerySchema } from "../zod/transaction.js";
+import { detailTransactionRoute, listTransactionAdminRoute, listTransactionOTARoute, uploadReceiptRoute, verifyTransactionAccRoute, verifyTransactionRejectRoute } from "../routes/transaction.route.js";
+import { DetailTransactionParams, TransactionListAdminQuerySchema, TransactionListOTAQuerySchema, UploadReceiptSchema, VerifyTransactionAcceptSchema, VerifyTransactionRejectSchema } from "../zod/transaction.js";
 import { accountMahasiswaDetailTable, accountOtaDetailTable, accountTable, transactionTable } from "../db/schema.js";
 
 export const transactionProtectedRouter = createAuthRouter();
@@ -284,6 +284,160 @@ transactionProtectedRouter.openapi(detailTransactionRoute, async(c) => {
             error: {},
           },
           500
+        );
+    }
+})
+
+transactionProtectedRouter.openapi(uploadReceiptRoute, async(c) => {
+    const user = c.var.user;
+    const zodParseResult = UploadReceiptSchema.parse(c.req.query());
+    const { mahasiswaId, receipt } = zodParseResult
+
+    try{
+        await db.transaction(async (tx) => {
+            await tx
+              .update(transactionTable)
+              .set(
+                {
+                  transactionReceipt: receipt, 
+                  transactionStatus: "pending"
+                }
+              )
+              .where(
+                and(
+                  eq(transactionTable.mahasiswaId, mahasiswaId),
+                  eq(transactionTable.otaId, user.id)
+                )
+            )
+        }); 
+
+        return c.json(
+          {
+            success: true,
+            message: "Berhasil melakukan upload bukti pembayaran dari OTA.",
+            body: {
+              bukti_bayar: receipt
+            }
+          },
+          200
+        );
+    } catch (error) {
+        console.error(error);
+        return c.json(
+          {
+            success: false,
+            message: "Internal server error",
+            error: {},
+          },
+          500,
+        );
+    }
+})
+
+transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
+    const zodParseResult = VerifyTransactionAcceptSchema.parse(c.req.query());
+    const { otaId, mahasiswaId } = zodParseResult
+
+    try{
+        const result = await db.transaction(async(tx) => {
+            await tx
+              .update(transactionTable)
+                .set(
+                    { 
+                        transactionStatus: "paid",
+                        transactionReceipt: null
+                    }
+                )
+                .where(
+                    and(
+                        eq(transactionTable.mahasiswaId, mahasiswaId),
+                        eq(transactionTable.otaId, otaId)
+                    )
+                )
+
+            // Get the updated bill (amount paid)
+            const billRow = await tx
+              .select({ bill: transactionTable.bill })
+              .from(transactionTable)
+              .where(
+                  and(
+                      eq(transactionTable.mahasiswaId, mahasiswaId),
+                      eq(transactionTable.otaId, otaId)
+                  )
+              )
+              .limit(1);
+
+            return billRow[0]?.bill ?? 0; // fallback to 0 if not found
+        });
+
+        return c.json(
+            {
+              success: true,
+              message: "Berhasil melakukan upload bukti pembayaran dari OTA.",
+              body: {
+                mahasiswaId: mahasiswaId,
+                otaId: otaId,
+                amountPaid: result
+              },
+            },
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        return c.json(
+          {
+            success: false,
+            message: "Internal server error",
+            error: {},
+          },
+          500,
+        );
+    }
+})
+
+transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async(c) => {
+    const zodParseResult = VerifyTransactionRejectSchema.parse(c.req.query());
+    const { otaId, mahasiswaId, amountPaid } = zodParseResult
+
+    try{
+        await db.transaction(async(tx) => {
+            await tx
+              .update(transactionTable)
+                .set(
+                    { 
+                        transactionStatus: "paid",
+                        transactionReceipt: null
+                    }
+                )
+                .where(
+                    and(
+                        eq(transactionTable.mahasiswaId, mahasiswaId),
+                        eq(transactionTable.otaId, otaId)
+                    )
+                )
+        });
+
+        return c.json(
+            {
+              success: true,
+              message: "Berhasil melakukan upload bukti pembayaran dari OTA.",
+              body: {
+                mahasiswaId: mahasiswaId,
+                otaId: otaId,
+                amountPaid: amountPaid
+              },
+            },
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        return c.json(
+          {
+            success: false,
+            message: "Internal server error",
+            error: {},
+          },
+          500,
         );
     }
 })
