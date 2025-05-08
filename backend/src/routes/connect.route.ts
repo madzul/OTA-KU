@@ -2,6 +2,8 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
+  connectionListQueryResponse,
+  connectionListQuerySchema,
   MahasiwaConnectSchema,
   OrangTuaFailedResponse,
   OrangTuaSuccessResponse,
@@ -129,4 +131,32 @@ export const verifyConnectionRejectRoute = createRoute({
       },
     },
   }
+})
+
+export const listConnectionRoute = createRoute({
+  operationId: "listConnection",
+  tags: ["Connect"],
+  method: "post",
+  path: "/daftar-connection",
+  description: "List seluruh connection yang ada beserta detailnya",
+  request: {
+    query: connectionListQuerySchema
+  },
+  responses: {
+    200: {
+      description: "Daftar connection berhasil diambil",
+      content: {
+        "application/json": {
+          schema: connectionListQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
 })

@@ -1,4 +1,4 @@
-import { eq, sql, and } from "drizzle-orm";
+import { eq, sql, and, isNotNull, or, ilike, count } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -7,12 +7,14 @@ import {
   accountTable,
   connectionTable,
 } from "../db/schema.js";
-import { connectOtaMahasiswaRoute, verifyConnectionAccRoute, verifyConnectionRejectRoute } from "../routes/connect.route.js";
-import { MahasiwaConnectSchema } from "../zod/connect.js";
+import { connectOtaMahasiswaRoute, listConnectionRoute, verifyConnectionAccRoute, verifyConnectionRejectRoute } from "../routes/connect.route.js";
+import { connectionListQuerySchema, MahasiwaConnectSchema } from "../zod/connect.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
 export const connectRouter = createRouter();
 export const connectProtectedRouter = createAuthRouter();
+
+const LIST_PAGE_SIZE = 6;
 
 connectProtectedRouter.openapi(connectOtaMahasiswaRoute, async (c) => {
   const user = c.var.user;
@@ -193,4 +195,106 @@ connectProtectedRouter.openapi(verifyConnectionRejectRoute, async(c) => {
     );
   }
 });
+
+connectProtectedRouter.openapi(listConnectionRoute, async(c) => {
+  const zodParseResult = connectionListQuerySchema.parse(c.req.query());
+  const { q, page } = zodParseResult
+
+  // Validate page to be a positive integer
+  let pageNumber = Number(page);
+  if (isNaN(pageNumber) || pageNumber < 1) {
+    pageNumber = 1;
+  }
+
+  try{
+    const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
+    
+    const countsQuery = db
+      .select({ count: count() })
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountOtaDetailTable,
+        eq(connectionTable.otaId, accountOtaDetailTable.accountId),
+      )
+      .where(
+        and(
+          eq(connectionTable.connectionStatus, "pending"),
+          or(
+            ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+            ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+          ),
+        ),
+      );
+
+    const connectionListQuery = db
+      .select({
+        name_ma: accountMahasiswaDetailTable.name,
+        nim_ma: accountMahasiswaDetailTable.nim,
+        name_ota: accountOtaDetailTable.name,
+        number_ota: accountTable.phoneNumber,
+      })
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountOtaDetailTable,
+        eq(connectionTable.otaId, accountOtaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountTable,
+        eq(connectionTable.otaId, accountTable.id),
+      )
+      .where(
+        and(
+          eq(connectionTable.connectionStatus, "pending"),
+          or(
+            ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+            ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+          ),
+        ),
+      )
+      .limit(LIST_PAGE_SIZE)
+      .offset(offset);
+
+      const [connectionList, counts] = await Promise.all([
+        connectionListQuery,
+        countsQuery,
+      ]);
+
+      return c.json(
+        {
+          success: true,
+          message: "Daftar connection berhasil diambil",
+          body: {
+            data: connectionList.map((connection) => ({
+              name_ma: connection.name_ma ?? "",
+              nim_ma: connection.nim_ma,
+              name_ota: connection.name_ota,
+              number_ota: connection.number_ota ?? ""
+            })),
+            totalData: counts[0].count,
+          }
+        },
+        200
+      )
+  }catch (error) {
+    console.error("Error fetching mahasiswa list:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+})
 
