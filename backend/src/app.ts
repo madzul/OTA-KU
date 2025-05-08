@@ -29,7 +29,7 @@ app.onError((err, c) => {
   if (err instanceof HTTPException) {
     return err.getResponse();
   }
-  return c.json({ error: "Something went wrong!" }, 500);
+  return c.json({ error: err }, 500);
 });
 
 app.use(
@@ -40,12 +40,12 @@ app.use(
   }),
 );
 
-app.use(
-  "/api/*",
-  csrf({
-    origin: env.ALLOWED_ORIGINS,
-  }),
-);
+// app.use(
+//   "/api/*",
+//   csrf({
+//     origin: env.ALLOWED_ORIGINS,
+//   }),
+// );
 
 // Base routes
 app.get("/", (c) => c.json({ message: "Server runs successfully" }));

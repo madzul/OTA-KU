@@ -45,24 +45,18 @@ export const TransactionListOTAQueryResponse = z.object({
 
 export const TransactionListAdminQuerySchema = z.object({
     month: z
-      .string()
+      .enum([
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ])
       .optional()
-      .refine((value) => {
-        if (value === undefined) return true;
-        const validMonths = [
-          "January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"
-        ];
-        return validMonths.includes(value);
-      }, {
-        message: "Invalid month name. Must be one of January to December.",
-      })
       .openapi({
         description: "Month filter",
         example: "June",
       }),
 
     year: z
+      .coerce
       .number()
       .min(2024, { message: "Year must be 2024 or later." })
       .max(new Date().getFullYear(), { message: `Year cannot be in the future.` })
@@ -77,7 +71,7 @@ export const TransactionListAdminQuerySchema = z.object({
       example: 1,
     }),
     
-    status: z.enum(["unpaid", "pending", "pending"]).optional().openapi({
+    status: z.enum(["unpaid", "pending", "paid"]).optional().openapi({
       description: "Status of transaction.",
       example: "pending",
     }),
