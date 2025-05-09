@@ -23,6 +23,15 @@ function PersetujuanAsuhContent() {
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ["listConnection"],
     queryFn: () => api.connect.listConnection({ page }),
+    });
+  
+    useEffect(() => {
+      if (isSuccess) {
+        queryClient.invalidateQueries({
+          queryKey: ["listConnection"],
+          refetchType: "active",
+        }); // Ensure the table refreshes
+      }
   });
 
   const isLoadingState = isLoading || !isSuccess;

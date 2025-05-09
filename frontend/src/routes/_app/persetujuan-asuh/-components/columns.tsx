@@ -116,9 +116,15 @@ export const persetujuanAsuhColumns: ColumnDef<PersetujuanAsuhColumn>[] = [
     accessorKey: "aksi",
     header: "Aksi",
     cell: ({ row }) => {
-      // TODO: Nanti sesuain ganti atau tambahin id nya yang diperlukan (kayaknya sih mahasiswaId dan otaId)
-      const id = row.getValue("id") as string;
-      return <ConfirmationDialog id={id} />;
+      const mahasiswaId = row.getValue("mahasiswaId") as string;
+      const otaId = row.getValue("otaId") as string;
+      const mahasiswaName = row.getValue("mahasiswaName") as string;
+      const otaName = row.getValue("otaName") as string;
+      const compositeKey = {
+        otaId: otaId,
+        mahasiswaId: mahasiswaId,
+      }
+      return <ConfirmationDialog compositeKey={compositeKey} mahasiswaName={mahasiswaName} otaName={otaName} />;
     },
   },
 ];
