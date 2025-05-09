@@ -126,11 +126,15 @@ export class TransactionService {
    * @throws ApiError
    */
   public uploadReceipt({
-    mahasiswaId,
-    receipt,
+    formData,
   }: {
-    mahasiswaId: string,
-    receipt: string,
+    formData?: {
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+      receipt: Blob;
+    },
   }): CancelablePromise<{
     success: boolean;
     message: string;
@@ -141,10 +145,8 @@ export class TransactionService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/transaction/upload-receipt',
-      path: {
-        'mahasiswaId': mahasiswaId,
-        'receipt': receipt,
-      },
+      formData: formData,
+      mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         500: `Internal server error`,

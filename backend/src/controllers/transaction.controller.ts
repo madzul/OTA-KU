@@ -24,6 +24,7 @@ import {
   VerifyTransactionRejectSchema,
 } from "../zod/transaction.js";
 import { createAuthRouter } from "./router-factory.js";
+import { uploadPdfToCloudinary } from "../lib/file-upload.js";
 
 export const transactionProtectedRouter = createAuthRouter();
 
@@ -66,6 +67,7 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
 
     const transactionOTAListQuery = db
       .select({
+        mahasiswa_id: transactionTable.mahasiswaId,
         mahasiswa_name: accountMahasiswaDetailTable.name,
         mahasiswa_nim: accountMahasiswaDetailTable.nim,
         bill: transactionTable.bill,
@@ -95,6 +97,7 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
         message: "Daftar transaction untuk OTA berhasil diambil",
         body: {
           data: transactionOTAList.map((transaction) => ({
+            id: transaction.mahasiswa_id,
             name: transaction.mahasiswa_name ?? "",
             nim: transaction.mahasiswa_nim,
             bill: transaction.bill,
@@ -319,15 +322,24 @@ transactionProtectedRouter.openapi(detailTransactionRoute, async (c) => {
 
 transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   const user = c.var.user;
-  const zodParseResult = UploadReceiptSchema.parse(c.req.query());
+  
+  // Get the form data
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+  
+  // Parse using the UploadReceiptSchema
+  const zodParseResult = UploadReceiptSchema.parse(data);
   const { mahasiswaId, receipt } = zodParseResult;
 
   try {
+    // Upload the receipt file to Cloudinary
+    const receiptUrl = await uploadPdfToCloudinary(receipt);
+
     await db.transaction(async (tx) => {
       await tx
         .update(transactionTable)
         .set({
-          transactionReceipt: receipt,
+          transactionReceipt: receiptUrl.secure_url,
           transactionStatus: "pending",
         })
         .where(
@@ -343,7 +355,7 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
         success: true,
         message: "Berhasil melakukan upload bukti pembayaran dari OTA.",
         body: {
-          bukti_bayar: receipt,
+          bukti_bayar: receiptUrl.secure_url,
         },
       },
       200,

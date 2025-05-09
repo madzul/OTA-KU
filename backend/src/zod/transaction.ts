@@ -174,7 +174,18 @@ export const UploadReceiptSchema = z.object({
       description: "ID mahasiswa asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
-  receipt: z.string().openapi({ example: "https://example.com/file.pdf" }),
+  receipt: z
+    .instanceof(File, { message: "Bukti pembayaran harus diisi" })
+    .refine((file) => 
+      file.type === "application/pdf" || 
+      file.type.startsWith("image/"), 
+      { message: "File harus berupa PDF atau gambar" }
+    )
+    .transform((file) => file)
+    .openapi({ 
+      type: "string", 
+      format: "binary"
+    }),
 });
 
 export const UploadReceiptResponse = z.object({

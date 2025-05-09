@@ -1,26 +1,56 @@
-import { useState } from "react";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import { useState, useEffect } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
 
-const years = ["2023", "2024", "2025", "2026"];
 const months = [
-  "Januari", "Februari", "Maret", "April", 
-  "Mei", "Juni", "Juli", "Agustus", 
-  "September", "Oktober", "November", "Desember"
+  "January", "February", "March", "April",
+  "May", "June", "July", "August",
+  "September", "October", "November", "December"
 ];
 
-export default function StatusTransaksiFilter() {
-  const [selectedYear, setSelectedYear] = useState("2025");
-  const [selectedMonth, setSelectedMonth] = useState("Mei");
+const years = ["2023", "2024", "2025", "2026"];
+
+interface StatusTransaksiFilterProps {
+  onFilterChange: (filters: { year: string; month: string; }) => void;
+}
+
+export default function StatusTransaksiFilter({ onFilterChange }: StatusTransaksiFilterProps) {
+  const [selectedYear, setSelectedYear] = useState<string>("2025");
+  const [selectedMonth, setSelectedMonth] = useState<string>("May");
+  
+  // Use the state directly in the handlers
+  const handleYearChange = (value: string) => {
+    setSelectedYear(value);
+    onFilterChange({
+      year: value,
+      month: selectedMonth
+    });
+  };
+  
+  const handleMonthChange = (value: string) => {
+    setSelectedMonth(value);
+    onFilterChange({
+      year: selectedYear,
+      month: value
+    });
+  };
+  
+  // Call onFilterChange once on initial render to set initial filters
+  useEffect(() => {
+    onFilterChange({
+      year: selectedYear,
+      month: selectedMonth
+    });
+  }, []);
 
   return (
     <div className="flex flex-wrap gap-3">
-      <Select value={selectedYear} onValueChange={setSelectedYear}>
+      <Select value={selectedYear} onValueChange={handleYearChange}>
         <SelectTrigger className="w-[150px] bg-white">
           <SelectValue placeholder="Pilih Tahun" />
         </SelectTrigger>
@@ -32,8 +62,8 @@ export default function StatusTransaksiFilter() {
           ))}
         </SelectContent>
       </Select>
-
-      <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+      
+      <Select value={selectedMonth} onValueChange={handleMonthChange}>
         <SelectTrigger className="w-[150px] bg-white">
           <SelectValue placeholder="Pilih Bulan" />
         </SelectTrigger>
