@@ -338,27 +338,14 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async(c) => {
 })
 
 transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
-    const zodParseResult = VerifyTransactionAcceptSchema.parse(c.req.query());
+    const body = await c.req.formData();
+    const data = Object.fromEntries(body.entries());
+    const zodParseResult = VerifyTransactionAcceptSchema.parse(data);
     const { otaId, mahasiswaId } = zodParseResult
 
     try{
         const result = await db.transaction(async(tx) => {
-            await tx
-              .update(transactionTable)
-                .set(
-                    { 
-                        transactionStatus: "paid",
-                        transactionReceipt: null
-                    }
-                )
-                .where(
-                    and(
-                        eq(transactionTable.mahasiswaId, mahasiswaId),
-                        eq(transactionTable.otaId, otaId)
-                    )
-                )
-
-            // Get the updated bill (amount paid)
+          // Get the updated bill (amount paid)
             const billRow = await tx
               .select({ bill: transactionTable.bill })
               .from(transactionTable)
@@ -370,13 +357,29 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
               )
               .limit(1);
 
-            return billRow[0]?.bill ?? 0; // fallback to 0 if not found
+            await tx
+              .update(transactionTable)
+                .set(
+                    { 
+                        transactionStatus: "paid",
+                        transactionReceipt: "",
+                        amountPaid: billRow[0]?.bill ?? 0 // fallback to 0 if not found
+                    }
+                )
+                .where(
+                    and(
+                        eq(transactionTable.mahasiswaId, mahasiswaId),
+                        eq(transactionTable.otaId, otaId)
+                    )
+                )
+
+            return billRow[0]?.bill ?? 0;
         });
 
         return c.json(
             {
               success: true,
-              message: "Berhasil melakukan upload bukti pembayaran dari OTA.",
+              message: "Berhasil melakukan penerimaan verifikasi pembayaran",
               body: {
                 mahasiswaId: mahasiswaId,
                 otaId: otaId,
@@ -391,7 +394,7 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
           {
             success: false,
             message: "Internal server error",
-            error: {},
+            error: error,
           },
           500,
         );
@@ -399,7 +402,9 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
 })
 
 transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async(c) => {
-    const zodParseResult = VerifyTransactionRejectSchema.parse(c.req.query());
+    const body = await c.req.formData();
+    const data = Object.fromEntries(body.entries());
+    const zodParseResult = VerifyTransactionRejectSchema.parse(data);
     const { otaId, mahasiswaId, amountPaid } = zodParseResult
 
     try{
@@ -408,8 +413,9 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async(c) => {
               .update(transactionTable)
                 .set(
                     { 
-                        transactionStatus: "paid",
-                        transactionReceipt: null
+                        transactionStatus: "pending",
+                        transactionReceipt: "",
+                        amountPaid: amountPaid
                     }
                 )
                 .where(
@@ -423,7 +429,7 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async(c) => {
         return c.json(
             {
               success: true,
-              message: "Berhasil melakukan upload bukti pembayaran dari OTA.",
+              message: "Berhasil melakukan penolakan verifikasi pembayaran",
               body: {
                 mahasiswaId: mahasiswaId,
                 otaId: otaId,
