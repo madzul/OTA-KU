@@ -15,6 +15,7 @@ import { ProfileService } from './services/ProfileService';
 import { PushSubscriptionService } from './services/PushSubscriptionService';
 import { StatusService } from './services/StatusService';
 import { TerminateService } from './services/TerminateService';
+import { TransactionService } from './services/TransactionService';
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
 export class ApiClient {
   public readonly auth: AuthService;
@@ -27,6 +28,7 @@ export class ApiClient {
   public readonly pushSubscription: PushSubscriptionService;
   public readonly status: StatusService;
   public readonly terminate: TerminateService;
+  public readonly transaction: TransactionService;
   public readonly request: BaseHttpRequest;
   constructor(config?: Partial<OpenAPIConfig>, HttpRequest: HttpRequestConstructor = FetchHttpRequest) {
     this.request = new HttpRequest({
@@ -50,6 +52,7 @@ export class ApiClient {
     this.pushSubscription = new PushSubscriptionService(this.request);
     this.status = new StatusService(this.request);
     this.terminate = new TerminateService(this.request);
+    this.transaction = new TransactionService(this.request);
   }
 }
 

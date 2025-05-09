@@ -1,6 +1,10 @@
 import Metadata from "@/components/metadata";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
+import { DaftarTagihanPage } from "./-components/DaftarTagihan";
+
+// Create a client
+
 export const Route = createFileRoute("/_app/daftar-tagihan/")({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
@@ -20,9 +24,9 @@ export const Route = createFileRoute("/_app/daftar-tagihan/")({
 
 function RouteComponent() {
   return (
-    <main>
+    <main className="flex min-h-[calc(100vh-70px)] flex-col gap-4 p-2 px-6 py-16 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <Metadata title="Daftar Tagihan | BOTA" />
-      Hello "/_app/daftar-tagihan/"! Halaman ini hanya bisa diakses oleh admin
+      <DaftarTagihanPage />
     </main>
   );
 }
