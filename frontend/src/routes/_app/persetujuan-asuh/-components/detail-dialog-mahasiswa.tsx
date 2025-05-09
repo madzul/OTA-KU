@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SessionContext } from "@/context/session";
 import { formatValue } from "@/lib/formatter";
-import { mahasiswaColumns } from "@/routes/_app/verifikasi-akun/-components/constant";
+import { linkColumns, mahasiswaColumns } from "@/routes/_app/verifikasi-akun/-components/constant";
 import { useQuery } from "@tanstack/react-query";
 import { useContext, useState } from "react";
 
@@ -45,12 +45,28 @@ function DetailDialogMahasiswa({ id }: { id: string }) {
               key={key}
             >
               <p className="font-bold">{value}</p>
-              <p className="line-clamp-1 text-[#003A6E] sm:line-clamp-none">
-                {formatValue(
-                  key,
-                  data?.body[key as keyof typeof data.body] ?? "-"
-                )}
-              </p>
+              {linkColumns.includes(key) ? (
+                <Button
+                  asChild
+                  className="place-self-start"
+                  variant={"outline"}
+                >
+                  <a
+                    href={data?.body[key as keyof typeof data.body] ?? "#"}
+                    rel="noreferrer"
+                    target="_blank"
+                  >
+                    Unduh
+                  </a>
+                </Button>
+              ) : (
+                <p className="line-clamp-1 text-[#003A6E] sm:line-clamp-none">
+                  {formatValue(
+                    key,
+                    data?.body[key as keyof typeof data.body] ?? "-"
+                  )}
+                </p>
+              )}
             </div>
           ))}
         </div>
