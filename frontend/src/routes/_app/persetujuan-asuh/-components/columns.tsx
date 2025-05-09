@@ -7,16 +7,17 @@ import DetailDialogMahasiswa from "./detail-dialog-mahasiswa";
 import DetailDialogOta from "./detail-dialog-ota";
 
 export type PersetujuanAsuhColumn = {
-  id: string;
+  mahasiswaId: string;
   mahasiswaName: string;
   nim: string;
+  otaId: string;
   otaName: string;
   phoneNumber: string;
 };
 
 export const persetujuanAsuhColumns: ColumnDef<PersetujuanAsuhColumn>[] = [
   {
-    accessorKey: "idMahasiswa",
+    accessorKey: "mahasiswaId",
     header: "ID Mahasiswa",
   },
   {
@@ -59,12 +60,12 @@ export const persetujuanAsuhColumns: ColumnDef<PersetujuanAsuhColumn>[] = [
     accessorKey: "detailMahasiswa",
     header: "Detail Mahasiswa",
     cell: ({ row }) => {
-      const id = row.getValue("idMahasiswa") as string;
+      const id = row.getValue("mahasiswaId") as string;
       return <DetailDialogMahasiswa id={id} />;
     },
   },
   {
-    accessorKey: "idOta",
+    accessorKey: "otaId",
     header: "ID OTA",
   }, 
   {
@@ -107,7 +108,7 @@ export const persetujuanAsuhColumns: ColumnDef<PersetujuanAsuhColumn>[] = [
     accessorKey: "detailOta",
     header: "Detail OTA",
     cell: ({ row }) => {
-      const id = row.getValue("idOta") as string;
+      const id = row.getValue("otaId") as string;
       return <DetailDialogOta id={id} />;
     },
   },
@@ -115,7 +116,7 @@ export const persetujuanAsuhColumns: ColumnDef<PersetujuanAsuhColumn>[] = [
     accessorKey: "aksi",
     header: "Aksi",
     cell: ({ row }) => {
-      // TODO: Nanti sesuain ganti atau tambahin id nya yang diperlukan (kayaknya sih idMahasiswa dan idOta)
+      // TODO: Nanti sesuain ganti atau tambahin id nya yang diperlukan (kayaknya sih mahasiswaId dan otaId)
       const id = row.getValue("id") as string;
       return <ConfirmationDialog id={id} />;
     },

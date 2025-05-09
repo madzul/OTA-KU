@@ -39,8 +39,8 @@ import {
     });
   
     useEffect(() => {
-      table.getColumn("idMahasiswa")?.toggleVisibility(false);
-      table.getColumn("idOta")?.toggleVisibility(false);
+      table.getColumn("mahasiswaId")?.toggleVisibility(false);
+      table.getColumn("otaId")?.toggleVisibility(false);
     }, [table]);
   
     return (
