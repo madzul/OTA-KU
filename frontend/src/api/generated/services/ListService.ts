@@ -321,4 +321,44 @@ export class ListService {
       },
     });
   }
+  /**
+   * List orang tua asuh yang tersedia untuk dipilih admin
+   * @returns any Berhasil mendapatkan daftar OTA yang tersedia
+   * @throws ApiError
+   */
+  public listAvailableOta({
+    q,
+    page,
+  }: {
+    q?: string,
+    page?: number | null,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        accountId: string;
+        name: string;
+        /**
+         * Nomor telepon pengguna yang dimulai dengan 62.
+         */
+        phoneNumber: string;
+        nominal: number;
+      }>;
+      totalData: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/list/admin/ota/available',
+      query: {
+        'q': q,
+        'page': page,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
 }
