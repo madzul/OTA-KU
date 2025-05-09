@@ -361,106 +361,116 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   }
 });
 
-transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
-  const zodParseResult = VerifyTransactionAcceptSchema.parse(c.req.query());
-  const { otaId, mahasiswaId } = zodParseResult;
+transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
+    const body = await c.req.formData();
+    const data = Object.fromEntries(body.entries());
+    const zodParseResult = VerifyTransactionAcceptSchema.parse(data);
+    const { otaId, mahasiswaId } = zodParseResult
 
-  try {
-    const result = await db.transaction(async (tx) => {
-      await tx
-        .update(transactionTable)
-        .set({
-          transactionStatus: "paid",
-          transactionReceipt: null,
-        })
-        .where(
-          and(
-            eq(transactionTable.mahasiswaId, mahasiswaId),
-            eq(transactionTable.otaId, otaId),
-          ),
+    try{
+        const result = await db.transaction(async(tx) => {
+          // Get the updated bill (amount paid)
+            const billRow = await tx
+              .select({ bill: transactionTable.bill })
+              .from(transactionTable)
+              .where(
+                  and(
+                      eq(transactionTable.mahasiswaId, mahasiswaId),
+                      eq(transactionTable.otaId, otaId)
+                  )
+              )
+              .limit(1);
+
+            await tx
+              .update(transactionTable)
+                .set(
+                    { 
+                        transactionStatus: "paid",
+                        transactionReceipt: "",
+                        amountPaid: billRow[0]?.bill ?? 0 // fallback to 0 if not found
+                    }
+                )
+                .where(
+                    and(
+                        eq(transactionTable.mahasiswaId, mahasiswaId),
+                        eq(transactionTable.otaId, otaId)
+                    )
+                )
+
+            return billRow[0]?.bill ?? 0;
+        });
+
+        return c.json(
+            {
+              success: true,
+              message: "Berhasil melakukan penerimaan verifikasi pembayaran",
+              body: {
+                mahasiswaId: mahasiswaId,
+                otaId: otaId,
+                amountPaid: result
+              },
+            },
+            200
         );
-
-      // Get the updated bill (amount paid)
-      const billRow = await tx
-        .select({ bill: transactionTable.bill })
-        .from(transactionTable)
-        .where(
-          and(
-            eq(transactionTable.mahasiswaId, mahasiswaId),
-            eq(transactionTable.otaId, otaId),
-          ),
-        )
-        .limit(1);
-
-      return billRow[0]?.bill ?? 0; // fallback to 0 if not found
-    });
-
-    return c.json(
-      {
-        success: true,
-        message: "Berhasil melakukan upload bukti pembayaran dari OTA.",
-        body: {
-          mahasiswaId: mahasiswaId,
-          otaId: otaId,
-          amountPaid: result,
-        },
-      },
-      200,
-    );
-  } catch (error) {
-    console.error(error);
-    return c.json(
-      {
-        success: false,
-        message: "Internal server error",
-        error: {},
-      },
-      500,
-    );
-  }
-});
-
-transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
-  const zodParseResult = VerifyTransactionRejectSchema.parse(c.req.query());
-  const { otaId, mahasiswaId, amountPaid } = zodParseResult;
-
-  try {
-    await db.transaction(async (tx) => {
-      await tx
-        .update(transactionTable)
-        .set({
-          transactionStatus: "paid",
-          transactionReceipt: null,
-        })
-        .where(
-          and(
-            eq(transactionTable.mahasiswaId, mahasiswaId),
-            eq(transactionTable.otaId, otaId),
-          ),
+    } catch (error) {
+        console.error(error);
+        return c.json(
+          {
+            success: false,
+            message: "Internal server error",
+            error: error,
+          },
+          500,
         );
-    });
+    }
+})
 
-    return c.json(
-      {
-        success: true,
-        message: "Berhasil melakukan upload bukti pembayaran dari OTA.",
-        body: {
-          mahasiswaId: mahasiswaId,
-          otaId: otaId,
-          amountPaid: amountPaid,
-        },
-      },
-      200,
-    );
-  } catch (error) {
-    console.error(error);
-    return c.json(
-      {
-        success: false,
-        message: "Internal server error",
-        error: {},
-      },
-      500,
-    );
-  }
-});
+transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async(c) => {
+    const body = await c.req.formData();
+    const data = Object.fromEntries(body.entries());
+    const zodParseResult = VerifyTransactionRejectSchema.parse(data);
+    const { otaId, mahasiswaId, amountPaid } = zodParseResult
+
+    try{
+        await db.transaction(async(tx) => {
+            await tx
+              .update(transactionTable)
+                .set(
+                    { 
+                        transactionStatus: "pending",
+                        transactionReceipt: "",
+                        amountPaid: amountPaid
+                    }
+                )
+                .where(
+                    and(
+                        eq(transactionTable.mahasiswaId, mahasiswaId),
+                        eq(transactionTable.otaId, otaId)
+                    )
+                )
+        });
+
+        return c.json(
+            {
+              success: true,
+              message: "Berhasil melakukan penolakan verifikasi pembayaran",
+              body: {
+                mahasiswaId: mahasiswaId,
+                otaId: otaId,
+                amountPaid: amountPaid
+              },
+            },
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        return c.json(
+          {
+            success: false,
+            message: "Internal server error",
+            error: {},
+          },
+          500,
+        );
+    }
+})
