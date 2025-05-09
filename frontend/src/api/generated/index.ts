@@ -28,3 +28,4 @@ export { ProfileService } from './services/ProfileService';
 export { PushSubscriptionService } from './services/PushSubscriptionService';
 export { StatusService } from './services/StatusService';
 export { TerminateService } from './services/TerminateService';
+export { TransactionService } from './services/TransactionService';

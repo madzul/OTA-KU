@@ -51,4 +51,114 @@ export class ConnectService {
       },
     });
   }
+  /**
+   * Melakukan penerimaan verifikasi connection oleh admin
+   * @returns any Berhasil melakukan penerimaan verifikasi connection oleh admin
+   * @throws ApiError
+   */
+  public verifyConnectionAccept({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/connect/verify-connect-acc',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Melakukan penolakan verifikasi connection oleh admin
+   * @returns any Berhasil melakukan penolakan verifikasi connection oleh admin
+   * @throws ApiError
+   */
+  public verifyConnectionReject({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/connect/verify-connect-reject',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * List seluruh connection yang ada beserta detailnya
+   * @returns any Daftar connection berhasil diambil
+   * @throws ApiError
+   */
+  public listConnection({
+    q,
+    page,
+  }: {
+    q?: string,
+    page?: number | null,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        /**
+         * ID mahasiswa asuh
+         */
+        mahasiswa_id: string;
+        name_ma: string;
+        nim_ma: string;
+        /**
+         * ID orang tua asuh
+         */
+        ota_id: string;
+        name_ota: string;
+        number_ota: string;
+      }>;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/connect/daftar-connection',
+      query: {
+        'q': q,
+        'page': page,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
 }
