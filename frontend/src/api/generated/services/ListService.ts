@@ -27,7 +27,7 @@ export class ListService {
         type: 'mahasiswa' | 'admin' | 'ota';
         phoneNumber: string;
         provider: 'credentials' | 'azure';
-        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered';
+        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
         name: string;
         nim: string;
         mahasiswaStatus: 'active' | 'inactive';
@@ -37,6 +37,9 @@ export class ListService {
         faculty: string;
         cityOfOrigin: string;
         highschoolAlumni: string;
+        religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+        gender: 'M' | 'F';
+        gpa: string;
         kk: string;
         ktm: string;
         waliRecommendationLetter: string;
@@ -89,7 +92,7 @@ export class ListService {
         type: 'mahasiswa' | 'admin' | 'ota';
         phoneNumber: string;
         provider: 'credentials' | 'azure';
-        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered';
+        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
         name: string;
         nim: string;
         mahasiswaStatus: 'active' | 'inactive';
@@ -99,6 +102,9 @@ export class ListService {
         faculty: string;
         cityOfOrigin: string;
         highschoolAlumni: string;
+        religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+        gender: 'M' | 'F';
+        gpa: string;
         kk: string;
         ktm: string;
         waliRecommendationLetter: string;
@@ -156,7 +162,7 @@ export class ListService {
         phoneNumber: string;
         provider: 'credentials' | 'azure';
         status: 'verified' | 'unverified';
-        applicationStatus: 'accepted' | 'rejected' | 'pending' | 'unregistered';
+        applicationStatus: 'accepted' | 'rejected' | 'pending' | 'unregistered' | 'reapply' | 'outdated';
         job: string;
         address: string;
         linkage: 'otm' | 'dosen' | 'alumni' | 'lainnya' | 'none';
@@ -166,6 +172,7 @@ export class ListService {
         maxSemester: number | null;
         transferDate: number | null;
         criteria: string;
+        allowAdminSelection: boolean;
       }>;
       totalPagination: number;
       totalData: number;
@@ -304,6 +311,46 @@ export class ListService {
     return this.httpRequest.request({
       method: 'GET',
       url: '/api/list/orang-tua/mahasiswa-asuh-pending',
+      query: {
+        'q': q,
+        'page': page,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * List orang tua asuh yang tersedia untuk dipilih admin
+   * @returns any Berhasil mendapatkan daftar OTA yang tersedia
+   * @throws ApiError
+   */
+  public listAvailableOta({
+    q,
+    page,
+  }: {
+    q?: string,
+    page?: number | null,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        accountId: string;
+        name: string;
+        /**
+         * Nomor telepon pengguna yang dimulai dengan 62.
+         */
+        phoneNumber: string;
+        nominal: number;
+      }>;
+      totalData: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/list/admin/ota/available',
       query: {
         'q': q,
         'page': page,

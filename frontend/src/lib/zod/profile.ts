@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { NIMSchema, PDFSchema, PhoneNumberSchema } from "./atomic";
+import { NIMSchema, PDFSchema, ProfilePDFSchema, PhoneNumberSchema } from "./atomic";
 
 export const MahasiswaRegistrationFormSchema = z.object({
   name: z
@@ -12,8 +12,8 @@ export const MahasiswaRegistrationFormSchema = z.object({
     .max(255, { message: "Nama terlalu panjang" }),
   phoneNumber: PhoneNumberSchema,
   nim: NIMSchema,
-  major: z
-    .enum([
+  major: z.enum(
+    [
       "Matematika",
       "Fisika",
       "Astronomi",
@@ -66,12 +66,14 @@ export const MahasiswaRegistrationFormSchema = z.object({
       "Manajemen",
       "Kewirausahaan",
       "TPB",
-    ], {
+    ],
+    {
       required_error: "Jurusan harus dipilih",
       invalid_type_error: "Jurusan tidak valid",
-    }),
-  faculty: z
-    .enum([
+    },
+  ),
+  faculty: z.enum(
+    [
       "FMIPA",
       "SITH-S",
       "SF",
@@ -86,18 +88,47 @@ export const MahasiswaRegistrationFormSchema = z.object({
       "SBM",
       "SITH-R",
       "SAPPK",
-    ], {
+    ],
+    {
       required_error: "Fakultas harus dipilih",
       invalid_type_error: "Fakultas tidak valid",
-    }),
+    },
+  ),
   cityOfOrigin: z
-    .string()
+    .string({
+      required_error: "Asal kota harus diisi",
+      invalid_type_error: "Asal kota harus berupa string",
+    })
     .min(1, "Asal kota harus diisi")
     .max(255),
   highschoolAlumni: z
-    .string()
+    .string({
+      required_error: "Asal sekolah harus diisi",
+      invalid_type_error: "Asal sekolah harus berupa string",
+    })
     .min(1, "Asal sekolah harus diisi")
     .max(255),
+  religion: z.enum(
+    ["Islam", "Kristen Protestan", "Katolik", "Hindu", "Buddha", "Konghucu"],
+    {
+      required_error: "Agama harus dipilih",
+      invalid_type_error: "Agama tidak valid",
+    },
+  ),
+  gender: z.enum(["M", "F"], {
+    required_error: "Jenis kelamin harus dipilih",
+    invalid_type_error: "Jenis kelamin tidak valid",
+  }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" }),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",
@@ -113,6 +144,150 @@ export const MahasiswaRegistrationFormSchema = z.object({
   pbb: PDFSchema,
   electricityBill: PDFSchema,
   ditmawaRecommendationLetter: PDFSchema,
+});
+
+export const MahasiswaProfileFormSchema = z.object({
+  name: z
+    .string({
+      invalid_type_error: "Nama harus berupa string",
+      required_error: "Nama harus diisi",
+    })
+    .min(3, { message: "Nama terlalu pendek" })
+    .max(255, { message: "Nama terlalu panjang" }),
+  phoneNumber: PhoneNumberSchema,
+  nim: NIMSchema,
+  major: z.enum(
+    [
+      "Matematika",
+      "Fisika",
+      "Astronomi",
+      "Mikrobiologi",
+      "Kimia",
+      "Biologi",
+      "Sains dan Teknologi Farmasi",
+      "Aktuaria",
+      "Rekayasa Hayati",
+      "Rekayasa Pertanian",
+      "Rekayasa Kehutanan",
+      "Farmasi Klinik dan Komunitas",
+      "Teknologi Pasca Panen",
+      "Teknik Geologi",
+      "Teknik Pertambangan",
+      "Teknik Perminyakan",
+      "Teknik Geofisika",
+      "Teknik Metalurgi",
+      "Meteorologi",
+      "Oseanografi",
+      "Teknik Kimia",
+      "Teknik Mesin",
+      "Teknik Elektro",
+      "Teknik Fisika",
+      "Teknik Industri",
+      "Teknik Informatika",
+      "Aeronotika dan Astronotika",
+      "Teknik Material",
+      "Teknik Pangan",
+      "Manajemen Rekayasa Industri",
+      "Teknik Bioenergi dan Kemurgi",
+      "Teknik Sipil",
+      "Teknik Geodesi dan Geomatika",
+      "Arsitektur",
+      "Teknik Lingkungan",
+      "Perencanaan Wilayah dan Kota",
+      "Teknik Kelautan",
+      "Rekayasa Infrastruktur Lingkungan",
+      "Teknik dan Pengelolaan Sumber Daya Air",
+      "Seni Rupa",
+      "Desain",
+      "Kriya",
+      "Desain Interior",
+      "Desain Komunikasi Visual",
+      "Desain Produk",
+      "Teknik Tenaga Listrik",
+      "Teknik Telekomunikasi",
+      "Sistem Teknologi dan Informasi",
+      "Teknik Biomedis",
+      "Manajemen",
+      "Kewirausahaan",
+      "TPB",
+    ],
+    {
+      required_error: "Jurusan harus dipilih",
+      invalid_type_error: "Jurusan tidak valid",
+    },
+  ),
+  faculty: z.enum(
+    [
+      "FMIPA",
+      "SITH-S",
+      "SF",
+      "FITB",
+      "FTTM",
+      "STEI-R",
+      "FTSL",
+      "FTI",
+      "FSRD",
+      "FTMD",
+      "STEI-K",
+      "SBM",
+      "SITH-R",
+      "SAPPK",
+    ],
+    {
+      required_error: "Fakultas harus dipilih",
+      invalid_type_error: "Fakultas tidak valid",
+    },
+  ),
+  cityOfOrigin: z
+    .string({
+      required_error: "Asal kota harus diisi",
+      invalid_type_error: "Asal kota harus berupa string",
+    })
+    .min(1, "Asal kota harus diisi")
+    .max(255),
+  highschoolAlumni: z
+    .string({
+      required_error: "Asal sekolah harus diisi",
+      invalid_type_error: "Asal sekolah harus berupa string",
+    })
+    .min(1, "Asal sekolah harus diisi")
+    .max(255),
+  religion: z.enum(
+    ["Islam", "Kristen Protestan", "Katolik", "Hindu", "Buddha", "Konghucu"],
+    {
+      required_error: "Agama harus dipilih",
+      invalid_type_error: "Agama tidak valid",
+    },
+  ),
+  gender: z.enum(["M", "F"], {
+    required_error: "Jenis kelamin harus dipilih",
+    invalid_type_error: "Jenis kelamin tidak valid",
+  }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" }),
+  description: z
+    .string({
+      required_error: "Deskripsi harus diisi",
+      invalid_type_error: "Deskripsi harus berupa string",
+    })
+    .min(3, { message: "Deskripsi terlalu pendek" }),
+  file: ProfilePDFSchema.optional(),
+  kk: ProfilePDFSchema.optional(),
+  ktm: ProfilePDFSchema.optional(),
+  waliRecommendationLetter: ProfilePDFSchema.optional(),
+  transcript: ProfilePDFSchema.optional(),
+  salaryReport: ProfilePDFSchema.optional(),
+  pbb: ProfilePDFSchema.optional(),
+  electricityBill: ProfilePDFSchema.optional(),
+  ditmawaRecommendationLetter: ProfilePDFSchema.optional(),
 });
 
 export const OrangTuaPageOneSchema = z.object({
@@ -211,14 +386,7 @@ export const OrangTuaPageTwoSchema = z.object({
     .max(28, {
       message: "Tanggal transfer tidak valid",
     }),
-  criteria: z
-    .string({
-      invalid_type_error: "Kriteria harus berupa string",
-      required_error: "Kriteria harus diisi",
-    })
-    .min(3, {
-      message: "Kriteria terlalu pendek",
-    }),
+  criteria: z.string().optional(),
   checked: z
     .boolean({
       invalid_type_error: "Checked harus berupa boolean",
@@ -229,6 +397,7 @@ export const OrangTuaPageTwoSchema = z.object({
       message: "Harus diisi",
       path: ["checked"],
     }),
+  allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
 
 export const OrangTuaRegistrationSchema = z.object({

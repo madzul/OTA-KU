@@ -25,6 +25,10 @@ export function formatApplicationStatus(status: string): string {
       return "Tertolak";
     case "unregistered":
       return "Belum Terdaftar";
+    case "reapply":
+      return "Daftar Ulang";
+    case "outdated":
+      return "Kadaluarsa";
     default:
       return status;
   }
@@ -83,7 +87,31 @@ export function formatStartDate(date: string): string {
   return dateObj.toLocaleDateString("id-ID", options);
 }
 
-export function formatValue(key: string, val: string | number): string {
+export function formatGender(gender: "M" | "F"): string {
+  switch (gender) {
+    case "M":
+      return "Laki-Laki";
+    case "F":
+      return "Perempuan";
+    default:
+      return "Tidak Diketahui";
+  }
+}
+
+export function formatAllowedAdminSelection(
+  allowedAdminSelection: boolean,
+): string {
+  return allowedAdminSelection ? "Bersedia" : "Tidak Bersedia";
+}
+
+export function formatSemester(semester: number): string {
+  return `${semester} semester`;
+}
+
+export function formatValue(
+  key: string,
+  val: string | number | boolean,
+): string {
   switch (key) {
     case "type":
       return formatRole(String(val));
@@ -91,8 +119,6 @@ export function formatValue(key: string, val: string | number): string {
       return formatPhoneNumber(String(val));
     case "provider":
       return formatProvieder(String(val));
-    case "applicationStatus":
-      return formatApplicationStatus(String(val));
     case "mahasiswaStatus":
       return formatMahasiswaStatus(String(val));
     case "linkage":
@@ -101,6 +127,12 @@ export function formatValue(key: string, val: string | number): string {
       return formatFunding(Number(val));
     case "startDate":
       return formatStartDate(String(val));
+    case "gender":
+      return formatGender(String(val) as "M" | "F");
+    case "allowedAdminSelection":
+      return formatAllowedAdminSelection(Boolean(val));
+    case "maxSemester":
+      return formatSemester(Number(val));
     default:
       return String(val);
   }

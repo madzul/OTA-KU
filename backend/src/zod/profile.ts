@@ -7,9 +7,14 @@ import {
   PDFSchema,
   PhoneNumberSchema,
   cloudinaryUrlSchema,
+  ProfilePDFSchema
 } from "./atomic.js";
 
 // Mahasiswa Registration
+export const MahasiswaRegistrationParams = z.object({
+  id: z.string().openapi({ description: "ID akun" }),
+});
+
 export const MahasiswaRegistrationSchema = z.object({
   name: z
     .string({
@@ -45,6 +50,30 @@ export const MahasiswaRegistrationSchema = z.object({
     .min(1, "Asal sekolah harus diisi")
     .max(255)
     .openapi({ example: "SMA Negeri 1 Bandung", description: "Asal SMA" }),
+  religion: z
+    .enum([
+      "Islam",
+      "Kristen Protestan",
+      "Katolik",
+      "Hindu",
+      "Buddha",
+      "Konghucu",
+    ])
+    .openapi({
+      example: "Islam",
+    }),
+  gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" })
+    .openapi({ example: 3.5, description: "IPK mahasiswa" }),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",
@@ -99,6 +128,30 @@ export const MahasiswaRegistrationFormSchema = z.object({
     .min(1, "Asal sekolah harus diisi")
     .max(255)
     .openapi({ example: "SMA Negeri 1 Bandung", description: "Asal SMA" }),
+  religion: z
+    .enum([
+      "Islam",
+      "Kristen Protestan",
+      "Katolik",
+      "Hindu",
+      "Buddha",
+      "Konghucu",
+    ])
+    .openapi({
+      example: "Islam",
+    }),
+  gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" })
+    .openapi({ example: 3.5, description: "IPK mahasiswa" }),
   description: z
     .string({
       required_error: "Deskripsi harus diisi",
@@ -121,6 +174,92 @@ export const MahasiswaRegistrationFormSchema = z.object({
   }),
 });
 
+export const MahasiswaProfileFormSchema = z.object({
+  name: z
+    .string({
+      invalid_type_error: "Nama harus berupa string",
+      required_error: "Nama harus diisi",
+    })
+    .min(3, { message: "Nama terlalu pendek" })
+    .max(255, { message: "Nama terlalu panjang" })
+    .openapi({ example: "John Doe", description: "Nama mahasiswa" }),
+  phoneNumber: PhoneNumberSchema,
+  nim: NIMSchema,
+  major: z
+    .enum(jurusanEnum.enumValues, {
+      required_error: "Jurusan harus dipilih",
+      invalid_type_error: "Jurusan tidak valid",
+    })
+    .openapi({
+      example: "Teknik Informatika",
+      description: "Jurusan mahasiswa",
+    }),
+  faculty: z
+    .enum(fakultasEnum.enumValues, {
+      required_error: "Fakultas harus dipilih",
+      invalid_type_error: "Fakultas tidak valid",
+    })
+    .openapi({ example: "STEI-R", description: "Fakultas mahasiswa" }),
+  cityOfOrigin: z
+    .string()
+    .min(1, "Asal kota harus diisi")
+    .max(255)
+    .openapi({ example: "Bandung", description: "Kota asal mahasiswa" }),
+  highschoolAlumni: z
+    .string()
+    .min(1, "Asal sekolah harus diisi")
+    .max(255)
+    .openapi({ example: "SMA Negeri 1 Bandung", description: "Asal SMA" }),
+  religion: z
+    .enum([
+      "Islam",
+      "Kristen Protestan",
+      "Katolik",
+      "Hindu",
+      "Buddha",
+      "Konghucu",
+    ])
+    .openapi({
+      example: "Islam",
+    }),
+  gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+  gpa: z.coerce
+    .number({
+      invalid_type_error: "IPK harus berupa angka",
+      required_error: "IPK harus diisi",
+      message: "IPK harus berupa angka",
+    })
+    .nonnegative({
+      message: "IPK tidak boleh negatif",
+    })
+    .max(4, { message: "IPK tidak valid" })
+    .openapi({ example: 3.5, description: "IPK mahasiswa" }),
+  description: z
+    .string({
+      required_error: "Deskripsi harus diisi",
+      invalid_type_error: "Deskripsi harus berupa string",
+    })
+    .min(3, { message: "Deskripsi terlalu pendek" })
+    .openapi({ example: "Mahasiswa baru", description: "Deskripsi mahasiswa" }),
+  file: ProfilePDFSchema.openapi({ description: "File Essay Mahasiswa" }).optional(),
+  kk: ProfilePDFSchema.openapi({ description: "Kartu Keluarga" }).optional(),
+  ktm: ProfilePDFSchema.openapi({ description: "Kartu Tanda Mahasiswa" }).optional(),
+  waliRecommendationLetter: ProfilePDFSchema.openapi({
+    description: "Surat Rekomendasi Wali",
+  }).optional(),
+  transcript: ProfilePDFSchema.openapi({ description: "Transkrip Nilai" }).optional(),
+  salaryReport: ProfilePDFSchema.openapi({
+    description: "Slip Gaji Orang Tua",
+  }).optional(),
+  pbb: ProfilePDFSchema.openapi({ description: "Bukti Pembayaran PBB" }).optional(),
+  electricityBill: ProfilePDFSchema.openapi({
+    description: "Tagihan Listrik",
+  }).optional(),
+  ditmawaRecommendationLetter: ProfilePDFSchema.openapi({
+    description: "Surat Rekomendasi Ditmawa",
+  }).optional(),
+});
+
 export const MahasiswaRegistrationSuccessfulResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mendaftar" }),
@@ -139,7 +278,17 @@ export const MahasiswaUnverifiedResponse = z.object({
   error: z.object({}),
 });
 
+export const MahasiswaNotFoundResponse = z.object({
+  success: z.boolean().openapi({ example: false }),
+  message: z.string().openapi({ example: "Mahasiswa tidak ditemukan" }),
+  error: z.object({}),
+});
+
 // Orang Tua Registration
+export const OrangTuaRegistrationParams = z.object({
+  id: z.string().openapi({ description: "ID akun" }),
+});
+
 export const OrangTuaRegistrationSchema = z.object({
   name: z
     .string({
@@ -182,6 +331,7 @@ export const OrangTuaRegistrationSchema = z.object({
     description: "Hubungan dengan mahasiswa",
   }),
   funds: z.coerce
+    //TODO: gimana caranya biar ini facilitate integer values only tapi ga float
     .number({
       invalid_type_error: "Dana harus berupa angka",
       required_error: "Dana harus diisi",
@@ -245,14 +395,18 @@ export const OrangTuaRegistrationSchema = z.object({
     })
     .openapi({ example: 1, description: "Tanggal transfer" }),
   criteria: z
-    .string({
-      invalid_type_error: "Kriteria harus berupa string",
-      required_error: "Kriteria harus diisi",
+    .string()
+    .optional()
+    .openapi({ example: "Mahasiswa dari daerah Indonesia Timur" }),
+  allowAdminSelection: z
+    .enum(["true", "false"], {
+      required_error: "Checkbox harus diisi",
+      invalid_type_error: "Checkbox tidak valid",
     })
-    .min(3, {
-      message: "Kriteria terlalu pendek",
-    })
-    .openapi({ example: "Kriteria orang tua" }),
+    .default("false")
+    .openapi({
+      example: "true",
+    }),
 });
 
 export const OrangTuaRegistrationSuccessfulResponse = z.object({
@@ -273,6 +427,12 @@ export const OrangTuaUnverifiedResponse = z.object({
   error: z.object({}),
 });
 
+export const OrangTuaNotFoundResponse = z.object({
+  success: z.boolean().openapi({ example: false }),
+  message: z.string().openapi({ example: "Orang tua tidak ditemukan" }),
+  error: z.object({}),
+});
+
 export const ProfileOrangTuaResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mengakses profil OTA" }),
@@ -281,6 +441,29 @@ export const ProfileOrangTuaResponse = z.object({
     email: EmailSchema,
     phone_number: PhoneNumberSchema,
     join_date: z.string().openapi({ example: "March 2025" }),
+    job: z.string().optional().openapi({ example: "Dokter" }),
+    address: z
+      .string()
+      .optional()
+      .openapi({ example: "Jl. Ganesha No. 10, Bandung" }),
+    linkage: z.string().optional().openapi({ example: "alumni" }),
+    funds: z.number().optional().openapi({ example: 500000 }),
+    maxCapacity: z.number().optional().openapi({ example: 2 }),
+    startDate: z.string().optional().openapi({ example: "2025-01-01" }),
+    maxSemester: z.number().optional().openapi({ example: 8 }),
+    transferDate: z.number().optional().openapi({ example: 10 }),
+    criteria: z
+      .string()
+      .optional()
+      .openapi({ example: "Mahasiswa dari daerah Indonesia Timur" }),
+    allowAdminSelection: z
+      .boolean({
+        required_error: "Checkbox harus diisi",
+      })
+      .optional()
+      .openapi({
+        example: true,
+      }),
   }),
 });
 
@@ -292,6 +475,66 @@ export const ProfileMahasiswaResponse = z.object({
     name: z.string().openapi({ example: "Alex Kurniawan" }),
     email: EmailSchema,
     phone_number: PhoneNumberSchema,
+    nim: z.string().optional().openapi({ example: "13520001" }),
+    major: z.string().optional().openapi({ example: "Teknik Informatika" }),
+    faculty: z.string().optional().openapi({ example: "STEI-K" }),
+    cityOfOrigin: z.string().optional().openapi({ example: "Bandung" }),
+    highschoolAlumni: z
+      .string()
+      .optional()
+      .openapi({ example: "SMAN 3 Bandung" }),
+    religion: z
+      .enum([
+        "Islam",
+        "Kristen Protestan",
+        "Katolik",
+        "Hindu",
+        "Buddha",
+        "Konghucu",
+      ])
+      .openapi({
+        example: "Islam",
+      }),
+    gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+    gpa: z.number().openapi({ example: 3.5 }),
+    description: z
+      .string()
+      .optional()
+      .openapi({ example: "Membutuhkan bantuan biaya kuliah" }),
+    file: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/file.pdf" }),
+    kk: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/kk.pdf" }),
+    ktm: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/ktm.pdf" }),
+    waliRecommendationLetter: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/wali.pdf" }),
+    transcript: z.string().optional().openapi({
+      example: "https://res.cloudinary.com/example/transcript.pdf",
+    }),
+    salaryReport: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/salary.pdf" }),
+    pbb: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/pbb.pdf" }),
+    electricityBill: z.string().optional().openapi({
+      example: "https://res.cloudinary.com/example/electricity.pdf",
+    }),
+    ditmawaRecommendationLetter: z
+      .string()
+      .optional()
+      .openapi({ example: "https://res.cloudinary.com/example/ditmawa.pdf" }),
     // join_date: z.string().openapi({ example: "March 2025" })
   }),
 });

@@ -58,5 +58,3 @@ volumes:
 networks:
   app-network:
     driver: bridge
-
-# TODO: Nanti ganti semua waktu healthcheck lebih lama buat production

@@ -115,6 +115,34 @@ export class AuthService {
     });
   }
   /**
+   * Sends a password reset email to the user.
+   * @returns any Password reset email sent.
+   * @throws ApiError
+   */
+  public forgotPassword({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * The user's email.
+       */
+      email: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/auth/forgot-password',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
    * Verifies if the user is authenticated by checking the JWT.
    * @returns any Success
    * @throws ApiError

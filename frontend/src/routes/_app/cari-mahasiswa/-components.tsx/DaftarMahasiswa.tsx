@@ -1,8 +1,5 @@
 import { api } from "@/api/client";
-import { Input } from "@/components/ui/input";
-import { useQuery } from "@tanstack/react-query";
-import { LoaderCircle } from "lucide-react";
-import React, { JSX, useState, useContext } from "react";
+import { UserSchema } from "@/api/generated";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,9 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
+import { LoaderCircle } from "lucide-react";
+import React, { JSX, useState } from "react";
 import { toast } from "sonner";
-import { SessionContext } from "@/context/session";
 
 // Response data dari API
 interface MahasiswaResponse {
@@ -57,10 +57,11 @@ const mapApiDataToMahasiswa = (apiData: MahasiswaResponse[]): Mahasiswa[] => {
   }));
 };
 
-function DaftarMahasiswa(): JSX.Element {
+function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const session = useContext(SessionContext);
-  const [selectedMahasiswa, setSelectedMahasiswa] = useState<null | Mahasiswa>(null);
+  const [selectedMahasiswa, setSelectedMahasiswa] = useState<null | Mahasiswa>(
+    null,
+  );
 
   const bantuHandler = useMutation({
     mutationFn: (id: { mahasiswa: string; ota: string }) => {
@@ -169,11 +170,13 @@ function DaftarMahasiswa(): JSX.Element {
         {mahasiswaList.map((mahasiswa) => (
           <div
             key={mahasiswa.id}
-            className="border p-4 rounded-lg shadow-md bg-white"
+            className="rounded-lg border bg-white p-4 shadow-md"
           >
             <h2 className="text-lg font-bold">{mahasiswa.name}</h2>
             <p className="text-sm text-gray-600">Jurusan: {mahasiswa.major}</p>
-            <p className="text-sm text-gray-600">Fakultas: {mahasiswa.faculty}</p>
+            <p className="text-sm text-gray-600">
+              Fakultas: {mahasiswa.faculty}
+            </p>
             <p className="text-sm text-gray-600">
               Asal Kota: {mahasiswa.cityOfOrigin}
             </p>
@@ -184,11 +187,13 @@ function DaftarMahasiswa(): JSX.Element {
               <p>Catatan:</p>
               <p>{mahasiswa.notes}</p>
             </div>
-            <div className="flex gap-2 mt-4">
+            <div className="mt-4 grid grid-cols-2 gap-2">
               {/* TODO: page detail belom nampilin schema db detail mahasiswa yang terbaru */}
               <Button
                 variant="outline"
-                onClick={() => (window.location.href = `/detail/mahasiswa/${mahasiswa.id}`)}
+                onClick={() =>
+                  (window.location.href = `/detail/mahasiswa/${mahasiswa.id}`)
+                }
               >
                 Lihat Profil
               </Button>
@@ -202,13 +207,19 @@ function DaftarMahasiswa(): JSX.Element {
       </section>
 
       {selectedMahasiswa && (
-        <Dialog open={!!selectedMahasiswa} onOpenChange={() => setSelectedMahasiswa(null)}>
+        <Dialog
+          open={!!selectedMahasiswa}
+          onOpenChange={() => setSelectedMahasiswa(null)}
+        >
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Konfirmasi Bantuan</DialogTitle>
               <DialogDescription>
                 Apakah Anda yakin ingin memberikan bantuan kepada{" "}
-                <span className="text-dark font-bold">{selectedMahasiswa.name}</span>?
+                <span className="text-dark font-bold">
+                  {selectedMahasiswa.name}
+                </span>
+                ?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">

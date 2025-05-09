@@ -24,7 +24,7 @@ export class DetailService {
       type: 'mahasiswa' | 'admin' | 'ota';
       phoneNumber: string;
       provider: 'credentials' | 'azure';
-      applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered';
+      applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
       name: string;
       nim: string;
       mahasiswaStatus: 'active' | 'inactive';
@@ -34,6 +34,9 @@ export class DetailService {
       faculty: string;
       cityOfOrigin: string;
       highschoolAlumni: string;
+      religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
+      gender: 'M' | 'F';
+      gpa: string;
       kk: string;
       ktm: string;
       waliRecommendationLetter: string;
@@ -77,7 +80,7 @@ export class DetailService {
       type: 'mahasiswa' | 'admin' | 'ota';
       phoneNumber: string;
       provider: 'credentials' | 'azure';
-      applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered';
+      applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
       name: string;
       job: string;
       address: string;
@@ -88,6 +91,7 @@ export class DetailService {
       maxSemester: number;
       transferDate: number;
       criteria: string;
+      allowAdminSelection: boolean;
     };
   }> {
     return this.httpRequest.request({
@@ -99,6 +103,44 @@ export class DetailService {
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         404: `Orang tua asuh tidak ditemukan`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Get detailed information of my current orang tua asuh.
+   * @returns any Berhasil mendapatkan detail orang tua asuh saya.
+   * @throws ApiError
+   */
+  public getMyOtaDetail(): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      id: string;
+      email: string;
+      type: 'mahasiswa' | 'admin' | 'ota';
+      phoneNumber: string;
+      provider: 'credentials' | 'azure';
+      applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
+      name: string;
+      job: string;
+      address: string;
+      linkage: 'otm' | 'dosen' | 'alumni' | 'lainnya' | 'none';
+      funds: number;
+      maxCapacity: number;
+      startDate: string;
+      maxSemester: number;
+      transferDate: number;
+      criteria: string;
+      allowAdminSelection: boolean;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/detail/my-orang-tua',
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        404: `Orang tua asuh saya tidak ditemukan`,
         500: `Internal server error`,
       },
     });

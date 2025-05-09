@@ -2,16 +2,20 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
+  MahasiswaNotFoundResponse,
   MahasiswaRegistrationFailedResponse,
   MahasiswaRegistrationFormSchema,
+  MahasiswaRegistrationParams,
   MahasiswaRegistrationSuccessfulResponse,
   MahasiswaUnverifiedResponse,
   OrangTuaRegistrationFailedResponse,
+  OrangTuaRegistrationParams,
   OrangTuaRegistrationSchema,
   OrangTuaRegistrationSuccessfulResponse,
   OrangTuaUnverifiedResponse,
   ProfileMahasiswaResponse,
-  ProfileOrangTuaResponse
+  ProfileOrangTuaResponse,
+  MahasiswaProfileFormSchema
 } from "../zod/profile.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 
@@ -107,14 +111,17 @@ export const profileOrangTuaRoute = createRoute({
   operationId: "profileOrangTua",
   tags: ["Profile"],
   method: "get",
-  path: "/orang-tua/:id",
+  path: "/orang-tua/{id}",
   description: "Profile orang tua.",
+  request: {
+    params: OrangTuaRegistrationParams,
+  },
   responses: {
     200: {
       description: "Success",
       content: {
-        "application/json": { schema: ProfileOrangTuaResponse }
-      }
+        "application/json": { schema: ProfileOrangTuaResponse },
+      },
     },
     401: AuthorizationErrorResponse,
     403: {
@@ -123,22 +130,29 @@ export const profileOrangTuaRoute = createRoute({
         "application/json": { schema: OrangTuaUnverifiedResponse },
       },
     },
+    404: {
+      description: "Data tidak ditemukan.",
+      content: {
+        "application/json": { schema: MahasiswaRegistrationFailedResponse },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
         "application/json": { schema: InternalServerErrorResponse },
       },
-    }
-  }
-})
+    },
+  },
+});
 
 export const editProfileOrangTuaRoute = createRoute({
   operationId: "editProfileOTA",
   tags: ["Profile"],
   method: "post",
-  path: "/orang-tua/:id",
+  path: "/orang-tua/{id}",
   description: "Edit profile OTA",
   request: {
+    params: OrangTuaRegistrationParams,
     body: {
       content: {
         "multipart/form-data": {
@@ -174,26 +188,35 @@ export const editProfileOrangTuaRoute = createRoute({
       },
     },
   },
-})
+});
 
 export const profileMahasiswaRoute = createRoute({
   operationId: "profileMahasiswa",
   tags: ["Profile"],
   method: "get",
-  path: "/mahasiswa/:id",
+  path: "/mahasiswa/{id}",
   description: "Profile mahasiswa.",
+  request: {
+    params: MahasiswaRegistrationParams,
+  },
   responses: {
     200: {
       description: "Success",
       content: {
-        "application/json": { schema: ProfileMahasiswaResponse }
-      }
+        "application/json": { schema: ProfileMahasiswaResponse },
+      },
     },
     401: AuthorizationErrorResponse,
     403: {
       description: "Akun belum terverifikasi.",
       content: {
-        "application/json": { schema: OrangTuaUnverifiedResponse },
+        "application/json": { schema: MahasiswaUnverifiedResponse },
+      },
+    },
+    404: {
+      description: "Data tidak ditemukan.",
+      content: {
+        "application/json": { schema: MahasiswaNotFoundResponse },
       },
     },
     500: {
@@ -201,21 +224,21 @@ export const profileMahasiswaRoute = createRoute({
       content: {
         "application/json": { schema: InternalServerErrorResponse },
       },
-    }
-  }
-})
+    },
+  },
+});
 
 export const editProfileMahasiswaRoute = createRoute({
   operationId: "editProfileMA",
   tags: ["Profile"],
   method: "post",
-  path: "/mahasiswa/:id",
+  path: "/mahasiswa/{id}",
   description: "Edit profile MA",
   request: {
     body: {
       content: {
         "multipart/form-data": {
-          schema: MahasiswaRegistrationFormSchema,
+          schema: MahasiswaProfileFormSchema,
         },
       },
     },
@@ -247,4 +270,4 @@ export const editProfileMahasiswaRoute = createRoute({
       },
     },
   },
-})
+});

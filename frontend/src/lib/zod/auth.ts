@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-import { EmailSchema, PasswordSchema, PhoneNumberSchema, validNimPrefixes } from "./atomic";
+import {
+  EmailSchema,
+  PasswordSchema,
+  PhoneNumberSchema,
+  validNimPrefixes,
+} from "./atomic";
 
 export const UserLoginRequestSchema = z.object({
   identifier: z.union([EmailSchema, PhoneNumberSchema], {
@@ -20,7 +25,7 @@ export const UserRegisRequestSchema = z
     confirmPassword: PasswordSchema,
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Konfirmasi password gagal",
+    message: "Kata sandi tidak cocok",
     path: ["confirmPassword"],
   })
   .refine(
@@ -46,4 +51,9 @@ export const OTPVerificationRequestSchema = z.object({
   pin: z.string().min(6, {
     message: "Kode OTP harus terdiri dari 6 karakter.",
   }),
+});
+
+// Forgot Password
+export const ForgotPasswordSchema = z.object({
+  email: EmailSchema,
 });

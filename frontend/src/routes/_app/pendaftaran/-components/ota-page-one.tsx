@@ -42,6 +42,7 @@ export type OrangTuaRegistrationOneFormValues = z.infer<
 
 export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const form = useForm<OrangTuaRegistrationOneFormValues>({
     resolver: zodResolver(OrangTuaPageOneSchema),
@@ -60,13 +61,13 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 md:px-[34px]">
+    <main className="flex flex-col items-center gap-4 md:px-[34px]">
       <img
         src="/icon/logo-basic.png"
         alt="logo"
         className="mx-auto h-[81px] w-[123px]"
       />
-      <h1 className="text-primary text-center text-[32px] font-bold md:text-left md:text-[50px]">
+      <h1 className="text-primary text-center text-[32px] font-bold md:text-[50px]">
         Formulir Pendaftaran Orang Tua Asuh
       </h1>
       {/* Deskripsi Title */}
@@ -174,7 +175,7 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
                   <FormLabel className="text-primary text-sm">
                     Keterkaitan dengan ITB
                   </FormLabel>
-                  <Popover>
+                  <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -189,7 +190,7 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
                             ? linkages.find(
                                 (linkage) => linkage.value === field.value,
                               )?.label
-                            : "Select linkage"}
+                            : "Pilih keterkaitan dengan ITB"}
                           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
@@ -204,6 +205,7 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
                                 key={linkage.value}
                                 onSelect={() => {
                                   form.setValue("linkage", linkage.value);
+                                  setOpen(false);
                                 }}
                               >
                                 {linkage.label}
@@ -233,6 +235,6 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
           </form>
         </Form>
       </section>
-    </div>
+    </main>
   );
 }

@@ -179,11 +179,11 @@ describe("Register", () => {
     });
 
     const params = new URLSearchParams();
-    params.append("type", testRegisterUsers[0].type);
-    params.append("email", testRegisterUsers[0].email);
-    params.append("phoneNumber", testRegisterUsers[0].phoneNumber);
-    params.append("password", testRegisterUsers[0].password);
-    params.append("confirmPassword", testRegisterUsers[0].confirmPassword);
+    params.append("type", testRegisterUsers[2].type);
+    params.append("email", testRegisterUsers[2].email);
+    params.append("phoneNumber", testRegisterUsers[2].phoneNumber);
+    params.append("password", testRegisterUsers[2].password);
+    params.append("confirmPassword", testRegisterUsers[2].confirmPassword);
 
     const res = await app.request(
       createTestRequest("/api/auth/register", {
@@ -440,7 +440,7 @@ describe("OTP", () => {
   });
 
   test("POST 500 /api/auth/otp (Database Error)", async () => {
-    vi.spyOn(db, "update").mockImplementationOnce(() => {
+    vi.spyOn(db, "transaction").mockImplementationOnce(() => {
       throw new Error("Database connection failed");
     });
 

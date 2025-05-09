@@ -1,24 +1,67 @@
-import { useParams } from "@tanstack/react-router";
+import Metadata from "@/components/metadata";
+import { Card } from "@/components/ui/card";
+import { redirect, useParams } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
+import { FileText, UserX } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import DetailCardsMahasiswaAsuh from "./-components/detail-card";
+
+const genderMap = {
+  M: "Laki-laki",
+  F: "Perempuan",
+};
 
 interface MahasiswaDetailResponse {
   success: boolean;
   message: string;
   body: {
-    accountId: string;
+    id: string;
+    email: string;
+    type: string;
+    adminOnlyNotes: string | null;
+    applicationStatus: string;
+    cityOfOrigin: string;
+    description: string | null;
+    dibacaRecommendationLetter: string | null;
+    electricityBill: string | null;
+    file: string | null;
+    gender: "F" | "M";
+    gpa: string;
+    highSchoolAlumni: string;
+    kk: string | null;
+    ktm: string | null;
+    mahasiswaStatus: string;
+    major: string;
     name: string;
     nim: string;
-    mahasiswaStatus: string;
-    description: string | null;
-    file: string | null;
+    notes: string | null;
+    pbb: string | null;
+    phoneNumber: string;
+    provider: string;
+    religion: string;
+    salaryReport: string | null;
+    transcript: string | null;
+    waliRecommendationLetter: string | null;
+    faculty: string;
   };
 }
 
 export const Route = createFileRoute("/_app/detail/mahasiswa/$detailId")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (user.type !== "ota") {
+      throw redirect({ to: "/" });
+    }
+
+    return { user };
+  },
 });
 
 function RouteComponent() {
@@ -30,26 +73,55 @@ function RouteComponent() {
   >(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     async function fetchMahasiswaData() {
       try {
         setLoading(true);
+        setNotFound(false);
+
         const response = await fetch(
-          // TODO: Nanti ganti pake generated API
           `http://localhost:3000/api/detail/mahasiswa/${id}`,
           { credentials: "include" },
         );
         console.log("Response:", response);
 
-        if (!response.ok) {
+        let data: MahasiswaDetailResponse;
+
+        try {
+          data = await response.json();
+          console.log("Data:", data);
+
+          if (
+            !data.success &&
+            (data.message.toLowerCase().includes("not found") ||
+              data.message.toLowerCase().includes("tidak ditemukan") ||
+              data.message.toLowerCase().includes("tidak ada") ||
+              response.status === 404)
+          ) {
+            setNotFound(true);
+            throw new Error("Mahasiswa Tidak Ditemukan");
+          }
+
+          if (!data.success) {
+            throw new Error(data.message);
+          }
+        } catch {
+          if (response.status === 404 || response.status === 400) {
+            setNotFound(true);
+            throw new Error("Mahasiswa Tidak Ditemukan");
+          }
+
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
-        const data: MahasiswaDetailResponse = await response.json();
-
-        if (!data.success) {
-          throw new Error(data.message);
+        if (!response.ok) {
+          if (response.status === 404 || response.status === 400) {
+            setNotFound(true);
+            throw new Error("Mahasiswa Tidak Ditemukan");
+          }
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
         setMahasiswaData(data.body);
@@ -72,6 +144,7 @@ function RouteComponent() {
   if (loading) {
     return (
       <div className="container mx-auto flex items-center justify-center px-4 py-16">
+        <Metadata title="Detail Mahasiswa | BOTA" />
         <div className="text-center">
           <p className="text-primary text-lg">Loading...</p>
         </div>
@@ -79,9 +152,50 @@ function RouteComponent() {
     );
   }
 
-  if (error || !mahasiswaData) {
+  // Special handling for not found state
+  if (notFound) {
     return (
       <div className="container mx-auto flex items-center justify-center px-4 py-16">
+        <Metadata title="Detail Mahasiswa | BOTA" />
+        <div className="text-center">
+          <div className="mb-4 flex justify-center">
+            <UserX size={64} className="text-primary" />
+          </div>
+          <h1 className="text-primary text-2xl font-bold">
+            Mahasiswa Tidak Ditemukan
+          </h1>
+          <p className="text-muted-foreground mt-4 text-lg">
+            Data mahasiswa dengan ID tersebut tidak dapat ditemukan di sistem
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !mahasiswaData) {
+    if (error && error.includes("Mahasiswa Tidak Ditemukan")) {
+      setNotFound(true);
+      return (
+        <div className="container mx-auto flex items-center justify-center px-4 py-16">
+          <Metadata title="Detail Mahasiswa | BOTA" />
+          <div className="text-center">
+            <div className="mb-4 flex justify-center">
+              <UserX size={64} className="text-primary" />
+            </div>
+            <h1 className="text-primary text-2xl font-bold">
+              Mahasiswa Tidak Ditemukan
+            </h1>
+            <p className="text-muted-foreground mt-4 text-lg">
+              Data mahasiswa dengan ID tersebut tidak dapat ditemukan di sistem
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="container mx-auto flex items-center justify-center px-4 py-16">
+        <Metadata title="Detail Mahasiswa | BOTA" />
         <div className="text-center">
           <h1 className="text-primary text-2xl font-bold">Error</h1>
           <p className="text-muted-foreground mt-4 text-lg">
@@ -92,86 +206,91 @@ function RouteComponent() {
     );
   }
 
-  // TODO: Transforming database data to match the component props
-  const displayData = {
-    name: mahasiswaData.name,
-    role:
-      mahasiswaData.mahasiswaStatus === "active"
-        ? "Mahasiswa Aktif"
-        : "Mahasiswa Tidak Aktif",
-    email: `${mahasiswaData.nim}@mahasiswa.itb.ac.id`,
-    phone: "-",
-    joinDate: "Terdaftar sejak 2023",
-    avatarSrc: "",
-    departement: "Teknik Informatika",
-    faculty: "STEI-K",
-    batch: "2022",
-    description: mahasiswaData.description || "-",
-    file: mahasiswaData.file || "-",
-  };
+  const nim = mahasiswaData.nim || mahasiswaData.email.split("@")[0];
+
+  const angkatan = nim.length >= 4 ? "20" + nim.substring(0, 2) : "-";
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
+      <Metadata title="Detail Mahasiswa | BOTA" />
       <h1 className="text-primary mb-4 text-2xl font-bold">
         Detail Mahasiswa Asuh
       </h1>
+
+      {/* Data diri */}
       <DetailCardsMahasiswaAsuh
-        name={displayData.name}
-        role={displayData.role}
-        email={displayData.email}
-        phone={displayData.phone}
-        joinDate={displayData.joinDate}
+        name={mahasiswaData.name}
+        role={
+          mahasiswaData.mahasiswaStatus === "active"
+            ? "Mahasiswa Aktif"
+            : "Mahasiswa Tidak Aktif"
+        }
+        email={mahasiswaData.email}
+        phone={mahasiswaData.phoneNumber || "-"}
+        joinDate={`Terdaftar sejak ${angkatan}`}
         avatarSrc=""
-        departement="Teknik Informatika"
-        faculty="STEI-K"
-        batch={displayData.batch}
-        gpa={3.5}
+        departement={mahasiswaData.major || "-"}
+        faculty={mahasiswaData.faculty || "-"}
+        batch={angkatan}
+        gpa={mahasiswaData.gpa ? parseFloat(mahasiswaData.gpa) : undefined}
+        gender={mahasiswaData.gender ? genderMap[mahasiswaData.gender] : "-"}
+        religion={mahasiswaData.religion || "-"}
       />
 
-      {/* Additional information from API */}
-      <div className="mt-8">
-        <h2 className="text-primary mb-4 text-xl font-bold">
-          Informasi Tambahan
-        </h2>
-        <div className="rounded-lg border p-4 shadow-sm">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold">Deskripsi</h3>
-            <p className="text-muted-foreground mt-2">
-              {displayData.description}
-            </p>
+      {/* Essay and IOM Notes */}
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+        <Card className="p-6">
+          <div className="mb-4 flex items-center">
+            <FileText className="text-primary mr-2 h-5 w-5" />
+            <h3 className="text-lg font-semibold">Essay</h3>
           </div>
-          {displayData.file && displayData.file !== "-" && (
-            <div>
-              <h3 className="text-lg font-semibold">File Lampiran</h3>
+          <div className="text-gray-600">
+            {mahasiswaData.file ? (
               <a
-                href={displayData.file}
+                href={mahasiswaData.file}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 inline-block text-blue-600 hover:underline"
+                className="text-blue-600 hover:underline"
               >
-                Lihat Dokumen
+                Lihat Essay
               </a>
-            </div>
-          )}
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold">Status</h3>
-            <div className="mt-2">
-              <span
-                className={`inline-block rounded-full px-3 py-1 text-sm font-medium ${
-                  mahasiswaData.mahasiswaStatus === "active"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-yellow-100 text-yellow-800"
-                }`}
-              >
-                {mahasiswaData.mahasiswaStatus === "active"
-                  ? "Aktif"
-                  : "Tidak Aktif"}
-              </span>
-            </div>
+            ) : (
+              "-"
+            )}
           </div>
-        </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="mb-4 flex items-center">
+            <FileText className="text-primary mr-2 h-5 w-5" />
+            <h3 className="text-lg font-semibold">Catatan dari IOM</h3>
+          </div>
+          <div className="text-gray-600">
+            {mahasiswaData.notes || mahasiswaData.adminOnlyNotes || "-"}
+          </div>
+        </Card>
       </div>
-    </div>
+
+      {/* Status */}
+      <div className="mt-6">
+        <Card className="p-6">
+          <h3 className="mb-4 text-lg font-semibold">Status</h3>
+          <div>
+            <span
+              className={`inline-block rounded-full px-3 py-1 text-sm font-medium ${
+                mahasiswaData.mahasiswaStatus === "active"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
+              {mahasiswaData.mahasiswaStatus === "active"
+                ? "Aktif"
+                : "Tidak Aktif"}
+            </span>
+          </div>
+        </Card>
+      </div>
+    </main>
   );
 }
 

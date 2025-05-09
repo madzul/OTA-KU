@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt";
-import { and, eq, gte, or } from "drizzle-orm";
+import { and, desc, eq, gte, or } from "drizzle-orm";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { decode, sign } from "hono/jwt";
 import nodemailer from "nodemailer";
@@ -8,17 +8,21 @@ import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
+  accountOtaDetailTable,
   accountTable,
   otpTable,
+  temporaryPasswordTable,
 } from "../db/schema.js";
-import { emailHTML } from "../lib/email-html.js";
+import { emailHTML, emailHTMLPassword } from "../lib/email-html.js";
 import {
   getNimFakultasCodeMap,
   getNimFakultasFromNimJurusanMap,
   getNimJurusanCodeMap,
 } from "../lib/nim.js";
 import { generateOTP } from "../lib/otp.js";
+import { generateSecurePassword } from "../lib/password.js";
 import {
+  forgotPasswordRoute,
   loginRoute,
   logoutRoute,
   oauthRoute,
@@ -27,6 +31,7 @@ import {
   verifRoute,
 } from "../routes/auth.route.js";
 import {
+  ForgotPasswordSchema,
   OTPVerificationRequestSchema,
   UserLoginRequestSchema,
   UserOAuthLoginRequestSchema,
@@ -70,30 +75,94 @@ authRouter.openapi(loginRoute, async (c) => {
 
     const foundAccount = account[0];
 
-    // Check the password hash
-    const isPasswordValid = await compare(password, foundAccount.password);
+    const currentDateTime = new Date(Date.now());
 
-    if (!isPasswordValid) {
-      console.error("Invalid password");
-      return c.json(
-        {
-          success: false,
-          message: "Invalid credentials",
-          error: "Invalid email or password",
-        },
-        401,
-      );
+    const temporaryPassword = await db
+      .select()
+      .from(temporaryPasswordTable)
+      .where(
+        and(
+          eq(temporaryPasswordTable.accountId, foundAccount.id),
+          gte(temporaryPasswordTable.expiredAt, currentDateTime),
+          eq(temporaryPasswordTable.used, false),
+        ),
+      )
+      .orderBy(desc(temporaryPasswordTable.expiredAt))
+      .limit(1);
+
+    if (
+      foundAccount.provider === "credentials" &&
+      temporaryPassword &&
+      temporaryPassword.length > 0
+    ) {
+      const tempPass = temporaryPassword[0].password;
+      const isTempPassValid = await compare(password, tempPass);
+
+      if (isTempPassValid) {
+        // Mark the temporary password as used
+        await db
+          .update(temporaryPasswordTable)
+          .set({ used: true })
+          .where(
+            and(
+              eq(
+                temporaryPasswordTable.accountId,
+                temporaryPassword[0].accountId,
+              ),
+              eq(temporaryPasswordTable.password, tempPass),
+            ),
+          );
+      }
+    } else {
+      // Check the password hash
+      const isPasswordValid = await compare(password, foundAccount.password);
+
+      if (!isPasswordValid) {
+        console.error("Invalid password");
+        return c.json(
+          {
+            success: false,
+            message: "Invalid credentials",
+            error: "Invalid email or password",
+          },
+          401,
+        );
+      }
+    }
+
+    const accountId = account[0].id;
+
+    let name = null;
+
+    const mahasiswaDetail = await db
+      .select({ name: accountMahasiswaDetailTable.name })
+      .from(accountMahasiswaDetailTable)
+      .where(eq(accountMahasiswaDetailTable.accountId, accountId))
+      .limit(1);
+
+    const otaDetail = await db
+      .select({ name: accountOtaDetailTable.name })
+      .from(accountOtaDetailTable)
+      .where(eq(accountOtaDetailTable.accountId, accountId))
+      .limit(1);
+
+    // TODO: Logicnya masih salah
+    if (mahasiswaDetail && mahasiswaDetail.length > 0) {
+      name = mahasiswaDetail[0].name;
+    } else if (otaDetail && otaDetail.length > 0) {
+      name = otaDetail[0].name;
+    } else {
+      name = "Admin";
     }
 
     const accessToken = await sign(
       {
         id: account[0].id,
+        name,
         email: account[0].email,
         phoneNumber: account[0].phoneNumber,
         type: account[0].type,
         provider: account[0].provider,
-        status: account[0].status,
-        applicationStatus: account[0].applicationStatus,
         oid: account[0].oid,
         createdAt: account[0].createdAt,
         iat: Math.floor(Date.now() / 1000),
@@ -140,6 +209,29 @@ authRouter.openapi(regisRoute, async (c) => {
   const zodParseResult = UserRegisRequestSchema.parse(data);
   const { email, phoneNumber, password, type } = zodParseResult;
 
+  const account = await db
+    .select()
+    .from(accountTable)
+    .where(
+      or(
+        eq(accountTable.email, email),
+        eq(accountTable.phoneNumber, phoneNumber),
+      ),
+    )
+    .limit(1);
+
+  if (account.length > 0) {
+    console.error("Invalid email");
+    return c.json(
+      {
+        success: false,
+        message: "Invalid credentials",
+        error: "Invalid email or phone number",
+      },
+      401,
+    );
+  }
+
   const hashedPassword = await hash(password, 10);
 
   try {
@@ -159,7 +251,7 @@ authRouter.openapi(regisRoute, async (c) => {
       await tx.insert(otpTable).values({
         accountId: newUser[0].id,
         code: code,
-        expiredAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        expiredAt: new Date(Date.now() + 1000 * 60 * 15), // 15 minutes
       });
 
       return [newUser, code];
@@ -197,12 +289,11 @@ authRouter.openapi(regisRoute, async (c) => {
     const accessToken = await sign(
       {
         id: newUser[0].id,
+        name: null,
         email: newUser[0].email,
         phoneNumber: newUser[0].phoneNumber,
         type: newUser[0].type,
         provider: newUser[0].provider,
-        status: newUser[0].status,
-        applicationStatus: newUser[0].applicationStatus,
         oid: newUser[0].oid,
         createdAt: newUser[0].createdAt,
         iat: Math.floor(Date.now() / 1000),
@@ -306,7 +397,7 @@ authRouter.openapi(oauthRoute, async (c) => {
           accountData = await tx
             .update(accountTable)
             .set({
-              password: await hash(randomPassword, 10),
+              updatedAt: new Date(Date.now()),
             })
             .where(eq(accountTable.id, existingAccount[0].id))
             .returning();
@@ -328,7 +419,7 @@ authRouter.openapi(oauthRoute, async (c) => {
             .update(accountTable)
             .set({
               email,
-              password: await hash(randomPassword, 10),
+              updatedAt: new Date(Date.now()),
             })
             .where(eq(accountTable.oid, oid))
             .returning();
@@ -383,12 +474,11 @@ authRouter.openapi(oauthRoute, async (c) => {
       const accessToken = await sign(
         {
           id: accountData.id,
+          name,
           email: accountData.email,
           phoneNumber: accountData.phoneNumber || null,
           type: accountData.type,
           provider: accountData.provider,
-          status: accountData.status,
-          applicationStatus: accountData.applicationStatus,
           oid: accountData.oid,
           createdAt: accountData.createdAt,
           iat: Math.floor(Date.now() / 1000),
@@ -461,7 +551,13 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
   const zodParseResult = OTPVerificationRequestSchema.parse(data);
   const { pin } = zodParseResult;
 
-  if (user.status === "verified") {
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "verified") {
     return c.json(
       {
         success: false,
@@ -479,11 +575,9 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
     .from(otpTable)
     .where(
       and(
-        and(
-          eq(otpTable.accountId, user.id),
-          gte(otpTable.expiredAt, currentDateTime),
-        ),
+        eq(otpTable.accountId, user.id),
         eq(otpTable.code, pin),
+        gte(otpTable.expiredAt, currentDateTime),
       ),
     )
     .limit(1);
@@ -500,23 +594,41 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
   }
 
   try {
-    // TODO: Abis OTP valid, langsung isi nim sama email mahasiswa detail
-    await db
-      .update(accountTable)
-      .set({
-        status: "verified",
-      })
-      .where(eq(accountTable.id, user.id));
+    await db.transaction(async (tx) => {
+      const data = await tx
+        .update(accountTable)
+        .set({
+          status: "verified",
+        })
+        .where(eq(accountTable.id, user.id))
+        .returning();
+
+      const type = data[0].type;
+
+      if (type === "mahasiswa") {
+        const nim = data[0].email.split("@")[0];
+        await tx
+          .update(accountMahasiswaDetailTable)
+          .set({
+            nim: nim,
+            major: getNimJurusanCodeMap()[nim.slice(0, 3)],
+            faculty:
+              getNimFakultasCodeMap()[
+                getNimFakultasFromNimJurusanMap()[nim.slice(0, 3)]
+              ],
+          })
+          .where(eq(accountMahasiswaDetailTable.accountId, user.id));
+      }
+    });
 
     const accessToken = await sign(
       {
         id: user.id,
+        name: user.name,
         email: user.email,
         phoneNumber: user.phoneNumber,
         type: user.type,
         provider: user.provider,
-        status: "verified",
-        applicationStatus: user.applicationStatus,
         oid: user.oid,
         createdAt: user.createdAt,
         iat: Math.floor(Date.now() / 1000),
@@ -540,6 +652,97 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
         body: {
           token: accessToken,
         },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500,
+    );
+  }
+});
+
+authRouter.openapi(forgotPasswordRoute, async (c) => {
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+
+  const zodParseResult = ForgotPasswordSchema.parse(data);
+  const { email } = zodParseResult;
+
+  try {
+    const account = await db
+      .select()
+      .from(accountTable)
+      .where(
+        and(
+          eq(accountTable.email, email),
+          eq(accountTable.provider, "credentials"),
+        ),
+      )
+      .limit(1);
+
+    if (!account || account.length === 0) {
+      console.error("Invalid email");
+      return c.json(
+        {
+          success: true,
+          message:
+            "Kata sandi sementara akan dikirim ke email Anda jika akun terdaftar",
+        },
+        200,
+      );
+    }
+
+    const foundAccount = account[0];
+
+    const password = generateSecurePassword();
+
+    await db.insert(temporaryPasswordTable).values({
+      accountId: foundAccount.id,
+      password: await hash(password, 10),
+      expiredAt: new Date(Date.now() + 1000 * 60 * 15), // 15 minutes
+    });
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
+
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: foundAccount.email,
+        subject: "Kata Sandi Sementara Bantuan Orang Tua Asuh",
+        html: emailHTMLPassword(password),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
+
+    return c.json(
+      {
+        success: true,
+        message:
+          "Kata sandi sementara akan dikirim ke email Anda jika akun terdaftar",
       },
       200,
     );

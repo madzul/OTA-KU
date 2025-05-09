@@ -130,6 +130,7 @@ export const UserAuthenticatedResponse = z.object({
   body: z
     .object({
       id: z.string().openapi({ example: "1" }),
+      name: z.string().nullable().openapi({ example: "John Doe" }),
       email: z.string().openapi({ example: "johndoe@example.com" }),
       phoneNumber: z.string().nullable().openapi({ example: "081234567890" }),
       type: z
@@ -138,12 +139,6 @@ export const UserAuthenticatedResponse = z.object({
       provider: z
         .enum(["credentials", "azure"])
         .openapi({ example: "credentials" }),
-      status: z
-        .enum(["verified", "unverified"])
-        .openapi({ example: "verified" }),
-      applicationStatus: z
-        .enum(["accepted", "rejected", "pending", "unregistered"])
-        .openapi({ example: "accepted" }),
       oid: z.string().nullable().openapi({ example: "1" }),
       createdAt: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
       iat: z.number().openapi({ example: 1630000000 }),
@@ -167,6 +162,7 @@ export const LogoutSuccessfulResponse = z.object({
 export const JWTPayloadSchema = z
   .object({
     id: z.string().openapi({ example: "1" }),
+    name: z.string().nullable().openapi({ example: "John Doe" }),
     email: z.string().openapi({ example: "johndoe@example.com" }),
     phoneNumber: z.string().nullable().openapi({ example: "081234567890" }),
     type: z
@@ -175,10 +171,6 @@ export const JWTPayloadSchema = z
     provider: z
       .enum(["credentials", "azure"])
       .openapi({ example: "credentials" }),
-    status: z.enum(["verified", "unverified"]).openapi({ example: "verified" }),
-    applicationStatus: z
-      .enum(["accepted", "rejected", "pending", "unregistered"])
-      .openapi({ example: "accepted" }),
     oid: z.string().nullable().openapi({ example: "1" }),
     createdAt: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
     iat: z.number().openapi({ example: 1630000000 }),
@@ -205,4 +197,14 @@ export const BadRequestOTPVerificationResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "Missing required fields" }),
   error: z.string().openapi({ example: "OTP is required" }),
+});
+
+// Forgot Password
+export const ForgotPasswordSchema = z.object({
+  email: EmailSchema,
+});
+
+export const ForgotPasswordResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Forgot password email sent" }),
 });

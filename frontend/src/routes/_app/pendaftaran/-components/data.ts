@@ -6,6 +6,20 @@ export const linkages = [
   { label: "Tidak ada", value: "none" },
 ] as const;
 
+export const religions = [
+  { label: "Islam", value: "Islam" },
+  { label: "Kristen Protestan", value: "Kristen Protestan" },
+  { label: "Katolik", value: "Katolik" },
+  { label: "Hindu", value: "Hindu" },
+  { label: "Buddha", value: "Buddha" },
+  { label: "Konghucu", value: "Konghucu" },
+] as const;
+
+export const genders = [
+  { label: "Laki-Laki", value: "M" },
+  { label: "Perempuan", value: "F" },
+] as const;
+
 export const days = [
   { label: "1", value: 1 },
   { label: "2", value: 2 },

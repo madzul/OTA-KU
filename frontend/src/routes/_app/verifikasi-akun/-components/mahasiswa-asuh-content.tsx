@@ -26,7 +26,9 @@ function MahasiswaAsuhContent() {
 
   const [search, setSearch] = useState<string>("");
   const [value] = useDebounce(search, 500);
-  const [status, setStatus] = useState<"accepted" | "pending" | "rejected">();
+  const [status, setStatus] = useState<
+    "accepted" | "pending" | "rejected" | null
+  >(null);
 
   const { data, isSuccess } = useQuery({
     queryKey: ["listMahasiswaAdmin"],
@@ -48,7 +50,7 @@ function MahasiswaAsuhContent() {
         api.list.listMahasiswaAdmin({
           page: 1,
           q: value,
-          status,
+          status: status as "accepted" | "pending" | "rejected",
         }),
     });
 

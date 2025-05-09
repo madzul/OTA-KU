@@ -58,7 +58,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
       });
 
       setTimeout(() => {
-        navigate({ to: "/profile" });
+        navigate({ to: "/profile", reloadDocument: true });
       }, 1000);
     },
     onError: (error, _variables, context) => {
@@ -80,6 +80,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
     resolver: zodResolver(OrangTuaPageTwoSchema),
     defaultValues: {
       checked: false,
+      allowAdminSelection: "false",
     },
   });
 
@@ -89,7 +90,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
     mainForm.setValue("startDate", data.startDate);
     mainForm.setValue("maxSemester", data.maxSemester);
     mainForm.setValue("transferDate", data.transferDate);
-    mainForm.setValue("criteria", data.criteria);
+    mainForm.setValue("criteria", data.criteria || "");
     mainForm.handleSubmit(
       async (data) => {
         await orangTuaRegistrationCallbackMutation.mutateAsync(data);
@@ -101,13 +102,13 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 md:px-[34px]">
+    <main className="flex flex-col items-center gap-4 md:px-[34px]">
       <img
         src="/icon/logo-basic.png"
         alt="logo"
         className="mx-auto h-[81px] w-[123px]"
       />
-      <h1 className="text-primary text-center text-[32px] font-bold md:text-left md:text-[50px]">
+      <h1 className="text-primary -left text-center text-[32px] font-bold md:text-[50px]">
         Formulir Pendaftaran Orang Tua Asuh
       </h1>
       {/* Deskripsi Title */}
@@ -185,9 +186,14 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
                     <PopoverContent className="w-auto p-0" align="end">
                       <Calendar
                         mode="single"
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={
-                          (date) => form.setValue("startDate", date ? date.toISOString() : "")
+                        selected={
+                          field.value ? new Date(field.value) : undefined
+                        }
+                        onSelect={(date) =>
+                          form.setValue(
+                            "startDate",
+                            date ? date.toISOString() : "",
+                          )
                         }
                         disabled={(date) => date <= new Date()}
                         initialFocus
@@ -278,7 +284,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-primary text-sm">
-                    Adapun Kriteria Anak Asuh yang saya inginkan (opsional)
+                    Adapun Kriteria Anak Asuh yang saya inginkan (Opsional)
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -317,6 +323,29 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="allowAdminSelection"
+              render={({ field }) => (
+                <FormItem className="text-primary flex items-center gap-2 text-base">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value === "true"}
+                      onCheckedChange={(checked) => {
+                        field.onChange(checked ? "true" : "false");
+                      }}
+                      className="text-primary"
+                    />
+                  </FormControl>
+                  <span className="ml-2">
+                    Saya memberikan izin kepada IOM untuk memilihkan anak asuh
+                    (Opsional)
+                  </span>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <Button type="submit" className="w-full">
               Selesai
             </Button>
@@ -324,7 +353,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
             <Button
               type="button"
               className="w-full"
-              variant={"secondary"}
+              variant="outline"
               onClick={() => setPage(1)}
             >
               Kembali
@@ -332,6 +361,6 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
           </form>
         </Form>
       </section>
-    </div>
+    </main>
   );
 }

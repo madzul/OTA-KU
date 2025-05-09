@@ -20,7 +20,7 @@ export class StatusService {
       /**
        * Status aplikasi
        */
-      status: 'accepted' | 'rejected' | 'pending' | 'unregistered';
+      status: 'accepted' | 'rejected' | 'pending' | 'unregistered' | 'reapply' | 'outdated';
       notes?: string;
       adminOnlyNotes?: string;
     },
@@ -31,7 +31,7 @@ export class StatusService {
       /**
        * Status aplikasi
        */
-      status: 'accepted' | 'rejected' | 'pending' | 'unregistered';
+      status: 'accepted' | 'rejected' | 'pending' | 'unregistered' | 'reapply' | 'outdated';
     };
   }> {
     return this.httpRequest.request({
@@ -44,6 +44,70 @@ export class StatusService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Mengambil status pendaftaran.
+   * @returns any Berhasil mengambil status pendaftaran
+   * @throws ApiError
+   */
+  public getApplicationStatus({
+    id,
+  }: {
+    id: string,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * Status aplikasi
+       */
+      status: 'accepted' | 'rejected' | 'pending' | 'unregistered' | 'reapply' | 'outdated';
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/status/status/application/{id}',
+      path: {
+        'id': id,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Mengambil status verifikasi.
+   * @returns any Berhasil mengambil status verifikasi
+   * @throws ApiError
+   */
+  public getVerificationStatus({
+    id,
+  }: {
+    id: string,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * Status verifikasi
+       */
+      status: 'verified' | 'unverified';
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/status/status/verification/{id}',
+      path: {
+        'id': id,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });

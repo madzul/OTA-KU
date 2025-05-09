@@ -104,6 +104,7 @@ function DetailDialogOta({
             Detail Info
           </DialogTitle>
           <DialogDescription className="flex text-start">
+            {/* TODO: handle case applicationStatus === "reapply" or "outdated" */}
             <p
               className={cn(
                 "rounded-full px-4 py-1 text-white",
@@ -137,7 +138,9 @@ function DetailDialogOta({
               <p className="line-clamp-1 text-[#003A6E] sm:line-clamp-none">
                 {formatValue(
                   key,
-                  data?.body[key as keyof typeof data.body] ?? "-",
+                  data?.body[key as keyof typeof data.body] === ""
+                    ? "-"
+                    : (data?.body[key as keyof typeof data.body] ?? "-"),
                 )}
               </p>
             </div>

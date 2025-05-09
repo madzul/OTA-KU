@@ -4,7 +4,6 @@ export const mahasiswaColumns = {
   type: "Tipe",
   phoneNumber: "No. Telp",
   provider: "Provider",
-  applicationStatus: "Status Pendaftaran",
   name: "Nama",
   nim: "NIM",
   mahasiswaStatus: "Status Mahasiswa",
@@ -14,6 +13,9 @@ export const mahasiswaColumns = {
   faculty: "Fakultas",
   cityOfOrigin: "Asal Daerah",
   highschoolAlumni: "Asal Sekolah",
+  religion: "Agama",
+  gender: "Jenis Kelamin",
+  gpa: "IPK",
   kk: "Berkas Kartu Keluarga",
   ktm: "Berkas KTM",
   waliRecommendationLetter: "Berkas Rekomendasi Wali",
@@ -32,7 +34,6 @@ export const otaColumns = {
   type: "Tipe",
   phoneNumber: "No. Telp",
   provider: "Provider",
-  applicationStatus: "Status Pendaftaran",
   name: "Nama",
   job: "Pekerjaan",
   address: "Alamat",
@@ -43,6 +44,7 @@ export const otaColumns = {
   maxSemester: "Jangka Waktu Pemberian Dana",
   transferDate: "Tanggal Transfer Dana",
   criteria: "Kriteria",
+  allowedAdminSelection: "Bersedia Dipilihkan oleh Admin",
 };
 
 export const linkColumns = [

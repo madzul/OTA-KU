@@ -112,6 +112,7 @@ function DetailDialogMahasiswa({
             Detail Info
           </DialogTitle>
           <DialogDescription className="flex text-start">
+            {/* TODO: handle case applicationStatus === "reapply" or "outdated" */}
             <p
               className={cn(
                 "rounded-full px-4 py-1 text-white",

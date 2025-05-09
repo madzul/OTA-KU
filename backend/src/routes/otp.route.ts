@@ -1,9 +1,12 @@
 import { createRoute } from "@hono/zod-openapi";
 
-import { InvalidLoginResponse } from "../zod/auth.js";
+import { AuthorizationErrorResponse } from "../types/response.js";
 import {
   BadRequestSendOtpResponse,
   EmailNotFoundResponseSchema,
+  GetOtpExpiredDateNotFoundResponseSchema,
+  GetOtpExpiredDateResponseSchema,
+  GetOtpExpiredDateResponseSchemaError,
   SendOtpRequestSchema,
   SendOtpResponseSchema,
 } from "../zod/otp.js";
@@ -41,12 +44,7 @@ export const sendOtpRoute = createRoute({
         },
       },
     },
-    401: {
-      description: "Invalid credentials.",
-      content: {
-        "application/json": { schema: InvalidLoginResponse },
-      },
-    },
+    401: AuthorizationErrorResponse,
     404: {
       description: "User not found.",
       content: {
@@ -59,6 +57,39 @@ export const sendOtpRoute = createRoute({
       description: "Internal server error",
       content: {
         "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const getOtpExpiredDateRoute = createRoute({
+  operationId: "getOtpExpiredDate",
+  tags: ["OTP"],
+  method: "get",
+  path: "/expired-date",
+  description: "Get OTP expiration date.",
+  responses: {
+    200: {
+      description: "OTP expiration date retrieved successfully.",
+      content: {
+        "application/json": {
+          schema: GetOtpExpiredDateResponseSchema,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    404: {
+      description: "OTP not found.",
+      content: {
+        "application/json": {
+          schema: GetOtpExpiredDateNotFoundResponseSchema,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: GetOtpExpiredDateResponseSchemaError },
       },
     },
   },

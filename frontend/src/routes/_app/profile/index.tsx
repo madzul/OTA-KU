@@ -1,30 +1,71 @@
-import { createFileRoute } from "@tanstack/react-router";
-import ProfileCard from "./-components/profile-card"
-import ProfileFormMA from "./-components/profile-form-ma";
-// import ProfileFormOTA from "./-components/profile-form-ota";
+import { api } from "@/api/client";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Navigate } from "@tanstack/react-router";
+
+import ProfileMahasiswa from "./-components/profile-mahasiswa";
+import ProfileOta from "./-components/profile-ota";
 
 export const Route = createFileRoute("/_app/profile/")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (!user) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    const verificationStatus = await api.status
+      .getVerificationStatus({
+        id: user.id,
+      })
+      .catch(() => null);
+
+    if (!verificationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (verificationStatus.body.status !== "verified") {
+      throw redirect({ to: "/auth/otp-verification" });
+    }
+
+    const applicationStatus = await api.status
+      .getApplicationStatus({ id: user.id })
+      .catch(() => null);
+
+    if (!applicationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    return { session: user, applicationStatus: applicationStatus.body.status };
+  },
+  loader: async ({ context }) => {
+    return {
+      session: context.session,
+      applicationStatus: context.applicationStatus,
+    };
+  },
 });
 
 function RouteComponent() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <p className="font-bold text-4xl mb-6 text-primary">Profile</p>
-      <div className="grid md:grid-cols-[300px_1fr] gap-6">
-        <div>
-          <ProfileCard 
-            name="Budi Santoso"
-            role="Orang Tua Asuh"
-            email="Email@example.com"
-            phone="08129130321321"
-            joinDate="Bergabung di Maret 2024"
-          />
-        </div>
-        <div>
-          <ProfileFormMA/>
-        </div>
-      </div>
-    </div>
-  )
+  const { session, applicationStatus } = Route.useLoaderData();
+
+  // For mahasiswa users
+  if (session.type === "mahasiswa") {
+    return (
+      <ProfileMahasiswa
+        session={session}
+        applicationStatus={applicationStatus}
+      />
+    );
+  }
+
+  // For OTA users
+  if (session.type === "ota") {
+    return (
+      <ProfileOta session={session} applicationStatus={applicationStatus} />
+    );
+  }
+
+  // Redirect if user is admin
+  return <Navigate to="/" />;
 }

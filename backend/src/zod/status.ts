@@ -6,10 +6,19 @@ export const ApplicationStatusParams = z.object({
 });
 
 export const ApplicationStatusSchema = z.object({
-  status: z.enum(["accepted", "rejected", "pending", "unregistered"]).openapi({
-    description: "Status aplikasi",
-    example: "accepted",
-  }),
+  status: z
+    .enum([
+      "accepted",
+      "rejected",
+      "pending",
+      "unregistered",
+      "reapply",
+      "outdated",
+    ])
+    .openapi({
+      description: "Status aplikasi",
+      example: "accepted",
+    }),
   notes: z
     .string({
       invalid_type_error: "Catatan untuk Orang Tua Asuh harus berupa string",
@@ -37,10 +46,62 @@ export const ApplicationStatusSuccessResponse = z.object({
   }),
   body: z.object({
     status: z
-      .enum(["accepted", "rejected", "pending", "unregistered"])
+      .enum([
+        "accepted",
+        "rejected",
+        "pending",
+        "unregistered",
+        "reapply",
+        "outdated",
+      ])
       .openapi({
         description: "Status aplikasi",
         example: "accepted",
       }),
+  }),
+});
+
+// Get Application Status
+export const GetApplicationStatusSuccessResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({
+    example: "Berhasil mengambil status pendaftaran",
+  }),
+  body: z.object({
+    status: z
+      .enum([
+        "accepted",
+        "rejected",
+        "pending",
+        "unregistered",
+        "reapply",
+        "outdated",
+      ])
+      .openapi({
+        description: "Status aplikasi",
+        example: "accepted",
+      }),
+  }),
+});
+
+export const GetApplicationStatusForbiddenResponse = z.object({
+  success: z.boolean().openapi({ example: false }),
+  message: z.string().openapi({
+    example: "Forbidden",
+  }),
+  error: z.object({}),
+});
+
+// Get Verification Status
+export const GetVerificationStatusSuccessResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({
+    example: "Berhasil mengambil status verifikasi",
+  }),
+  body: z.object({
+    status: z.enum(["verified", "unverified"]).openapi({
+      description: "Status verifikasi",
+      example: "verified",
+    }),
   }),
 });

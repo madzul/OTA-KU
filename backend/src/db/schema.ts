@@ -1,6 +1,9 @@
 import { relations } from "drizzle-orm";
 import {
+  boolean,
+  decimal,
   integer,
+  json,
   pgEnum,
   pgTable,
   primaryKey,
@@ -34,17 +37,13 @@ export const applicationStatusEnum = pgEnum("account_status", [
   "rejected",
   "pending",
   "unregistered",
+  "reapply",
+  "outdated",
 ]);
 
 export const mahasiswaStatusEnum = pgEnum("mahasiswa_status", [
   "active",
   "inactive",
-]);
-
-export const connectionStatusEnum = pgEnum("connection_status", [
-  "accepted",
-  "rejected",
-  "pending",
 ]);
 
 export const providerEnum = pgEnum("provider", ["credentials", "azure"]);
@@ -121,6 +120,29 @@ export const fakultasEnum = pgEnum("fakultas", [
   "SAPPK",
 ]);
 
+export const religionEnum = pgEnum("religion", [
+  "Islam",
+  "Kristen Protestan",
+  "Katolik",
+  "Hindu",
+  "Buddha",
+  "Konghucu",
+]);
+
+export const genderEnum = pgEnum("gender", ["M", "F"]);
+
+export const connectionStatusEnum = pgEnum("connection_status", [
+  "accepted",
+  "rejected",
+  "pending",
+]);
+
+export const transactionStatusEnum = pgEnum("transaction_status", [
+  "pending",
+  "paid",
+  "unpaid",
+]);
+
 export const accountTable = pgTable("account", {
   id: uuid("id").defaultRandom().primaryKey().unique().notNull(),
   email: varchar({ length: 255 }).unique().notNull(),
@@ -134,6 +156,7 @@ export const accountTable = pgTable("account", {
     .default("unregistered"),
   oid: varchar({ length: 255 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
@@ -150,6 +173,9 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
   faculty: fakultasEnum("faculty"),
   cityOfOrigin: varchar({ length: 255 }),
   highschoolAlumni: varchar({ length: 255 }),
+  religion: religionEnum("religion"),
+  gender: genderEnum("gender"),
+  gpa: decimal("gpa", { precision: 3, scale: 2 }),
   description: text("description"),
   // Files (links)
   // Field file di bawah ini maksudnya file essay
@@ -168,6 +194,9 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
   mahasiswaStatus: mahasiswaStatusEnum("mahasiswa_status")
     .notNull()
     .default("inactive"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  dueNextUpdateAt: timestamp("due_next_update_at").defaultNow().notNull(),
 });
 
 export const accountOtaDetailTable = pgTable("account_ota_detail", {
@@ -187,6 +216,11 @@ export const accountOtaDetailTable = pgTable("account_ota_detail", {
   maxSemester: integer("max_semester").notNull(),
   transferDate: integer("transfer_date").notNull(),
   criteria: text("criteria").notNull(),
+  allowAdminSelection: boolean("allow_admin_selection")
+    .default(false)
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const connectionTable = pgTable(
@@ -205,7 +239,42 @@ export const connectionTable = pgTable(
     connectionStatus: connectionStatusEnum("connection_status")
       .notNull()
       .default("pending"),
+    requestTerminateOta: boolean("request_terminate_ota")
+      .default(false)
+      .notNull(),
+    requestTerminateMahasiswa: boolean("request_terminate_mahasiswa")
+      .default(false)
+      .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
+);
+
+//TODO: Pastiin pair mahasiswaId, otaId di sini bukan cuma valid di account, tapi juga primary key yang valid di connectionTable. Harus ada connection dulu baru transaction soalnya
+export const transactionTable = pgTable(
+  "transaction",
+  {
+    mahasiswaId: uuid("mahasiswa_id")
+      .notNull()
+      .references(() => accountMahasiswaDetailTable.accountId, {
+        onDelete: "cascade",
+      }),
+    otaId: uuid("ota_id")
+      .notNull()
+      .references(() => accountOtaDetailTable.accountId, {
+        onDelete: "cascade",
+      }),
+    bill: integer("bill").notNull(),
+    amountPaid: integer("amount_paid").notNull(),
+    paidAt: timestamp("paid_at").notNull(),
+    dueDate: timestamp("due_date").notNull(),
+    transactionStatus: transactionStatusEnum("transaction_status")
+      .notNull()
+      .default("unpaid"),
+    transactionReceipt: text("transaction_receipt"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
 );
@@ -224,6 +293,37 @@ export const otpTable = pgTable(
   (table) => [primaryKey({ columns: [table.accountId, table.code] })],
 );
 
+export const temporaryPasswordTable = pgTable(
+  "temporary_password",
+  {
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accountTable.id, {
+        onDelete: "cascade",
+      }),
+    password: varchar({ length: 255 }).notNull(),
+    expiredAt: timestamp("expired_at").notNull(),
+    used: boolean("used").default(false).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.accountId, table.password] })],
+);
+
+export const pushSubscriptionTable = pgTable(
+  "push_subscription",
+  {
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accountTable.id, {
+        onDelete: "cascade",
+      }),
+    endpoint: text("endpoint").notNull(),
+    keys: json("keys").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.accountId, table.endpoint] })],
+);
+
 export const accountRelations = relations(accountTable, ({ one, many }) => ({
   accountMahasiswaDetail: one(accountMahasiswaDetailTable, {
     fields: [accountTable.id],
@@ -234,6 +334,8 @@ export const accountRelations = relations(accountTable, ({ one, many }) => ({
     references: [accountOtaDetailTable.accountId],
   }),
   otps: many(otpTable),
+  temporaryPasswords: many(temporaryPasswordTable),
+  pushSubscriptions: many(pushSubscriptionTable),
 }));
 
 export const accountMahasiswaDetailRelations = relations(
@@ -244,6 +346,7 @@ export const accountMahasiswaDetailRelations = relations(
       references: [accountTable.id],
     }),
     connection: many(connectionTable),
+    transaction: many(transactionTable),
   }),
 );
 
@@ -255,6 +358,7 @@ export const accountOtaDetailRelations = relations(
       references: [accountTable.id],
     }),
     connection: many(connectionTable),
+    transaction: many(transactionTable),
   }),
 );
 
@@ -269,9 +373,40 @@ export const connectionRelations = relations(connectionTable, ({ one }) => ({
   }),
 }));
 
+export const transactionRelations = relations(transactionTable, ({ one }) => ({
+  mahasiswa: one(accountMahasiswaDetailTable, {
+    fields: [transactionTable.mahasiswaId],
+    references: [accountMahasiswaDetailTable.accountId],
+  }),
+  ota: one(accountOtaDetailTable, {
+    fields: [transactionTable.otaId],
+    references: [accountOtaDetailTable.accountId],
+  }),
+}));
+
 export const otpRelations = relations(otpTable, ({ one }) => ({
   account: one(accountTable, {
     fields: [otpTable.accountId],
     references: [accountTable.id],
   }),
 }));
+
+export const temporaryPasswordRelations = relations(
+  temporaryPasswordTable,
+  ({ one }) => ({
+    account: one(accountTable, {
+      fields: [temporaryPasswordTable.accountId],
+      references: [accountTable.id],
+    }),
+  }),
+);
+
+export const pushSubscriptionRelations = relations(
+  pushSubscriptionTable,
+  ({ one }) => ({
+    account: one(accountTable, {
+      fields: [pushSubscriptionTable.accountId],
+      references: [accountTable.id],
+    }),
+  }),
+);
