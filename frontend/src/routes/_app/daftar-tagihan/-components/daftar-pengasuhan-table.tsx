@@ -12,28 +12,27 @@ import {
   ArrowDown,
   ArrowUp,
   ChevronsUpDownIcon as ChevronUpDown,
-  File,
+  Eye,
 } from "lucide-react";
 import { useState } from "react";
 
-export type StatusType = "not-set" | "pending" | "accepted" | "rejected";
+export type StatusType = "pending" | "unpaid" | "paid";
 export type SortDirection = "asc" | "desc" | null;
 export type SortColumn = "namaMa" | "namaOta" | null;
 
 export interface PengasuhanItem {
+  mahasiswaId: string;
+  otaId: string;
   namaMa: string;
   nimMa: string;
   namaOta: string;
   noTelpOta: string;
   tagihan: string;
-  pembayaran: string;
+  pembayaran: number;
   waktuBayar: string;
-  tanggalWaktu: string;
   status: StatusType;
-  date: Date; // Added date field for filtering
-  paymentDetails?: {
-    amount: string;
-  };
+  due_date: string; // Added date field for filtering
+  receipt?: string; // URL to receipt document
 }
 
 interface DaftarPengasuhanTableProps {
@@ -45,7 +44,6 @@ interface DaftarPengasuhanTableProps {
 export function DaftarPengasuhanTable({
   data,
   onStatusChange,
-  onFileClick,
 }: DaftarPengasuhanTableProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -70,14 +68,12 @@ export function DaftarPengasuhanTable({
   // Function to get status color class
   const getStatusColorClass = (status: StatusType) => {
     switch (status) {
-      case "accepted":
+      case "paid":
         return "bg-green-50 text-green-600 border-green-300";
       case "pending":
         return "bg-yellow-50 text-yellow-600 border-yellow-300";
-      case "rejected":
+      case "unpaid":
         return "bg-red-50 text-red-600 border-red-300";
-      case "not-set":
-        return "bg-gray-50 text-gray-600 border-gray-300";
       default:
         return "border-gray-300";
     }
@@ -86,14 +82,12 @@ export function DaftarPengasuhanTable({
   // Function to get status display text
   const getStatusDisplayText = (status: StatusType) => {
     switch (status) {
-      case "accepted":
-        return "Accepted";
+      case "paid":
+        return "Dibayar";
       case "pending":
         return "Pending";
-      case "rejected":
-        return "Rejected";
-      case "not-set":
-        return "-";
+      case "unpaid":
+        return "Ditolak";
       default:
         return "-";
     }
@@ -130,7 +124,18 @@ export function DaftarPengasuhanTable({
 
   // Check if status is disabled (for accepted or rejected items)
   const isStatusDisabled = (status: StatusType) => {
-    return status === "accepted" || status === "rejected";
+    return status === "paid" || status === "unpaid";
+  };
+
+  const renderFileIcon = (item: PengasuhanItem) => {
+    if (item.receipt) {
+      return (
+        <a href={`//${item.receipt}`} target="_blank" rel="noopener noreferrer">
+          <Eye className="h-5 w-5 cursor-pointer text-blue-600" />
+        </a>
+      );
+    }
+    return null;
   };
 
   return (
@@ -192,63 +197,70 @@ export function DaftarPengasuhanTable({
               Waktu Bayar
             </th>
             <th className="px-2 py-3 font-medium whitespace-nowrap">
-              Tanggal Waktu
+              Jatuh Tempo
             </th>
             <th className="px-2 py-3 font-medium whitespace-nowrap">Bukti</th>
             <th className="px-2 py-3 font-medium">Status</th>
           </tr>
         </thead>
         <tbody>
-          {sortedData.map((item, index) => (
-            <tr key={index} className="border-b">
-              <td className="px-2 py-4 whitespace-nowrap">{item.namaMa}</td>
-              <td className="px-2 py-4 whitespace-nowrap">{item.nimMa}</td>
-              <td className="px-2 py-4 whitespace-nowrap">{item.namaOta}</td>
-              <td className="px-2 py-4 whitespace-nowrap">{item.noTelpOta}</td>
-              <td className="px-2 py-4 whitespace-nowrap">{item.tagihan}</td>
-              <td className="px-2 py-4 whitespace-nowrap">{item.pembayaran}</td>
-              <td className="px-2 py-4 whitespace-nowrap">{item.waktuBayar}</td>
-              <td className="px-2 py-4 whitespace-nowrap">
-                {item.tanggalWaktu}
-              </td>
-              <td className="px-2 py-4 whitespace-nowrap">
-                {item.status !== "not-set" && (
-                  <File
-                    className="h-5 w-5 cursor-pointer text-blue-900"
-                    onClick={() => onFileClick && onFileClick(index)}
-                  />
-                )}
-              </td>
-              <td className="px-2 py-4">
-                <Select
-                  value={item.status}
-                  onValueChange={(value: StatusType) =>
-                    onStatusChange && onStatusChange(index, value as StatusType)
-                  }
-                  disabled={isStatusDisabled(item.status)}
-                >
-                  <SelectTrigger
-                    className={cn(
-                      "w-32",
-                      getStatusColorClass(item.status),
-                      isStatusDisabled(item.status) &&
-                        "cursor-not-allowed opacity-80",
-                    )}
-                  >
-                    <SelectValue placeholder="-">
-                      {getStatusDisplayText(item.status)}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="not-set">-</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="accepted">Accepted</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
+          {sortedData.length === 0 ? (
+            <tr>
+              <td colSpan={10} className="py-8 text-center text-gray-500">
+                Tidak ada data yang tersedia
               </td>
             </tr>
-          ))}
+          ) : (
+            sortedData.map((item, index) => (
+              <tr key={index} className="border-b">
+                <td className="px-2 py-4 whitespace-nowrap">{item.namaMa}</td>
+                <td className="px-2 py-4 whitespace-nowrap">{item.nimMa}</td>
+                <td className="px-2 py-4 whitespace-nowrap">{item.namaOta}</td>
+                <td className="px-2 py-4 whitespace-nowrap">
+                  {item.noTelpOta}
+                </td>
+                <td className="px-2 py-4 whitespace-nowrap">{item.tagihan}</td>
+                <td className="px-2 py-4 whitespace-nowrap">
+                  {item.pembayaran}
+                </td>
+                <td className="px-2 py-4 whitespace-nowrap">
+                  {item.waktuBayar}
+                </td>
+                <td className="px-2 py-4 whitespace-nowrap">{item.due_date}</td>
+                <td className="px-2 py-4 whitespace-nowrap">
+                  {renderFileIcon(item)}
+                </td>
+                <td className="px-2 py-4">
+                  <Select
+                    value={item.status}
+                    onValueChange={(value: StatusType) =>
+                      onStatusChange &&
+                      onStatusChange(index, value as StatusType)
+                    }
+                    disabled={isStatusDisabled(item.status)}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        "w-32",
+                        getStatusColorClass(item.status),
+                        isStatusDisabled(item.status) &&
+                          "cursor-not-allowed opacity-80",
+                      )}
+                    >
+                      <SelectValue placeholder="-">
+                        {getStatusDisplayText(item.status)}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unpaid">Belum Bayar</SelectItem>
+                      <SelectItem value="paid">Sudah Dibayar</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>

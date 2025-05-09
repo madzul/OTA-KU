@@ -17,6 +17,8 @@ interface SearchFilterBarProps {
   onYearChange?: (value: string) => void;
   monthValue?: string;
   onMonthChange?: (value: string) => void;
+  statusValue?: string;
+  onStatusChange?: (value: string) => void;
 }
 
 export function SearchFilterBar({
@@ -26,25 +28,34 @@ export function SearchFilterBar({
   onYearChange,
   monthValue,
   onMonthChange,
+  statusValue,
+  onStatusChange,
 }: SearchFilterBarProps) {
   // Generate years (current year and 4 years back)
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
-  // Months in Indonesian
+  // Months in English - make sure values match exactly with API's expected format
   const months = [
-    { value: "01", label: "Januari" },
-    { value: "02", label: "Februari" },
-    { value: "03", label: "Maret" },
-    { value: "04", label: "April" },
-    { value: "05", label: "Mei" },
-    { value: "06", label: "Juni" },
-    { value: "07", label: "Juli" },
-    { value: "08", label: "Agustus" },
-    { value: "09", label: "September" },
-    { value: "10", label: "Oktober" },
-    { value: "11", label: "November" },
-    { value: "12", label: "Desember" },
+    { value: "January", label: "Januari" },
+    { value: "February", label: "Februari" },
+    { value: "March", label: "Maret" },
+    { value: "April", label: "April" },
+    { value: "May", label: "Mei" },
+    { value: "June", label: "Juni" },
+    { value: "July", label: "Juli" },
+    { value: "August", label: "Agustus" },
+    { value: "September", label: "September" },
+    { value: "October", label: "Oktober" },
+    { value: "November", label: "November" },
+    { value: "December", label: "Desember" },
+  ] as const;
+
+  // Status options
+  const statusOptions = [
+    { value: "all", label: "Semua Status" },
+    { value: "unpaid", label: "Belum Bayar" },
+    { value: "pending", label: "Pending" },
   ];
 
   return (
@@ -60,7 +71,7 @@ export function SearchFilterBar({
       </div>
 
       <Select value={yearValue} onValueChange={onYearChange}>
-        <SelectTrigger className="w-[120px] bg-white">
+        <SelectTrigger className="w-[130px] bg-white">
           <SelectValue placeholder="Tahun" />
         </SelectTrigger>
         <SelectContent>
@@ -74,7 +85,7 @@ export function SearchFilterBar({
       </Select>
 
       <Select value={monthValue} onValueChange={onMonthChange}>
-        <SelectTrigger className="w-[120px] bg-white">
+        <SelectTrigger className="w-[130px] bg-white">
           <SelectValue placeholder="Bulan" />
         </SelectTrigger>
         <SelectContent>
@@ -86,6 +97,21 @@ export function SearchFilterBar({
           ))}
         </SelectContent>
       </Select>
+
+      {onStatusChange && (
+        <Select value={statusValue} onValueChange={onStatusChange}>
+          <SelectTrigger className="w-[150px] bg-white">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            {statusOptions.map((status) => (
+              <SelectItem key={status.value} value={status.value}>
+                {status.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 }

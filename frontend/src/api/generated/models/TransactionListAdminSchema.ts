@@ -4,6 +4,8 @@
 /* eslint-disable */
 export type TransactionListAdminSchema = {
   data: Array<{
+    mahasiswa_id: string;
+    ota_id: string;
     name_ma: string;
     /**
      * Nomor Induk Mahasiswa

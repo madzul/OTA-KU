@@ -29,6 +29,7 @@ const paymentDetailsSchema = z.object({
 type PaymentDetailsFormValues = z.infer<typeof paymentDetailsSchema>;
 
 interface PaymentDetailsModalProps {
+  status: "pending" | "unpaid" | "paid";
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (paymentDetails: PaymentDetailsFormValues) => void;
@@ -36,6 +37,7 @@ interface PaymentDetailsModalProps {
 }
 
 export function PaymentDetailsModal({
+  status,
   isOpen,
   onClose,
   onConfirm,
@@ -64,8 +66,20 @@ export function PaymentDetailsModal({
         <DialogHeader>
           <DialogTitle>Detail Pembayaran</DialogTitle>
           <DialogDescription>
-            Masukkan detail pembayaran untuk OTA{" "}
-            <span className="font-medium">{namaOta}</span>
+            {status === "unpaid" ? (
+              <div>
+                Ubah status pembayaran OTA{" "}
+                <span className="font-medium">{namaOta}</span>
+                menjadi UNPAID. Masukkan jumlah pembayaran yang telah dibayarkan
+                jika ada.
+              </div>
+            ) : (
+              <div>
+                Ubah status pembayaran OTA{" "}
+                <span className="font-medium">{namaOta}</span> menjadi
+                PAID?{" "}
+              </div>
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -74,19 +88,21 @@ export function PaymentDetailsModal({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Jumlah Pembayaran (Rp)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Contoh: 300000" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {status === "unpaid" && (
+              <FormField
+                control={form.control}
+                name="amount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jumlah Pembayaran (Rp)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Contoh: 300000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={handleClose}>
