@@ -1,18 +1,9 @@
 import Metadata from "@/components/metadata";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { DaftarTagihanPage } from "./-components/DaftarTagihan";
 
 // Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // 5 minutes
-    },
-  },
-});
 
 export const Route = createFileRoute("/_app/daftar-tagihan/")({
   component: RouteComponent,
