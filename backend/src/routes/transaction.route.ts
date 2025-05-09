@@ -2,7 +2,7 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import { InternalServerErrorResponse, NotFoundResponse } from "../zod/response.js";
-import { DetailTransactionParams, TransactionDetailQueryResponse, TransactionListAdminQueryResponse, TransactionListAdminQuerySchema, TransactionListOTAQueryResponse, TransactionListOTAQuerySchema } from "../zod/transaction.js";
+import { DetailTransactionParams, TransactionDetailQueryResponse, TransactionListAdminQueryResponse, TransactionListAdminQuerySchema, TransactionListOTAQueryResponse, TransactionListOTAQuerySchema, UploadReceiptResponse, UploadReceiptSchema, VerifyTransactionAcceptSchema, VerifyTransactionRejectSchema, VerifyTransactionResponse } from "../zod/transaction.js";
 
 export const listTransactionOTARoute = createRoute({
     operationId: "listTransactionOTA",
@@ -92,4 +92,89 @@ export const detailTransactionRoute = createRoute({
           },
         }, 
     }  
+})
+
+export const uploadReceiptRoute = createRoute({
+    operationId: "uploadReceipt",
+    tags: ["Transaction"],
+    method: "post",
+    path: "/upload-receipt",
+    description: "Upload bukti pembayaran dari OTA",
+    request: {
+        params: UploadReceiptSchema,
+    },
+    responses: {
+      200: {
+        description: "Berhasil melakukan upload bukti pembayaran dari OTA.",
+        content: {
+        "application/json": {
+            schema: UploadReceiptResponse,
+          },
+        },
+      },
+      401: AuthorizationErrorResponse,
+      500: {
+        description: "Internal server error",
+        content: {
+          "application/json": { schema: InternalServerErrorResponse },
+        },
+      }, 
+    }
+})
+
+export const verifyTransactionAccRoute = createRoute({
+    operationId: "verifyTransactionAcc",
+    tags: ["Transaction"],
+    method: "post",
+    path: "/verify-acc",
+    description: "Melakukan penerimaan verifikasi pembayaran oleh admin",
+    request: {
+        params: VerifyTransactionAcceptSchema,
+    },
+    responses: {
+      200: {
+        description: "Berhasil melakukan penerimaan verifikasi pembayaran",
+        content: {
+        "application/json": {
+            schema: VerifyTransactionResponse,
+          },
+        },
+      },
+      401: AuthorizationErrorResponse,
+      500: {
+        description: "Internal server error",
+        content: {
+          "application/json": { schema: InternalServerErrorResponse },
+        },
+      }, 
+    }
+})
+
+
+export const verifyTransactionRejectRoute = createRoute({
+  operationId: "verifyTransactionReject",
+  tags: ["Transaction"],
+  method: "post",
+  path: "/verify-reject",
+  description: "Melakukan penolakan verifikasi pembayaran oleh admin",
+  request: {
+      params: VerifyTransactionRejectSchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil melakukan penolakan verifikasi pembayaran",
+      content: {
+      "application/json": {
+          schema: VerifyTransactionResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    }, 
+  }
 })
