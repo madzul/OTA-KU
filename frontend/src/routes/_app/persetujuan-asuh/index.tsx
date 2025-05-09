@@ -1,6 +1,8 @@
 import Metadata from "@/components/metadata";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
+import PersetujuanAsuhContent from "./-components/persetujuan-asuh-content";
+
 export const Route = createFileRoute("/_app/persetujuan-asuh/")({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
@@ -20,9 +22,12 @@ export const Route = createFileRoute("/_app/persetujuan-asuh/")({
 
 function RouteComponent() {
   return (
-    <main>
+    <main className="flex min-h-[calc(100vh-70px)] flex-col gap-4 p-2 px-6 py-16 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <Metadata title="Persetujuan Asuh | BOTA" />
-      Hello "/_app/persetujuan-asuh/"! Halaman ini hanya bisa diakses oleh admin
+      <h1 className="text-dark text-3xl font-bold md:text-[50px]">
+        Persetujuan Asuh
+      </h1>
+      <PersetujuanAsuhContent />
     </main>
   );
 }
