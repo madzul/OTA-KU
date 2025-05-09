@@ -224,6 +224,7 @@ export const VerifyTransactionRejectSchema = z.object({
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
     amountPaid: z
+      .coerce
       .number()
       .int("Nominal yang telah dibayarkan harus berupa sebuah bilangan bulat")
       .openapi({
