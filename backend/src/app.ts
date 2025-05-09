@@ -29,7 +29,7 @@ app.onError((err, c) => {
   if (err instanceof HTTPException) {
     return err.getResponse();
   }
-  return c.json({ error: "Something went wrong!" }, 500);
+  return c.json({ error: err }, 500);
 });
 
 app.use(

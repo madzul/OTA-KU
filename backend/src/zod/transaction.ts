@@ -26,6 +26,7 @@ export const TransactionListOTAQueryResponse = z.object({
         nim: NIMSchema,
         bill: z.number().openapi({ example: 300000}),
         amount_paid: z.number().openapi({ example: 200000}),
+        paid_at: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
         due_date: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
         status: z
           .enum([
@@ -45,24 +46,18 @@ export const TransactionListOTAQueryResponse = z.object({
 
 export const TransactionListAdminQuerySchema = z.object({
     month: z
-      .string()
+      .enum([
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ])
       .optional()
-      .refine((value) => {
-        if (value === undefined) return true;
-        const validMonths = [
-          "January", "February", "March", "April", "May", "June",
-          "July", "August", "September", "October", "November", "December"
-        ];
-        return validMonths.includes(value);
-      }, {
-        message: "Invalid month name. Must be one of January to December.",
-      })
       .openapi({
         description: "Month filter",
         example: "June",
       }),
 
     year: z
+      .coerce
       .number()
       .min(2024, { message: "Year must be 2024 or later." })
       .max(new Date().getFullYear(), { message: `Year cannot be in the future.` })
@@ -77,7 +72,7 @@ export const TransactionListAdminQuerySchema = z.object({
       example: 1,
     }),
     
-    status: z.enum(["unpaid", "pending", "pending"]).optional().openapi({
+    status: z.enum(["unpaid", "pending", "paid"]).optional().openapi({
       description: "Status of transaction.",
       example: "pending",
     }),
@@ -95,6 +90,7 @@ export const TransactionListAdminQueryResponse = z.object({
           number_ota: PhoneNumberSchema,
           bill: z.number().openapi({ example: 300000}),
           amount_paid: z.number().openapi({ example: 200000}),
+          paid_at: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
           due_date: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
           status: z
             .enum([
@@ -147,5 +143,113 @@ export const DetailTransactionParams = z.object({
       description: "Page number for pagination.",
       example: 1,
     }),
+});
+
+export const UploadReceiptSchema = z.object({
+  mahasiswaId: z
+    .string({
+      required_error: "ID mahasiswa asuh harus diisi",
+      invalid_type_error: "ID mahasiswa asuh harus berupa string",
+    })
+    .uuid({
+      message: "ID mahasiswa asuh tidak valid",
+    })
+    .openapi({
+      description: "ID mahasiswa asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+  receipt: z
+    .string()
+    .openapi({ example: "https://example.com/file.pdf" }),
+});
+
+export const UploadReceiptResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Berhasil melakukan upload bukti pembayaran dari OTA" }),
+  body: z.object({
+    bukti_bayar: z.string().openapi({ example: "https://example.com/file.pdf" }),
+  })
+})
+
+export const VerifyTransactionAcceptSchema = z.object({
+  otaId: z
+    .string({
+      required_error: "ID orang tua asuh harus diisi",
+      invalid_type_error: "ID orang tua asuh harus berupa string",
+    })
+    .uuid({
+      message: "ID orang tua asuh tidak valid",
+    })
+    .openapi({
+      description: "ID orang tua asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+  mahasiswaId: z
+    .string({
+      required_error: "ID mahasiswa asuh harus diisi",
+      invalid_type_error: "ID mahasiswa asuh harus berupa string",
+    })
+    .uuid({
+      message: "ID mahasiswa asuh tidak valid",
+    })
+    .openapi({
+      description: "ID mahasiswa asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+})
+
+export const VerifyTransactionRejectSchema = z.object({
+  otaId: z
+    .string({
+      required_error: "ID orang tua asuh harus diisi",
+      invalid_type_error: "ID orang tua asuh harus berupa string",
+    })
+    .uuid({
+      message: "ID orang tua asuh tidak valid",
+    })
+    .openapi({
+      description: "ID orang tua asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+  mahasiswaId: z
+    .string({
+      required_error: "ID mahasiswa asuh harus diisi",
+      invalid_type_error: "ID mahasiswa asuh harus berupa string",
+    })
+    .uuid({
+      message: "ID mahasiswa asuh tidak valid",
+    })
+    .openapi({
+      description: "ID mahasiswa asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+    amountPaid: z
+      .number()
+      .int("Nominal yang telah dibayarkan harus berupa sebuah bilangan bulat")
+      .openapi({
+        description: "Nominal yang telah dibayarkan",
+        example: 300000
+    })
+})
+
+export const VerifyTransactionResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({
+    example: "Berhasil melakukan accept verifikasi pembayaran",
+  }),
+  body: z.object({
+    mahasiswaId: z.string().uuid().openapi({
+      description: "ID mahasiswa asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+    otaId: z.string().uuid().openapi({
+      description: "ID orang tua asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+    amountPaid: z.number().int("Nominal yang dibayarkan harus berupa sebuah bilangan bulat").openapi({
+      description: "Nominal yang telah dibayarkan",
+      example: 300000
+    })
+  }),
 });
 
