@@ -412,8 +412,8 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async(c) => {
             await tx
               .update(transactionTable)
                 .set(
-                    { 
-                        transactionStatus: "pending",
+                    { //TODO: amountPaid di-increment ama yang udah ada, bukan cuma ditimpa
+                        transactionStatus: "unpaid",
                         transactionReceipt: "",
                         amountPaid: amountPaid
                     }
