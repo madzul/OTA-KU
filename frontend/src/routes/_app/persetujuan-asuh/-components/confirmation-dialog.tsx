@@ -1,0 +1,124 @@
+import { api, queryClient } from "@/api/client";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { CircleCheck, CircleX } from "lucide-react";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+function ConfirmationDialog({
+  compositeKey,
+  mahasiswaName,
+  otaName,
+}: {
+  compositeKey: {
+    mahasiswaId: string;
+    otaId: string;
+  };
+  mahasiswaName: string;
+  otaName: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [action, setAction] = useState<"accept" | "reject" | null>(null);
+
+  const connectionStatusCallbackMutation = useMutation({
+    mutationFn: async () => {
+      if (action === "accept") {
+        return api.connect.verifyConnectionAccept({ formData: compositeKey });
+      } else if (action === "reject") {
+        return api.connect.verifyConnectionReject({ formData: compositeKey });
+      }
+    },
+    onSuccess: (_data, _variables, context) => {
+      toast.dismiss(context);
+      toast.success(
+        action === "accept"
+          ? "Berhasil menerima koneksi"
+          : "Berhasil menolak koneksi"
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["listConnection"],
+        refetchType: "active",
+      }); // Refresh the table
+      setOpen(false);
+    },
+    onError: (_error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning(
+        action === "accept"
+          ? "Gagal menerima koneksi"
+          : "Gagal menolak koneksi"
+      );
+    },
+    onMutate: () => {
+      const loading = toast.loading(
+        action === "accept"
+          ? "Sedang memproses penerimaan koneksi..."
+          : "Sedang memproses penolakan koneksi...",
+        { duration: Infinity }
+      );
+      return loading;
+    },
+  });
+
+  const handleConfirm = () => {
+    connectionStatusCallbackMutation.mutate();
+  };
+
+  return (
+    <div className="flex gap-2">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <CircleCheck
+            className="text-succeed h-6 w-6 cursor-pointer"
+            onClick={() => {
+              setAction("accept");
+              setOpen(true);
+            }}
+          />
+        </DialogTrigger>
+        <DialogTrigger asChild>
+          <CircleX
+            className="text-destructive h-6 w-6 cursor-pointer"
+            onClick={() => {
+              setAction("reject");
+              setOpen(true);
+            }}
+          />
+        </DialogTrigger>
+
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {action === "accept"
+                ? "Konfirmasi Persetujuan"
+                : "Konfirmasi Tolak"}
+            </DialogTitle>
+          </DialogHeader>
+          <p>
+            Apakah Anda yakin ingin{" "}
+            {action === "accept" ? "menyetujui" : "menolak"} permintaan OTA
+            <span className="font-bold"> {otaName} </span>
+            untuk mengasuh
+            <span className="font-bold"> {mahasiswaName}</span>? Aksi ini tidak
+            akan bisa diulang.
+          </p>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Batal
+            </Button>
+            <Button onClick={handleConfirm}>Yakin</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+export default ConfirmationDialog;
