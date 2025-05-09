@@ -1,30 +1,40 @@
+import { api } from "@/api/client";
 import { SearchInput } from "@/components/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
 
 import { DataTable } from "./data-table";
 import { persetujuanAsuhColumns } from "./columns";
-import { dummyData } from "./dummy";
 
 function PersetujuanAsuhContent() {
   const [search, setSearch] = useState<string>("");
   const [value] = useDebounce(search, 500);
 
-  const filteredData = dummyData.filter(
-    (item) =>
-      item.mahasiswaName.toLowerCase().includes(value.toLowerCase()) ||
-      item.nim.includes(value) ||
-      item.otaName.toLowerCase().includes(value.toLowerCase()) ||
-      item.phoneNumber.includes(value)
-  );
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["listConnection", value],
+    queryFn: () =>
+      api.connect.listConnection({
+        q: value,
+        page: 1,
+      }),
+    select: (response) =>
+      response.body.data.map((item) => ({
+        id: `${item.mahasiswa_id}-${item.ota_id}`,
+        mahasiswaName: item.name_ma,
+        nim: item.nim_ma,
+        otaName: item.name_ota,
+        phoneNumber: item.number_ota,
+      })),
+  });
 
-  const isLoading = false; // Simulate loading state if needed
+  const isLoadingState = isLoading || isError;
 
   return (
     <section className="flex flex-col gap-4">
       {/* Search */}
-      {isLoading ? (
+      {isLoadingState ? (
         <div className="rounded-md bg-white">
           <Skeleton className="h-10 w-full" />
         </div>
@@ -36,12 +46,12 @@ function PersetujuanAsuhContent() {
       )}
 
       {/* Table */}
-      {isLoading ? (
+      {isLoadingState ? (
         <div className="rounded-md bg-white">
           <Skeleton className="h-80 w-full" />
         </div>
       ) : (
-        <DataTable columns={persetujuanAsuhColumns} data={filteredData} />
+        <DataTable columns={persetujuanAsuhColumns} data={data || []} />
       )}
     </section>
   );
