@@ -233,8 +233,10 @@ connectProtectedRouter.openapi(listConnectionRoute, async(c) => {
 
     const connectionListQuery = db
       .select({
+        mahasiswa_id: connectionTable.mahasiswaId,
         name_ma: accountMahasiswaDetailTable.name,
         nim_ma: accountMahasiswaDetailTable.nim,
+        ota_id: connectionTable.otaId,
         name_ota: accountOtaDetailTable.name,
         number_ota: accountTable.phoneNumber,
       })
@@ -275,8 +277,10 @@ connectProtectedRouter.openapi(listConnectionRoute, async(c) => {
           message: "Daftar connection berhasil diambil",
           body: {
             data: connectionList.map((connection) => ({
+              mahasiswa_id: connection.mahasiswa_id,
               name_ma: connection.name_ma ?? "",
               nim_ma: connection.nim_ma,
+              ota_id: connection.ota_id,
               name_ota: connection.name_ota,
               number_ota: connection.number_ota ?? ""
             })),
