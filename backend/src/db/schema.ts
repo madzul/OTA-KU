@@ -3,6 +3,7 @@ import {
   boolean,
   decimal,
   integer,
+  json,
   pgEnum,
   pgTable,
   primaryKey,
@@ -307,6 +308,22 @@ export const temporaryPasswordTable = pgTable(
   (table) => [primaryKey({ columns: [table.accountId, table.password] })],
 );
 
+export const pushSubscriptionTable = pgTable(
+  "push_subscription",
+  {
+    accountId: uuid("account_id")
+      .notNull()
+      .references(() => accountTable.id, {
+        onDelete: "cascade",
+      }),
+    endpoint: text("endpoint").notNull(),
+    keys: json("keys").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.accountId, table.endpoint] })],
+);
+
 export const accountRelations = relations(accountTable, ({ one, many }) => ({
   accountMahasiswaDetail: one(accountMahasiswaDetailTable, {
     fields: [accountTable.id],
@@ -318,6 +335,7 @@ export const accountRelations = relations(accountTable, ({ one, many }) => ({
   }),
   otps: many(otpTable),
   temporaryPasswords: many(temporaryPasswordTable),
+  pushSubscriptions: many(pushSubscriptionTable),
 }));
 
 export const accountMahasiswaDetailRelations = relations(
@@ -383,3 +401,12 @@ export const temporaryPasswordRelations = relations(
   }),
 );
 
+export const pushSubscriptionRelations = relations(
+  pushSubscriptionTable,
+  ({ one }) => ({
+    account: one(accountTable, {
+      fields: [pushSubscriptionTable.accountId],
+      references: [accountTable.id],
+    }),
+  }),
+);

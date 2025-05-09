@@ -10,6 +10,7 @@ import { statusProtectedRouter, statusRouter } from "./status.controller.js";
 import { terminateProtectedRouter } from "./terminate.controller.js";
 import { passwordProtectedRouter } from "./password.controller.js";
 import { transactionProtectedRouter } from "./transaction.controller.js";
+import { pushProtectedRouter } from "./push.controller.js";
 
 const unprotectedApiRouter = new OpenAPIHono();
 unprotectedApiRouter.route("/auth", authRouter);
@@ -31,6 +32,7 @@ protectedApiRouter.route("/otp", otpProtectedRouter);
 protectedApiRouter.route("/terminate", terminateProtectedRouter);
 protectedApiRouter.route("/password", passwordProtectedRouter);
 protectedApiRouter.route("/transaction", transactionProtectedRouter);
+protectedApiRouter.route("/push", pushProtectedRouter);
 
 export const apiRouter = new OpenAPIHono();
 apiRouter.route("/", unprotectedApiRouter);
