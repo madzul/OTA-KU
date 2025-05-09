@@ -4,7 +4,6 @@
 /* eslint-disable */
 import type { TransactionDetailSchema } from '../models/TransactionDetailSchema';
 import type { TransactionListAdminSchema } from '../models/TransactionListAdminSchema';
-import type { TransactionListOTASchema } from '../models/TransactionListOTASchema';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class TransactionService {
@@ -25,7 +24,22 @@ export class TransactionService {
   }): CancelablePromise<{
     success: boolean;
     message: string;
-    body: TransactionListOTASchema;
+    body: {
+      data: Array<{
+        name: string;
+        /**
+         * Nomor Induk Mahasiswa
+         */
+        nim: string;
+        bill: number;
+        amount_paid: number;
+        paid_at: string;
+        due_date: string;
+        status: 'unpaid' | 'pending' | 'paid';
+        receipt: string;
+      }>;
+      totalData: number;
+    };
   }> {
     return this.httpRequest.request({
       method: 'GET',
@@ -52,10 +66,10 @@ export class TransactionService {
     page,
     status,
   }: {
-    month?: string,
+    month?: 'January' | 'February' | 'March' | 'April' | 'May' | 'June' | 'July' | 'August' | 'September' | 'October' | 'November' | 'December',
     year?: number,
     page?: number | null,
-    status?: 'unpaid' | 'pending',
+    status?: 'unpaid' | 'pending' | 'paid',
   }): CancelablePromise<{
     success: boolean;
     message: string;
@@ -102,6 +116,124 @@ export class TransactionService {
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         404: `Mahasiswa tidak ditemukan`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Upload bukti pembayaran dari OTA
+   * @returns any Berhasil melakukan upload bukti pembayaran dari OTA.
+   * @throws ApiError
+   */
+  public uploadReceipt({
+    mahasiswaId,
+    receipt,
+  }: {
+    mahasiswaId: string,
+    receipt: string,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      bukti_bayar: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/transaction/upload-receipt',
+      path: {
+        'mahasiswaId': mahasiswaId,
+        'receipt': receipt,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Melakukan penerimaan verifikasi pembayaran oleh admin
+   * @returns any Berhasil melakukan penerimaan verifikasi pembayaran
+   * @throws ApiError
+   */
+  public verifyTransactionAcc({
+    otaId,
+    mahasiswaId,
+  }: {
+    otaId: string,
+    mahasiswaId: string,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+      /**
+       * Nominal yang telah dibayarkan
+       */
+      amountPaid: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/transaction/verify-acc',
+      path: {
+        'otaId': otaId,
+        'mahasiswaId': mahasiswaId,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Melakukan penolakan verifikasi pembayaran oleh admin
+   * @returns any Berhasil melakukan penolakan verifikasi pembayaran
+   * @throws ApiError
+   */
+  public verifyTransactionReject({
+    otaId,
+    mahasiswaId,
+    amountPaid,
+  }: {
+    otaId: string,
+    mahasiswaId: string,
+    amountPaid: number,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+      /**
+       * Nominal yang telah dibayarkan
+       */
+      amountPaid: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/transaction/verify-reject',
+      path: {
+        'otaId': otaId,
+        'mahasiswaId': mahasiswaId,
+        'amountPaid': amountPaid,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
         500: `Internal server error`,
       },
     });

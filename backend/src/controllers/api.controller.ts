@@ -31,6 +31,7 @@ protectedApiRouter.route("/detail", detailProtectedRouter);
 protectedApiRouter.route("/otp", otpProtectedRouter);
 protectedApiRouter.route("/terminate", terminateProtectedRouter);
 protectedApiRouter.route("/password", passwordProtectedRouter);
+protectedApiRouter.route("/transaction", transactionProtectedRouter);
 protectedApiRouter.route("/push", pushProtectedRouter);
 protectedApiRouter.route("/transaction", transactionProtectedRouter);
 

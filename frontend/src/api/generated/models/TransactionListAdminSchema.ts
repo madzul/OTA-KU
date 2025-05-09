@@ -16,6 +16,7 @@ export type TransactionListAdminSchema = {
     number_ota: string;
     bill: number;
     amount_paid: number;
+    paid_at: string;
     due_date: string;
     status: 'unpaid' | 'pending' | 'paid';
     receipt: string;
