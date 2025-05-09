@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { TransactionDetailSchema } from '../models/TransactionDetailSchema';
+import type { TransactionListAdminSchema } from '../models/TransactionListAdminSchema';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class TransactionService {
@@ -71,27 +73,7 @@ export class TransactionService {
   }): CancelablePromise<{
     success: boolean;
     message: string;
-    body: {
-      data: Array<{
-        name_ma: string;
-        /**
-         * Nomor Induk Mahasiswa
-         */
-        nim_ma: string;
-        name_ota: string;
-        /**
-         * Nomor telepon pengguna yang dimulai dengan 62.
-         */
-        number_ota: string;
-        bill: number;
-        amount_paid: number;
-        paid_at: string;
-        due_date: string;
-        status: 'unpaid' | 'pending' | 'paid';
-        receipt: string;
-      }>;
-      totalData: number;
-    };
+    body: TransactionListAdminSchema;
   }> {
     return this.httpRequest.request({
       method: 'GET',
@@ -122,23 +104,7 @@ export class TransactionService {
   }): CancelablePromise<{
     success: boolean;
     message: string;
-    body: {
-      nama_ma: string;
-      /**
-       * Nomor Induk Mahasiswa
-       */
-      nim_ma: string;
-      fakultas: string;
-      jurusan: string;
-      data: Array<{
-        tagihan: number;
-        pembayaran: number;
-        due_date: string;
-        status_bayar: 'unpaid' | 'pending' | 'paid';
-        bukti_bayar: string;
-      }>;
-      totalData: number;
-    };
+    body: TransactionDetailSchema;
   }> {
     return this.httpRequest.request({
       method: 'GET',
@@ -191,11 +157,18 @@ export class TransactionService {
    * @throws ApiError
    */
   public verifyTransactionAcc({
-    otaId,
-    mahasiswaId,
+    formData,
   }: {
-    otaId: string,
-    mahasiswaId: string,
+    formData?: {
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+    },
   }): CancelablePromise<{
     success: boolean;
     message: string;
@@ -217,10 +190,8 @@ export class TransactionService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/transaction/verify-acc',
-      path: {
-        'otaId': otaId,
-        'mahasiswaId': mahasiswaId,
-      },
+      formData: formData,
+      mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         500: `Internal server error`,
@@ -233,13 +204,22 @@ export class TransactionService {
    * @throws ApiError
    */
   public verifyTransactionReject({
-    otaId,
-    mahasiswaId,
-    amountPaid,
+    formData,
   }: {
-    otaId: string,
-    mahasiswaId: string,
-    amountPaid: number,
+    formData?: {
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+      /**
+       * Nominal yang telah dibayarkan
+       */
+      amountPaid: number | null;
+    },
   }): CancelablePromise<{
     success: boolean;
     message: string;
@@ -261,11 +241,8 @@ export class TransactionService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/transaction/verify-reject',
-      path: {
-        'otaId': otaId,
-        'mahasiswaId': mahasiswaId,
-        'amountPaid': amountPaid,
-      },
+      formData: formData,
+      mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
         500: `Internal server error`,

@@ -129,7 +129,13 @@ export const verifyTransactionAccRoute = createRoute({
     path: "/verify-acc",
     description: "Melakukan penerimaan verifikasi pembayaran oleh admin",
     request: {
-        params: VerifyTransactionAcceptSchema,
+      body: {
+        content: {
+          "multipart/form-data": {
+            schema: VerifyTransactionAcceptSchema,
+          },
+        },
+      },
     },
     responses: {
       200: {
@@ -158,7 +164,13 @@ export const verifyTransactionRejectRoute = createRoute({
   path: "/verify-reject",
   description: "Melakukan penolakan verifikasi pembayaran oleh admin",
   request: {
-      params: VerifyTransactionRejectSchema,
+    body: {
+      content: {
+        "multipart/form-data": {
+          schema: VerifyTransactionRejectSchema,
+        },
+      },
+    },
   },
   responses: {
     200: {

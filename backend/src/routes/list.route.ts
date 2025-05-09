@@ -181,3 +181,31 @@ export const listMAPendingRoute = createRoute({
     },
   },
 });
+
+export const listAvailableOTARoute = createRoute({
+  operationId: "listAvailableOTA",
+  tags: ["List"],
+  method: "get",
+  path: "/admin/ota/available",
+  description: "List orang tua asuh yang tersedia untuk dipilih admin",
+  request: {
+    query: OTAListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan daftar OTA yang tersedia",
+      content: {
+        "application/json": {
+          schema: OTAListQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
