@@ -5,7 +5,7 @@ import { ClientPagination } from "@/components/client-pagination";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -13,7 +13,7 @@ import {
   type StatusType,
   type TransaksiItem,
 } from "./daftar-transaksi-table";
-import { PaymentDetailsModal } from "./payment-details-modal";
+import { PaymentDetailsModal } from "./detail-transaksi-modal";
 import { SearchFilterBar } from "./search-filter-bar";
 
 const ITEMS_PER_PAGE = 8;
@@ -57,7 +57,7 @@ export function DaftarTagihanPage() {
     "December",
   ] as const;
 
-  // Set to todays date for filtering
+  // Set to today's date for filtering
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear().toString();
   const currentMonth = monthNames[currentDate.getMonth()];
@@ -99,7 +99,6 @@ export function DaftarTagihanPage() {
   // Transform the data from API format to component format
   useEffect(() => {
     if (transactionData?.body?.data) {
-      //   console.log("Transaction Data:", JSON.stringify(transactionData));
       const transformedData = transactionData.body.data.map((item) => {
         return {
           mahasiswaId: item.mahasiswa_id,
@@ -127,24 +126,47 @@ export function DaftarTagihanPage() {
 
   // Reset to page 1 when filters change
   useEffect(() => {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        page: 1,
-      }),
+    // Only run this effect when filters change, not during initial render
+    if (
+      searchQuery ||
+      yearFilter !== currentYear ||
+      monthFilter !== currentMonth ||
+      selectedStatus
+    ) {
+      navigate({
+        to: location.pathname,
+        search: (prev) => {
+          return {
+            ...prev,
+            page: "1",
+          };
+        },
+        replace: true,
+      });
+    }
+  }, [
+    searchQuery,
+    yearFilter,
+    monthFilter,
+    selectedStatus,
+    navigate,
+    location.pathname,
+    currentYear,
+    currentMonth,
+  ]);
+
+  // Memoize filtered data to prevent unnecessary recalculations
+  const filteredData = useMemo(() => {
+    return transaksiData.filter((item) => {
+      const matchesSearch =
+        !searchQuery ||
+        item.namaMa.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.namaOta.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.noTelpOta.includes(searchQuery);
+
+      return matchesSearch;
     });
-  }, [searchQuery, yearFilter, monthFilter, selectedStatus, navigate]);
-
-  // Local filtering for search (the API might not support text search)
-  const filteredData = transaksiData.filter((item) => {
-    const matchesSearch =
-      !searchQuery ||
-      item.namaMa.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.namaOta.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.noTelpOta.includes(searchQuery);
-
-    return matchesSearch;
-  });
+  }, [transaksiData, searchQuery]);
 
   // Calculate pagination values from API
   const totalItems = transactionData?.body?.totalData || 0;
@@ -182,12 +204,12 @@ export function DaftarTagihanPage() {
       }),
 
     onSuccess: () => {
-      toast.success("Berhasil mengubah tagihan benjadi PAID", {
+      toast.success("Berhasil mengubah tagihan menjadi PAID", {
         description: "Tagihan berhasil diterima.",
       });
     },
     onError: () => {
-      toast.error("Gagal mengubah tagihan benjadi PAID", {
+      toast.error("Gagal mengubah tagihan menjadi PAID", {
         description: "Terjadi kesalahan saat menerima tagihan.",
       });
     },
@@ -208,12 +230,12 @@ export function DaftarTagihanPage() {
       }),
 
     onSuccess: () => {
-      toast.success("Berhasil mengubah tagihan benjadi UNPAID", {
+      toast.success("Berhasil mengubah tagihan menjadi UNPAID", {
         description: "Tagihan berhasil ditolak.",
       });
     },
     onError: () => {
-      toast.error("Gagal mengubah tagihan benjadi UNPAID", {
+      toast.error("Gagal mengubah tagihan menjadi UNPAID", {
         description: "Terjadi kesalahan saat menolak tagihan.",
       });
     },
@@ -240,7 +262,6 @@ export function DaftarTagihanPage() {
             ? "unpaid"
             : "pending";
 
-      console.log("MA ID OTAID AMOUNT", item.mahasiswaId, item.otaId, amount);
       if (apiStatus === "paid") {
         updateTransactionAccMutation.mutate({
           maId: item.mahasiswaId,
@@ -266,8 +287,12 @@ export function DaftarTagihanPage() {
 
     setIsModalOpen(false);
     setSelectedItemIndex(null);
-    setPendingStatus(null);
+    setPendingStatus("pending");
   };
+
+  // Get selected item if available
+  const selectedItem =
+    selectedItemIndex !== null ? filteredData[selectedItemIndex] : null;
 
   return (
     <>
@@ -315,13 +340,13 @@ export function DaftarTagihanPage() {
         animate={true}
       />
 
-      {selectedItemIndex !== null && (
+      {selectedItem && (
         <PaymentDetailsModal
           status={pendingStatus}
           isOpen={isModalOpen}
           onClose={handleModalClose}
           onConfirm={handlePaymentDetailsConfirm}
-          namaOta={filteredData[selectedItemIndex]?.namaOta || ""}
+          namaOta={selectedItem.namaOta || ""}
         />
       )}
     </>
