@@ -9,10 +9,10 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import {
-  DaftarPengasuhanTable,
-  type PengasuhanItem,
+  DaftarTransaksiTable,
   type StatusType,
-} from "./daftar-pengasuhan-table";
+  type TransaksiItem,
+} from "./daftar-transaksi-table";
 import { PaymentDetailsModal } from "./payment-details-modal";
 import { SearchFilterBar } from "./search-filter-bar";
 
@@ -71,7 +71,7 @@ export function DaftarTagihanPage() {
     null,
   );
   const [pendingStatus, setPendingStatus] = useState<StatusType>("pending");
-  const [pengasuhanData, setPengasuhanData] = useState<PengasuhanItem[]>([]);
+  const [transaksiData, setTransaksiData] = useState<TransaksiItem[]>([]);
 
   // Fetch transactions data
   const { data: transactionData, isLoading } = useQuery({
@@ -121,7 +121,7 @@ export function DaftarTagihanPage() {
         };
       });
 
-      setPengasuhanData(transformedData);
+      setTransaksiData(transformedData);
     }
   }, [transactionData]);
 
@@ -136,7 +136,7 @@ export function DaftarTagihanPage() {
   }, [searchQuery, yearFilter, monthFilter, selectedStatus, navigate]);
 
   // Local filtering for search (the API might not support text search)
-  const filteredData = pengasuhanData.filter((item) => {
+  const filteredData = transaksiData.filter((item) => {
     const matchesSearch =
       !searchQuery ||
       item.namaMa.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -169,17 +169,16 @@ export function DaftarTagihanPage() {
       setIsModalOpen(true);
     } else {
       // For other status changes (like pending), update directly
-      const newData = [...pengasuhanData];
+      const newData = [...transaksiData];
       newData[index].status = status;
-      setPengasuhanData(newData);
+      setTransaksiData(newData);
     }
   };
 
   const updateTransactionAccMutation = useMutation({
     mutationFn: ({ maId, otaId }: { maId: string; otaId: string }) =>
       api.transaction.verifyTransactionAcc({
-        mahasiswaId: maId,
-        otaId: otaId,
+        formData: { mahasiswaId: maId, otaId: otaId },
       }),
 
     onSuccess: () => {
@@ -205,9 +204,7 @@ export function DaftarTagihanPage() {
       amount: number;
     }) =>
       api.transaction.verifyTransactionReject({
-        mahasiswaId: maId,
-        otaId: otaId,
-        amountPaid: amount,
+        formData: { mahasiswaId: maId, otaId: otaId, amountPaid: amount },
       }),
 
     onSuccess: () => {
@@ -225,14 +222,14 @@ export function DaftarTagihanPage() {
   // Function to handle payment details confirmation
   const handlePaymentDetailsConfirm = ({ amount }: { amount: string }) => {
     if (selectedItemIndex !== null && pendingStatus) {
-      const newData = [...pengasuhanData];
+      const newData = [...transaksiData];
       const item = newData[selectedItemIndex];
 
       // Update payment details
       item.status = pendingStatus;
       item.pembayaran = Number(amount);
 
-      setPengasuhanData(newData);
+      setTransaksiData(newData);
       setIsModalOpen(false);
 
       // Map UI status to API status
@@ -262,9 +259,9 @@ export function DaftarTagihanPage() {
   // Function to handle modal close without confirmation
   const handleModalClose = () => {
     if (selectedItemIndex !== null) {
-      const newData = [...pengasuhanData];
+      const newData = [...transaksiData];
       newData[selectedItemIndex].status = "pending";
-      setPengasuhanData(newData);
+      setTransaksiData(newData);
     }
 
     setIsModalOpen(false);
@@ -305,7 +302,7 @@ export function DaftarTagihanPage() {
           <p className="text-lg text-gray-500">Tidak ada data yang ditemukan</p>
         </div>
       ) : (
-        <DaftarPengasuhanTable
+        <DaftarTransaksiTable
           data={filteredData}
           onStatusChange={handleStatusChange}
         />

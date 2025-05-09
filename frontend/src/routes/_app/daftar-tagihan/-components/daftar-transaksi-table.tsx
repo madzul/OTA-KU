@@ -20,7 +20,7 @@ export type StatusType = "pending" | "unpaid" | "paid";
 export type SortDirection = "asc" | "desc" | null;
 export type SortColumn = "namaMa" | "namaOta" | null;
 
-export interface PengasuhanItem {
+export interface TransaksiItem {
   mahasiswaId: string;
   otaId: string;
   namaMa: string;
@@ -35,16 +35,16 @@ export interface PengasuhanItem {
   receipt?: string; // URL to receipt document
 }
 
-interface DaftarPengasuhanTableProps {
-  data: PengasuhanItem[];
+interface DaftarTransaksiTableProps {
+  data: TransaksiItem[];
   onStatusChange?: (index: number, status: StatusType) => void;
   onFileClick?: (index: number) => void;
 }
 
-export function DaftarPengasuhanTable({
+export function DaftarTransaksiTable({
   data,
   onStatusChange,
-}: DaftarPengasuhanTableProps) {
+}: DaftarTransaksiTableProps) {
   const [sortColumn, setSortColumn] = useState<SortColumn>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
@@ -127,7 +127,7 @@ export function DaftarPengasuhanTable({
     return status === "paid" || status === "unpaid";
   };
 
-  const renderFileIcon = (item: PengasuhanItem) => {
+  const renderFileIcon = (item: TransaksiItem) => {
     if (item.receipt) {
       return (
         <a href={`//${item.receipt}`} target="_blank" rel="noopener noreferrer">
