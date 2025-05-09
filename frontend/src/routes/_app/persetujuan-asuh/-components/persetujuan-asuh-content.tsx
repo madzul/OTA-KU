@@ -24,21 +24,11 @@ function PersetujuanAsuhContent() {
     queryKey: ["listConnection"],
     queryFn: () => api.connect.listConnection({ page }),
   });
-
-  useEffect(() => {
-    if (isSuccess) {
-      queryClient.invalidateQueries({
-        queryKey: ["listConnection"],
-        refetchType: "active",
-      }); // Ensure the table refreshes
-    }
-  });
-
+  
   const isLoadingState = isLoading || !isSuccess;
 
   const listConnectionTableData = data?.body.data.map((item) => ({
     mahasiswaId: item.mahasiswa_id,
-    // id: `${item.mahasiswa_id}-${item.ota_id}`,
     mahasiswaName: item.name_ma,
     nim: item.nim_ma,
     otaId: item.ota_id,
