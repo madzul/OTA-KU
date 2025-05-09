@@ -51,6 +51,7 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
             mahasiswa_nim: accountMahasiswaDetailTable.nim,
             bill: transactionTable.bill,
             amount_paid: transactionTable.amountPaid,
+            paid_at: transactionTable.paidAt,
             due_date: transactionTable.dueDate,
             status: transactionTable.transactionStatus,
             receipt: transactionTable.transactionReceipt
@@ -78,6 +79,7 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
                     nim: transaction.mahasiswa_nim,
                     bill: transaction.bill,
                     amount_paid: transaction.amount_paid,
+                    paid_at: transaction.paid_at,
                     due_date: transaction.due_date,
                     status: transaction.status,
                     receipt: transaction.receipt ?? ""
@@ -101,7 +103,6 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
 })
 
 transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
-    const user = c.var.user;
     const zodParseResult = TransactionListAdminQuerySchema.parse(c.req.query());
     const { month, status, year, page } = zodParseResult
 
@@ -145,6 +146,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
             ota_number: accountTable.phoneNumber,
             bill: transactionTable.bill,
             amount_paid: transactionTable.amountPaid,
+            paid_at: transactionTable.paidAt,
             due_date: transactionTable.dueDate,
             status: transactionTable.transactionStatus,
             receipt: transactionTable.transactionReceipt
@@ -182,6 +184,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
                     number_ota: transaction.ota_number ?? "",
                     bill: transaction.bill,
                     amount_paid: transaction.amount_paid,
+                    paid_at: transaction.paid_at,
                     due_date: transaction.due_date,
                     status: transaction.status,
                     receipt: transaction.receipt ?? ""

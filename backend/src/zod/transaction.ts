@@ -26,6 +26,7 @@ export const TransactionListOTAQueryResponse = z.object({
         nim: NIMSchema,
         bill: z.number().openapi({ example: 300000}),
         amount_paid: z.number().openapi({ example: 200000}),
+        paid_at: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
         due_date: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
         status: z
           .enum([
@@ -89,6 +90,7 @@ export const TransactionListAdminQueryResponse = z.object({
           number_ota: PhoneNumberSchema,
           bill: z.number().openapi({ example: 300000}),
           amount_paid: z.number().openapi({ example: 200000}),
+          paid_at: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
           due_date: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
           status: z
             .enum([
