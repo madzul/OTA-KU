@@ -101,7 +101,13 @@ export const uploadReceiptRoute = createRoute({
     path: "/upload-receipt",
     description: "Upload bukti pembayaran dari OTA",
     request: {
-        params: UploadReceiptSchema,
+      body: {
+        content: {
+          "multipart/form-data": {
+            schema: UploadReceiptSchema,
+          },
+        },
+      },
     },
     responses: {
       200: {

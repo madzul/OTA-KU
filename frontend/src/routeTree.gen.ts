@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AppImport } from './routes/_app'
 import { Route as AppIndexImport } from './routes/_app/index'
 import { Route as AppVerifikasiAkunIndexImport } from './routes/_app/verifikasi-akun/index'
+import { Route as AppStatusTransaksiIndexImport } from './routes/_app/status-transaksi/index'
 import { Route as AppProfileIndexImport } from './routes/_app/profile/index'
 import { Route as AppPersetujuanAsuhIndexImport } from './routes/_app/persetujuan-asuh/index'
 import { Route as AppPendaftaranIndexImport } from './routes/_app/pendaftaran/index'
@@ -47,6 +48,12 @@ const AppIndexRoute = AppIndexImport.update({
 const AppVerifikasiAkunIndexRoute = AppVerifikasiAkunIndexImport.update({
   id: '/verifikasi-akun/',
   path: '/verifikasi-akun/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppStatusTransaksiIndexRoute = AppStatusTransaksiIndexImport.update({
+  id: '/status-transaksi/',
+  path: '/status-transaksi/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -226,6 +233,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProfileIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/status-transaksi/': {
+      id: '/_app/status-transaksi/'
+      path: '/status-transaksi'
+      fullPath: '/status-transaksi'
+      preLoaderRoute: typeof AppStatusTransaksiIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/verifikasi-akun/': {
       id: '/_app/verifikasi-akun/'
       path: '/verifikasi-akun'
@@ -304,6 +318,7 @@ interface AppRouteChildren {
   AppPendaftaranIndexRoute: typeof AppPendaftaranIndexRoute
   AppPersetujuanAsuhIndexRoute: typeof AppPersetujuanAsuhIndexRoute
   AppProfileIndexRoute: typeof AppProfileIndexRoute
+  AppStatusTransaksiIndexRoute: typeof AppStatusTransaksiIndexRoute
   AppVerifikasiAkunIndexRoute: typeof AppVerifikasiAkunIndexRoute
   AppDetailMahasiswaDetailIdRoute: typeof AppDetailMahasiswaDetailIdRoute
   AppDetailOrangTuaAsuhDetailIdRoute: typeof AppDetailOrangTuaAsuhDetailIdRoute
@@ -325,6 +340,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPendaftaranIndexRoute: AppPendaftaranIndexRoute,
   AppPersetujuanAsuhIndexRoute: AppPersetujuanAsuhIndexRoute,
   AppProfileIndexRoute: AppProfileIndexRoute,
+  AppStatusTransaksiIndexRoute: AppStatusTransaksiIndexRoute,
   AppVerifikasiAkunIndexRoute: AppVerifikasiAkunIndexRoute,
   AppDetailMahasiswaDetailIdRoute: AppDetailMahasiswaDetailIdRoute,
   AppDetailOrangTuaAsuhDetailIdRoute: AppDetailOrangTuaAsuhDetailIdRoute,
@@ -351,6 +367,7 @@ export interface FileRoutesByFullPath {
   '/pendaftaran': typeof AppPendaftaranIndexRoute
   '/persetujuan-asuh': typeof AppPersetujuanAsuhIndexRoute
   '/profile': typeof AppProfileIndexRoute
+  '/status-transaksi': typeof AppStatusTransaksiIndexRoute
   '/verifikasi-akun': typeof AppVerifikasiAkunIndexRoute
   '/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
   '/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
@@ -372,6 +389,7 @@ export interface FileRoutesByTo {
   '/pendaftaran': typeof AppPendaftaranIndexRoute
   '/persetujuan-asuh': typeof AppPersetujuanAsuhIndexRoute
   '/profile': typeof AppProfileIndexRoute
+  '/status-transaksi': typeof AppStatusTransaksiIndexRoute
   '/verifikasi-akun': typeof AppVerifikasiAkunIndexRoute
   '/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
   '/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
@@ -395,6 +413,7 @@ export interface FileRoutesById {
   '/_app/pendaftaran/': typeof AppPendaftaranIndexRoute
   '/_app/persetujuan-asuh/': typeof AppPersetujuanAsuhIndexRoute
   '/_app/profile/': typeof AppProfileIndexRoute
+  '/_app/status-transaksi/': typeof AppStatusTransaksiIndexRoute
   '/_app/verifikasi-akun/': typeof AppVerifikasiAkunIndexRoute
   '/_app/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
   '/_app/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
@@ -419,6 +438,7 @@ export interface FileRouteTypes {
     | '/pendaftaran'
     | '/persetujuan-asuh'
     | '/profile'
+    | '/status-transaksi'
     | '/verifikasi-akun'
     | '/detail/mahasiswa/$detailId'
     | '/detail/orang-tua-asuh/$detailId'
@@ -439,6 +459,7 @@ export interface FileRouteTypes {
     | '/pendaftaran'
     | '/persetujuan-asuh'
     | '/profile'
+    | '/status-transaksi'
     | '/verifikasi-akun'
     | '/detail/mahasiswa/$detailId'
     | '/detail/orang-tua-asuh/$detailId'
@@ -460,6 +481,7 @@ export interface FileRouteTypes {
     | '/_app/pendaftaran/'
     | '/_app/persetujuan-asuh/'
     | '/_app/profile/'
+    | '/_app/status-transaksi/'
     | '/_app/verifikasi-akun/'
     | '/_app/detail/mahasiswa/$detailId'
     | '/_app/detail/orang-tua-asuh/$detailId'
@@ -505,6 +527,7 @@ export const routeTree = rootRoute
         "/_app/pendaftaran/",
         "/_app/persetujuan-asuh/",
         "/_app/profile/",
+        "/_app/status-transaksi/",
         "/_app/verifikasi-akun/",
         "/_app/detail/mahasiswa/$detailId",
         "/_app/detail/orang-tua-asuh/$detailId",
@@ -550,6 +573,10 @@ export const routeTree = rootRoute
     },
     "/_app/profile/": {
       "filePath": "_app/profile/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/status-transaksi/": {
+      "filePath": "_app/status-transaksi/index.tsx",
       "parent": "/_app"
     },
     "/_app/verifikasi-akun/": {
