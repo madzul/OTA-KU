@@ -18,7 +18,7 @@ import {
 import { useEffect, useState } from "react";
 
 // OTA type definition
-type OTA = {
+export type OTA = {
   accountId: string;
   name: string;
   phoneNumber: string;
@@ -64,9 +64,10 @@ export function OTAPopover({
     fetchOTAs();
   }, []);
 
-  useEffect(() => {
-    console.log("Current OTAs:", otas);
-  }, [otas]);
+  // JUST FOR DEBUGGING
+  // useEffect(() => {
+  //   console.log("Current OTAs:", otas);
+  // }, [otas]);
 
   return (
     <Popover open={isComboboxOpen} onOpenChange={setIsComboboxOpen}>
@@ -95,10 +96,10 @@ export function OTAPopover({
                       className="cursor-pointer"
                     >
                       <div className="flex flex-col py-1">
-                        <span className="font-medium text-blue-900">
+                        <span className="font-medium text-dark">
                           {ota.name}
                         </span>
-                        <span className="text-gray-400">{ota.phoneNumber}</span>
+                        <span className="text-muted-foreground">{ota.phoneNumber}</span>
                       </div>
                     </CommandItem>
                   ))}

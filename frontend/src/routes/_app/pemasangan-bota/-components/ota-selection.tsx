@@ -1,34 +1,42 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
-
-import { otaList } from "./ota-data";
-import { OTAPopover } from "./ota-popover";
-
-// OTA type definition
-type OTA = {
-  id: string;
-  name: string;
-  phoneNumber: string;
-  donationAmount: string;
-  maxStudents: number;
-  criteria: string;
-  additionalInfo?: string;
-};
+import { ChevronDown, ChevronUp, CircleCheck } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/api/client";
+import { OTAPopover, OTA } from "./ota-popover";
+import DetailDialogOta from "./detail-dialog-ota";
+import { toast } from "sonner";
 
 export function OTASelection() {
   const [selectedOTA, setSelectedOTA] = useState<OTA | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isComboboxOpen, setIsComboboxOpen] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [hasAvailableOTAs, setHasAvailableOTAs] = useState(true);
+
+  const { data: availableOTAs, isLoading } = useQuery({
+    queryKey: ["listAvailableOta"],
+    queryFn: () => api.list.listAvailableOta({ page: 1 }),
+  });
+
+  let hasAvailableOTAs = false;
+
+  if (availableOTAs === undefined) {
+    console.log("Error: availableOTAs is undefined");
+    toast.error("Terjadi kesalahan saat memuat data OTA.");
+  } else {
+    hasAvailableOTAs = availableOTAs.body.data.length > 0;
+  }
+
+  const { data: otaDetails, refetch: fetchOTADetails } = useQuery({
+    queryKey: ["otaDetails", selectedOTA?.accountId],
+    queryFn: () => api.detail.getOtaDetail({ id: selectedOTA?.accountId || "" }),
+    enabled: false, // Disable automatic fetching
+  });
+
+  useEffect(() => {
+    if (selectedOTA) {
+      fetchOTADetails();
+    }
+  }, [selectedOTA, fetchOTADetails]);
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -38,6 +46,10 @@ export function OTASelection() {
     setSelectedOTA(ota);
     setIsComboboxOpen(false);
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
@@ -101,20 +113,20 @@ export function OTASelection() {
             <div>
               <p className="text-sm text-muted-foreground">Kesanggupan sumbangan:</p>
               <p className="font-bold text-dark">
-                {selectedOTA.donationAmount}
+                {otaDetails?.body.funds || "-"}
               </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Max. mahasiswa asuh:</p>
               <p className="font-bold text-dark">
-                {selectedOTA.maxStudents}
+                {otaDetails?.body.maxCapacity || "-"}
               </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">
                 Kriteria calon mahasiswa asuh:
               </p>
-                <p className="text-dark line-clamp-2">{selectedOTA.criteria}</p>
+              <p className="text-dark line-clamp-2">{otaDetails?.body.criteria || "-"}</p>
             </div>
           </div>
 
@@ -126,67 +138,19 @@ export function OTASelection() {
               buttonVariant="outline"
               buttonText="Ganti OTA"
             />
-            <Button
-              className="w-full"
-              variant={"default"}
-              onClick={() => setIsDialogOpen(true)}
-            >
-              Detail
-            </Button>
+            <DetailDialogOta id={selectedOTA.accountId} />
           </div>
-
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle className="text-dark">
-                  Detail Orang Tua Asuh
-                </DialogTitle>
-                <DialogDescription>
-                  Informasi lengkap tentang Orang Tua Asuh
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium text-dark">
-                    {selectedOTA.name}
-                  </h4>
-                  <p className="text-gray-500">{selectedOTA.phoneNumber}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Kesanggupan sumbangan</p>
-                  <p>{selectedOTA.donationAmount}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Max. mahasiswa asuh</p>
-                  <p>{selectedOTA.maxStudents}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">
-                    Kriteria calon mahasiswa asuh
-                  </p>
-                  <p>{selectedOTA.criteria}</p>
-                </div>
-                {selectedOTA.additionalInfo && (
-                  <div>
-                    <p className="text-sm font-medium">Informasi tambahan</p>
-                    <p>{selectedOTA.additionalInfo}</p>
-                  </div>
-                )}
-              </div>
-            </DialogContent>
-          </Dialog>
         </div>
       )}
 
       {/* State 4: No available OTAs */}
-      {/* This state is shown when there are no available OTAs to select */}
       {!hasAvailableOTAs && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="font-medium text-dark">
               Tidak ada OTA yang perlu dipasangkan dengan mahasiswa asuh
             </p>
-            <CheckCircle className="h-6 w-6 text-green-500" />
+            <CircleCheck className="h-6 w-6 text-succeed" />
           </div>
         </div>
       )}
