@@ -75,6 +75,7 @@ export function OTASelection() {
 
   return (
     <div>
+      {/* State 1: No OTA selected */}
       {!selectedOTA && hasAvailableOTAs && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="flex w-full items-center justify-between">
@@ -92,6 +93,7 @@ export function OTASelection() {
         </div>
       )}
 
+      {/* State 2: OTA selected and not expanded */}
       {selectedOTA && !isExpanded && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between">
@@ -111,6 +113,7 @@ export function OTASelection() {
         </div>
       )}
 
+      {/* State 3: OTA selected and expanded */}
       {selectedOTA && isExpanded && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
@@ -208,6 +211,8 @@ export function OTASelection() {
         </div>
       )}
 
+      {/* State 4: No available OTAs */}
+      {/* This state is shown when there are no available OTAs to select */}
       {!hasAvailableOTAs && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between">
