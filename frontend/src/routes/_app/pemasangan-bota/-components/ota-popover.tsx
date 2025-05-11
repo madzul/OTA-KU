@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { otaList } from "./ota-data";
 
 // OTA type definition
 type OTA = {
@@ -14,41 +15,6 @@ type OTA = {
   criteria: string
   additionalInfo?: string
 }
-
-// Sample data
-const otaList: OTA[] = [
-  {
-    id: "1",
-    name: "Ayi Purbasari Lorem Ipsum",
-    phoneNumber: "62XXXXXXXXX",
-    donationAmount: "300.000 per bulan",
-    maxStudents: 4,
-    criteria:
-      "Baik, soleh, agama, jenis kelamin, tinggi, alumni sma yang sama, dll lorem ipsum lorem ipsum lorem ipsum",
-    additionalInfo:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    id: "2",
-    name: "Ayi Purbasari",
-    phoneNumber: "62XXXXXXXXX",
-    donationAmount: "250.000 per bulan",
-    maxStudents: 3,
-    criteria: "Baik, soleh, agama, jenis kelamin",
-    additionalInfo:
-      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-  },
-  {
-    id: "3",
-    name: "Ayi Purbasari",
-    phoneNumber: "62XXXXXXXXX",
-    donationAmount: "400.000 per bulan",
-    maxStudents: 5,
-    criteria: "Alumni sma yang sama, dll lorem ipsum",
-    additionalInfo:
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-  },
-]
 
 // Reusable OTA Popover Component
 export function OTAPopover({
@@ -66,8 +32,8 @@ export function OTAPopover({
 }) {
   return (
     <Popover open={isComboboxOpen} onOpenChange={setIsComboboxOpen}>
-      <PopoverTrigger asChild>
-        <Button variant={buttonVariant} className="w-full">
+      <PopoverTrigger asChild >
+        <Button variant={buttonVariant} className="grow min-w-[90px] ">
           {buttonText}
         </Button>
       </PopoverTrigger>

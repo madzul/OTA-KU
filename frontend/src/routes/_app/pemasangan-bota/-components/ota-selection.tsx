@@ -9,6 +9,7 @@ import {
 import { CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
+import { otaList } from "./ota-data";
 import { OTAPopover } from "./ota-popover";
 
 // OTA type definition
@@ -21,41 +22,6 @@ type OTA = {
   criteria: string;
   additionalInfo?: string;
 };
-
-// Sample data
-const otaList: OTA[] = [
-  {
-    id: "1",
-    name: "Ayi Purbasari Lorem Ipsum",
-    phoneNumber: "62XXXXXXXXX",
-    donationAmount: "300.000 per bulan",
-    maxStudents: 4,
-    criteria:
-      "Baik, soleh, agama, jenis kelamin, tinggi, alumni sma yang sama, dll lorem ipsum lorem ipsum lorem ipsum",
-    additionalInfo:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  {
-    id: "2",
-    name: "Ayi Purbasari",
-    phoneNumber: "62XXXXXXXXX",
-    donationAmount: "250.000 per bulan",
-    maxStudents: 3,
-    criteria: "Baik, soleh, agama, jenis kelamin",
-    additionalInfo:
-      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-  },
-  {
-    id: "3",
-    name: "Ayi Purbasari",
-    phoneNumber: "62XXXXXXXXX",
-    donationAmount: "400.000 per bulan",
-    maxStudents: 5,
-    criteria: "Alumni sma yang sama, dll lorem ipsum",
-    additionalInfo:
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-  },
-];
 
 export function OTASelection() {
   const [selectedOTA, setSelectedOTA] = useState<OTA | null>(null);
@@ -78,8 +44,8 @@ export function OTASelection() {
       {/* State 1: No OTA selected */}
       {!selectedOTA && hasAvailableOTAs && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <div className="flex w-full items-center justify-between">
-            <h3 className="min-w-[200px] font-bold text-blue-900">
+          <div className="flex gap-1 w-full items-center justify-between">
+            <h3 className="min-w-[200px] w-full max-w-[600px] font-bold text-[18px] text-dark">
               Pilih OTA yang akan dipasangkan dengan mahasiswa asuh
             </h3>
             <OTAPopover
@@ -98,16 +64,16 @@ export function OTASelection() {
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">Informasi Orang Tua Asuh</p>
-              <h3 className="font-medium text-blue-900">{selectedOTA.name}</h3>
+              <p className="text-sm text-muted-foreground">Informasi Orang Tua Asuh</p>
+              <h3 className="min-w-[200px] w-full max-w-[600px] font-bold text-[18px] text-dark">{selectedOTA.name}</h3>
             </div>
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full border-blue-900"
+              className="rounded-full border-dark"
               onClick={toggleExpanded}
             >
-              <ChevronDown className="h-5 w-5 text-blue-900" />
+              <ChevronDown className="text-dark" />
             </Button>
           </div>
         </div>
@@ -118,37 +84,37 @@ export function OTASelection() {
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-400">Informasi Orang Tua Asuh</p>
-              <h3 className="font-medium text-blue-900">{selectedOTA.name}</h3>
+              <p className="text-sm text-muted-foreground">Informasi Orang Tua Asuh</p>
+              <h3 className="min-w-[200px] w-full max-w-[600px] font-bold text-[18px] text-dark">{selectedOTA.name}</h3>
             </div>
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full border-blue-900"
+              className="rounded-full border-dark"
               onClick={toggleExpanded}
             >
-              <ChevronUp className="h-5 w-5 text-blue-900" />
+              <ChevronUp className="text-dark" />
             </Button>
           </div>
 
           <div className="mb-4 space-y-2">
             <div>
-              <p className="text-sm text-gray-600">Kesanggupan sumbangan:</p>
-              <p className="font-medium text-blue-900">
+              <p className="text-sm text-muted-foreground">Kesanggupan sumbangan:</p>
+              <p className="font-bold text-dark">
                 {selectedOTA.donationAmount}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Max. mahasiswa asuh:</p>
-              <p className="font-medium text-blue-900">
+              <p className="text-sm text-muted-foreground">Max. mahasiswa asuh:</p>
+              <p className="font-bold text-dark">
                 {selectedOTA.maxStudents}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Kriteria calon mahasiswa asuh:
               </p>
-              <p className="text-blue-900">{selectedOTA.criteria}</p>
+                <p className="text-dark line-clamp-2">{selectedOTA.criteria}</p>
             </div>
           </div>
 
@@ -161,7 +127,8 @@ export function OTASelection() {
               buttonText="Ganti OTA"
             />
             <Button
-              className="w-full bg-blue-800 text-white hover:bg-blue-900"
+              className="w-full"
+              variant={"default"}
               onClick={() => setIsDialogOpen(true)}
             >
               Detail
@@ -171,7 +138,7 @@ export function OTASelection() {
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle className="text-blue-900">
+                <DialogTitle className="text-dark">
                   Detail Orang Tua Asuh
                 </DialogTitle>
                 <DialogDescription>
@@ -180,7 +147,7 @@ export function OTASelection() {
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-blue-900">
+                  <h4 className="font-medium text-dark">
                     {selectedOTA.name}
                   </h4>
                   <p className="text-gray-500">{selectedOTA.phoneNumber}</p>
@@ -216,7 +183,7 @@ export function OTASelection() {
       {!hasAvailableOTAs && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <p className="font-medium text-blue-900">
+            <p className="font-medium text-dark">
               Tidak ada OTA yang perlu dipasangkan dengan mahasiswa asuh
             </p>
             <CheckCircle className="h-6 w-6 text-green-500" />
