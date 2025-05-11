@@ -21,7 +21,7 @@ export function OTASelection() {
 
   if (availableOTAs === undefined) {
     console.log("Error: availableOTAs is undefined");
-    toast.error("Terjadi kesalahan saat memuat data OTA.");
+    toast.warning("Terjadi kesalahan saat memuat data OTA.");
   } else {
     hasAvailableOTAs = availableOTAs.body.data.length > 0;
   }

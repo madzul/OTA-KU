@@ -78,7 +78,7 @@ export function OTAPopover({
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
         <Command>
-          {/* Nge search nya disini tanpa BE, tapi works kok (di BE baru bisa nge search pake nama doang) */}
+          {/* TODO: Nge search nya disini tanpa BE, tapi works kok (di BE baru bisa nge search pake nama doang). Tapi kata bacin kalo data nya udh banyak, bakal nge lag fe nya, mending di BE search nya */}
           <CommandInput placeholder="Cari nama atau no. whatsapp" />
           <CommandList>
             {isLoading ? (

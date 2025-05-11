@@ -24,6 +24,8 @@ function RouteComponent() {
         Pemasangan Bantuan Orang Tua Asuh
       </h1>
       <OTASelection />
+      { /* TODO: Uncomment this when MahasiswaSelection is ready */}
+      {/* <MahasiswaSelection /> */}
     </main>
   );
 }
