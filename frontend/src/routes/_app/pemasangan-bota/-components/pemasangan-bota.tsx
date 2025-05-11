@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { ConfirmationPage } from "./confirmation-page";
-import { OTAInfo } from "./ota-info";
+import { OTAInfo } from "./ota-selection";
 import { SelectMahasiswa } from "./select-mahasiswa";
 import { SelectOTA } from "./select-ota";
 

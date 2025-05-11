@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { UserRound, Trash2 } from "lucide-react";
-import { OTAInfo } from "./ota-info";
+import { OTAInfo } from "./ota-selection";
 import {
  Dialog,
  DialogContent,
