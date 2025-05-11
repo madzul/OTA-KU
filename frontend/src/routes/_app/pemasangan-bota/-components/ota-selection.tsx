@@ -2,10 +2,9 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp, CheckCircle, Search } from "lucide-react"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ChevronDown, ChevronUp, CheckCircle } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { OTAPopover } from "./ota-popover"
 
 // OTA type definition
 type OTA = {
@@ -54,71 +53,38 @@ const otaList: OTA[] = [
 ]
 
 export function OTASelection() {
-  // State for the component
   const [selectedOTA, setSelectedOTA] = useState<OTA | null>(null)
   const [isExpanded, setIsExpanded] = useState(false)
   const [isComboboxOpen, setIsComboboxOpen] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [hasAvailableOTAs, setHasAvailableOTAs] = useState(true)
 
-  // Toggle the expanded state
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded)
   }
 
-  // Handle OTA selection
   const handleSelectOTA = (ota: OTA) => {
     setSelectedOTA(ota)
     setIsComboboxOpen(false)
   }
 
-  // Render the component based on the current state
   return (
     <div>
-      {/* State 1: No OTA selected yet */}
       {!selectedOTA && hasAvailableOTAs && (
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="flex justify-between items-center w-full">
             <h3 className="text-blue-900 font-bold min-w-[200px]">Pilih OTA yang akan dipasangkan dengan mahasiswa asuh</h3>
-            <Popover open={isComboboxOpen} onOpenChange={setIsComboboxOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"default"}
-                  className="flex-grow min-w-23 max-w-[200px]"
-                >
-                  Pilih
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-0 w-[300px]">
-                <Command>
-                  <div className="flex items-center border-b px-3">
-                    <Search className="h-4 w-4 shrink-0 text-gray-400" />
-                    <CommandInput
-                      placeholder="Cari nama atau no. whatsapp"
-                      className="flex-1 outline-none border-0 focus:ring-0 text-sm"
-                    />
-                  </div>
-                  <CommandList>
-                    <CommandEmpty>Tidak ada OTA yang ditemukan.</CommandEmpty>
-                    <CommandGroup>
-                      {otaList.map((ota) => (
-                        <CommandItem key={ota.id} onSelect={() => handleSelectOTA(ota)} className="cursor-pointer">
-                          <div className="flex flex-col py-1">
-                            <span className="text-blue-900 font-medium">{ota.name}</span>
-                            <span className="text-gray-400">{ota.phoneNumber}</span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <OTAPopover
+              isComboboxOpen={isComboboxOpen}
+              setIsComboboxOpen={setIsComboboxOpen}
+              onSelectOTA={handleSelectOTA}
+              buttonVariant="default"
+              buttonText="Pilih"
+            />
           </div>
         </div>
       )}
 
-      {/* State 2: OTA selected, collapsed view */}
       {selectedOTA && !isExpanded && (
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="flex justify-between items-center">
@@ -133,7 +99,6 @@ export function OTASelection() {
         </div>
       )}
 
-      {/* State 3: OTA selected, expanded view */}
       {selectedOTA && isExpanded && (
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="flex justify-between items-center mb-4">
@@ -162,38 +127,13 @@ export function OTASelection() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Popover open={isComboboxOpen} onOpenChange={setIsComboboxOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full border-blue-800 text-blue-800">
-                  Ganti OTA
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-0 w-[300px]">
-                <Command>
-                  <div className="flex items-center border-b px-3">
-                    <Search className="h-4 w-4 shrink-0 text-gray-400" />
-                    <CommandInput
-                      placeholder="Cari nama atau no. whatsapp"
-                      className="flex-1 outline-none border-0 focus:ring-0 text-sm"
-                    />
-                  </div>
-                  <CommandList>
-                    <CommandEmpty>Tidak ada OTA yang ditemukan.</CommandEmpty>
-                    <CommandGroup>
-                      {otaList.map((ota) => (
-                        <CommandItem key={ota.id} onSelect={() => handleSelectOTA(ota)} className="cursor-pointer">
-                          <div className="flex flex-col py-1">
-                            <span className="text-blue-900 font-medium">{ota.name}</span>
-                            <span className="text-gray-400">{ota.phoneNumber}</span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-
+            <OTAPopover
+              isComboboxOpen={isComboboxOpen}
+              setIsComboboxOpen={setIsComboboxOpen}
+              onSelectOTA={handleSelectOTA}
+              buttonVariant="outline"
+              buttonText="Ganti OTA"
+            />
             <Button className="w-full bg-blue-800 hover:bg-blue-900 text-white" onClick={() => setIsDialogOpen(true)}>
               Detail
             </Button>
@@ -234,7 +174,6 @@ export function OTASelection() {
         </div>
       )}
 
-      {/* State 4: No OTAs available */}
       {!hasAvailableOTAs && (
         <div className="bg-white rounded-lg p-4 shadow-sm border">
           <div className="flex items-center justify-between">
@@ -243,60 +182,6 @@ export function OTASelection() {
           </div>
         </div>
       )}
-
-      {/* Controls for demo purposes */}
-      {/* <div className="bg-gray-100 p-4 rounded-lg">
-        <p className="text-sm font-medium mb-2">Demo Controls:</p>
-        <div className="space-y-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setSelectedOTA(null)
-              setIsExpanded(false)
-              setHasAvailableOTAs(true)
-            }}
-          >
-            Show State 1 (No OTA Selected)
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setSelectedOTA(otaList[0])
-              setIsExpanded(false)
-              setHasAvailableOTAs(true)
-            }}
-          >
-            Show State 2 (OTA Selected, Collapsed)
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setSelectedOTA(otaList[0])
-              setIsExpanded(true)
-              setHasAvailableOTAs(true)
-            }}
-          >
-            Show State 3 (OTA Selected, Expanded)
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setSelectedOTA(null)
-              setIsExpanded(false)
-              setHasAvailableOTAs(false)
-            }}
-          >
-            Show State 4 (No OTAs Available)
-          </Button>
-        </div>
-      </div> */}
     </div>
   )
 }
