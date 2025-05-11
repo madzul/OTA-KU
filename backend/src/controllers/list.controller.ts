@@ -784,6 +784,7 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .select({
         id: accountOtaDetailTable.accountId,
         name: accountOtaDetailTable.name,
+        phoneNumber: accountTable.phoneNumber,
         funds: accountOtaDetailTable.funds,
         maxCapacity: accountOtaDetailTable.maxCapacity,
         currentCount: sql<number>`COUNT(${connectionTable.mahasiswaId})`,
@@ -811,6 +812,7 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .groupBy(
         accountOtaDetailTable.accountId,
         accountOtaDetailTable.name,
+        accountTable.phoneNumber,
         accountOtaDetailTable.funds,
         accountOtaDetailTable.maxCapacity,
         accountOtaDetailTable.criteria,
@@ -834,8 +836,8 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
             data: otaList.map((ota) => ({
               accountId: ota.id,
               name: ota.name,
-              phoneNumber: "", // Adding empty phoneNumber to match expected type
-              nominal: ota.funds, // Mapping funds to nominal to match expected type
+              phoneNumber: ota.phoneNumber ?? "",
+              nominal: ota.funds,
             })),
             totalData: counts[0].count,
           },

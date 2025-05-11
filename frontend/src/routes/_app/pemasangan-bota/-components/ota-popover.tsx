@@ -1,22 +1,29 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { otaList } from "./ota-data";
+import { api } from "@/api/client";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useEffect, useState } from "react";
 
 // OTA type definition
 type OTA = {
-  id: string
-  name: string
-  phoneNumber: string
-  donationAmount: string
-  maxStudents: number
-  criteria: string
-  additionalInfo?: string
-}
+  accountId: string;
+  name: string;
+  phoneNumber: string;
+};
 
-// Reusable OTA Popover Component
 export function OTAPopover({
   isComboboxOpen,
   setIsComboboxOpen,
@@ -24,44 +31,83 @@ export function OTAPopover({
   buttonVariant,
   buttonText,
 }: {
-  isComboboxOpen: boolean
-  setIsComboboxOpen: (open: boolean) => void
-  onSelectOTA: (ota: OTA) => void
-  buttonVariant: "default" | "outline"
-  buttonText: string
+  isComboboxOpen: boolean;
+  setIsComboboxOpen: (open: boolean) => void;
+  onSelectOTA: (ota: OTA) => void;
+  buttonVariant: "default" | "outline";
+  buttonText: string;
 }) {
+  const [otas, setOtas] = useState<OTA[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchOTAs = async () => {
+      setIsLoading(true);
+      try {
+        const response = await api.list.listAvailableOta({ page: 1 });
+        if (response.success) {
+          setOtas(
+            response.body.data.map((ota) => ({
+              accountId: ota.accountId,
+              name: ota.name,
+              phoneNumber: ota.phoneNumber,
+            })),
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching OTAs:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOTAs();
+  }, []);
+
+  useEffect(() => {
+    console.log("Current OTAs:", otas);
+  }, [otas]);
+
   return (
     <Popover open={isComboboxOpen} onOpenChange={setIsComboboxOpen}>
-      <PopoverTrigger asChild >
-        <Button variant={buttonVariant} className="grow min-w-[90px] ">
+      <PopoverTrigger asChild>
+        <Button variant={buttonVariant} className="min-w-[90px] grow">
           {buttonText}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-[300px]">
+      <PopoverContent className="w-[300px] p-0">
         <Command>
-          <div className="flex items-center border-b w-full">
-            <div className="w-full">
-              <CommandInput
-                placeholder="Cari nama atau no. whatsapp"
-                className="flex-1 outline-none border-0 focus:ring-0 text-sm w-full"
-              />
-            </div>
-          </div>
+          {/* Nge search nya disini tanpa BE, tapi works kok (di BE baru bisa nge search pake nama doang) */}
+          <CommandInput placeholder="Cari nama atau no. whatsapp" />
           <CommandList>
-            <CommandEmpty>Tidak ada OTA yang ditemukan.</CommandEmpty>
-            <CommandGroup>
-              {otaList.map((ota) => (
-                <CommandItem key={ota.id} onSelect={() => onSelectOTA(ota)} className="cursor-pointer">
-                  <div className="flex flex-col py-1">
-                    <span className="text-blue-900 font-medium">{ota.name}</span>
-                    <span className="text-gray-400">{ota.phoneNumber}</span>
-                  </div>
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {isLoading ? (
+              <div className="p-4 text-center text-sm text-gray-500">
+                Loading...
+              </div>
+            ) : (
+              <>
+                <CommandEmpty>Tidak ada OTA yang ditemukan.</CommandEmpty>
+                <CommandGroup>
+                  {otas.map((ota) => (
+                    <CommandItem
+                      key={ota.accountId}
+                      onSelect={() => onSelectOTA(ota)}
+                      className="cursor-pointer"
+                    >
+                      <div className="flex flex-col py-1">
+                        <span className="font-medium text-blue-900">
+                          {ota.name}
+                        </span>
+                        <span className="text-gray-400">{ota.phoneNumber}</span>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
