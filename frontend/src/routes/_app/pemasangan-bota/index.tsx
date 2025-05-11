@@ -1,6 +1,7 @@
 import Metadata from "@/components/metadata";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { OTASelection } from "./-components/ota-selection";
+import { MahasiswaSelection } from "./-components/mahasiswa-selection";
 
 export const Route = createFileRoute("/_app/pemasangan-bota/")({
   component: RouteComponent,
@@ -23,9 +24,10 @@ function RouteComponent() {
       <h1 className="text-dark text-3xl font-bold md:text-[50px]">
         Pemasangan Bantuan Orang Tua Asuh
       </h1>
+      { /* TODO: Pass selected OTA's accountId to MahasiswaSelection component */}
       <OTASelection />
-      { /* TODO: Uncomment this when MahasiswaSelection is ready */}
-      {/* <MahasiswaSelection /> */}
+      {/* TODO: Inside MahasiswaSelection, do API call for every selected Mahasiswa's accountId to connect it with OTA's accountId */}
+      <MahasiswaSelection />
     </main>
   );
 }

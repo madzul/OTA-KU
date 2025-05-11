@@ -147,9 +147,9 @@ export function OTASelection() {
       {!hasAvailableOTAs && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <p className="font-medium text-dark">
+            <h3 className="min-w-[200px] w-full max-w-[900px] font-bold text-[18px] text-dark">
               Tidak ada OTA yang perlu dipasangkan dengan mahasiswa asuh
-            </p>
+            </h3>
             <CircleCheck className="h-6 w-6 text-succeed" />
           </div>
         </div>
