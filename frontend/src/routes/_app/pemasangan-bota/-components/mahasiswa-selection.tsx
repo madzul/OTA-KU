@@ -137,7 +137,6 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
           <SearchInput placeholder="Cari nama atau NIM" setSearch={setSearch} />
         </div>
 
-        {/* TODO: Masih empty data yg dihasilin, di test di swagger juga ga muncul apaapa tapi kode nya 200 */}
         <div className="w-full flex flex-wrap gap-3">
           <FilterJurusan setJurusan={setJurusan} />
           <FilterFakultas setFakultas={setFakultas} />

@@ -21,7 +21,7 @@ const kelaminList = [
 
 function FilterKelamin({ setKelamin }: { setKelamin: (kelamin: "M" | "F" | null) => void }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<string | null>(null);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -48,9 +48,18 @@ function FilterKelamin({ setKelamin }: { setKelamin: (kelamin: "M" | "F" | null)
                   key={kelamin.value}
                   value={kelamin.value}
                   onSelect={(currentValue) => {
-                    const newValue = currentValue === value ? "" : currentValue;
-                    setValue(newValue);
-                    setKelamin(newValue as "M" | "F" | null);
+                    if (value === kelamin.label) {
+                      // Unselect if the same item is clicked
+                      setValue(null);
+                      setKelamin(null);
+                    } else {
+                      const selectedKelamin = kelaminList.find(
+                        (k) => k.value === currentValue
+                      );
+                      const newValue = selectedKelamin?.label || "";
+                      setValue(newValue);
+                      setKelamin(selectedKelamin?.value as "M" | "F" | null);
+                    }
                     setOpen(false);
                   }}
                 >
@@ -58,7 +67,7 @@ function FilterKelamin({ setKelamin }: { setKelamin: (kelamin: "M" | "F" | null)
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === kelamin.value ? "opacity-100" : "opacity-0",
+                      value === kelamin.label ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>
