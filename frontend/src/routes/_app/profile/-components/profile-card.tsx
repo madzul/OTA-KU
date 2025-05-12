@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Calendar, Mail, Phone } from "lucide-react";
-import React from "react";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { Mail, Phone, Calendar } from "lucide-react";
 
 interface ProfileCardProps {
   name: string;
@@ -8,60 +8,185 @@ interface ProfileCardProps {
   email: string;
   phone: string;
   joinDate: string;
-  avatarSrc?: string;
+  dueNextUpdateAt?: string;
+  applicationStatus?: "accepted" | "rejected" | "pending" | "unregistered" | "reapply" | "outdated";
+  onEnableEdit?: () => void;
+  isEditingEnabled?: boolean;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({
-  name = "Budi Santoso",
-  role = "Orang Tua Asuh",
-  email = "Email@example.com",
-  phone = "08129130321321",
-  joinDate = "Bergabung di Maret 2024",
-  avatarSrc,
-}) => {
-  return (
-    <div>
-      <Card className="mx-auto w-full md:max-w-sm">
-        <CardHeader className="flex flex-col items-center justify-center pt-6 pb-4">
-          <div className="mb-4 h-24 w-24 overflow-hidden rounded-full">
-            {avatarSrc ? (
-              <img
-                src={avatarSrc}
-                alt={`${name}'s avatar`}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-500">
-                {name.charAt(0)}
-              </div>
-            )}
-          </div>
-          <div className="text-center">
-            <h2 className="text-lg font-bold xl:text-xl">{name}</h2>
-            <p className="text-muted-foreground mt-4 rounded-xl border-2 px-6 py-1">
-              {role}
+function ProfileCard({ 
+  name, 
+  role, 
+  email, 
+  phone, 
+  joinDate, 
+  dueNextUpdateAt,
+  applicationStatus,
+  onEnableEdit,
+  isEditingEnabled = false
+}: ProfileCardProps) {
+  const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
+  const [showRenewalWarning, setShowRenewalWarning] = useState(false);
+  const [formattedDueDate, setFormattedDueDate] = useState<string>("");
+  const contactNumber = "081234567890";
+
+  // Format join date to show only Month Year
+  const formatJoinDate = (dateString: string): string => {
+    if (!dateString || dateString === "-") return "-";
+    
+    try {
+      const date = new Date(dateString);
+      
+      // Format to Month Year (e.g., "Mei 2025")
+      return date.toLocaleDateString('id-ID', { 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
+  
+  // Format due date to full date (e.g., "10 Juni 2025")
+  const formatDueDate = (dateString: string): string => {
+    if (!dateString) return "";
+    
+    try {
+      const date = new Date(dateString);
+      
+      return date.toLocaleDateString('id-ID', { 
+        day: 'numeric',
+        month: 'long', 
+        year: 'numeric' 
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
+  useEffect(() => {
+    if (dueNextUpdateAt) {
+      const dueDate = new Date(dueNextUpdateAt);
+      const currentDate = new Date();
+      
+      // Format due date
+      setFormattedDueDate(formatDueDate(dueNextUpdateAt));
+      
+      // Calculate days remaining until due date
+      const timeDiff = dueDate.getTime() - currentDate.getTime();
+      const remainingDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+      
+      setDaysRemaining(remainingDays);
+      
+      // Show warning if less than 30 days remaining and status is accepted
+      if (remainingDays <= 30 && applicationStatus === "accepted") {
+        setShowRenewalWarning(true);
+      }
+    }
+  }, [dueNextUpdateAt, applicationStatus]);
+
+  // Get status message based on application status
+  const getStatusMessage = () => {
+    if (!applicationStatus) return null;
+    
+    switch (applicationStatus) {
+      case "rejected":
+        return (
+          <p className="text-sm font-medium text-red-600">
+            Pengajuan perpanjangan masa asuh Anda tidak dapat disetujui. Info lebih lanjut: {contactNumber}.
+          </p>
+        );
+      
+      case "reapply":
+        return (
+          <p className="text-sm font-medium text-amber-600">
+            Perpanjangan masa asuh Anda berhasil diajukan. Jika dalam 7 hari belum ada informasi lanjutan, hubungi: {contactNumber}.
+          </p>
+        );
+      
+      case "accepted":
+        if (daysRemaining === null || daysRemaining > 30) {
+          return (
+            <p className="text-sm font-medium text-green-600">
+              Masa asuh anda aktif hingga {formattedDueDate}.
             </p>
+          );
+        }
+        return null; // For accepted with < 30 days, we show the renewal warning instead
+      
+      default:
+        return null;
+    }
+  };
+
+  const formattedJoinDate = formatJoinDate(joinDate);
+
+  const handleEnableEdit = () => {
+    if (onEnableEdit) {
+      onEnableEdit();
+    }
+  };
+
+  return (
+    <div className="rounded-lg border bg-white p-6 shadow-sm">
+      <div className="flex flex-col items-center">
+        <div className="h-20 w-20 overflow-hidden rounded-full bg-gray-100">
+          {/* Profile image or initials can go here */}
+          <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-400">
+            {name.charAt(0)}
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-primary space-y-3 text-sm xl:text-base">
-            <div className="flex items-center space-x-3">
-              <Mail className="text-muted-foreground h-5 w-5" />
-              <span>{email}</span>
+        </div>
+       
+        <div className="mt-4 text-center">
+          <h2 className="text-xl font-bold">{name}</h2>
+          <p className="text-sm text-gray-500">{role}</p>
+        </div>
+      </div>
+     
+      <div className="mt-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <Mail className="h-5 w-5 text-gray-500" />
+          <span className="text-sm">{email}</span>
+        </div>
+       
+        <div className="flex items-center gap-3">
+          <Phone className="h-5 w-5 text-gray-500" />
+          <span className="text-sm">{phone}</span>
+        </div>
+       
+        <div className="flex items-center gap-3">
+          <Calendar className="h-5 w-5 text-gray-500" />
+          <span className="text-sm">Bergabung di {formattedJoinDate}</span>
+        </div>
+      </div>
+     
+      {/* Status Messages */}
+      <div className="mt-6">
+        {/* Status-based message */}
+        {getStatusMessage()}
+        
+        {/* Renewal Warning - only shown for accepted status with less than 30 days */}
+        {showRenewalWarning && daysRemaining !== null && (
+          <>
+            <p className="text-sm font-medium text-red-600">
+              Masa asuh Anda akan berakhir dalam {daysRemaining} hari
+            </p>
+           
+            <div className="mt-3">
+              {!isEditingEnabled && (
+                <Button
+                  className="w-full bg-primary"
+                  onClick={handleEnableEdit}
+                >
+                  Perpanjang Masa Asuh
+                </Button>
+              )}
             </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="text-muted-foreground h-5 w-5" />
-              <span>{phone}</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Calendar className="text-muted-foreground h-5 w-5" />
-              <span>{joinDate}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </>
+        )}
+      </div>
     </div>
   );
-};
+}
 
 export default ProfileCard;

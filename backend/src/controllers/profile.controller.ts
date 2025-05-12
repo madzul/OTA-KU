@@ -24,6 +24,7 @@ import {
   MahasiswaProfileFormSchema,
 } from "../zod/profile.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
+import app from "../app.js";
 
 export const profileRouter = createRouter();
 export const profileProtectedRouter = createAuthRouter();
@@ -533,10 +534,10 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
     }, {} as Record<string, string>);
 
     await db.transaction(async (tx) => {
-      // Update phone number in account table
+      // Update phone number in account table and application status = reapply
       await tx
         .update(accountTable)
-        .set({ phoneNumber })
+        .set({ phoneNumber, applicationStatus: "reapply" })
         .where(eq(accountTable.id, user.id));
 
       await tx
@@ -561,6 +562,16 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           pbb: resultUrls.pbb,
           electricityBill: resultUrls.electricityBill,
           ditmawaRecommendationLetter: resultUrls.ditmawaRecommendationLetter,
+          updatedAt: new Date(),
+          dueNextUpdateAt: new Date(
+            existingProfile.dueNextUpdateAt.getFullYear(),
+            existingProfile.dueNextUpdateAt.getMonth() + 6,
+            existingProfile.dueNextUpdateAt.getDate(),
+            existingProfile.dueNextUpdateAt.getHours(),
+            existingProfile.dueNextUpdateAt.getMinutes(),
+            existingProfile.dueNextUpdateAt.getSeconds(),
+            existingProfile.dueNextUpdateAt.getMilliseconds(),
+          ),
         })
         .where(eq(accountMahasiswaDetailTable.accountId, user.id));
     });
@@ -589,6 +600,17 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           pbb: resultUrls.pbb,
           electricityBill: resultUrls.electricityBill,
           ditmawaRecommendationLetter: resultUrls.ditmawaRecommendationLetter,
+          createdAt: existingProfile.createdAt,
+          updatedAt: new Date(),
+          dueNextUpdateAt: new Date(
+            existingProfile.dueNextUpdateAt.getFullYear(),
+            existingProfile.dueNextUpdateAt.getMonth() + 6,
+            existingProfile.dueNextUpdateAt.getDate(),
+            existingProfile.dueNextUpdateAt.getHours(),
+            existingProfile.dueNextUpdateAt.getMinutes(),
+            existingProfile.dueNextUpdateAt.getSeconds(),
+            existingProfile.dueNextUpdateAt.getMilliseconds(),
+          ),
         },
       },
       200,
@@ -753,6 +775,10 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
         electricityBill: accountMahasiswaDetailTable.electricityBill,
         ditmawaRecommendationLetter:
           accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        createdAt: accountMahasiswaDetailTable.createdAt,
+        updatedAt: accountMahasiswaDetailTable.updatedAt,
+        dueNextUpdateAt: accountMahasiswaDetailTable.dueNextUpdateAt,
+        applicationStatus: accountTable.applicationStatus,
         // join_date: accountMahasiswaDetailTable.startDate,
       })
       .from(accountTable)
@@ -798,6 +824,10 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
       electricityBill: profileDataMahasiswa[0].electricityBill ?? undefined,
       ditmawaRecommendationLetter:
         profileDataMahasiswa[0].ditmawaRecommendationLetter ?? undefined,
+      createdAt: profileDataMahasiswa[0].createdAt,
+      updatedAt: profileDataMahasiswa[0].updatedAt,
+      dueNextUpdateAt: profileDataMahasiswa[0].dueNextUpdateAt,
+      applicationStatus: profileDataMahasiswa[0].applicationStatus,
       // join_date: new Date(profileDataMahasiswa[0].join_date).toLocaleString("en-US", {
       //   month: "long",
       //   year: "numeric",

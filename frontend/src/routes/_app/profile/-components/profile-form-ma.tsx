@@ -86,9 +86,14 @@ const genderOptions = [
 
 interface ProfileFormProps {
   session: UserSchema;
+  isEditable?: boolean;
+  isWithin30Days?: boolean;
 }
 
-const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
+const ProfileFormMA: React.FC<ProfileFormProps> = ({ 
+  session, 
+  isEditable = false,
+}) => {
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [previouslyUploadedFiles, setPreviouslyUploadedFiles] = useState<
@@ -205,6 +210,8 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
     field: MahasiswaProfileField,
     file: File | null,
   ) => {
+    if (!isEditable) return;
+    
     if (file) {
       setFileNames((prev) => ({
         ...prev,
@@ -231,6 +238,8 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
   };
 
   const onSubmit = (values: MahasiswaProfileFormValues) => {
+    if (!isEditable) return;
+    
     const dataToSubmit = { ...values };
 
     // Hapus field file yang tidak diubah (masih berupa string URL)
@@ -266,7 +275,11 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                       {uploadFieldLabels.name}
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Masukkan nama Anda" {...field} />
+                      <Input 
+                        placeholder="Masukkan nama Anda" 
+                        {...field} 
+                        disabled={!isEditable}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -283,7 +296,7 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                     <FormControl>
                       <Input
                         placeholder="Masukkan nomor WA Anda"
-                        disabled={!!session?.phoneNumber}
+                        disabled={!isEditable || !!session?.phoneNumber}
                         {...field}
                       />
                     </FormControl>
@@ -300,7 +313,11 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                       {uploadFieldLabels.nim}
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Masukkan NIM Anda" {...field} />
+                      <Input 
+                        placeholder="Masukkan NIM Anda" 
+                        {...field} 
+                        disabled={!isEditable}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -315,7 +332,11 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                       {uploadFieldLabels.major}
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Masukkan jurusan Anda" {...field} />
+                      <Input 
+                        placeholder="Masukkan jurusan Anda" 
+                        {...field} 
+                        disabled={!isEditable}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -330,7 +351,11 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                       {uploadFieldLabels.faculty}
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Masukkan fakultas Anda" {...field} />
+                      <Input 
+                        placeholder="Masukkan fakultas Anda" 
+                        {...field} 
+                        disabled={!isEditable}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -350,6 +375,7 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       value={field.value}
+                      disabled={!isEditable}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -382,6 +408,7 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       value={field.value}
+                      disabled={!isEditable}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -417,6 +444,7 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                         onChange={(e) =>
                           field.onChange(parseFloat(e.target.value))
                         }
+                        disabled={!isEditable}
                       />
                     </FormControl>
                     <FormMessage />
@@ -433,7 +461,11 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                       {uploadFieldLabels.cityOfOrigin}
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Masukkan kota asal Anda" {...field} />
+                      <Input 
+                        placeholder="Masukkan kota asal Anda" 
+                        {...field} 
+                        disabled={!isEditable}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -448,7 +480,11 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                       {uploadFieldLabels.highschoolAlumni}
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Masukkan asal SMA Anda" {...field} />
+                      <Input 
+                        placeholder="Masukkan asal SMA Anda" 
+                        {...field} 
+                        disabled={!isEditable}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -467,6 +503,7 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                         placeholder="Alasan keperluan bantuan"
                         rows={4}
                         {...field}
+                        disabled={!isEditable}
                       />
                     </FormControl>
                     <FormMessage />
@@ -490,6 +527,8 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                     const handleDragOver = (
                       e: React.DragEvent<HTMLDivElement>,
                     ) => {
+                      if (!isEditable) return;
+                      
                       e.preventDefault();
                       e.stopPropagation();
                       setFileNames((prev) => ({
@@ -500,6 +539,8 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                     const handleDragLeave = (
                       e: React.DragEvent<HTMLDivElement>,
                     ) => {
+                      if (!isEditable) return;
+                      
                       e.preventDefault();
                       e.stopPropagation();
                       // Only clear if it was just showing "Dragging..."
@@ -512,6 +553,8 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                       }
                     };
                     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+                      if (!isEditable) return;
+                      
                       e.preventDefault();
                       e.stopPropagation();
                       const file = e.dataTransfer.files?.[0] || null;
@@ -529,7 +572,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                     } else if (hasExistingFile) {
                       fileStatus = "File sudah terupload";
                     } else {
-                      fileStatus = "Klik untuk upload atau drag & drop";
+                      fileStatus = isEditable 
+                        ? "Klik untuk upload atau drag & drop" 
+                        : "Tidak ada file";
                     }
 
                     // URL for previously uploaded file
@@ -545,7 +590,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                         <FormControl>
                           <div
                             className={`flex flex-col items-center justify-center rounded-md border-2 ${
-                              fileNames[name] === "Dragging..."
+                              !isEditable 
+                                ? "bg-gray-50 border-gray-200 cursor-not-allowed"
+                                : fileNames[name] === "Dragging..."
                                 ? "border-primary bg-primary/5 border-dashed"
                                 : hasExistingFile
                                   ? "border-dashed border-green-500/50 bg-green-50/20"
@@ -566,10 +613,17 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                               ref={(el) => {
                                 fileInputRefs.current[name] = el;
                               }}
+                              disabled={!isEditable}
                             />
                             <div className="flex flex-col items-center gap-2 text-center">
                               <FileUp
-                                className={`h-8 w-8 ${hasExistingFile ? "text-green-500" : "text-muted-foreground"}`}
+                                className={`h-8 w-8 ${
+                                  !isEditable 
+                                    ? "text-gray-400"
+                                    : hasExistingFile 
+                                    ? "text-green-500" 
+                                    : "text-muted-foreground"
+                                }`}
                               />
 
                               {/* Display status message without showing the filename for uploaded files */}
@@ -589,20 +643,24 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
                                       if (fileUrl)
                                         window.open(fileUrl, "_blank");
                                     }}
+                                    disabled={!fileUrl}
                                   >
                                     Lihat
                                   </Button>
                                 )}
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() =>
-                                    fileInputRefs.current[name]?.click()
-                                  }
-                                >
-                                  {hasExistingFile ? `Ganti` : `Pilih`}
-                                </Button>
+                                {isEditable && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      fileInputRefs.current[name]?.click()
+                                    }
+                                    disabled={!isEditable}
+                                  >
+                                    {hasExistingFile ? `Ganti` : `Pilih`}
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -616,23 +674,26 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
             </div>
           </Card>
 
-          <div className="flex justify-end space-x-2 p-4">
-            <Button
-              type="button"
-              className="w-24 xl:w-40"
-              variant="outline"
-              onClick={() => form.reset()}
-            >
-              Batal
-            </Button>
-            <Button
-              type="submit"
-              className="w-24 xl:w-40"
-              disabled={updateProfileMutation.isPending}
-            >
-              {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
-            </Button>
-          </div>
+          {/* Show form actions only if editing is enabled */}
+          {isEditable && (
+            <div className="flex justify-end space-x-2 p-4">
+              <Button
+                type="button"
+                className="w-24 xl:w-40"
+                variant="outline"
+                onClick={() => form.reset()}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                className="w-24 xl:w-40"
+                disabled={updateProfileMutation.isPending}
+              >
+                {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
+              </Button>
+            </div>
+          )}
         </form>
       </Form>
     </div>
