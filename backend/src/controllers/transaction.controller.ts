@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, or, sql } from "drizzle-orm";
+import { and, count, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -29,6 +29,12 @@ import { uploadPdfToCloudinary } from "../lib/file-upload.js";
 export const transactionProtectedRouter = createAuthRouter();
 
 const LIST_PAGE_SIZE = 6;
+
+function convertUtcToWib(utcDateString: string): Date {
+  const utcDate = new Date(utcDateString);
+  // Add 7 hours (GMT+7 offset in ms)
+  return new Date(utcDate.getTime() + 7 * 60 * 60 * 1000);
+}
 
 transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
   const user = c.var.user;
@@ -330,10 +336,11 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   // Parse using the UploadReceiptSchema
   const zodParseResult = UploadReceiptSchema.parse(data);
   const { mahasiswaId, createdAt, receipt } = zodParseResult;
-  const createdAtDate = new Date(createdAt);
+  const createdAtDate = convertUtcToWib(createdAt)
 
+  console.log(createdAtDate)
+  
   try {
-    // Upload the receipt file to Cloudinary
     const receiptUrl = await uploadPdfToCloudinary(receipt);
 
     await db.transaction(async (tx) => {
@@ -347,7 +354,10 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
           and(
             eq(transactionTable.mahasiswaId, mahasiswaId),
             eq(transactionTable.otaId, user.id),
-            eq(transactionTable.createdAt, createdAtDate)
+            and(
+              gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
+              lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
+            )
           ),
         );
     });
@@ -392,7 +402,10 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
                   and(
                       eq(transactionTable.mahasiswaId, mahasiswaId),
                       eq(transactionTable.otaId, otaId),
-                      eq(transactionTable.createdAt, createdAtDate)
+                      and(
+                        gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
+                        lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
+                      )
                   )
               )
               .limit(1);
@@ -403,14 +416,17 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
                     { 
                         transactionStatus: "paid",
                         transactionReceipt: "",
-                        amountPaid: billRow[0]?.bill ?? 0 // fallback to 0 if not found
+                        amountPaid: billRow[0]?.bill ?? 0
                     }
                 )
                 .where(
                     and(
                         eq(transactionTable.mahasiswaId, mahasiswaId),
                         eq(transactionTable.otaId, otaId),
-                        eq(transactionTable.createdAt, createdAtDate)
+                        and(
+                          gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
+                          lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
+                        )
                     )
                 )
 
@@ -462,7 +478,10 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
           and(
             eq(transactionTable.mahasiswaId, mahasiswaId),
             eq(transactionTable.otaId, otaId),
-            eq(transactionTable.createdAt, createdAtDate)
+            and(
+              gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
+              lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
+            )
           )
         )
         .limit(1);
@@ -482,7 +501,10 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
           and(
             eq(transactionTable.mahasiswaId, mahasiswaId),
             eq(transactionTable.otaId, otaId),
-            eq(transactionTable.createdAt, createdAtDate)
+            and(
+              gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
+              lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
+            )
           )
         );
     });

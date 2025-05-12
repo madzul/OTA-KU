@@ -174,10 +174,7 @@ export const UploadReceiptSchema = z.object({
       description: "ID mahasiswa asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
-  createdAt: z.string().datetime({ offset: true }).openapi({
-      description: "Timestamp pembuatan transaksi (part of composite primary key)",
-      example: "2024-05-01T12:34:56.000Z",
-  }),
+  createdAt: z.string().openapi({ example: "2025-05-12 05:38:30.059417"}),
   receipt: z
     .instanceof(File, { message: "Bukti pembayaran harus diisi" })
     .refine((file) => 
@@ -229,16 +226,7 @@ export const VerifyTransactionAcceptSchema = z.object({
       description: "ID mahasiswa asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
-  createdAt: z
-    .string({
-      required_error: "Waktu pembuatan transaksi harus diisi",
-      invalid_type_error: "createdAt harus berupa string ISO timestamp",
-    })
-    .datetime({ offset: true })
-    .openapi({
-      description: "Timestamp pembuatan transaksi (part of composite primary key)",
-      example: "2024-05-01T12:34:56.000Z",
-    }),
+  createdAt: z.string().openapi({ example: "2025-05-12 05:38:30.059417"})
 });
 
 export const VerifyTransactionRejectSchema = z.object({
@@ -266,16 +254,7 @@ export const VerifyTransactionRejectSchema = z.object({
       description: "ID mahasiswa asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
-  createdAt: z
-    .string({
-      required_error: "Waktu pembuatan transaksi harus diisi",
-      invalid_type_error: "createdAt harus berupa string ISO timestamp",
-    })
-    .datetime({ offset: true })
-    .openapi({
-      description: "Timestamp pembuatan transaksi (part of composite primary key)",
-      example: "2024-05-01T12:34:56.000Z",
-    }),
+  createdAt: z.string().openapi({ example: "2025-05-12 05:38:30.059417"}),
   rejectionNote: z.string().openapi({
     description: "Notes untuk menjelaskan alasan penolakan verifikasi transaction",
     example: "Nominal yang ditransfer tidak sesuai dengan tagihan" 
@@ -304,10 +283,7 @@ export const VerifyTransactionAccResponse = z.object({
       description: "ID orang tua asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
-    createdAt: z.string().datetime({ offset: true }).openapi({
-      description: "Timestamp pembuatan transaksi (part of composite primary key)",
-      example: "2024-05-01T12:34:56.000Z",
-    }),
+    createdAt: z.string().openapi({ example: "2025-05-12 05:38:30.059417"}),
     amountPaid: z
       .number()
       .int("Nominal yang dibayarkan harus berupa sebuah bilangan bulat")
@@ -332,10 +308,7 @@ export const VerifyTransactionRejectResponse = z.object({
       description: "ID orang tua asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
-    createdAt: z.string().datetime({ offset: true }).openapi({
-      description: "Timestamp pembuatan transaksi (part of composite primary key)",
-      example: "2024-05-01T12:34:56.000Z",
-    }),
+    createdAt: z.string().openapi({ example: "2025-05-12 05:38:30.059417"}),
     rejectionNote: z.string().openapi({
       description: "Notes untuk menjelaskan alasan penolakan verifikasi transaction",
       example: "Nominal yang ditransfer tidak sesuai dengan tagihan" 
