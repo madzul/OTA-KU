@@ -2,7 +2,7 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import { InternalServerErrorResponse, NotFoundResponse } from "../zod/response.js";
-import { DetailTransactionParams, TransactionDetailQueryResponse, TransactionListAdminQueryResponse, TransactionListAdminQuerySchema, TransactionListOTAQueryResponse, TransactionListOTAQuerySchema, UploadReceiptResponse, UploadReceiptSchema, VerifyTransactionAcceptSchema, VerifyTransactionRejectSchema, VerifyTransactionResponse } from "../zod/transaction.js";
+import { DetailTransactionParams, TransactionDetailQueryResponse, TransactionListAdminQueryResponse, TransactionListAdminQuerySchema, TransactionListOTAQueryResponse, TransactionListOTAQuerySchema, UploadReceiptResponse, UploadReceiptSchema, VerifyTransactionAcceptSchema, VerifyTransactionAccResponse, VerifyTransactionRejectResponse, VerifyTransactionRejectSchema } from "../zod/transaction.js";
 
 export const listTransactionOTARoute = createRoute({
     operationId: "listTransactionOTA",
@@ -148,7 +148,7 @@ export const verifyTransactionAccRoute = createRoute({
         description: "Berhasil melakukan penerimaan verifikasi pembayaran",
         content: {
         "application/json": {
-            schema: VerifyTransactionResponse,
+            schema: VerifyTransactionAccResponse,
           },
         },
       },
@@ -183,7 +183,7 @@ export const verifyTransactionRejectRoute = createRoute({
       description: "Berhasil melakukan penolakan verifikasi pembayaran",
       content: {
       "application/json": {
-          schema: VerifyTransactionResponse,
+          schema: VerifyTransactionRejectResponse,
         },
       },
     },

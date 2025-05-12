@@ -329,7 +329,8 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   
   // Parse using the UploadReceiptSchema
   const zodParseResult = UploadReceiptSchema.parse(data);
-  const { mahasiswaId, receipt } = zodParseResult;
+  const { mahasiswaId, createdAt, receipt } = zodParseResult;
+  const createdAtDate = new Date(createdAt);
 
   try {
     // Upload the receipt file to Cloudinary
@@ -346,6 +347,7 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
           and(
             eq(transactionTable.mahasiswaId, mahasiswaId),
             eq(transactionTable.otaId, user.id),
+            eq(transactionTable.createdAt, createdAtDate)
           ),
         );
     });
@@ -377,7 +379,8 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
     const body = await c.req.formData();
     const data = Object.fromEntries(body.entries());
     const zodParseResult = VerifyTransactionAcceptSchema.parse(data);
-    const { otaId, mahasiswaId } = zodParseResult
+    const { createdAt, otaId, mahasiswaId } = zodParseResult
+    const createdAtDate = new Date(createdAt);
 
     try{
         const result = await db.transaction(async(tx) => {
@@ -388,7 +391,8 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
               .where(
                   and(
                       eq(transactionTable.mahasiswaId, mahasiswaId),
-                      eq(transactionTable.otaId, otaId)
+                      eq(transactionTable.otaId, otaId),
+                      eq(transactionTable.createdAt, createdAtDate)
                   )
               )
               .limit(1);
@@ -405,7 +409,8 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
                 .where(
                     and(
                         eq(transactionTable.mahasiswaId, mahasiswaId),
-                        eq(transactionTable.otaId, otaId)
+                        eq(transactionTable.otaId, otaId),
+                        eq(transactionTable.createdAt, createdAtDate)
                     )
                 )
 
@@ -419,6 +424,7 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
               body: {
                 mahasiswaId: mahasiswaId,
                 otaId: otaId,
+                createdAt: createdAtDate,
                 amountPaid: result
               },
             },
@@ -437,52 +443,73 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
     }
 })
 
-transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async(c) => {
-    const body = await c.req.formData();
-    const data = Object.fromEntries(body.entries());
-    const zodParseResult = VerifyTransactionRejectSchema.parse(data);
-    const { otaId, mahasiswaId, amountPaid } = zodParseResult
 
-    try{
-        await db.transaction(async(tx) => {
-            await tx
-              .update(transactionTable)
-                .set(
-                    { //TODO: amountPaid di-increment ama yang udah ada, bukan cuma ditimpa
-                        transactionStatus: "unpaid",
-                        transactionReceipt: "",
-                        amountPaid: amountPaid
-                    }
-                )
-                .where(
-                    and(
-                        eq(transactionTable.mahasiswaId, mahasiswaId),
-                        eq(transactionTable.otaId, otaId)
-                    )
-                )
-        });
+transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+  const zodParseResult = VerifyTransactionRejectSchema.parse(data);
+  const { createdAt, otaId, mahasiswaId, amountPaid, rejectionNote } = zodParseResult;
+  const createdAtDate = new Date(createdAt);
+  
+  try {
+    await db.transaction(async (tx) => {
+      const existingTransaction = await tx
+        .select({
+          amountPaid: transactionTable.amountPaid,
+        })
+        .from(transactionTable)
+        .where(
+          and(
+            eq(transactionTable.mahasiswaId, mahasiswaId),
+            eq(transactionTable.otaId, otaId),
+            eq(transactionTable.createdAt, createdAtDate)
+          )
+        )
+        .limit(1);
 
-        return c.json(
-            {
-              success: true,
-              message: "Berhasil melakukan penolakan verifikasi pembayaran",
-              body: {
-                mahasiswaId: mahasiswaId,
-                otaId: otaId,
-                amountPaid: amountPaid
-              },
-            },
-            200
+      const currentAmountPaid = existingTransaction[0]?.amountPaid ?? 0;
+      const newAmountPaid = currentAmountPaid + amountPaid;
+
+      await tx
+        .update(transactionTable)
+        .set({
+          transactionStatus: "unpaid",
+          transactionReceipt: "",
+          rejectionNote: rejectionNote,
+          amountPaid: newAmountPaid,
+        })
+        .where(
+          and(
+            eq(transactionTable.mahasiswaId, mahasiswaId),
+            eq(transactionTable.otaId, otaId),
+            eq(transactionTable.createdAt, createdAtDate)
+          )
         );
-    } catch (error) {
-        console.error(error);
-        return c.json(
-          {
-            success: false,
-            message: "Internal server error",
-            error: {},
-          },
-          500,
-        );
-    }
-})
+    });
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil melakukan penolakan verifikasi pembayaran",
+        body: {
+          mahasiswaId: mahasiswaId,
+          otaId: otaId,
+          createdAt: createdAtDate,
+          rejectionNote: rejectionNote,
+          amountPaid: amountPaid,
+        },
+      },
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: {},
+      },
+      500
+    );
+  }
+});

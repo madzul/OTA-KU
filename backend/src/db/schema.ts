@@ -251,7 +251,6 @@ export const connectionTable = pgTable(
   (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
 );
 
-//TODO: Pastiin pair mahasiswaId, otaId di sini bukan cuma valid di account, tapi juga primary key yang valid di connectionTable. Harus ada connection dulu baru transaction soalnya
 export const transactionTable = pgTable(
   "transaction",
   {
@@ -275,8 +274,9 @@ export const transactionTable = pgTable(
     transactionReceipt: text("transaction_receipt"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    rejectionNote: text("rejection_note")
   },
-  (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
+  (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId, table.createdAt] })],
 );
 
 export const otpTable = pgTable(
