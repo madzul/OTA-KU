@@ -15,8 +15,9 @@ import { useDebounce } from "use-debounce";
 import { Route } from "..";
 import { PemasanganBotaColumn, pemasanganBotaColumns } from "./columns";
 import { DataTable } from "./data-table";
+import { OTA } from "./ota-popover";
 
-export function MahasiswaSelection() {
+export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
   const navigate = useNavigate({ from: Route.fullPath });
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -84,8 +85,8 @@ export function MahasiswaSelection() {
 
   return (
     <>
-      <p className="text-dark text-base font-bold">
-        Pilih mahasiswa yang ingin dipasangkan dengan OTA
+      <p className="text-dark text-base ">
+        Pilih mahasiswa yang ingin dipasangkan dengan <span className="font-bold">{selectedOTA.name}</span>
       </p>
       <div className="flex w-full flex-wrap gap-3">
         <div className="flex w-full max-w-[375px] gap-3 sm:flex-nowrap">

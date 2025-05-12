@@ -7,7 +7,11 @@ import { OTAPopover, OTA } from "./ota-popover";
 import DetailDialogOta from "./detail-dialog-ota";
 import { toast } from "sonner";
 
-export function OTASelection() {
+export function OTASelection({
+  onSelectOTA,
+}: {
+  onSelectOTA: (ota: OTA | null) => void;
+}) {
   const [selectedOTA, setSelectedOTA] = useState<OTA | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isComboboxOpen, setIsComboboxOpen] = useState(false);
@@ -44,6 +48,7 @@ export function OTASelection() {
 
   const handleSelectOTA = (ota: OTA) => {
     setSelectedOTA(ota);
+    onSelectOTA(ota);
     setIsComboboxOpen(false);
   };
 

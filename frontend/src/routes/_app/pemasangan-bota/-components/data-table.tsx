@@ -40,7 +40,7 @@ import {
   
     useEffect(() => {
       table.getColumn("mahasiswaId")?.toggleVisibility(false);
-      table.getColumn("otaId")?.toggleVisibility(false);
+      // table.getColumn("otaId")?.toggleVisibility(false);
     }, [table]);
   
     return (
