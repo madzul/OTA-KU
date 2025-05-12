@@ -656,6 +656,13 @@ export class ProfileService {
       pbb?: string;
       electricityBill?: string;
       ditmawaRecommendationLetter?: string;
+      createdAt?: string;
+      updatedAt?: string;
+      dueNextUpdateAt?: string;
+      /**
+       * Status aplikasi mahasiswa
+       */
+      applicationStatus: 'accepted' | 'rejected' | 'pending' | 'unregistered' | 'reapply' | 'outdated';
     };
   }> {
     return this.httpRequest.request({

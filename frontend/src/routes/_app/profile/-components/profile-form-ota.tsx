@@ -47,6 +47,7 @@ interface ProfileFormProps {
 
 const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [isEditingEnabled, setIsEditingEnabled] = useState(false);
 
   // Create form with zod validation
   const form = useForm<OrangTuaRegistrationFormValues>({
@@ -182,7 +183,11 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                           Nama Lengkap
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="Nama Lengkap" {...field} />
+                          <Input
+                            placeholder="Nama Lengkap"
+                            disabled={!isEditingEnabled}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -197,7 +202,11 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                           Pekerjaan
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="Pekerjaan" {...field} />
+                          <Input
+                            placeholder="Pekerjaan"
+                            disabled={!isEditingEnabled}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -210,7 +219,11 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                       <FormItem>
                         <FormLabel className="text-primary">Alamat</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Alamat" {...field} />
+                          <Textarea
+                            placeholder="Alamat"
+                            disabled={!isEditingEnabled}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -227,6 +240,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          disabled={!isEditingEnabled}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full bg-white">
@@ -264,7 +278,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
+                            disabled={!isEditingEnabled}
                             placeholder="Minimal Rp 300.000"
                             {...field}
                             onChange={(e) =>
@@ -286,7 +300,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
+                            disabled={!isEditingEnabled}
                             placeholder="Jumlah anak asuh"
                             {...field}
                             onChange={(e) =>
@@ -307,7 +321,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                           Dana akan mulai diberikan pada
                         </FormLabel>
                         <Popover>
-                          <PopoverTrigger asChild>
+                          <PopoverTrigger asChild disabled={!isEditingEnabled}>
                             <FormControl>
                               <Button
                                 variant={"outline"}
@@ -355,7 +369,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
+                            disabled={!isEditingEnabled}
                             placeholder="Min. 1 semester"
                             {...field}
                             onChange={(e) =>
@@ -377,7 +391,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                         </FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
+                            disabled={!isEditingEnabled}
                             placeholder="Tanggal (1-28)"
                             min={1}
                             max={28}
@@ -402,6 +416,7 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                         </FormLabel>
                         <FormControl>
                           <Textarea
+                            disabled={!isEditingEnabled}
                             placeholder="Contoh: Jenis kelamin, fakultas, agama, dll."
                             {...field}
                           />
@@ -416,21 +431,33 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
           </Tabs>
 
           <div className="flex justify-end space-x-2 p-4">
-            <Button
-              type="button"
-              className="w-24 xl:w-40"
-              variant="outline"
-              onClick={() => form.reset()}
-            >
-              Batal
-            </Button>
-            <Button
-              type="submit"
-              className="w-24 xl:w-40"
-              disabled={updateProfileMutation.isPending}
-            >
-              {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
-            </Button>
+            {isEditingEnabled ? (
+              <>
+                <Button
+                  type="button"
+                  className="w-24 xl:w-40"
+                  variant="outline"
+                  onClick={() => setIsEditingEnabled(false)}
+                >
+                  Batal
+                </Button>
+                <Button
+                  type="submit"
+                  className="w-24 xl:w-40"
+                  disabled={updateProfileMutation.isPending}
+                >
+                  {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
+                </Button>
+              </>
+            ) : (
+              <Button
+                type="button"
+                className="w-24 xl:w-40"
+                onClick={() => setIsEditingEnabled(true)}
+              >
+                Edit Profil
+              </Button>
+            )}
           </div>
         </form>
       </Form>
