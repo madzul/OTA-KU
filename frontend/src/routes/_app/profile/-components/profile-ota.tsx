@@ -4,9 +4,10 @@ import Metadata from "@/components/metadata";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { UserCog } from "lucide-react";
+
 import ProfileCard from "./profile-card";
-import ProfileFormOTA from "./profile-form-ota";
 import ChangePasswordForm from "./profile-change-password";
+import ProfileFormOTA from "./profile-form-ota";
 
 function ProfileOta({
   session,
@@ -27,11 +28,17 @@ function ProfileOta({
     enabled: !!session.id,
   });
 
-  if (applicationStatus === "unregistered") {
+  if (
+    applicationStatus === "unregistered" ||
+    applicationStatus === "outdated"
+  ) {
     return (
-      <main className="flex min-h-[calc(100vh-70px)] lg:min-h-[calc(100vh-96px)] flex-col items-center justify-center gap-4 p-2 px-6 py-8 md:px-12">
-        <UserCog className="h-24 w-24 text-primary" />
-        <h2 className="text-2xl font-semibold">Anda belum melakukan pendaftaran</h2>
+      <main className="flex min-h-[calc(100vh-70px)] flex-col items-center justify-center gap-4 p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
+        <Metadata title="Profile | BOTA" />
+        <UserCog className="text-primary h-24 w-24" />
+        <h2 className="text-2xl font-semibold">
+          Anda belum melakukan pendaftaran
+        </h2>
       </main>
     );
   }
