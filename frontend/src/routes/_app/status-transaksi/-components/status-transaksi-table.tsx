@@ -185,6 +185,7 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
         year: 'numeric'
       });
     } catch (e) {
+      console.error("Error parsing date:", e);
       return dateString;
     }
   };
