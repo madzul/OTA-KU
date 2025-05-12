@@ -135,14 +135,6 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           icon: "/icon/Type=student-list.svg",
           path: "/orang-tua-asuh-saya",
         },
-        {
-          id: "termination",
-          label: "Terminasi",
-          icon: "/icon/Type=remove-student.svg",
-          path: "/termination",
-          textColorClass: "text-destructive",
-          bgColorClass: "bg-destructive/10",
-        },
       ];
     case "admin":
       return [
@@ -157,6 +149,12 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           label: "Persetujuan Asuh",
           icon: "/icon/Type=user-round-check.svg",
           path: "/persetujuan-asuh",
+        },
+        {
+          id: "pemasangan-bota",
+          label: "Pemasangan BOTA",
+          icon: "/icon/Type=handshake.svg",
+          path: "/pemasangan-bota",
         },
         {
           id: "transaction",
@@ -180,12 +178,10 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           path: "/mahasiswa-asuh-saya",
         },
         {
-          id: "termination",
-          label: "Terminasi",
-          icon: "/icon/Type=remove-student.svg",
-          path: "/termination",
-          textColorClass: "text-destructive",
-          bgColorClass: "bg-destructive/10",
+          id: "status-transaksi",
+          label: "Status Transaksi",
+          icon: "/icon/Type=facebook.svg",
+          path: "/status-transaksi",
         },
       ];
     default:
