@@ -51,22 +51,22 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
           ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
         ),
       ),
-    ];
+    ]
 
     if (major) {
-      conditions.push(eq(accountMahasiswaDetailTable.major, major));
+      conditions.push(eq(accountMahasiswaDetailTable.major, major))
     }
 
-    if (faculty) {
-      conditions.push(eq(accountMahasiswaDetailTable.faculty, faculty));
+    if(faculty) {
+      conditions.push(eq(accountMahasiswaDetailTable.faculty, faculty))
     }
 
-    if (religion) {
-      conditions.push(eq(accountMahasiswaDetailTable.religion, religion));
+    if(religion) {
+      conditions.push(eq(accountMahasiswaDetailTable.religion, religion))
     }
 
-    if (gender) {
-      conditions.push(eq(accountMahasiswaDetailTable.gender, gender));
+    if(gender) {
+      conditions.push(eq(accountMahasiswaDetailTable.gender, gender))
     }
 
     const countsQuery = db
@@ -798,7 +798,7 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .select({
         id: accountOtaDetailTable.accountId,
         name: accountOtaDetailTable.name,
-        phoneNumber: accountTable.phoneNumber,
+        number: accountTable.phoneNumber,
         funds: accountOtaDetailTable.funds,
         maxCapacity: accountOtaDetailTable.maxCapacity,
         currentCount: sql<number>`COUNT(${connectionTable.mahasiswaId})`,
@@ -841,23 +841,23 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .offset(offset);
 
     const [otaList, counts] = await Promise.all([otaListQuery, countsQuery]);
-
-    return c.json(
-      {
-        success: true,
-        message: "Daftar OTA yang tersedia berhasil diambil",
-        body: {
-          data: otaList.map((ota) => ({
-            accountId: ota.id,
-            name: ota.name,
-            phoneNumber: ota.phoneNumber ?? "",
-            nominal: ota.funds,
-          })),
-          totalData: counts[0].count,
+  
+      return c.json(
+        {
+          success: true,
+          message: "Daftar OTA yang tersedia berhasil diambil",
+          body: {
+            data: otaList.map((ota) => ({
+              accountId: ota.id,
+              name: ota.name,
+              phoneNumber: ota.number ?? "",
+              nominal: ota.funds,
+            })),
+            totalData: counts[0].count,
+          },
         },
-      },
-      200,
-    );
+        200,
+      );
   } catch (error) {
     console.error("Error fetching available OTA list:", error);
     return c.json(

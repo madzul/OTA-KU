@@ -8,6 +8,7 @@ import {
   accountOtaDetailTable,
   accountTable,
   connectionTable,
+  transactionTable,
 } from "../src/db/schema.js";
 import { resetDatabase } from "../src/db/scripts/reset.js";
 import { seed } from "../src/db/scripts/seed.js";
@@ -60,13 +61,18 @@ describe("Database Seeding", () => {
     expect(ota).toBeDefined();
     expect(ota.type).toBe("ota");
 
+    console.log("Mahasiswa Detail Count:");
+    console.log(await db.select().from(accountMahasiswaDetailTable));
+    console.log("OTA Detail Count:");
+    console.log(await db.select().from(accountOtaDetailTable));
+
+    const otaDetails = await db.select().from(accountOtaDetailTable);
+    expect(otaDetails.length).toBe(15);
+
     const mahasiswaDetails = await db
       .select()
       .from(accountMahasiswaDetailTable);
-    expect(mahasiswaDetails.length).toBe(5);
-
-    const otaDetails = await db.select().from(accountOtaDetailTable);
-    expect(otaDetails.length).toBe(2);
+    expect(mahasiswaDetails.length).toBe(18);
 
     // Verify connections
     const connections = await db
@@ -90,17 +96,17 @@ describe("Database Reset", () => {
 
     // 3. Verify all tables were reset properly
     const accounts = await db.select().from(accountTable);
-    expect(accounts.length).toBe(8); // admin + 5 mahasiswa + 2 ota
+    expect(accounts.length).toBe(34); // admin + 18 mahasiswa + 15 ota
 
     const mahasiswaDetails = await db
       .select()
       .from(accountMahasiswaDetailTable);
-    expect(mahasiswaDetails.length).toBe(5);
+    expect(mahasiswaDetails.length).toBe(18);
 
     const otaDetails = await db.select().from(accountOtaDetailTable);
-    expect(otaDetails.length).toBe(2);
+    expect(otaDetails.length).toBe(15);
 
     const connections = await db.select().from(connectionTable);
-    expect(connections.length).toBe(3);
+    expect(connections.length).toBe(20);
   });
 });
