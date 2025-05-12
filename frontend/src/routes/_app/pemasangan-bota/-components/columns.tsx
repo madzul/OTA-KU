@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDownAZ, ArrowUpAZ } from "lucide-react";
+
 import DetailDialogMahasiswa from "./detail-dialog-mahasiswa";
-import { Checkbox } from "@/components/ui/checkbox";
 
 export type PemasanganBotaColumn = {
   mahasiswaId: string;
@@ -13,6 +14,8 @@ export type PemasanganBotaColumn = {
   agama: string;
   kelamin: string;
   ipk: string;
+  isSelected: boolean;
+  onCheckboxChange: (id: string, isChecked: boolean) => void;
 };
 
 export const pemasanganBotaColumns: ColumnDef<PemasanganBotaColumn>[] = [
@@ -149,32 +152,31 @@ export const pemasanganBotaColumns: ColumnDef<PemasanganBotaColumn>[] = [
   {
     accessorKey: "detail",
     header: () => {
-        return (
-            <div className="pl-3">
-                Detail
-            </div>
-        )
+      return <div className="pl-3">Detail</div>;
     },
     cell: ({ row }) => {
-        const id = row.getValue("mahasiswaId") as string;
-        return <DetailDialogMahasiswa id={id} />;
-    }
+      const id = row.getValue("mahasiswaId") as string;
+      return <DetailDialogMahasiswa id={id} />;
+    },
   },
   {
     accessorKey: "aksi",
     header: () => {
-        return (
-            <div className="pl-3">
-                Aksi
-            </div>
-        )
+      return <div className="pl-3">Aksi</div>;
     },
-    cell: () => {
-        return (
-            // TODO: Checkbox will be disabled 
-            // if number of selected mahasiswa === max capacity of OTA
-            <Checkbox />
-        )
-    }
-  }
+    cell: ({ row }) => {
+      const id = row.getValue("mahasiswaId") as string;
+      const isSelected = row.original.isSelected;
+      return (
+        // TODO: Checkbox will be disabled
+        // if number of selected mahasiswa === max capacity of OTA
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={(isChecked) =>
+            row.original.onCheckboxChange(id, isChecked as boolean)
+          }
+        />
+      );
+    },
+  },
 ];
