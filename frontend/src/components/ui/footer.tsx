@@ -1,9 +1,9 @@
 export default function Footer() {
   return (
-    <footer className="w-full bg-[#F2F7FC] border-t-[1px] border-t-dark/10">
-      <div className="items-center md:space-y-0 justify-center px-8 py-6 md:flex space-y-8">
+    <footer className="border-t-dark/10 w-full border-t-[1px] bg-[#F2F7FC]">
+      <div className="items-center justify-center space-y-8 px-8 py-6 md:flex md:space-y-0">
         <div>
-          <div className="flex items-center mb-6">
+          <div className="mb-6 flex items-center">
             <img src="/logo-iom.svg" alt="IOM-ITB Logo" className="w-full" />
           </div>
 
@@ -29,7 +29,11 @@ export default function Footer() {
           </a>
           <p className="text-primary">+62 856-2465-4990</p>
           <div className="mt-2 flex space-x-3">
-            <a href="#" className="text-primary">
+            <a
+              href="https://www.instagram.com/iom_itb"
+              target="_blank"
+              className="text-primary"
+            >
               <img src="/ig.svg" alt="Instagram" className="w-8" />
             </a>
             <a href="#" className="text-primary">
@@ -41,10 +45,13 @@ export default function Footer() {
             <a href="#" className="text-primary">
               <img src="/line.svg" alt="LINE" className="w-8" />
             </a>
-            <a href="#" className="text-primary">
+            <a
+              href="https://www.youtube.com/@iom-itb"
+              target="_blank"
+              className="text-primary"
+            >
               <img src="/yt.svg" alt="YouTube" className="w-8" />
             </a>
-
           </div>
         </div>
       </div>
