@@ -88,7 +88,7 @@ export class ProfileService {
       /**
        * Surat Rekomendasi Ditmawa
        */
-      ditmawaRecommendationLetter: any;
+      ditmawaRecommendationLetter?: any;
     },
   }): CancelablePromise<{
     success: boolean;

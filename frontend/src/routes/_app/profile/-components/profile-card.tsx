@@ -46,15 +46,15 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
         <CardContent>
           <div className="text-primary space-y-3 text-sm xl:text-base">
             <div className="flex items-center space-x-3">
-              <Mail className="text-muted-foreground h-5 w-5" />
-              <span>{email}</span>
+              <Mail className="text-muted-foreground h-5 min-h-5 w-5 min-w-5" />
+              <span className="line-clamp-2 break-all">{email}</span>
             </div>
             <div className="flex items-center space-x-3">
-              <Phone className="text-muted-foreground h-5 w-5" />
+              <Phone className="text-muted-foreground h-5 min-h-5 w-5 min-w-5" />
               <span>{phone}</span>
             </div>
             <div className="flex items-center space-x-3">
-              <Calendar className="text-muted-foreground h-5 w-5" />
+              <Calendar className="text-muted-foreground h-5 min-h-5 w-5 min-w-5" />
               <span>{joinDate}</span>
             </div>
           </div>

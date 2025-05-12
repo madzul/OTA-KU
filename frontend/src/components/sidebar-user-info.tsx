@@ -13,10 +13,10 @@ const SidebarUserInfo = ({
         className="h-8 w-8 rounded-full"
       />
       <div className="flex max-w-[160px] flex-col gap-1">
-        <span className="text-dark text-sm font-bold">
+        <span className="text-dark line-clamp-2 text-sm font-bold">
           {userData?.name || userData?.email.split("@")[0]}
         </span>
-        <span className="text-dark text-xs font-normal break-words opacity-80">
+        <span className="text-dark line-clamp-2 text-xs font-normal break-words opacity-80">
           {userData?.email}
         </span>
         {userData?.type && (
