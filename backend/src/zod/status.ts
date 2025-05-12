@@ -105,3 +105,21 @@ export const GetVerificationStatusSuccessResponse = z.object({
     }),
   }),
 });
+
+// Get Reapplication Status
+export const GetReapplicationStatusSuccessResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({
+    example: "Berhasil mengambil status pendaftaran ulang",
+  }),
+  body: z.object({
+    status: z.boolean().openapi({
+      description: "Status pendaftaran ulang",
+      example: true,
+    }),
+    daysRemaining: z.number().openapi({
+      description: "Sisa hari hingga batas pendaftaran ulang",
+      example: 10,
+    }),
+  }),
+});
