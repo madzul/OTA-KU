@@ -57,16 +57,18 @@ export function OTASelection() {
       {!selectedOTA && hasAvailableOTAs && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="flex gap-1 w-full items-center justify-between">
-            <h3 className="min-w-[200px] w-full max-w-[900px] font-bold text-[18px] text-dark">
+            <h3 className="min-w-[200px] w-full max-w-[900px] font-bold text-lg text-dark">
               Pilih OTA yang akan dipasangkan dengan mahasiswa asuh
             </h3>
-            <OTAPopover
-              isComboboxOpen={isComboboxOpen}
-              setIsComboboxOpen={setIsComboboxOpen}
-              onSelectOTA={handleSelectOTA}
-              buttonVariant="default"
-              buttonText="Pilih"
-            />
+            <div className="max-w-[200px] w-full">
+              <OTAPopover
+                isComboboxOpen={isComboboxOpen}
+                setIsComboboxOpen={setIsComboboxOpen}
+                onSelectOTA={handleSelectOTA}
+                buttonVariant="default"
+                buttonText="Pilih"
+              />
+            </div>
           </div>
         </div>
       )}

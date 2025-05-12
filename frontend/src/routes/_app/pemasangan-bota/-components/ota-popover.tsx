@@ -72,7 +72,7 @@ export function OTAPopover({
   return (
     <Popover open={isComboboxOpen} onOpenChange={setIsComboboxOpen}>
       <PopoverTrigger asChild>
-        <Button variant={buttonVariant} className="min-w-[90px] grow">
+        <Button variant={buttonVariant} className="min-w-[90px] grow w-full">
           {buttonText}
         </Button>
       </PopoverTrigger>
