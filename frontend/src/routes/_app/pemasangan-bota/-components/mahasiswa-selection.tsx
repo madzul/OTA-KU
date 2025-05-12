@@ -16,6 +16,10 @@ import { Route } from "..";
 import { PemasanganBotaColumn, pemasanganBotaColumns } from "./columns";
 import { DataTable } from "./data-table";
 import { OTA } from "./ota-popover";
+import FilterJurusan from "./filter-jurusan";
+import FilterFakultas from "./filter-fakultas";
+import FilterAgama from "./filter-agama";
+import FilterKelamin from "./filter-kelamin";
 
 export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
   const navigate = useNavigate({ from: Route.fullPath });
@@ -29,6 +33,10 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
   const [selectedMahasiswa, setSelectedMahasiswa] = useState<Set<string>>(
     new Set(),
   );
+  const [jurusan, setJurusan] = useState<string | null>(null);
+  const [fakultas, setFakultas] = useState<string | null>(null);
+  const [agama, setAgama] = useState<string | null>(null);
+  const [kelamin, setKelamin] = useState<"M" | "F" | null>(null);
 
   const handleCheckboxChange = (id: string, isChecked: boolean) => {
     setSelectedMahasiswa((prev) => {
@@ -44,11 +52,17 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
 
   // Fetch the list of mahasiswa with pagination and search query
   const { data, isSuccess } = useQuery({
-    queryKey: ["listMahasiswaOta", page, searchValue],
+    queryKey: ["listMahasiswaOta", page, searchValue, jurusan, fakultas, agama, kelamin],
     queryFn: () =>
       api.list.listMahasiswaOta({
         page,
         q: searchValue,
+        major: jurusan as "Matematika" | "Fisika" | "Astronomi" | "Mikrobiologi" | "Kimia" | "Biologi" | "Sains dan Teknologi Farmasi" | "Aktuaria" | "Rekayasa Hayati" | "Rekayasa Pertanian" | "Rekayasa Kehutanan" | undefined,
+        faculty: fakultas as "FMIPA" | "SITH-S" | "SF" | "FITB" | "FTTM" | "STEI-R" | "FTSL" | "FTI" | "FSRD" | "FTMD" | "STEI-K" | "SBM" | "SITH-R" | "SAPPK" | undefined,
+        religion: ["Islam", "Kristen Protestan", "Katolik", "Hindu", "Buddha", "Konghucu"].includes(agama || "")
+          ? (agama as "Islam" | "Kristen Protestan" | "Katolik" | "Hindu" | "Buddha" | "Konghucu")
+          : undefined,
+        gender: kelamin || undefined,
       }),
   });
 
@@ -123,11 +137,13 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
           <SearchInput placeholder="Cari nama atau NIM" setSearch={setSearch} />
         </div>
 
-        {/* Filter component placeholder */}
-        {/* <FilterJurusan />
-  <FilterFakultas />
-  <FilterAgama />
-  <FilterKelamin /> */}
+        {/* TODO: Masih empty data yg dihasilin, di test di swagger juga ga muncul apaapa tapi kode nya 200 */}
+        <div className="w-full flex flex-wrap gap-3">
+          <FilterJurusan setJurusan={setJurusan} />
+          <FilterFakultas setFakultas={setFakultas} />
+          <FilterAgama setAgama={setAgama} />
+          <FilterKelamin setKelamin={setKelamin} />
+        </div>
       </div>
 
       {/* Table Mahasiswa */}
