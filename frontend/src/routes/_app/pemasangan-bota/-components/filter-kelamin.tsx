@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const kelaminList = [
   { value: "M", label: "Laki-laki" },
@@ -22,6 +22,16 @@ const kelaminList = [
 function FilterKelamin({ setKelamin }: { setKelamin: (kelamin: "M" | "F" | null) => void }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleReset = () => {
+      setValue(null);
+      setKelamin(null);
+    };
+
+    document.addEventListener("resetFilters", handleReset);
+    return () => document.removeEventListener("resetFilters", handleReset);
+  }, [setKelamin]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

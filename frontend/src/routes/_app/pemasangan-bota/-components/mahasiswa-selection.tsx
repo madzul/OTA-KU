@@ -50,6 +50,16 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
     });
   };
 
+  const resetFilters = () => {
+    setJurusan(null);
+    setFakultas(null);
+    setAgama(null);
+    setKelamin(null);
+
+    // Trigger reset for filter components
+    document.dispatchEvent(new CustomEvent("resetFilters"));
+  };
+
   // Fetch the list of mahasiswa with pagination and search query
   const { data, isSuccess } = useQuery({
     queryKey: ["listMahasiswaOta", page, searchValue, jurusan, fakultas, agama, kelamin],
@@ -142,6 +152,14 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
           <FilterFakultas setFakultas={setFakultas} />
           <FilterAgama setAgama={setAgama} />
           <FilterKelamin setKelamin={setKelamin} />
+          <Button
+            variant="outline"
+            className="border-destructive text-destructive h-9 hover:text-destructive"
+            onClick={resetFilters}
+          >
+            Reset Filter
+            <Trash2 className="text-destructive ml-2" />
+          </Button>
         </div>
       </div>
 

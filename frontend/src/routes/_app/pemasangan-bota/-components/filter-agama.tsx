@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const agamaList = [
   "Islam",
@@ -26,6 +26,16 @@ const agamaList = [
 function FilterAgama({ setAgama }: { setAgama: (agama: string | null) => void }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
+
+  useEffect(() => {
+    const handleReset = () => {
+      setValue("");
+      setAgama(null);
+    };
+
+    document.addEventListener("resetFilters", handleReset);
+    return () => document.removeEventListener("resetFilters", handleReset);
+  }, [setAgama]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

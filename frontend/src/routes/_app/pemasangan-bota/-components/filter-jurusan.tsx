@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const jurusanList = [
   "Matematika",
@@ -76,6 +76,16 @@ function FilterJurusan({
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
+
+  useEffect(() => {
+    const handleReset = () => {
+      setValue("");
+      setJurusan(null);
+    };
+
+    document.addEventListener("resetFilters", handleReset);
+    return () => document.removeEventListener("resetFilters", handleReset);
+  }, [setJurusan]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

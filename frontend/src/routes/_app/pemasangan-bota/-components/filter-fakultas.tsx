@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const fakultasList = [
   "FMIPA",
@@ -38,6 +38,16 @@ function FilterFakultas({
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
+
+  useEffect(() => {
+    const handleReset = () => {
+      setValue("");
+      setFakultas(null);
+    };
+
+    document.addEventListener("resetFilters", handleReset);
+    return () => document.removeEventListener("resetFilters", handleReset);
+  }, [setFakultas]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
