@@ -42,6 +42,17 @@ function ProfileMahasiswa({
     enabled: !!session?.id,
   });
 
+  const { data } = useQuery({
+    queryKey: ["getReapplicationStatus", session?.id],
+    queryFn: () => {
+      if (!session?.id) return null;
+      return api.status.getReapplicationStatus({
+        id: session.id,
+      });
+    },
+    enabled: !!session?.id,
+  });
+
   if (
     applicationStatus === "unregistered" ||
     applicationStatus === "outdated"
