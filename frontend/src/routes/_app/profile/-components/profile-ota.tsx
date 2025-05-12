@@ -62,6 +62,8 @@ function ProfileOta({
                 profileData?.body?.phone_number || session.phoneNumber || "-"
               }
               joinDate={profileData?.body?.join_date || "Belum tersedia"}
+              status={false}
+              daysRemaining={0}
             />
           )}
         </div>

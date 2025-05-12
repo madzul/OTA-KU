@@ -8,6 +8,7 @@ import {
   ApplicationStatusSuccessResponse,
   GetApplicationStatusForbiddenResponse,
   GetApplicationStatusSuccessResponse,
+  GetReapplicationStatusSuccessResponse,
   GetVerificationStatusSuccessResponse,
 } from "../zod/status.js";
 
@@ -95,6 +96,40 @@ export const getVerificationStatusRoute = createRoute({
       content: {
         "application/json": {
           schema: GetVerificationStatusSuccessResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": { schema: GetApplicationStatusForbiddenResponse },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const getReapplicationStatusRoute = createRoute({
+  operationId: "getReapplicationStatus",
+  tags: ["Status"],
+  method: "get",
+  path: "/status/reapplication/{id}",
+  description: "Mengambil status pendaftaran ulang.",
+  request: {
+    params: ApplicationStatusParams,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mengambil status pendaftaran ulang",
+      content: {
+        "application/json": {
+          schema: GetReapplicationStatusSuccessResponse,
         },
       },
     },

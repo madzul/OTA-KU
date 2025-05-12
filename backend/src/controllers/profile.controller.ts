@@ -24,7 +24,6 @@ import {
   OrangTuaRegistrationSchema,
 } from "../zod/profile.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
-import app from "../app.js";
 
 export const profileRouter = createRouter();
 export const profileProtectedRouter = createAuthRouter();
@@ -534,6 +533,8 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
       {} as Record<string, string>,
     );
 
+    const currentDateTime = new Date();
+
     await db.transaction(async (tx) => {
       // Update phone number in account table and application status = reapply
       await tx
@@ -563,15 +564,15 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           pbb: resultUrls.pbb,
           electricityBill: resultUrls.electricityBill,
           ditmawaRecommendationLetter: resultUrls.ditmawaRecommendationLetter,
-          updatedAt: new Date(),
+          updatedAt: currentDateTime,
           dueNextUpdateAt: new Date(
-            existingProfile.dueNextUpdateAt.getFullYear(),
-            existingProfile.dueNextUpdateAt.getMonth() + 6,
-            existingProfile.dueNextUpdateAt.getDate(),
-            existingProfile.dueNextUpdateAt.getHours(),
-            existingProfile.dueNextUpdateAt.getMinutes(),
-            existingProfile.dueNextUpdateAt.getSeconds(),
-            existingProfile.dueNextUpdateAt.getMilliseconds(),
+            currentDateTime.getFullYear(),
+            currentDateTime.getMonth() + 6,
+            currentDateTime.getDate(),
+            currentDateTime.getHours(),
+            currentDateTime.getMinutes(),
+            currentDateTime.getSeconds(),
+            currentDateTime.getMilliseconds(),
           ),
         })
         .where(eq(accountMahasiswaDetailTable.accountId, user.id));
@@ -655,7 +656,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
         email: accountTable.email,
         phone_number: accountTable.phoneNumber,
         name: accountOtaDetailTable.name,
-        join_date: accountOtaDetailTable.startDate,
+        join_date: accountOtaDetailTable.createdAt,
         job: accountOtaDetailTable.job,
         address: accountOtaDetailTable.address,
         linkage: accountOtaDetailTable.linkage,
@@ -702,10 +703,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       transferDate: profileDataOTA[0].transferDate,
       criteria: profileDataOTA[0].criteria,
       allowAdminSelection: profileDataOTA[0].allowAdminSelection!,
-      join_date: new Date(profileDataOTA[0].join_date).toLocaleString("en-US", {
-        month: "long",
-        year: "numeric",
-      }),
+      join_date: profileDataOTA[0].join_date,
     };
 
     return c.json(

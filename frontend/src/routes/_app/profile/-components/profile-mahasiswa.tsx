@@ -4,7 +4,8 @@ import Metadata from "@/components/metadata";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { UserCog } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+
 import ProfileCard from "./profile-card";
 import ChangePasswordForm from "./profile-change-password";
 import ProfileFormMA from "./profile-form-ma";
@@ -23,7 +24,6 @@ function ProfileMahasiswa({
     | "outdated";
 }) {
   const [isEditingEnabled, setIsEditingEnabled] = useState(false);
-  const [isWithin30Days, setIsWithin30Days] = useState(false);
 
   const { data: profileData, isLoading } = useQuery({
     queryKey: ["mahasiswaProfile", session.id],
@@ -31,29 +31,16 @@ function ProfileMahasiswa({
     enabled: !!session.id,
   });
 
-  // Check if user is within 30 days of due date
-  useEffect(() => {
-    if (profileData?.success && profileData.body.dueNextUpdateAt) {
-      const dueDate = new Date(profileData.body.dueNextUpdateAt);
-      const currentDate = new Date();
-      
-      // Calculate days remaining until due date
-      const timeDiff = dueDate.getTime() - currentDate.getTime();
-      const remainingDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-      
-      // Check if less than 30 days remaining and status is accepted
-      if (remainingDays <= 30 && applicationStatus === "accepted") {
-        setIsWithin30Days(true);
-      } else {
-        setIsWithin30Days(false);
-        setIsEditingEnabled(false); // Reset editing state if no longer within 30 days
-      }
-    }
-  }, [profileData, applicationStatus]);
-
-  const handleEnableEdit = () => {
-    setIsEditingEnabled(true);
-  };
+  const { data } = useQuery({
+    queryKey: ["getReapplicationStatus", session?.id],
+    queryFn: () => {
+      if (!session?.id) return null;
+      return api.status.getReapplicationStatus({
+        id: session.id,
+      });
+    },
+    enabled: !!session?.id,
+  });
 
   if (
     applicationStatus === "unregistered" ||
@@ -69,7 +56,7 @@ function ProfileMahasiswa({
       </main>
     );
   }
- 
+
   return (
     <main className="flex min-h-[calc(100vh-96px)] flex-col p-2 px-6 py-8 md:px-12">
       <Metadata title="Profile | BOTA" />
@@ -85,20 +72,24 @@ function ProfileMahasiswa({
               name={profileData?.body?.name || "Mahasiswa Asuh"}
               role="Mahasiswa"
               email={session.email}
-              phone={profileData?.body?.phone_number || session.phoneNumber || "-"}
+              phone={
+                profileData?.body?.phone_number || session.phoneNumber || "-"
+              }
               joinDate={profileData?.body?.createdAt || "-"}
               dueNextUpdateAt={profileData?.body?.dueNextUpdateAt}
               applicationStatus={applicationStatus}
-              onEnableEdit={handleEnableEdit}
+              onEnableEdit={() => setIsEditingEnabled(true)}
               isEditingEnabled={isEditingEnabled}
+              status={data?.body.status || false}
+              daysRemaining={data?.body.daysRemaining || 0}
             />
           )}
         </div>
         <div className="space-y-6">
-          <ProfileFormMA 
-            session={session} 
-            isEditable={isEditingEnabled && isWithin30Days}
-            isWithin30Days={isWithin30Days}
+          <ProfileFormMA
+            session={session}
+            isEditable={isEditingEnabled && data?.body.status}
+            isWithin30Days={data?.body.status}
           />
           {/* Only show change password form for credentials provider */}
           {session.provider === "credentials" && (

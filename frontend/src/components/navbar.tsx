@@ -26,36 +26,21 @@ export default function NavBar() {
   const navigate = useNavigate();
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [showRenewalIndicator, setShowRenewalIndicator] = useState(false);
 
   const isLoggedIn = !!session;
   const isMahasiswa = session?.type === "mahasiswa";
 
   // Query to check if user needs to renew (mahasiswa within 30 days of due date)
   const { data: profileData } = useQuery({
-    queryKey: ["mahasiswaProfileForRenewal", session?.id],
+    queryKey: ["getReapplicationStatus", session?.id],
     queryFn: () => {
       if (!session?.id || !isMahasiswa) return null;
-      return api.profile.profileMahasiswa({ id: session.id });
+      return api.status.getReapplicationStatus({
+        id: session.id,
+      });
     },
     enabled: !!session?.id && isMahasiswa,
   });
-
-  useEffect(() => {
-  if (profileData?.success && profileData.body.dueNextUpdateAt && isMahasiswa) {
-    const dueDate = new Date(profileData.body.dueNextUpdateAt);
-    const currentDate = new Date();
-    
-    const timeDiff = dueDate.getTime() - currentDate.getTime();
-    const remainingDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    
-    if (remainingDays <= 30 && profileData.body.applicationStatus === "accepted") {
-      setShowRenewalIndicator(true);
-    } else {
-      setShowRenewalIndicator(false);
-    }
-  }
-}, [profileData, isMahasiswa]);
 
   const { data, refetch } = useQuery({
     queryKey: ["getPushSubscription", session?.id],
@@ -279,7 +264,7 @@ export default function NavBar() {
                         className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
                       />
                       {/* Red dot indicator above profile icon */}
-                      {showRenewalIndicator && (
+                      {profileData?.body.status && (
                         <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-600"></div>
                       )}
                     </div>
@@ -293,19 +278,16 @@ export default function NavBar() {
                     <MenubarItem
                       className="text-dark relative"
                       onClick={() => {
-                        const path = "/profile";
-
                         navigate({
-                          to: path,
-                          reloadDocument: true,
+                          to: "/profile",
                         });
                       }}
                     >
-                      <div className="flex items-center justify-between w-full">
+                      <div className="flex w-full items-center justify-between">
                         <span>Akun Saya</span>
                         {/* Red dot indicator next to "Akun Saya" */}
-                        {showRenewalIndicator && (
-                          <div className="h-3 w-3 rounded-full bg-red-600 ml-2"></div>
+                        {profileData?.body.status && (
+                          <div className="ml-2 h-3 w-3 rounded-full bg-red-600"></div>
                         )}
                       </div>
                     </MenubarItem>

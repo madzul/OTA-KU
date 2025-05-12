@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { Mail, Phone, Calendar } from "lucide-react";
+import { Calendar, Mail, Phone } from "lucide-react";
 
 interface ProfileCardProps {
   name: string;
@@ -9,111 +8,89 @@ interface ProfileCardProps {
   phone: string;
   joinDate: string;
   dueNextUpdateAt?: string;
-  applicationStatus?: "accepted" | "rejected" | "pending" | "unregistered" | "reapply" | "outdated";
+  applicationStatus?:
+    | "accepted"
+    | "rejected"
+    | "pending"
+    | "unregistered"
+    | "reapply"
+    | "outdated";
+  status: boolean;
+  daysRemaining: number;
   onEnableEdit?: () => void;
   isEditingEnabled?: boolean;
 }
 
-function ProfileCard({ 
-  name, 
-  role, 
-  email, 
-  phone, 
-  joinDate, 
+function ProfileCard({
+  name,
+  role,
+  email,
+  phone,
+  joinDate,
   dueNextUpdateAt,
   applicationStatus,
+  status,
+  daysRemaining,
   onEnableEdit,
-  isEditingEnabled = false
+  isEditingEnabled = false,
 }: ProfileCardProps) {
-  const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
-  const [showRenewalWarning, setShowRenewalWarning] = useState(false);
-  const [formattedDueDate, setFormattedDueDate] = useState<string>("");
-  const contactNumber = "081234567890";
+  const contactNumber = "+62 856-2465-4990";
 
   // Format join date to show only Month Year
   const formatJoinDate = (dateString: string): string => {
     if (!dateString || dateString === "-") return "-";
-    
-    try {
-      const date = new Date(dateString);
-      
-      // Format to Month Year (e.g., "Mei 2025")
-      return date.toLocaleDateString('id-ID', { 
-        month: 'long', 
-        year: 'numeric' 
-      });
-    } catch (e) {
-      return dateString;
-    }
-  };
-  
-  // Format due date to full date (e.g., "10 Juni 2025")
-  const formatDueDate = (dateString: string): string => {
-    if (!dateString) return "";
-    
-    try {
-      const date = new Date(dateString);
-      
-      return date.toLocaleDateString('id-ID', { 
-        day: 'numeric',
-        month: 'long', 
-        year: 'numeric' 
-      });
-    } catch (e) {
-      return dateString;
-    }
-  };
 
-  useEffect(() => {
-    if (dueNextUpdateAt) {
-      const dueDate = new Date(dueNextUpdateAt);
-      const currentDate = new Date();
-      
-      // Format due date
-      setFormattedDueDate(formatDueDate(dueNextUpdateAt));
-      
-      // Calculate days remaining until due date
-      const timeDiff = dueDate.getTime() - currentDate.getTime();
-      const remainingDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-      
-      setDaysRemaining(remainingDays);
-      
-      // Show warning if less than 30 days remaining and status is accepted
-      if (remainingDays <= 30 && applicationStatus === "accepted") {
-        setShowRenewalWarning(true);
-      }
+    try {
+      const date = new Date(dateString);
+
+      // Format to Month Year (e.g., "Mei 2025")
+      return date.toLocaleDateString("id-ID", {
+        month: "long",
+        year: "numeric",
+      });
+    } catch (e) {
+      console.error("Invalid date format:", e);
+      return dateString;
     }
-  }, [dueNextUpdateAt, applicationStatus]);
+  };
 
   // Get status message based on application status
   const getStatusMessage = () => {
     if (!applicationStatus) return null;
-    
+
     switch (applicationStatus) {
       case "rejected":
         return (
           <p className="text-sm font-medium text-red-600">
-            Pengajuan perpanjangan masa asuh Anda tidak dapat disetujui. Info lebih lanjut: {contactNumber}.
+            Pengajuan perpanjangan masa asuh Anda tidak dapat disetujui. Info
+            lebih lanjut: {contactNumber}.
           </p>
         );
-      
+
       case "reapply":
         return (
           <p className="text-sm font-medium text-amber-600">
-            Perpanjangan masa asuh Anda berhasil diajukan. Jika dalam 7 hari belum ada informasi lanjutan, hubungi: {contactNumber}.
+            Perpanjangan masa asuh Anda berhasil diajukan. Jika dalam 7 hari
+            belum ada informasi lanjutan, hubungi: {contactNumber}.
           </p>
         );
-      
+
       case "accepted":
-        if (daysRemaining === null || daysRemaining > 30) {
+        if (daysRemaining > 30) {
           return (
             <p className="text-sm font-medium text-green-600">
-              Masa asuh anda aktif hingga {formattedDueDate}.
+              Masa asuh anda aktif hingga{" "}
+              {new Date(dueNextUpdateAt || "").toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+              .
             </p>
           );
         }
         return null; // For accepted with < 30 days, we show the renewal warning instead
-      
+
       default:
         return null;
     }
@@ -136,46 +113,46 @@ function ProfileCard({
             {name.charAt(0)}
           </div>
         </div>
-       
+
         <div className="mt-4 text-center">
           <h2 className="text-xl font-bold">{name}</h2>
           <p className="text-sm text-gray-500">{role}</p>
         </div>
       </div>
-     
-      <div className="mt-6 space-y-4">
+
+      <div className="text-primary mt-6 space-y-4">
         <div className="flex items-center gap-3">
-          <Mail className="h-5 w-5 text-gray-500" />
+          <Mail className="h-5 w-5" />
           <span className="text-sm">{email}</span>
         </div>
-       
+
         <div className="flex items-center gap-3">
-          <Phone className="h-5 w-5 text-gray-500" />
+          <Phone className="h-5 w-5" />
           <span className="text-sm">{phone}</span>
         </div>
-       
+
         <div className="flex items-center gap-3">
-          <Calendar className="h-5 w-5 text-gray-500" />
+          <Calendar className="h-5 w-5" />
           <span className="text-sm">Bergabung di {formattedJoinDate}</span>
         </div>
       </div>
-     
+
       {/* Status Messages */}
       <div className="mt-6">
         {/* Status-based message */}
         {getStatusMessage()}
-        
+
         {/* Renewal Warning - only shown for accepted status with less than 30 days */}
-        {showRenewalWarning && daysRemaining !== null && (
+        {status && daysRemaining < 30 && (
           <>
             <p className="text-sm font-medium text-red-600">
               Masa asuh Anda akan berakhir dalam {daysRemaining} hari
             </p>
-           
+
             <div className="mt-3">
               {!isEditingEnabled && (
                 <Button
-                  className="w-full bg-primary"
+                  className="bg-primary w-full"
                   onClick={handleEnableEdit}
                 >
                   Perpanjang Masa Asuh

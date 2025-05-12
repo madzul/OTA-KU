@@ -1,3 +1,6 @@
+import { api } from "@/api/client";
+import { UserSchema } from "@/api/generated";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -6,48 +9,65 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 interface ReapplyModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  daysRemaining: number;
-  onReapply: () => void;
-  onDelay: () => void;
+  session: UserSchema;
 }
 
-export default function ReapplyModal({
-  open,
-  onOpenChange,
-  daysRemaining,
-  onReapply,
-  onDelay,
-}: ReapplyModalProps) {
+export default function ReapplyModal({ session }: ReapplyModalProps) {
+  const [showReapplyModal, setShowReapplyModal] = useState(false);
+  const navigate = useNavigate();
+
+  const { data } = useQuery({
+    queryKey: ["getReapplicationStatus", session?.id],
+    queryFn: () => {
+      if (!session?.id) return null;
+      return api.status.getReapplicationStatus({
+        id: session.id,
+      });
+    },
+    enabled: !!session?.id,
+  });
+
+  useEffect(() => {
+    if (data && data.body.status) {
+      setShowReapplyModal(true);
+    }
+  }, [data]);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={showReapplyModal} onOpenChange={setShowReapplyModal}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-center text-[#0A2463]">
+          <DialogTitle className="text-center text-xl font-bold text-[#0A2463]">
             Masa bantuan akan segera berakhir!
           </DialogTitle>
         </DialogHeader>
-        
+
         <DialogDescription className="text-center">
-          Masa bantuan orang tua asuh Anda akan berakhir dalam {daysRemaining} hari. Apakah Anda ingin memperpanjang periode bantuan ini?
+          Masa bantuan orang tua asuh Anda akan berakhir dalam{" "}
+          {data?.body.daysRemaining ?? 0} hari. Apakah Anda ingin memperpanjang
+          periode bantuan ini?
         </DialogDescription>
 
-        <DialogFooter className="flex flex-col sm:flex-row sm:justify-center gap-2 mt-4">
-          <Button 
-            variant="outline" 
-            onClick={onDelay}
+        <DialogFooter className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <Button
+            variant="outline"
+            onClick={() => setShowReapplyModal(false)}
             className="w-full sm:w-auto"
           >
             Nanti saja
           </Button>
-          <Button 
+          <Button
             variant="default"
-            onClick={onReapply}
-            className="w-full sm:w-auto bg-primary"
+            onClick={() => {
+              navigate({ to: "/profile" });
+              setShowReapplyModal(false);
+            }}
+            className="bg-primary w-full sm:w-auto"
           >
             Perpanjang
           </Button>
