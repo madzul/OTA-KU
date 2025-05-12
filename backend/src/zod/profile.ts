@@ -543,6 +543,31 @@ export const ProfileMahasiswaResponse = z.object({
       .string()
       .optional()
       .openapi({ example: "https://res.cloudinary.com/example/ditmawa.pdf" }),
+    createdAt: z
+      .string()
+      .optional()
+      .openapi({ example: "2025-01-01T00:00:00.000Z" }),
+    updatedAt: z
+      .string()
+      .optional()
+      .openapi({ example: "2025-01-01T00:00:00.000Z" }),
+    dueNextUpdateAt: z
+      .string()
+      .optional()
+      .openapi({ example: "2025-01-01T00:00:00.000Z" }),
+    applicationStatus: z
+      .enum([
+        "accepted",
+        "rejected",
+        "pending",
+        "unregistered",
+        "reapply",
+        "outdated",
+      ])
+      .openapi({
+        example: "accepted",
+        description: "Status aplikasi mahasiswa",
+      }),
     // join_date: z.string().openapi({ example: "March 2025" })
   }),
 });

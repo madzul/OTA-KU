@@ -26,8 +26,36 @@ export default function NavBar() {
   const navigate = useNavigate();
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [showRenewalIndicator, setShowRenewalIndicator] = useState(false);
 
   const isLoggedIn = !!session;
+  const isMahasiswa = session?.type === "mahasiswa";
+
+  // Query to check if user needs to renew (mahasiswa within 30 days of due date)
+  const { data: profileData } = useQuery({
+    queryKey: ["mahasiswaProfileForRenewal", session?.id],
+    queryFn: () => {
+      if (!session?.id || !isMahasiswa) return null;
+      return api.profile.profileMahasiswa({ id: session.id });
+    },
+    enabled: !!session?.id && isMahasiswa,
+  });
+
+  useEffect(() => {
+  if (profileData?.success && profileData.body.dueNextUpdateAt && isMahasiswa) {
+    const dueDate = new Date(profileData.body.dueNextUpdateAt);
+    const currentDate = new Date();
+    
+    const timeDiff = dueDate.getTime() - currentDate.getTime();
+    const remainingDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    if (remainingDays <= 30 && profileData.body.applicationStatus === "accepted") {
+      setShowRenewalIndicator(true);
+    } else {
+      setShowRenewalIndicator(false);
+    }
+  }
+}, [profileData, isMahasiswa]);
 
   const { data, refetch } = useQuery({
     queryKey: ["getPushSubscription", session?.id],
@@ -244,11 +272,17 @@ export default function NavBar() {
               <Menubar className="border-none bg-transparent p-0 shadow-none">
                 <MenubarMenu>
                   <MenubarTrigger className="cursor-pointer border-none bg-transparent p-0 shadow-none outline-none hover:bg-transparent focus:bg-transparent">
-                    <img
-                      src="/icon/Type=profile-icon.svg"
-                      alt="Profile"
-                      className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
-                    />
+                    <div className="relative">
+                      <img
+                        src="/icon/Type=profile-icon.svg"
+                        alt="Profile"
+                        className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
+                      />
+                      {/* Red dot indicator above profile icon */}
+                      {showRenewalIndicator && (
+                        <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-600"></div>
+                      )}
+                    </div>
                   </MenubarTrigger>
                   <MenubarContent
                     className="z-[70]"
@@ -257,7 +291,7 @@ export default function NavBar() {
                     sideOffset={5}
                   >
                     <MenubarItem
-                      className="text-dark"
+                      className="text-dark relative"
                       onClick={() => {
                         const path = "/profile";
 
@@ -267,7 +301,13 @@ export default function NavBar() {
                         });
                       }}
                     >
-                      Akun Saya
+                      <div className="flex items-center justify-between w-full">
+                        <span>Akun Saya</span>
+                        {/* Red dot indicator next to "Akun Saya" */}
+                        {showRenewalIndicator && (
+                          <div className="h-3 w-3 rounded-full bg-red-600 ml-2"></div>
+                        )}
+                      </div>
                     </MenubarItem>
 
                     <MenubarSeparator />
