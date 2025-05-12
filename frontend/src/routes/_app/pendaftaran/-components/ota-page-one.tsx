@@ -76,14 +76,16 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
           {isExpanded ? (
             <p className="text-justify text-[18px]">
               Orang Tua Asuh (OTA) merupakan salah satu bentuk bantuan IOM-ITB
-              yang bersumber dari Orang Tua Mahasiswa (OTM) yang dengan sukarela
-              membiayai sebagian atau keseluruhan kebutuhan seorang mahasiswa
-              ITB dalam jangka waktu tertentu (minimal 1 semester). Besar
-              bantuan yang diberikan sesuai dengan kesanggupan OTM . Kami
-              memprogramkan besar bantuan minimal bagi anak asuh senilai
-              Rp.600.000,- dimana pembiayaannya dapat bersumber dari 1-2 OTM.
-              Partisipasi dan kepedulian Bapak/Ibu sebagai Orang Tua Asuh akan
-              sangat berarti bagi para mahasiswa yang membutuhkannya.{"  "}
+              yang dapat berasal dari siapa saja, baik Orang Tua Mahasiswa
+              (OTM), alumni, maupun pihak lain yang memiliki kepedulian untuk
+              mendukung mahasiswa ITB. Bantuan ini diberikan untuk membiayai
+              sebagian atau seluruh kebutuhan seorang mahasiswa ITB dalam jangka
+              waktu tertentu (minimal 1 semester). Besar bantuan yang diberikan
+              disesuaikan dengan kesanggupan masing-masing Orang Tua Asuh. Kami
+              memprogramkan bantuan minimal senilai Rp300.000,- per mahasiswa,
+              yang berasal dari satu Orang Tua Asuh. Partisipasi dan kepedulian
+              Bapak/Ibu sebagai Orang Tua Asuh akan sangat berarti bagi para
+              mahasiswa yang membutuhkan.{"  "}
               <span
                 className="cursor-pointer font-bold underline"
                 onClick={toggleExpand}
