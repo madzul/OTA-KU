@@ -129,6 +129,13 @@ export function OTASelection({
                 {otaDetails?.body.maxCapacity || "-"}
               </p>
             </div>
+            {/* TODO: currentConnection data display how much connection this OTA have */}
+            {/* <div>
+              <p className="text-sm text-muted-foreground">Mahasiswa asuh yang sedang dibantu:</p>
+              <p className="font-bold text-dark">
+                {otaDetails?.body.currentConnection || "-"}
+              </p>
+            </div> */}
             <div>
               <p className="text-sm text-muted-foreground">
                 Kriteria calon mahasiswa asuh:
