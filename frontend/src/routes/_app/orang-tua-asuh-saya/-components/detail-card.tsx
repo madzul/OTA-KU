@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SessionContext } from "@/context/session";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AlertCircle, Calendar, Mail, Phone, User } from "lucide-react";
 import React, { useContext, useState } from "react";
 
@@ -73,6 +73,11 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
     reqTerminateOTA.mutate({ otaId: otaId });
   };
 
+  const { data: terminationData } = useQuery({
+    queryKey: ["terminationData"],
+    queryFn: () => api.terminate.terminationStatusMa(),
+  });
+
   return (
     <div className="grid gap-6 md:grid-cols-[300px_1fr]">
       <div className="flex flex-col gap-4">
@@ -118,9 +123,12 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
         <Button
           className="rounded-xl transition-colors hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
           variant={"destructive"}
+          disabled={terminationData?.body.requestTerminateMA}
           onClick={() => setIsModalOpen(true)}
         >
-          Terminasi Hubungan
+          {terminationData?.body.requestTerminateMA
+            ? "Menunggu Konfirmasi Terminasi"
+            : "Terminasi Hubungan"}
         </Button>
       </div>
       <Tabs defaultValue="personalInfo" className="w-full">
@@ -237,7 +245,7 @@ const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
               onClick={handleTerminate}
               className="bg-red-500 hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
             >
-              wYa, Terminasi Hubungan
+              Ya, Terminasi Hubungan
             </Button>
           </DialogFooter>
         </DialogContent>
