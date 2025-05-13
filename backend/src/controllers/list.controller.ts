@@ -169,7 +169,7 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -338,7 +338,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -471,7 +471,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -557,7 +557,7 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -654,7 +654,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -756,7 +756,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -861,7 +861,7 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

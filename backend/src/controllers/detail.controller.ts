@@ -93,7 +93,7 @@ detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -162,7 +162,7 @@ detailProtectedRouter.openapi(getOtaDetailRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -244,7 +244,7 @@ detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

@@ -63,7 +63,7 @@ statusProtectedRouter.openapi(applicationStatusRoute, async (c) => {
       {
         success: false,
         message: "Gagal mengubah status pendaftaran",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -105,7 +105,7 @@ statusProtectedRouter.openapi(getApplicationStatusRoute, async (c) => {
       {
         success: false,
         message: "Gagal mengambil status pendaftaran",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -147,7 +147,7 @@ statusProtectedRouter.openapi(getVerificationStatusRoute, async (c) => {
       {
         success: false,
         message: "Gagal mengambil status pendaftaran",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -222,7 +222,7 @@ statusProtectedRouter.openapi(getReapplicationStatusRoute, async (c) => {
       {
         success: false,
         message: "Gagal mengambil status pendaftaran",
-        error: {},
+        error: error,
       },
       500,
     );

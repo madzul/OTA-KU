@@ -40,12 +40,12 @@ app.use(
   }),
 );
 
-app.use(
-  "/api/*",
-  csrf({
-    origin: env.ALLOWED_ORIGINS,
-  }),
-);
+// app.use(
+//   "/api/*",
+//   csrf({
+//     origin: env.ALLOWED_ORIGINS,
+//   }),
+// );
 
 // Base routes
 app.get("/", (c) => c.json({ message: "Server runs successfully" }));

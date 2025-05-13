@@ -231,7 +231,7 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -349,7 +349,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -435,7 +435,7 @@ profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -720,7 +720,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -847,7 +847,7 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

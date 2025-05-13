@@ -111,7 +111,7 @@ connectProtectedRouter.openapi(connectOtaMahasiswaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -155,7 +155,7 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async(c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -199,7 +199,7 @@ connectProtectedRouter.openapi(verifyConnectionRejectRoute, async(c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -313,7 +313,7 @@ connectProtectedRouter.openapi(listConnectionRoute, async(c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

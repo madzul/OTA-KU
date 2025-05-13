@@ -206,10 +206,19 @@ export const MahasiswaDetailsListQuerySchema = z.object({
     description: "Jurusan of mahasiswa.",
     example: "Teknik Informatika",
   }),
-  status: z.enum(["pending", "accepted", "rejected"]).optional().openapi({
-    description: "Status of mahasiswa.",
-    example: "pending",
-  }),
+  status: z.enum([
+            "pending",
+            "accepted",
+            "rejected",
+            "unregistered",
+            "reapply",
+            "outdated",
+          ])
+          .optional()
+          .openapi({
+            description: "Status of mahasiswa.",
+            example: "pending",
+          }),
 });
 
 export const MahasiswaDetailsListQueryResponse = z.object({
