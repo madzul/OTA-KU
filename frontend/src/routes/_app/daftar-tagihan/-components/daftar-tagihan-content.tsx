@@ -1,23 +1,22 @@
 import { api } from "@/api/client";
 import { ClientPagination } from "@/components/client-pagination";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import {
-  DaftarTransaksiTable,
-  type StatusType,
-  type TransaksiItem,
-} from "./daftar-transaksi-table";
-import { PaymentDetailsModal } from "./detail-transaksi-modal";
+import { Route } from "..";
+import { StatusType, TransaksiItem, tagihanColumns } from "./columns";
+import { PaymentDetailsModal } from "./confirmation-dialog";
+import { DataTable } from "./data-table";
 import { SearchFilterBar } from "./search-filter-bar";
 
 const ITEMS_PER_PAGE = 8;
 
-export function DaftarTagihanPage() {
-  const navigate = useNavigate();
+export function DaftarTagihanContent() {
+  const navigate = useNavigate({ from: Route.fullPath });
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
 
@@ -64,12 +63,47 @@ export function DaftarTagihanPage() {
   const [yearFilter, setYearFilter] = useState<string>(currentYear);
   const [monthFilter, setMonthFilter] = useState<string>(currentMonth);
   const [selectedStatus, setSelectedStatus] = useState<string>("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(
-    null,
-  );
-  const [pendingStatus, setPendingStatus] = useState<StatusType>("pending");
   const [transaksiData, setTransaksiData] = useState<TransaksiItem[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [pendingStatus, setPendingStatus] = useState<StatusType>("pending");
+
+  useEffect(() => {
+    const handleStatusDropdownChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        index: number;
+        status: StatusType;
+        namaOta: string;
+      }>;
+
+      const { index, status } = customEvent.detail;
+
+      // If changing to paid or unpaid, show modal for details
+      if (
+        (status === "paid" || status === "unpaid") &&
+        transaksiData[index]?.status === "pending"
+      ) {
+        setSelectedIndex(index);
+        setPendingStatus(status);
+        setIsModalOpen(true);
+      } else {
+        // For other status changes (like pending), update directly
+        handleStatusChange(index, status);
+      }
+    };
+
+    window.addEventListener(
+      "status-dropdown-change",
+      handleStatusDropdownChange,
+    );
+
+    return () => {
+      window.removeEventListener(
+        "status-dropdown-change",
+        handleStatusDropdownChange,
+      );
+    };
+  }, [transaksiData]);
 
   // Fetch transactions data
   const { data: transactionData, isLoading } = useQuery({
@@ -97,7 +131,7 @@ export function DaftarTagihanPage() {
   // Transform the data from API format to component format
   useEffect(() => {
     if (transactionData?.body?.data) {
-      const transformedData = transactionData.body.data.map((item) => {
+      const transformedData = transactionData.body.data.map((item, idx) => {
         return {
           mahasiswaId: item.mahasiswa_id,
           otaId: item.ota_id,
@@ -116,6 +150,7 @@ export function DaftarTagihanPage() {
             : "-",
           receipt: item.receipt,
           createdAt: item.createdAt,
+          index: idx,
         };
       });
 
@@ -137,7 +172,7 @@ export function DaftarTagihanPage() {
         search: (prev) => {
           return {
             ...prev,
-            page: "1",
+            page: 1,
           };
         },
         replace: true,
@@ -153,48 +188,6 @@ export function DaftarTagihanPage() {
     currentYear,
     currentMonth,
   ]);
-
-  // Memoize filtered data to prevent unnecessary recalculations
-  const filteredData = useMemo(() => {
-    return transaksiData.filter((item) => {
-      const matchesSearch =
-        !searchQuery ||
-        item.namaMa.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.namaOta.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.noTelpOta.includes(searchQuery);
-
-      return matchesSearch;
-    });
-  }, [transaksiData, searchQuery]);
-
-  // Calculate pagination values from API
-  const totalItems = transactionData?.body?.totalData || 0;
-
-  // Function to handle status change
-  const handleStatusChange = (index: number, status: StatusType) => {
-    // If status is already accepted or rejected, don't allow changes
-    const currentStatus = filteredData[index].status;
-
-    if (currentStatus === "paid" || currentStatus === "unpaid") {
-      toast.error("Status tidak dapat diubah", {
-        description:
-          "Status yang sudah accepted atau rejected tidak dapat diubah kembali.",
-      });
-      return;
-    }
-
-    // If changing to accepted or rejected, open modal
-    if (status === "paid" || status === "unpaid") {
-      setSelectedItemIndex(index);
-      setPendingStatus(status);
-      setIsModalOpen(true);
-    } else {
-      // For other status changes (like pending), update directly
-      const newData = [...transaksiData];
-      newData[index].status = status;
-      setTransaksiData(newData);
-    }
-  };
 
   const updateTransactionAccMutation = useMutation({
     mutationFn: ({
@@ -266,9 +259,9 @@ export function DaftarTagihanPage() {
     amount: string;
     rejectionNote?: string;
   }) => {
-    if (selectedItemIndex !== null && pendingStatus) {
+    if (selectedIndex !== null && pendingStatus) {
       const newData = [...transaksiData];
-      const item = newData[selectedItemIndex];
+      const item = newData[selectedIndex];
 
       // Update payment details
       item.status = pendingStatus;
@@ -305,23 +298,41 @@ export function DaftarTagihanPage() {
 
   // Function to handle modal close without confirmation
   const handleModalClose = () => {
-    if (selectedItemIndex !== null) {
+    if (selectedIndex !== null) {
       const newData = [...transaksiData];
-      newData[selectedItemIndex].status = "pending";
+      newData[selectedIndex].status = "pending";
       setTransaksiData(newData);
     }
 
     setIsModalOpen(false);
-    setSelectedItemIndex(null);
+    setSelectedIndex(null);
     setPendingStatus("pending");
   };
 
-  // Get selected item if available
-  const selectedItem =
-    selectedItemIndex !== null ? filteredData[selectedItemIndex] : null;
+  // Function to handle status change
+  const handleStatusChange = (index: number, status: StatusType) => {
+    // If status is already accepted or rejected, don't allow changes
+    const currentStatus = transaksiData[index].status;
+
+    if (currentStatus === "paid" || currentStatus === "unpaid") {
+      toast.error("Status tidak dapat diubah", {
+        description:
+          "Status yang sudah accepted atau rejected tidak dapat diubah kembali.",
+      });
+      return;
+    }
+
+    // For direct status changes (like to pending), update directly
+    const newData = [...transaksiData];
+    newData[index].status = status;
+    setTransaksiData(newData);
+  };
+
+  // Calculate pagination values from API
+  const totalItems = transactionData?.body?.totalData || 0;
 
   return (
-    <>
+    <section className="flex flex-col gap-4">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h1 className="text-dark text-3xl font-bold md:text-[50px]">
@@ -333,48 +344,60 @@ export function DaftarTagihanPage() {
         </div>
       </div>
 
-      <SearchFilterBar
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        yearValue={yearFilter}
-        onYearChange={setYearFilter}
-        monthValue={monthFilter}
-        onMonthChange={setMonthFilter}
-        statusValue={selectedStatus}
-        onStatusChange={setSelectedStatus}
-      />
-
+      {/* Search and Filters */}
       {isLoading ? (
-        <div className="flex h-64 w-full items-center justify-center">
-          <p className="text-lg text-gray-500">Loading data...</p>
+        <div className="rounded-md bg-white">
+          <Skeleton className="h-10 w-full" />
         </div>
-      ) : filteredData.length === 0 ? (
+      ) : (
+        <SearchFilterBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          yearFilter={yearFilter}
+          onYearChange={setYearFilter}
+          monthFilter={monthFilter}
+          onMonthChange={setMonthFilter}
+          statusFilter={selectedStatus}
+          onStatusChange={setSelectedStatus}
+        />
+      )}
+
+      {/* Table */}
+      {isLoading ? (
+        <div className="rounded-md bg-white">
+          <Skeleton className="h-80 w-full" />
+        </div>
+      ) : transaksiData.length === 0 ? (
         <div className="flex h-64 w-full items-center justify-center">
           <p className="text-lg text-gray-500">Tidak ada data yang ditemukan</p>
         </div>
       ) : (
-        <DaftarTransaksiTable
-          data={filteredData}
-          onStatusChange={handleStatusChange}
-        />
+        <DataTable columns={tagihanColumns} data={transaksiData} />
       )}
 
       {/* Pagination */}
-      <ClientPagination
-        total={totalItems}
-        totalPerPage={ITEMS_PER_PAGE}
-        animate={true}
-      />
+      {isLoading ? (
+        <div className="rounded-md bg-white">
+          <Skeleton className="h-10 w-full" />
+        </div>
+      ) : (
+        <ClientPagination
+          total={totalItems}
+          totalPerPage={ITEMS_PER_PAGE}
+          animate={true}
+        />
+      )}
 
-      {selectedItem && (
+      {/* Payment Details Modal */}
+      {isModalOpen && selectedIndex !== null && (
         <PaymentDetailsModal
           status={pendingStatus}
           isOpen={isModalOpen}
           onClose={handleModalClose}
           onConfirm={handlePaymentDetailsConfirm}
-          namaOta={selectedItem.namaOta || ""}
+          namaOta={transaksiData[selectedIndex]?.namaOta || ""}
         />
       )}
-    </>
+    </section>
   );
 }
