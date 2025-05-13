@@ -168,8 +168,6 @@ export const pemasanganBotaColumns: ColumnDef<PemasanganBotaColumn>[] = [
       const id = row.getValue("mahasiswaId") as string;
       const isSelected = row.original.isSelected;
       return (
-        // TODO: Checkbox will be disabled
-        // if number of selected mahasiswa === max capacity of OTA
         <Checkbox
           checked={isSelected}
           onCheckedChange={(isChecked) =>

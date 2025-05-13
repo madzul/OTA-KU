@@ -205,6 +205,10 @@ export function MahasiswaSelection({
             Pilih mahasiswa yang ingin dipasangkan dengan{" "}
             <span className="font-bold">{selectedOTA.name}</span>
           </p>
+          {/* TODO: menampilkan berapa mahasiswa yang sudah di asuh, dan masih butuh brp lagi (Coba ambil data nya dari Size of Mahasiswa Asuh Saya) */}
+          {/* <p>
+            OTA ini sedang mengasuh X mahasiswa dan masih sanggup mengasuh {selectedOtaDetails.currentConnection} mahasiswa lagi 
+          </p> */}
           <div className="flex w-full flex-wrap gap-3">
             <div className="flex w-full max-w-[375px] gap-3 sm:flex-nowrap">
               <Button
@@ -258,6 +262,7 @@ export function MahasiswaSelection({
 
             {/* TODO: Abis ngubah filter harus balik lagi ke page 1 di pagination */}
             <div className="flex w-full flex-wrap gap-3">
+              {/* TODO: implement search for filter jurusan (susah milih jurusan kalo pake scroll doang) */}
               <FilterJurusan setJurusan={setJurusan} />
               <FilterFakultas setFakultas={setFakultas} />
               <FilterAgama setAgama={setAgama} />

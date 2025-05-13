@@ -32,8 +32,7 @@ function ConfirmationDialog({
   const connectMutation = useMutation({
     mutationFn: async () => {
       const promises = [...selectedMahasiswa].map((mahasiswaId) =>
-        // TODO: connect service ini masih salah karena ngubah connection status nya jadi pending doang, harusnya acc
-        api.connect.connectOtaMahasiswa({
+        api.connect.connectOtaMahasiswaByAdmin({
           formData: { otaId, mahasiswaId },
         }),
       );
