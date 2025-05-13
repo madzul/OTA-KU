@@ -1,4 +1,15 @@
-import { and, count, eq, ilike, isNotNull, lt, or, sql, not } from "drizzle-orm";
+import {
+  and,
+  count,
+  eq,
+  ilike,
+  isNotNull,
+  lt,
+  not,
+  or,
+  sql,
+} from "drizzle-orm";
+
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
@@ -7,16 +18,19 @@ import {
   connectionTable,
 } from "../db/schema.js";
 import {
+  listAvailableOTARoute,
   listMAActiveRoute,
   listMAPendingRoute,
   listMahasiswaAdminRoute,
   listMahasiswaOtaRoute,
   listOrangTuaAdminRoute,
   listOtaKuRoute,
-  listAvailableOTARoute,
 } from "../routes/list.route.js";
+import {
+  OTAListQuerySchema,
+  VerifiedMahasiswaListQuerySchema,
+} from "../zod/list.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
-import { OTAListQuerySchema, VerifiedMahasiswaListQuerySchema } from "../zod/list.js";
 
 export const listRouter = createRouter();
 export const listProtectedRouter = createAuthRouter();
@@ -48,22 +62,22 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
           ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
         ),
       ),
-    ]
+    ];
 
     if (major) {
-      conditions.push(eq(accountMahasiswaDetailTable.major, major))
+      conditions.push(eq(accountMahasiswaDetailTable.major, major));
     }
 
-    if(faculty) {
-      conditions.push(eq(accountMahasiswaDetailTable.faculty, faculty))
+    if (faculty) {
+      conditions.push(eq(accountMahasiswaDetailTable.faculty, faculty));
     }
 
-    if(religion) {
-      conditions.push(eq(accountMahasiswaDetailTable.religion, religion))
+    if (religion) {
+      conditions.push(eq(accountMahasiswaDetailTable.religion, religion));
     }
 
-    if(gender) {
-      conditions.push(eq(accountMahasiswaDetailTable.gender, gender))
+    if (gender) {
+      conditions.push(eq(accountMahasiswaDetailTable.gender, gender));
     }
 
     const countsQuery = db
@@ -226,9 +240,14 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         accountMahasiswaDetailTable,
         eq(accountTable.id, accountMahasiswaDetailTable.accountId),
       )
-      .where(and(...baseConditions, searchCondition, ...filterConditions))
-      .limit(LIST_PAGE_DETAIL_SIZE)
-      .offset(offset);
+      .where(
+        and(
+          ...baseConditions,
+          searchCondition,
+          ...filterConditions,
+          isNotNull(accountMahasiswaDetailTable.description),
+        ),
+      );
 
     const mahasiswaListQuery = db
       .select({
@@ -393,9 +412,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
         accountOtaDetailTable,
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
-      .where(and(...baseConditions, searchCondition, ...filterConditions))
-      .limit(LIST_PAGE_DETAIL_SIZE)
-      .offset(offset);
+      .where(and(...baseConditions, searchCondition, ...filterConditions));
 
     const orangTuaListQuery = db
       .select({
@@ -838,23 +855,23 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .offset(offset);
 
     const [otaList, counts] = await Promise.all([otaListQuery, countsQuery]);
-  
-      return c.json(
-        {
-          success: true,
-          message: "Daftar OTA yang tersedia berhasil diambil",
-          body: {
-            data: otaList.map((ota) => ({
-              accountId: ota.id,
-              name: ota.name,
-              phoneNumber: ota.number ?? "",
-              nominal: ota.funds,
-            })),
-            totalData: counts[0].count,
-          },
+
+    return c.json(
+      {
+        success: true,
+        message: "Daftar OTA yang tersedia berhasil diambil",
+        body: {
+          data: otaList.map((ota) => ({
+            accountId: ota.id,
+            name: ota.name,
+            phoneNumber: ota.number ?? "",
+            nominal: ota.funds,
+          })),
+          totalData: counts[0].count,
         },
-        200,
-      );
+      },
+      200,
+    );
   } catch (error) {
     console.error("Error fetching available OTA list:", error);
     return c.json(

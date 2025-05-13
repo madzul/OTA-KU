@@ -1,4 +1,4 @@
-import { api, queryClient } from "@/api/client";
+import { api } from "@/api/client";
 import { ClientPagination } from "@/components/client-pagination";
 import { SearchInput } from "@/components/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,8 +31,13 @@ function MahasiswaAsuhContent() {
   >(null);
 
   const { data, isSuccess } = useQuery({
-    queryKey: ["listMahasiswaAdmin"],
-    queryFn: () => api.list.listMahasiswaAdmin({ page }),
+    queryKey: ["listMahasiswaAdmin", page, value, status],
+    queryFn: () =>
+      api.list.listMahasiswaAdmin({
+        page,
+        q: value,
+        status: status as "accepted" | "pending" | "rejected",
+      }),
   });
 
   const mahasiswaTableData = data?.body.data.map((item) => ({
@@ -44,21 +49,13 @@ function MahasiswaAsuhContent() {
   }));
 
   useEffect(() => {
-    queryClient.fetchQuery({
-      queryKey: ["listMahasiswaAdmin"],
-      queryFn: () =>
-        api.list.listMahasiswaAdmin({
+    if (status || value) {
+      navigate({
+        search: () => ({
           page: 1,
-          q: value,
-          status: status as "accepted" | "pending" | "rejected",
         }),
-    });
-
-    navigate({
-      search: () => ({
-        page: 1,
-      }),
-    });
+      });
+    }
   }, [navigate, status, value]);
 
   return (
@@ -95,7 +92,7 @@ function MahasiswaAsuhContent() {
             setSearch={setSearch}
           />
           {/* <FilterJurusan /> */}
-          <FilterStatus setStatus={setStatus} />
+          <FilterStatus status={status} setStatus={setStatus} />
         </div>
       )}
 
@@ -114,7 +111,7 @@ function MahasiswaAsuhContent() {
           <Skeleton className="h-10 w-full" />
         </div>
       ) : (
-        <ClientPagination totalPerPage={8} total={data.body.totalData} />
+        <ClientPagination totalPerPage={8} total={data.body.totalPagination} />
       )}
     </section>
   );
