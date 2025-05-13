@@ -1,5 +1,3 @@
-"use client";
-
 import { api } from "@/api/client";
 import { ClientPagination } from "@/components/client-pagination";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -117,6 +115,7 @@ export function DaftarTagihanPage() {
             ? format(new Date(item.due_date), "dd/MM/yy")
             : "-",
           receipt: item.receipt,
+          createdAt: item.createdAt,
         };
       });
 
@@ -198,9 +197,17 @@ export function DaftarTagihanPage() {
   };
 
   const updateTransactionAccMutation = useMutation({
-    mutationFn: ({ maId, otaId }: { maId: string; otaId: string }) =>
+    mutationFn: ({
+      maId,
+      otaId,
+      createdAt,
+    }: {
+      maId: string;
+      otaId: string;
+      createdAt: string;
+    }) =>
       api.transaction.verifyTransactionAcc({
-        formData: { mahasiswaId: maId, otaId: otaId },
+        formData: { mahasiswaId: maId, otaId: otaId, createdAt: createdAt },
       }),
 
     onSuccess: () => {
@@ -220,13 +227,23 @@ export function DaftarTagihanPage() {
       maId,
       otaId,
       amount,
+      createdAt,
+      rejectionNote,
     }: {
       maId: string;
       otaId: string;
       amount: number;
+      createdAt: string;
+      rejectionNote: string;
     }) =>
       api.transaction.verifyTransactionReject({
-        formData: { mahasiswaId: maId, otaId: otaId, amountPaid: amount },
+        formData: {
+          mahasiswaId: maId,
+          otaId: otaId,
+          amountPaid: amount,
+          createdAt: createdAt,
+          rejectionNote: rejectionNote,
+        },
       }),
 
     onSuccess: () => {
@@ -266,12 +283,16 @@ export function DaftarTagihanPage() {
         updateTransactionAccMutation.mutate({
           maId: item.mahasiswaId,
           otaId: item.otaId,
+          createdAt: item.createdAt,
         });
       } else if (apiStatus === "unpaid") {
         updateTransactionRejectMutation.mutate({
           maId: item.mahasiswaId,
           otaId: item.otaId,
           amount: Number(amount),
+          createdAt: item.createdAt,
+          // TODO: Nanti benerin rejection notenya fiq
+          rejectionNote: "",
         });
       }
     }

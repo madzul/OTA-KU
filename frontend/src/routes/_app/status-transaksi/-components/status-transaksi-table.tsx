@@ -26,6 +26,7 @@ interface Transaction {
   due_date: string;
   status: TransactionStatus;
   receipt: string;
+  createdAt: string;
 }
 
 interface StatusTransaksiTableProps {

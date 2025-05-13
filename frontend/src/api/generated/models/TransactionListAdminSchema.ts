@@ -22,6 +22,7 @@ export type TransactionListAdminSchema = {
     due_date: string;
     status: 'unpaid' | 'pending' | 'paid';
     receipt: string;
+    createdAt: string;
   }>;
   totalData: number;
 };

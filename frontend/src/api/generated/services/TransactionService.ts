@@ -133,6 +133,7 @@ export class TransactionService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      createdAt: string;
       receipt: Blob;
     },
   }): CancelablePromise<{
@@ -170,6 +171,7 @@ export class TransactionService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      createdAt: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -183,6 +185,7 @@ export class TransactionService {
        * ID orang tua asuh
        */
       otaId: string;
+      createdAt: string;
       /**
        * Nominal yang telah dibayarkan
        */
@@ -217,6 +220,11 @@ export class TransactionService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      createdAt: string;
+      /**
+       * Notes untuk menjelaskan alasan penolakan verifikasi transaction
+       */
+      rejectionNote: string;
       /**
        * Nominal yang telah dibayarkan
        */
@@ -234,6 +242,11 @@ export class TransactionService {
        * ID orang tua asuh
        */
       otaId: string;
+      createdAt: string;
+      /**
+       * Notes untuk menjelaskan alasan penolakan verifikasi transaction
+       */
+      rejectionNote: string;
       /**
        * Nominal yang telah dibayarkan
        */
