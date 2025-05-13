@@ -8,7 +8,6 @@ import {
   accountOtaDetailTable,
   accountTable,
   connectionTable,
-  transactionTable,
 } from "../src/db/schema.js";
 import { resetDatabase } from "../src/db/scripts/reset.js";
 import { seed } from "../src/db/scripts/seed.js";
@@ -46,7 +45,7 @@ describe("Database Seeding", () => {
       await db
         .select()
         .from(accountTable)
-        .where(eq(accountTable.email, "13599001@mahasiswa.itb.ac.id"))
+        .where(eq(accountTable.email, "13599101@mahasiswa.itb.ac.id"))
     )[0];
     expect(mahasiswa).toBeDefined();
     expect(mahasiswa.type).toBe("mahasiswa");
@@ -60,11 +59,6 @@ describe("Database Seeding", () => {
     )[0];
     expect(ota).toBeDefined();
     expect(ota.type).toBe("ota");
-
-    console.log("Mahasiswa Detail Count:");
-    console.log(await db.select().from(accountMahasiswaDetailTable));
-    console.log("OTA Detail Count:");
-    console.log(await db.select().from(accountOtaDetailTable));
 
     const otaDetails = await db.select().from(accountOtaDetailTable);
     expect(otaDetails.length).toBe(15);
