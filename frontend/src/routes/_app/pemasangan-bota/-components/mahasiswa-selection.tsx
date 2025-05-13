@@ -248,6 +248,7 @@ export function MahasiswaSelection({
               </Button>
             </div>
 
+                {/* TODO: Abis ngubah search input harus balik lagi ke page 1 di pagination */}
             <div className="w-full sm:flex-1">
               <SearchInput
                 placeholder="Cari nama atau NIM"
@@ -255,6 +256,7 @@ export function MahasiswaSelection({
               />
             </div>
 
+            {/* TODO: Abis ngubah filter harus balik lagi ke page 1 di pagination */}
             <div className="flex w-full flex-wrap gap-3">
               <FilterJurusan setJurusan={setJurusan} />
               <FilterFakultas setFakultas={setFakultas} />
@@ -307,7 +309,8 @@ export function MahasiswaSelection({
               <Skeleton className="h-10 w-full" />
             </div>
           ) : (
-            <ClientPagination totalPerPage={8} total={data.body.totalData} />
+            // TODO: Set to 3 just for testing. Change to 10 later
+            <ClientPagination totalPerPage={3} total={data.body.totalData} />
           )}
         </>
       ) : (
