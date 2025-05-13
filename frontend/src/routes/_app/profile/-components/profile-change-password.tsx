@@ -108,7 +108,7 @@ export default function ChangePasswordForm({
             disabled={mutation.isPending}
             className="w-full"
           >
-            {mutation.isPending ? "Changing..." : "Change Password"}
+            {mutation.isPending ? "Mengubah Kata Sandi..." : "Ubah Kata Sandi"}
           </Button>
         </form>
       </Form>

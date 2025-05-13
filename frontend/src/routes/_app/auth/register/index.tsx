@@ -109,7 +109,13 @@ function RouteComponent() {
         </p>
       </div>
 
-      {isClicked && role && <RegisterForm role={role} />}
+      {isClicked && role && (
+        <RegisterForm
+          role={role}
+          setRole={setRole}
+          setIsClicked={setIsClicked}
+        />
+      )}
     </main>
   );
 }

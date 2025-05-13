@@ -151,6 +151,12 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           path: "/persetujuan-asuh",
         },
         {
+          id: "pemasangan-bota",
+          label: "Pemasangan BOTA",
+          icon: "/icon/Type=handshake.svg",
+          path: "/pemasangan-bota",
+        },
+        {
           id: "transaction",
           label: "Daftar Tagihan",
           icon: "/icon/Type=transaction.svg",

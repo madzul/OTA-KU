@@ -143,7 +143,7 @@ export const MahasiswaRegistrationFormSchema = z.object({
   salaryReport: PDFSchema,
   pbb: PDFSchema,
   electricityBill: PDFSchema,
-  ditmawaRecommendationLetter: PDFSchema,
+  ditmawaRecommendationLetter: PDFSchema.optional(),
 });
 
 export const MahasiswaProfileFormSchema = z.object({
