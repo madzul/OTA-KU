@@ -199,3 +199,7 @@ export function getNimFakultasFromNimJurusanMap(): Record<string, string> {
     "192": "197",
   };
 }
+
+export function censorNim(nim: string): string {
+  return `${nim.slice(0, 5)}XXX`;
+}
