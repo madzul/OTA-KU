@@ -8,6 +8,9 @@ import {
   accountTable,
   connectionTable,
   otpTable,
+  pushSubscriptionTable,
+  temporaryPasswordTable,
+  transactionTable,
 } from "../src/db/schema.js";
 import { otpDatas, testUsers } from "./constants/user.js";
 
@@ -16,6 +19,10 @@ let originalData: {
   mahasiswaDetails: any[];
   otaDetails: any[];
   connections: any[];
+  transactions: any[];
+  otps: any[];
+  temporaryPasswords: any[];
+  pushSubscriptions: any[];
 };
 
 beforeAll(async () => {
@@ -25,6 +32,10 @@ beforeAll(async () => {
     mahasiswaDetails: await db.select().from(accountMahasiswaDetailTable),
     otaDetails: await db.select().from(accountOtaDetailTable),
     connections: await db.select().from(connectionTable),
+    transactions: await db.select().from(transactionTable),
+    otps: await db.select().from(otpTable),
+    temporaryPasswords: await db.select().from(temporaryPasswordTable),
+    pushSubscriptions: await db.select().from(pushSubscriptionTable),
   };
 
   await db.transaction(async (tx) => {
@@ -33,6 +44,10 @@ beforeAll(async () => {
     await tx.delete(accountOtaDetailTable);
     await tx.delete(accountMahasiswaDetailTable);
     await tx.delete(accountTable);
+    await tx.delete(transactionTable);
+    await tx.delete(otpTable);
+    await tx.delete(temporaryPasswordTable);
+    await tx.delete(pushSubscriptionTable);
   });
 
   console.log("Seeding database before each tests...");
@@ -54,6 +69,10 @@ afterAll(async () => {
     await tx.delete(accountOtaDetailTable);
     await tx.delete(accountMahasiswaDetailTable);
     await tx.delete(accountTable);
+    await tx.delete(transactionTable);
+    await tx.delete(otpTable);
+    await tx.delete(temporaryPasswordTable);
+    await tx.delete(pushSubscriptionTable);
 
     // Reinsert original data
     if (originalData.accounts.length > 0) {
@@ -69,6 +88,22 @@ afterAll(async () => {
     }
     if (originalData.connections.length > 0) {
       await tx.insert(connectionTable).values(originalData.connections);
+    }
+    if (originalData.transactions.length > 0) {
+      await tx.insert(transactionTable).values(originalData.transactions);
+    }
+    if (originalData.otps.length > 0) {
+      await tx.insert(otpTable).values(originalData.otps);
+    }
+    if (originalData.temporaryPasswords.length > 0) {
+      await tx
+        .insert(temporaryPasswordTable)
+        .values(originalData.temporaryPasswords);
+    }
+    if (originalData.pushSubscriptions.length > 0) {
+      await tx
+        .insert(pushSubscriptionTable)
+        .values(originalData.pushSubscriptions);
     }
   });
 
