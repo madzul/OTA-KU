@@ -1,6 +1,7 @@
 import {
   and,
   count,
+  desc,
   eq,
   ilike,
   isNotNull,
@@ -109,6 +110,7 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
       .where(and(...conditions))
+      .orderBy(desc(accountMahasiswaDetailTable.createdAt))
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
 
@@ -261,6 +263,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
           isNotNull(accountMahasiswaDetailTable.description),
         ),
       )
+      .orderBy(desc(accountMahasiswaDetailTable.createdAt))
       .limit(LIST_PAGE_DETAIL_SIZE)
       .offset(offset);
 
@@ -405,6 +408,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
       .where(and(...baseConditions, searchCondition, ...filterConditions))
+      .orderBy(desc(accountOtaDetailTable.createdAt))
       .limit(LIST_PAGE_DETAIL_SIZE)
       .offset(offset);
 
