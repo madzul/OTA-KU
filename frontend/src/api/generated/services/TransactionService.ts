@@ -37,6 +37,10 @@ export class TransactionService {
         due_date: string;
         status: 'unpaid' | 'pending' | 'paid';
         receipt: string;
+        /**
+         * Alasan penolakan verifikasi pembayaran
+         */
+        rejection_note?: string;
       }>;
       totalData: number;
     };

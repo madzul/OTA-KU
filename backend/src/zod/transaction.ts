@@ -37,6 +37,13 @@ export const TransactionListOTAQueryResponse = z.object({
         receipt: z
           .string()
           .openapi({ example: "https://example.com/file.pdf" }),
+        rejection_note: z
+          .string()
+          .optional()
+          .openapi({
+            description: "Alasan penolakan verifikasi pembayaran",
+            example: "Nominal yang ditransfer tidak sesuai dengan tagihan",
+          }),
       }),
     ),
     totalData: z.number().openapi({ example: 100 }),
