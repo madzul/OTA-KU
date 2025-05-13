@@ -387,7 +387,7 @@ export async function seed() {
           {
             accountId: mahasiswa1Id,
             name: "Mahasiswa One",
-            nim: "13599001",
+            nim: "13599101",
             description: "Mahasiswa One is an active student.",
             file: "https://example.com/mahasiswa1.pdf",
             mahasiswaStatus: "active",
@@ -415,7 +415,7 @@ export async function seed() {
           {
             accountId: mahasiswa2Id,
             name: "Mahasiswa Two",
-            nim: "13599002",
+            nim: "13599102",
             description: "Mahasiswa Two is an active student.",
             file: "https://example.com/mahasiswa2.pdf",
             mahasiswaStatus: "active",
@@ -443,7 +443,7 @@ export async function seed() {
           {
             accountId: mahasiswa3Id,
             name: "Mahasiswa Three",
-            nim: "13599003",
+            nim: "13599103",
             description: "Mahasiswa Three is an active student.",
             file: "https://example.com/mahasiswa3.pdf",
             mahasiswaStatus: "active",
@@ -471,7 +471,7 @@ export async function seed() {
           {
             accountId: mahasiswa4Id,
             name: "Mahasiswa Four",
-            nim: "13599004",
+            nim: "13599104",
             description: "Mahasiswa Four is an inactive student.",
             file: "https://example.com/mahasiswa4.pdf",
             mahasiswaStatus: "inactive",
@@ -496,7 +496,7 @@ export async function seed() {
           {
             accountId: mahasiswa5Id,
             name: "Mahasiswa Five",
-            nim: "13599005",
+            nim: "13599105",
             description: "Mahasiswa Five is an inactive student.",
             file: "https://example.com/mahasiswa5.pdf",
             mahasiswaStatus: "inactive",
@@ -524,7 +524,7 @@ export async function seed() {
           {
             accountId: mahasiswa6Id,
             name: "Mahasiswa Six",
-            nim: "13599006",
+            nim: "13599106",
             description: "Mahasiswa Six is an active student.",
             file: "https://example.com/mahasiswa6.pdf",
             mahasiswaStatus: "active",
@@ -552,7 +552,7 @@ export async function seed() {
           {
             accountId: mahasiswa7Id,
             name: "Mahasiswa Seven",
-            nim: "13599007",
+            nim: "13599107",
             description: "Mahasiswa Seven is an active student.",
             file: "https://example.com/mahasiswa7.pdf",
             mahasiswaStatus: "active",
@@ -580,7 +580,7 @@ export async function seed() {
           {
             accountId: mahasiswa8Id,
             name: "Mahasiswa Eight",
-            nim: "13599008",
+            nim: "13599108",
             description: "Mahasiswa Eight is an active student.",
             file: "https://example.com/mahasiswa8.pdf",
             mahasiswaStatus: "active",
@@ -608,7 +608,7 @@ export async function seed() {
           {
             accountId: mahasiswa9Id,
             name: "Mahasiswa Nine",
-            nim: "13599009",
+            nim: "13599109",
             description: "Mahasiswa Nine is an active student.",
             file: "https://example.com/mahasiswa9.pdf",
             mahasiswaStatus: "active",
@@ -636,7 +636,7 @@ export async function seed() {
           {
             accountId: mahasiswa10Id,
             name: "Mahasiswa Ten",
-            nim: "13599010",
+            nim: "13599110",
             description: "Mahasiswa Ten is an active student.",
             file: "https://example.com/mahasiswa10.pdf",
             mahasiswaStatus: "active",
@@ -664,7 +664,7 @@ export async function seed() {
           {
             accountId: mahasiswa11Id,
             name: "Mahasiswa Eleven",
-            nim: "13599011",
+            nim: "13599111",
             description: "Mahasiswa Eleven is an active student.",
             file: "https://example.com/mahasiswa11.pdf",
             mahasiswaStatus: "active",
@@ -692,7 +692,7 @@ export async function seed() {
           {
             accountId: mahasiswa12Id,
             name: "Mahasiswa Twelve",
-            nim: "13599012",
+            nim: "13599112",
             description: "Mahasiswa Twelve is an active student.",
             file: "https://example.com/mahasiswa12.pdf",
             mahasiswaStatus: "active",
@@ -720,7 +720,7 @@ export async function seed() {
           {
             accountId: mahasiswa13Id,
             name: "Mahasiswa Thirteen",
-            nim: "13599013",
+            nim: "13599113",
             description: "Mahasiswa Thirteen is an active student.",
             file: "https://example.com/mahasiswa13.pdf",
             mahasiswaStatus: "active",
@@ -748,7 +748,7 @@ export async function seed() {
           {
             accountId: mahasiswa14Id,
             name: "Mahasiswa Fourteen",
-            nim: "13599014",
+            nim: "13599114",
             description: "Mahasiswa Fourteen is an active student.",
             file: "https://example.com/mahasiswa14.pdf",
             mahasiswaStatus: "active",
@@ -776,7 +776,7 @@ export async function seed() {
           {
             accountId: mahasiswa15Id,
             name: "Mahasiswa Fifteen",
-            nim: "13599015",
+            nim: "13599115",
             description: "Mahasiswa Fifteen is an active student.",
             file: "https://example.com/mahasiswa15.pdf",
             mahasiswaStatus: "active",
@@ -804,7 +804,7 @@ export async function seed() {
           {
             accountId: mahasiswa16Id,
             name: "Mahasiswa Sixteen",
-            nim: "13599016",
+            nim: "13599116",
             description: "Mahasiswa Sixteen is an active student.",
             file: "https://example.com/mahasiswa16.pdf",
             mahasiswaStatus: "active",
@@ -832,7 +832,7 @@ export async function seed() {
           {
             accountId: mahasiswa17Id,
             name: "Mahasiswa Seventeen",
-            nim: "13599017",
+            nim: "13599117",
             description: "Mahasiswa Seventeen is an active student.",
             file: "https://example.com/mahasiswa17.pdf",
             mahasiswaStatus: "active",
@@ -860,7 +860,7 @@ export async function seed() {
           {
             accountId: mahasiswa18Id,
             name: "Mahasiswa Eighteen",
-            nim: "13599018",
+            nim: "13599118",
             description: "Mahasiswa Eighteen is an active student.",
             file: "https://example.com/mahasiswa18.pdf",
             mahasiswaStatus: "active",
