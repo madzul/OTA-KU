@@ -1,4 +1,5 @@
-import { and, eq, sql, or } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
+import { request } from "http";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -108,7 +109,7 @@ terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
     await db.transaction(async (tx) => {
       await tx
         .update(connectionTable)
-        .set({ connectionStatus: "pending" }) //TODO: on relation connection, attribute connection_status tambahine enum pending_terminate biar bisa dibedain pending pengajuan sama pending termination
+        .set({ connectionStatus: "pending", requestTerminateOta: true })
         .where(
           and(
             eq(connectionTable.mahasiswaId, mahasiswaId),
@@ -169,17 +170,19 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
 
   try {
     await db.transaction(async (tx) => {
-      await tx.delete(connectionTable).where(
-        and(
-          eq(connectionTable.mahasiswaId, mahasiswaId),
-          eq(connectionTable.otaId, otaId),
-          eq(connectionTable.connectionStatus, "pending"),
-          or(
-            eq(connectionTable.requestTerminateMahasiswa, true),
-            eq(connectionTable.requestTerminateOta, true)
-          )
-        ),
-      );
+      await tx
+        .delete(connectionTable)
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+            eq(connectionTable.connectionStatus, "pending"),
+            or(
+              eq(connectionTable.requestTerminateMahasiswa, true),
+              eq(connectionTable.requestTerminateOta, true),
+            ),
+          ),
+        );
 
       await tx
         .update(accountMahasiswaDetailTable)
