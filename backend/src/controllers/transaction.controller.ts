@@ -181,6 +181,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
         due_date: transactionTable.dueDate,
         status: transactionTable.transactionStatus,
         receipt: transactionTable.transactionReceipt,
+        createdAt: transactionTable.createdAt,
       })
       .from(transactionTable)
       .innerJoin(
@@ -219,6 +220,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
             due_date: transaction.due_date,
             status: transaction.status,
             receipt: transaction.receipt ?? "",
+            createdAt: transaction.createdAt,
           })),
           totalData: counts[0].count,
         },
