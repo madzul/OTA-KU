@@ -12,9 +12,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { LoaderCircle } from "lucide-react";
 import React, { JSX, useState } from "react";
 import { toast } from "sonner";
+import { useDebounce } from "use-debounce";
 
 // Response data dari API
 interface MahasiswaResponse {
@@ -59,6 +61,7 @@ const mapApiDataToMahasiswa = (apiData: MahasiswaResponse[]): Mahasiswa[] => {
 
 function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [value] = useDebounce(searchQuery, 500);
   const [selectedMahasiswa, setSelectedMahasiswa] = useState<null | Mahasiswa>(
     null,
   );
@@ -97,10 +100,10 @@ function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
 
   // Gunakan useQuery untuk fetch data
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["listMahasiswaOta", searchQuery],
+    queryKey: ["listMahasiswaOta", value],
     queryFn: () =>
       api.list.listMahasiswaOta({
-        q: searchQuery,
+        q: value,
         page: 1,
       }),
     staleTime: 5 * 60 * 1000, // 5 menit
@@ -133,7 +136,6 @@ function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
       <h1 className="text-dark font-bold">Cari Mahasiswa</h1>
 
       <div className="w-full">
-        {/* TODO: Pakein debounce search */}
         <Input
           placeholder="Cari mahasiswa"
           value={searchQuery}
@@ -189,15 +191,14 @@ function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2">
               {/* TODO: page detail belom nampilin schema db detail mahasiswa yang terbaru */}
-              <Button
-                variant="outline"
-                onClick={() =>
-                  (window.location.href = `/detail/mahasiswa/${mahasiswa.id}`)
-                }
-              >
-                Lihat Profil
+              <Button variant="outline" asChild>
+                <Link
+                  to="/detail/mahasiswa/$detailId"
+                  params={{ detailId: mahasiswa.id }}
+                >
+                  Lihat Profil
+                </Link>
               </Button>
-              {/* TODO: Pas di klik masih internal server error */}
               <Button onClick={() => setSelectedMahasiswa(mahasiswa)}>
                 Bantu
               </Button>
