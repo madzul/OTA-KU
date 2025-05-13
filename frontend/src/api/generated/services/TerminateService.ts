@@ -258,4 +258,49 @@ export class TerminateService {
       },
     });
   }
+  /**
+   * Melakukan penolakan request terminasi hubungan asuh
+   * @returns any Berhasil menolak request terminasi hubungan asuh
+   * @throws ApiError
+   */
+  public rejectTerminate({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/terminate/reject',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        400: `Gagal menolak request terminasi hubungan asuh`,
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Akun admin belum terverifikasi.`,
+        500: `Internal server error`,
+      },
+    });
+  }
 }

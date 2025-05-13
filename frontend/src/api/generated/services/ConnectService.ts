@@ -7,8 +7,8 @@ import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class ConnectService {
   constructor(public readonly httpRequest: BaseHttpRequest) {}
   /**
-   * Menghubungkan orang tua asuh dengan mahasiswa asuh.
-   * @returns any Berhasil menghubungkan orang tua asuh dengan mahasiswa asuh.
+   * Menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA
+   * @returns any Berhasil menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA
    * @throws ApiError
    */
   public connectOtaMahasiswa({
@@ -40,11 +40,56 @@ export class ConnectService {
   }> {
     return this.httpRequest.request({
       method: 'POST',
-      url: '/api/connect/mahasiswa',
+      url: '/api/connect/by-ota',
       formData: formData,
       mediaType: 'multipart/form-data',
       errors: {
-        400: `Gagal menghubungkan orang tua asuh dengan mahasiswa asuh.`,
+        400: `Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA`,
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Akun belum terverifikasi.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Menghubungkan orang tua asuh dengan mahasiswa asuh via Admin
+   * @returns any Berhasil menghubungkan orang tua asuh dengan mahasiswa asuh via Admin
+   * @throws ApiError
+   */
+  public connectOtaMahasiswaByAdmin({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/connect/by-admin',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        400: `Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via Admin`,
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun belum terverifikasi.`,
         500: `Internal server error`,

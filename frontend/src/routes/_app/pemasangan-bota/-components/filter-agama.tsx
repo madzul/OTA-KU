@@ -12,37 +12,30 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
-const statuses = [
-  {
-    value: "pending",
-    label: "Tertunda",
-  },
-  {
-    value: "accepted",
-    label: "Terverifikasi",
-  },
-  {
-    value: "rejected",
-    label: "Tertolak",
-  },
+const agamaList = [
+  "Islam",
+  "Kristen Protestan",
+  "Katolik",
+  "Hindu",
+  "Buddha",
+  "Konghucu",
 ];
 
-interface FilterStatusProps {
-  status: "accepted" | "pending" | "rejected" | null;
-  setStatus: (status: "accepted" | "pending" | "rejected" | null) => void;
-}
-
-function FilterStatus({ status, setStatus }: FilterStatusProps) {
+function FilterAgama({ setAgama }: { setAgama: (agama: string | null) => void }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
   useEffect(() => {
-    if (status) {
-      setValue(status);
-    }
-  }, [status]);
+    const handleReset = () => {
+      setValue("");
+      setAgama(null);
+    };
+
+    document.addEventListener("resetFilters", handleReset);
+    return () => document.removeEventListener("resetFilters", handleReset);
+  }, [setAgama]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -56,9 +49,7 @@ function FilterStatus({ status, setStatus }: FilterStatusProps) {
             value ? "text-accent-foreground" : "text-[#BBBAB8]",
           )}
         >
-          {value
-            ? statuses.find((status) => status.value === value)?.label
-            : "Filter Status"}
+          {value || "Filter Agama"}
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -66,25 +57,22 @@ function FilterStatus({ status, setStatus }: FilterStatusProps) {
         <Command>
           <CommandList>
             <CommandGroup>
-              {statuses.map((status) => (
+              {agamaList.map((agama) => (
                 <CommandItem
-                  key={status.value}
-                  value={status.value}
+                  key={agama}
+                  value={agama}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
-                    setStatus(
-                      currentValue === value
-                        ? null
-                        : (currentValue as "accepted" | "pending" | "rejected"),
-                    );
+                    const newValue = currentValue === value ? "" : currentValue;
+                    setValue(newValue);
+                    setAgama(newValue || null);
                     setOpen(false);
                   }}
                 >
-                  {status.label}
+                  {agama}
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === status.value ? "opacity-100" : "opacity-0",
+                      value === agama ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>
@@ -97,4 +85,4 @@ function FilterStatus({ status, setStatus }: FilterStatusProps) {
   );
 }
 
-export default FilterStatus;
+export default FilterAgama;

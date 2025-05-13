@@ -6,7 +6,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useLocation } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import type React from "react";
 
 interface ClientPaginationProps {
   total: number; // Length of filtered data
@@ -21,14 +22,15 @@ const ClientPagination = ({
   ...props
 }: ClientPaginationProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const pathname = location.pathname;
 
   // If there's no data, don't render pagination
-  if (total === 0) return <></>;
+  if (total === 0) return null;
 
   // Get page from search params
-  const page = parseInt(searchParams.get("page") ?? "1") || 1;
+  const page = Number.parseInt(searchParams.get("page") ?? "1") || 1;
 
   // Calculate previous and next page
   const previousPage = Math.max(1, page - 1);
@@ -68,6 +70,18 @@ const ClientPagination = ({
     return `${pathname}?${newSearchParams.toString()}`;
   };
 
+  // Handle navigation without page reload
+  const handleNavigate = (targetPage: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate({
+      to: pathname,
+      search: {
+        page: targetPage,
+      },
+      replace: true,
+    });
+  };
+
   return (
     <Pagination data-aos={animate ? "fade-up" : undefined} {...props}>
       <PaginationContent>
@@ -79,6 +93,9 @@ const ClientPagination = ({
         >
           <PaginationPrevious
             href={getTargetURL(previousPage)}
+            onClick={(e) =>
+              !isPreviousDisabled && handleNavigate(previousPage, e)
+            }
             aria-disabled={isPreviousDisabled}
             tabIndex={isPreviousDisabled ? -1 : undefined}
           />
@@ -89,6 +106,7 @@ const ClientPagination = ({
           <PaginationItem key={`${num}_${idx}`}>
             <PaginationLink
               href={getTargetURL(num + 1)}
+              onClick={(e) => handleNavigate(num + 1, e)}
               isActive={page === num + 1}
             >
               {num + 1}
@@ -104,6 +122,7 @@ const ClientPagination = ({
         >
           <PaginationNext
             href={getTargetURL(nextPage)}
+            onClick={(e) => !isNextDisabled && handleNavigate(nextPage, e)}
             aria-disabled={isNextDisabled}
             tabIndex={isNextDisabled ? -1 : undefined}
           />

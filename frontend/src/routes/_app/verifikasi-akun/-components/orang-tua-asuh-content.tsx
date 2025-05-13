@@ -1,4 +1,4 @@
-import { api, queryClient } from "@/api/client";
+import { api } from "@/api/client";
 import { ClientPagination } from "@/components/client-pagination";
 import { SearchInput } from "@/components/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,8 +28,13 @@ function OrangTuaAsuhContent() {
   >(null);
 
   const { data, isSuccess } = useQuery({
-    queryKey: ["listOrangTuaAdmin"],
-    queryFn: () => api.list.listOrangTuaAdmin({ page }),
+    queryKey: ["listOrangTuaAdmin", page, value, status],
+    queryFn: () =>
+      api.list.listOrangTuaAdmin({
+        page,
+        q: value,
+        status: status as "accepted" | "pending" | "rejected",
+      }),
   });
 
   const orangTuaTableData = data?.body.data.map((item) => ({
@@ -41,21 +46,13 @@ function OrangTuaAsuhContent() {
   }));
 
   useEffect(() => {
-    queryClient.fetchQuery({
-      queryKey: ["listOrangTuaAdmin"],
-      queryFn: () =>
-        api.list.listOrangTuaAdmin({
+    if (status || value) {
+      navigate({
+        search: () => ({
           page: 1,
-          q: value,
-          status: status as "accepted" | "pending" | "rejected",
         }),
-    });
-
-    navigate({
-      search: () => ({
-        page: 1,
-      }),
-    });
+      });
+    }
   }, [navigate, status, value]);
 
   return (
@@ -91,7 +88,7 @@ function OrangTuaAsuhContent() {
             placeholder="Cari nama atau email"
             setSearch={setSearch}
           />
-          <FilterStatus setStatus={setStatus} />
+          <FilterStatus status={status} setStatus={setStatus} />
         </div>
       )}
 
@@ -110,7 +107,7 @@ function OrangTuaAsuhContent() {
           <Skeleton className="h-10 w-full" />
         </div>
       ) : (
-        <ClientPagination totalPerPage={8} total={data.body.totalData} />
+        <ClientPagination totalPerPage={8} total={data.body.totalPagination} />
       )}
     </section>
   );

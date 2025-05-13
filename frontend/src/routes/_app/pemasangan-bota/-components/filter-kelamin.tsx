@@ -12,37 +12,26 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
-const statuses = [
-  {
-    value: "pending",
-    label: "Tertunda",
-  },
-  {
-    value: "accepted",
-    label: "Terverifikasi",
-  },
-  {
-    value: "rejected",
-    label: "Tertolak",
-  },
+const kelaminList = [
+  { value: "M", label: "Laki-laki" },
+  { value: "F", label: "Perempuan" },
 ];
 
-interface FilterStatusProps {
-  status: "accepted" | "pending" | "rejected" | null;
-  setStatus: (status: "accepted" | "pending" | "rejected" | null) => void;
-}
-
-function FilterStatus({ status, setStatus }: FilterStatusProps) {
+function FilterKelamin({ setKelamin }: { setKelamin: (kelamin: "M" | "F" | null) => void }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status) {
-      setValue(status);
-    }
-  }, [status]);
+    const handleReset = () => {
+      setValue(null);
+      setKelamin(null);
+    };
+
+    document.addEventListener("resetFilters", handleReset);
+    return () => document.removeEventListener("resetFilters", handleReset);
+  }, [setKelamin]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -56,9 +45,7 @@ function FilterStatus({ status, setStatus }: FilterStatusProps) {
             value ? "text-accent-foreground" : "text-[#BBBAB8]",
           )}
         >
-          {value
-            ? statuses.find((status) => status.value === value)?.label
-            : "Filter Status"}
+          {value || "Filter Kelamin"}
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -66,25 +53,31 @@ function FilterStatus({ status, setStatus }: FilterStatusProps) {
         <Command>
           <CommandList>
             <CommandGroup>
-              {statuses.map((status) => (
+              {kelaminList.map((kelamin) => (
                 <CommandItem
-                  key={status.value}
-                  value={status.value}
+                  key={kelamin.value}
+                  value={kelamin.value}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
-                    setStatus(
-                      currentValue === value
-                        ? null
-                        : (currentValue as "accepted" | "pending" | "rejected"),
-                    );
+                    if (value === kelamin.label) {
+                      // Unselect if the same item is clicked
+                      setValue(null);
+                      setKelamin(null);
+                    } else {
+                      const selectedKelamin = kelaminList.find(
+                        (k) => k.value === currentValue
+                      );
+                      const newValue = selectedKelamin?.label || "";
+                      setValue(newValue);
+                      setKelamin(selectedKelamin?.value as "M" | "F" | null);
+                    }
                     setOpen(false);
                   }}
                 >
-                  {status.label}
+                  {kelamin.label}
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === status.value ? "opacity-100" : "opacity-0",
+                      value === kelamin.label ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>
@@ -97,4 +90,4 @@ function FilterStatus({ status, setStatus }: FilterStatusProps) {
   );
 }
 
-export default FilterStatus;
+export default FilterKelamin;
