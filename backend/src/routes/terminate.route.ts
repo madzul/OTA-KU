@@ -223,3 +223,45 @@ export const validateTerminateRoute = createRoute({
         },
     }
 })
+
+export const rejectTerminateRoute = createRoute({
+    operationId: "rejectTerminate",
+    tags: ["Terminate"],
+    method: "post",
+    path: "/reject",
+    description: "Melakukan penolakan request terminasi hubungan asuh",
+    request: {
+        body:{
+            content:{
+                "multipart/form-data": { schema: TerminateRequestSchema }
+            }
+        }
+    },
+    responses:{
+        200: {
+            description: "Berhasil menolak request terminasi hubungan asuh",
+            content:{
+                "application/json": {schema: validateTerminateSuccessResponse }
+            }
+        },
+        400: {
+            description: "Gagal menolak request terminasi hubungan asuh",
+            content: {
+                "application/json": { schema: validateTerminateFailedResponse },
+            }
+        },
+        401: AuthorizationErrorResponse,
+        403: {
+            description: "Akun admin belum terverifikasi.",
+            content: {
+                "application/json": { schema: AdminUnverifiedResponse },
+            }
+        },
+        500: {
+            description: "Internal server error",
+            content: {
+                "application/json": { schema: InternalServerErrorResponse },
+            }
+        },
+    }
+})

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -193,18 +193,24 @@ detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
         accountOtaDetailTable,
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
-      .where(eq(accountTable.id, connection.otaId))
+      .innerJoin(
+        connectionTable,
+        eq(connectionTable.mahasiswaId, user.id),
+      )
+      .where(
+        and(
+          eq(accountTable.id, connection.otaId),
+          eq(connectionTable.connectionStatus, "accepted")
+        )
+      )
       .limit(1);
 
     if (otaDetail.length === 0) {
       return c.json(
         {
           success: false,
-          message: "Orang tua asuh tidak ditemukan",
-          error: {
-            code: "NOT_FOUND",
-            message: "Orang tua asuh dengan ID tersebut tidak ditemukan",
-          },
+          message: "Hubungan asuh belum terverifikasi",
+          error: {},
         },
         404,
       );

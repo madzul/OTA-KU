@@ -10,6 +10,7 @@ import {
 import {
   listTerminateForAdminRoute,
   listTerminateForOTARoute,
+  rejectTerminateRoute,
   requestTerminateFromMARoute,
   requestTerminateFromOTARoute,
   terminationStatusMARoute,
@@ -523,6 +524,77 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
       {
         success: true,
         message: "Berhasil memvalidasi terminasi hubungan",
+        body: {
+          mahasiswaId,
+          otaId,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+});
+
+terminateProtectedRouter.openapi(rejectTerminateRoute, async (c) => {
+  const user = c.var.user;
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+
+  const zodParseResult = TerminateRequestSchema.parse(data);
+  const { mahasiswaId, otaId } = zodParseResult;
+
+  const userAccount = await db
+    .select()
+    .from(accountTable)
+    .where(eq(accountTable.id, user.id))
+    .limit(1);
+
+  if (userAccount[0].status === "unverified") {
+    return c.json(
+      {
+        success: false,
+        message: "Akun anda belum diverifikasi.",
+        error: {},
+      },
+      403,
+    );
+  }
+
+  try {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(connectionTable)
+        .set({
+          requestTerminateMahasiswa: false,
+          requestTerminateOta: false,
+          connectionStatus: "accepted"
+        })
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+            eq(connectionTable.connectionStatus, "pending"),
+            or(
+              eq(connectionTable.requestTerminateMahasiswa, true),
+              eq(connectionTable.requestTerminateOta, true)
+            )
+          ),
+        );
+    });
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil menolak request terminasi hubungan asuh",
         body: {
           mahasiswaId,
           otaId,
