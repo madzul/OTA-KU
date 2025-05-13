@@ -1,11 +1,11 @@
 import { api } from "@/api/client";
 import { UserSchema } from "@/api/generated";
 import { ClientPagination } from "@/components/client-pagination";
+import Spinner from "@/components/loading-spinner";
 import { Input } from "@/components/ui/input";
 import { Fakultas, Jurusan } from "@/lib/nim";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { LoaderCircle } from "lucide-react";
 import React, { JSX, useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 
@@ -80,8 +80,8 @@ function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
 
       {isLoading && (
         <div className="flex flex-col items-center justify-center gap-4 py-12">
-          <div className="flex animate-spin items-center justify-center">
-            <LoaderCircle size={32} />
+          <div className="flex items-center justify-center">
+            <Spinner />
           </div>
           <p className="text-dark text-center text-base font-medium">
             Sedang Memuat Data...

@@ -89,6 +89,7 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
           <Venus className="text-pink-300" />
         )}
       </div>
+
       <p className="text-sm text-gray-600">
         {mahasiswa.faculty} - {mahasiswa.major} ({censorNim(mahasiswa.nim)})
       </p>

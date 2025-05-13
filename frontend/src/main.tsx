@@ -59,7 +59,11 @@ function App() {
   }, [session, isSessionLoaded]);
 
   if (!isSessionLoaded) {
-    return <Spinner />;
+    return (
+      <main className="flex min-h-[calc(100vh-70px)] flex-col items-center justify-center px-4 py-8 text-4xl md:px-12 lg:min-h-[calc(100vh-96px)]">
+        <Spinner />;
+      </main>
+    );
   }
 
   return (
