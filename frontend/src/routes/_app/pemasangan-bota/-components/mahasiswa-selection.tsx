@@ -4,6 +4,7 @@ import { SearchInput } from "@/components/search-input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Fakultas, Jurusan } from "@/lib/nim";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ColumnDef } from "@tanstack/react-table";
@@ -41,8 +42,8 @@ export function MahasiswaSelection({
   const [selectedMahasiswa, setSelectedMahasiswa] = useState<Set<string>>(
     new Set(),
   );
-  const [jurusan, setJurusan] = useState<string | null>(null);
-  const [fakultas, setFakultas] = useState<string | null>(null);
+  const [jurusan, setJurusan] = useState<Jurusan | null>(null);
+  const [fakultas, setFakultas] = useState<Fakultas | null>(null);
   const [agama, setAgama] = useState<string | null>(null);
   const [kelamin, setKelamin] = useState<"M" | "F" | null>(null);
   const [showSelectedList, setShowSelectedList] = useState(false);
@@ -92,35 +93,8 @@ export function MahasiswaSelection({
       api.list.listMahasiswaOta({
         page,
         q: searchValue,
-        major: jurusan as
-          | "Matematika"
-          | "Fisika"
-          | "Astronomi"
-          | "Mikrobiologi"
-          | "Kimia"
-          | "Biologi"
-          | "Sains dan Teknologi Farmasi"
-          | "Aktuaria"
-          | "Rekayasa Hayati"
-          | "Rekayasa Pertanian"
-          | "Rekayasa Kehutanan"
-          | undefined,
-        faculty: fakultas as
-          | "FMIPA"
-          | "SITH-S"
-          | "SF"
-          | "FITB"
-          | "FTTM"
-          | "STEI-R"
-          | "FTSL"
-          | "FTI"
-          | "FSRD"
-          | "FTMD"
-          | "STEI-K"
-          | "SBM"
-          | "SITH-R"
-          | "SAPPK"
-          | undefined,
+        major: jurusan || undefined,
+        faculty: fakultas || undefined,
         religion: [
           "Islam",
           "Kristen Protestan",
@@ -252,7 +226,7 @@ export function MahasiswaSelection({
               </Button>
             </div>
 
-                {/* TODO: Abis ngubah search input harus balik lagi ke page 1 di pagination */}
+            {/* TODO: Abis ngubah search input harus balik lagi ke page 1 di pagination */}
             <div className="w-full sm:flex-1">
               <SearchInput
                 placeholder="Cari nama atau NIM"

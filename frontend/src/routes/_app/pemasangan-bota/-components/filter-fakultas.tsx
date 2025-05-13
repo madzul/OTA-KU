@@ -10,9 +10,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Fakultas } from "@/lib/nim";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const fakultasList = [
   "FMIPA",
@@ -34,7 +35,7 @@ const fakultasList = [
 function FilterFakultas({
   setFakultas,
 }: {
-  setFakultas: (fakultas: string | null) => void;
+  setFakultas: (fakultas: Fakultas | null) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
@@ -76,7 +77,7 @@ function FilterFakultas({
                   onSelect={(currentValue) => {
                     const newValue = currentValue === value ? "" : currentValue;
                     setValue(newValue);
-                    setFakultas(newValue || null);
+                    setFakultas((newValue as Fakultas) || null);
                     setOpen(false);
                   }}
                 >

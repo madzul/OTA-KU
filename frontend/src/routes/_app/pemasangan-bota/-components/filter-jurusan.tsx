@@ -10,9 +10,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Jurusan } from "@/lib/nim";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const jurusanList = [
   "Matematika",
@@ -72,7 +73,7 @@ const jurusanList = [
 function FilterJurusan({
   setJurusan,
 }: {
-  setJurusan: (jurusan: string | null) => void;
+  setJurusan: (jurusan: Jurusan | null) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
@@ -114,7 +115,7 @@ function FilterJurusan({
                   onSelect={(currentValue) => {
                     const newValue = currentValue === value ? "" : currentValue;
                     setValue(newValue);
-                    setJurusan(newValue || null);
+                    setJurusan((newValue as Jurusan) || null);
                     setOpen(false);
                   }}
                 >
