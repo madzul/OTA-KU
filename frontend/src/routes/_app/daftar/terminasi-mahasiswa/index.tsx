@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SessionContext } from "@/context/session";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { AlertCircle, Search } from "lucide-react";
+import {  Search } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
@@ -39,9 +39,10 @@ export const Route = createFileRoute("/_app/daftar/terminasi-mahasiswa/")({
 
 interface StudentCardProps {
   student: {
-    accountId: string;
-    name: string;
-    nim: string;
+    mahasiswaId: string;
+    maName: string;
+    maNIM: string;
+    createdAt: string;
   };
   onTerminateSuccess: (studentId: string) => void;
 }
@@ -61,12 +62,12 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
     },
     onSuccess: () => {
       setIsModalOpen(false);
-      onTerminateSuccess(student.accountId);
+      onTerminateSuccess(student.mahasiswaId);
       try {
-        toast.success(`Hubungan dengan ${student.name} berhasil diterminasi`);
+        toast.success(`Hubungan dengan ${student.maName} berhasil diterminasi`);
       } catch (e: Error | unknown) {
         toast.error(
-          `Gagal mengakhiri hubungan dengan ${student.name}. Silakan coba lagi.`,
+          `Gagal mengakhiri hubungan dengan ${student.maName}. Silakan coba lagi.`,
           { description: e instanceof Error ? e.message : String(e) },
         );
       }
@@ -75,7 +76,7 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
 
   const handleTerminate = () => {
     deleteConnection.mutate({
-      maId: student.accountId,
+      maId: student.mahasiswaId,
     });
   };
 
@@ -83,9 +84,18 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
     <Card className="w-full rounded-lg bg-white p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">{student.name}</h2>
-          <p className="text-xl text-gray-500">{student.nim || "13522005"}</p>
-          <p className="mt-2 text-gray-500">Berhubungan sejak: 01/01/2024</p>
+          <h2 className="text-2xl font-bold text-gray-900">{student.maName}</h2>
+          <p className="text-xl text-gray-500">{student.maNIM || "13522005"}</p>
+          <p className="mt-2 text-gray-500">
+            Berhubungan sejak:{" "}
+            <span className="font-semibold">
+              {new Date(student.createdAt).toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })}
+            </span>
+          </p>
         </div>
         <Button
           variant="destructive"
@@ -106,12 +116,11 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="h-5 w-5" />
               Konfirmasi Terminasi
             </DialogTitle>
             <DialogDescription>
               Apakah Anda yakin ingin mengakhiri hubungan dengan mahasiswa asuh{" "}
-              <span className="font-bold">{student.name}</span>?
+              <span className="font-bold">{student.maName}</span>?
             </DialogDescription>
           </DialogHeader>
           {/* <div className="py-4">
@@ -156,7 +165,7 @@ function RouteComponent() {
   const { data: activeStudentsData, isSuccess: isActiveSuccess } = useQuery({
     queryKey: ["listMaActive", debouncedSearchQuery],
     queryFn: () =>
-      api.list.listMaActive({
+      api.terminate.listTerminateForOta({
         q: debouncedSearchQuery,
         page: 1,
       }),
@@ -173,7 +182,7 @@ function RouteComponent() {
   const handleTerminateSuccess = (studentId: string) => {
     // Update local state immediately
     setLocalStudents((prevStudents) =>
-      prevStudents.filter((student) => student.accountId !== studentId),
+      prevStudents.filter((student) => student.mahasiswaId !== studentId),
     );
 
     queryClient.invalidateQueries({
@@ -206,7 +215,7 @@ function RouteComponent() {
         <div className="flex w-full flex-col gap-4">
           {localStudents.map((student) => (
             <StudentCard
-              key={student.accountId}
+              key={student.mahasiswaId}
               student={student}
               onTerminateSuccess={handleTerminateSuccess}
             />
