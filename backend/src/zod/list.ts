@@ -6,12 +6,109 @@ import { NIMSchema, PhoneNumberSchema } from "./atomic.js";
 export const VerifiedMahasiswaListQuerySchema = z.object({
   q: z.string().optional().openapi({
     description: "Query string for searching mahasiswa.",
-    example: "John Doe",
+    example: "John Doe"
   }),
   page: z.coerce.number().optional().openapi({
     description: "Page number for pagination.",
-    example: 1,
+    example: 1
   }),
+  major: z.enum([
+            "Matematika",
+            "Fisika",
+            "Astronomi",
+            "Mikrobiologi",
+            "Kimia",
+            "Biologi",
+            "Sains dan Teknologi Farmasi",
+            "Aktuaria",
+            "Rekayasa Hayati",
+            "Rekayasa Pertanian",
+            "Rekayasa Kehutanan",
+            "Farmasi Klinik dan Komunitas",
+            "Teknologi Pasca Panen",
+            "Teknik Geologi",
+            "Teknik Pertambangan",
+            "Teknik Perminyakan",
+            "Teknik Geofisika",
+            "Teknik Metalurgi",
+            "Meteorologi",
+            "Oseanografi",
+            "Teknik Kimia",
+            "Teknik Mesin",
+            "Teknik Elektro",
+            "Teknik Fisika",
+            "Teknik Industri",
+            "Teknik Informatika",
+            "Aeronotika dan Astronotika",
+            "Teknik Material",
+            "Teknik Pangan",
+            "Manajemen Rekayasa Industri",
+            "Teknik Bioenergi dan Kemurgi",
+            "Teknik Sipil",
+            "Teknik Geodesi dan Geomatika",
+            "Arsitektur",
+            "Teknik Lingkungan",
+            "Perencanaan Wilayah dan Kota",
+            "Teknik Kelautan",
+            "Rekayasa Infrastruktur Lingkungan",
+            "Teknik dan Pengelolaan Sumber Daya Air",
+            "Seni Rupa",
+            "Desain",
+            "Kriya",
+            "Desain Interior",
+            "Desain Komunikasi Visual",
+            "Desain Produk",
+            "Teknik Tenaga Listrik",
+            "Teknik Telekomunikasi",
+            "Sistem Teknologi dan Informasi",
+            "Teknik Biomedis",
+            "Manajemen",
+            "Kewirausahaan",
+            "TPB",
+          ])
+          .optional()
+          .openapi({
+            description: "Query string for filtering major of mahasiswa",
+            example: "Teknik Informatika"
+          }),
+  faculty: z.enum([
+            "FMIPA",
+            "SITH-S",
+            "SF",
+            "FITB",
+            "FTTM",
+            "STEI-R",
+            "FTSL",
+            "FTI",
+            "FSRD",
+            "FTMD",
+            "STEI-K",
+            "SBM",
+            "SITH-R",
+            "SAPPK",
+          ])
+          .optional()
+          .openapi({
+            description: "Query string for filtering faculty of mahasiswa",
+            example: "STEI-K"
+          }),
+  religion: z.enum([
+            "Islam",
+            "Kristen Protestan",
+            "Katolik",
+            "Hindu",
+            "Buddha",
+            "Konghucu",
+          ])
+          .optional()
+          .openapi({
+            description: "Query string for filtering religion of mahasiswa",
+            example: "Kristen Protestan"
+          }),
+  gender: z.enum(["M", "F"]).optional().openapi({
+    description: "Query string for filtering gender of mahasiswa",
+    example: "M"
+  })
 });
 
 export const VerifiedMahasiswaListQueryResponse = z.object({
@@ -27,7 +124,7 @@ export const VerifiedMahasiswaListQueryResponse = z.object({
         type: z
           .enum(["mahasiswa", "admin", "ota"])
           .openapi({ example: "mahasiswa" }),
-        phoneNumber: z.string().openapi({ example: "+6281234567890" }),
+        phoneNumber: z.string().openapi({ example: "6281234567890" }),
         provider: z
           .enum(["credentials", "azure"])
           .openapi({ example: "credentials" }),
@@ -109,10 +206,19 @@ export const MahasiswaDetailsListQuerySchema = z.object({
     description: "Jurusan of mahasiswa.",
     example: "Teknik Informatika",
   }),
-  status: z.enum(["pending", "accepted", "rejected"]).optional().openapi({
-    description: "Status of mahasiswa.",
-    example: "pending",
-  }),
+  status: z.enum([
+            "pending",
+            "accepted",
+            "rejected",
+            "unregistered",
+            "reapply",
+            "outdated",
+          ])
+          .optional()
+          .openapi({
+            description: "Status of mahasiswa.",
+            example: "pending",
+          }),
 });
 
 export const MahasiswaDetailsListQueryResponse = z.object({
@@ -128,7 +234,7 @@ export const MahasiswaDetailsListQueryResponse = z.object({
         type: z
           .enum(["mahasiswa", "admin", "ota"])
           .openapi({ example: "mahasiswa" }),
-        phoneNumber: z.string().openapi({ example: "+6281234567890" }),
+        phoneNumber: z.string().openapi({ example: "6281234567890" }),
         provider: z
           .enum(["credentials", "azure"])
           .openapi({ example: "credentials" }),
@@ -225,7 +331,7 @@ export const OrangTuaDetailsListQueryResponse = z.object({
         id: z.string().openapi({ example: "1" }),
         name: z.string().openapi({ example: "John Doe" }),
         email: z.string().openapi({ example: "johndoe@example.com" }),
-        phoneNumber: z.string().openapi({ example: "081234567890" }),
+        phoneNumber: z.string().openapi({ example: "6281234567890" }),
         provider: z.enum(["credentials", "azure"]).openapi({
           example: "credentials",
         }),

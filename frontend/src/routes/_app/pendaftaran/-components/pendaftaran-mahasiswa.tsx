@@ -1,5 +1,6 @@
 import { api } from "@/api/client";
 import type { UserSchema } from "@/api/generated";
+import Metadata from "@/components/metadata";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,19 +17,19 @@ import {
   getNimFakultasFromNimJurusanMap,
   getNimJurusanCodeMap,
 } from "@/lib/nim";
+import { cn } from "@/lib/utils";
 import { MahasiswaRegistrationFormSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { FileUp } from "lucide-react";
 import type React from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
 import Combobox from "./combobox";
-import Metadata from "@/components/metadata";
 
 export type MahasiswaRegistrationFormValues = z.infer<
   typeof MahasiswaRegistrationFormSchema
@@ -90,6 +91,8 @@ export default function PendaftaranMahasiswa({
         description: "Silakan tunggu hingga admin memverifikasi data",
       });
 
+      localStorage.removeItem("pendaftaran-mahasiswa");
+
       setTimeout(() => {
         navigate({ to: "/profile", reloadDocument: true });
       }, 1000);
@@ -125,8 +128,42 @@ export default function PendaftaranMahasiswa({
       major: jurusan,
       faculty: fakultas,
     },
-    mode: "onSubmit",
   });
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("pendaftaran-mahasiswa");
+    if (storedData) {
+      const decodedData = atob(storedData);
+      const parsedData = JSON.parse(decodedData);
+      form.setValue("name", parsedData.name || "");
+      form.setValue("cityOfOrigin", parsedData.cityOfOrigin || "");
+      form.setValue("highschoolAlumni", parsedData.highschoolAlumni || "");
+      form.setValue("religion", parsedData.religion || "");
+      form.setValue("gender", parsedData.gender || "");
+      form.setValue("gpa", parsedData.gpa || "");
+      form.setValue("description", parsedData.description || "");
+    }
+  }, [form]);
+
+  // Save form data to local storage on interval of 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const formData = {
+        name: form.getValues("name") || "",
+        cityOfOrigin: form.getValues("cityOfOrigin") || "",
+        highschoolAlumni: form.getValues("highschoolAlumni") || "",
+        religion: form.getValues("religion") || "",
+        gender: form.getValues("gender") || "",
+        gpa: form.getValues("gpa") || "",
+        description: form.getValues("description") || "",
+      };
+      localStorage.setItem(
+        "pendaftaran-mahasiswa",
+        btoa(JSON.stringify(formData)),
+      );
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [form]);
 
   const handleFileChange = (
     field: keyof MahasiswaRegistrationFormValues,
@@ -172,7 +209,7 @@ export default function PendaftaranMahasiswa({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Nama Lengkap
                   </FormLabel>
                   <FormControl>
@@ -193,7 +230,7 @@ export default function PendaftaranMahasiswa({
               render={({ field }) => {
                 return (
                   <FormItem>
-                    <FormLabel className="text-primary text-sm">
+                    <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                       Nomor HP (Whatsapp)
                     </FormLabel>
                     <FormControl>
@@ -214,7 +251,9 @@ export default function PendaftaranMahasiswa({
               name="nim"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">NIM</FormLabel>
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
+                    NIM
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} disabled />
                   </FormControl>
@@ -228,7 +267,7 @@ export default function PendaftaranMahasiswa({
               name="major"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Jurusan
                   </FormLabel>
                   <FormControl>
@@ -244,7 +283,7 @@ export default function PendaftaranMahasiswa({
               name="faculty"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Fakultas
                   </FormLabel>
                   <FormControl>
@@ -260,7 +299,7 @@ export default function PendaftaranMahasiswa({
               name="cityOfOrigin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Kota Asal
                   </FormLabel>
                   <FormControl>
@@ -276,7 +315,7 @@ export default function PendaftaranMahasiswa({
               name="highschoolAlumni"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Asal SMA
                   </FormLabel>
                   <FormControl>
@@ -296,7 +335,9 @@ export default function PendaftaranMahasiswa({
               name="gpa"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">IPK</FormLabel>
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
+                    IPK
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Masukkan IPK" {...field} />
                   </FormControl>
@@ -310,7 +351,7 @@ export default function PendaftaranMahasiswa({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Alasan keperluan bantuan
                   </FormLabel>
                   <FormControl>
@@ -355,9 +396,22 @@ export default function PendaftaranMahasiswa({
                     };
 
                     return (
-                      <FormItem>
-                        <FormLabel className="text-primary text-sm">
-                          {documentDisplayNames[name]}
+                      <FormItem
+                        className={cn(
+                          name === "ditmawaRecommendationLetter" &&
+                            "col-span-1 md:col-span-2",
+                        )}
+                      >
+                        <FormLabel
+                          className={cn(
+                            "text-primary text-sm",
+                            name !== "ditmawaRecommendationLetter" &&
+                              "after:text-red-500 after:content-['*']",
+                          )}
+                        >
+                          {documentDisplayNames[name]}{" "}
+                          {name === "ditmawaRecommendationLetter" &&
+                            "(Opsional)"}
                         </FormLabel>
                         <FormControl>
                           <div

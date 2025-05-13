@@ -195,7 +195,7 @@ authRouter.openapi(loginRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -328,7 +328,7 @@ authRouter.openapi(regisRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -512,7 +512,7 @@ authRouter.openapi(oauthRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -661,7 +661,7 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -752,7 +752,7 @@ authRouter.openapi(forgotPasswordRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

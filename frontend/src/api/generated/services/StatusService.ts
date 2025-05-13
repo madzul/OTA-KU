@@ -112,4 +112,40 @@ export class StatusService {
       },
     });
   }
+  /**
+   * Mengambil status pendaftaran ulang.
+   * @returns any Berhasil mengambil status pendaftaran ulang
+   * @throws ApiError
+   */
+  public getReapplicationStatus({
+    id,
+  }: {
+    id: string,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * Status pendaftaran ulang
+       */
+      status: boolean;
+      /**
+       * Sisa hari hingga batas pendaftaran ulang
+       */
+      daysRemaining: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/status/status/reapplication/{id}',
+      path: {
+        'id': id,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
+        500: `Internal server error`,
+      },
+    });
+  }
 }

@@ -136,7 +136,7 @@ export const verifyConnectionRejectRoute = createRoute({
 export const listConnectionRoute = createRoute({
   operationId: "listConnection",
   tags: ["Connect"],
-  method: "post",
+  method: "get",
   path: "/daftar-connection",
   description: "List seluruh connection yang ada beserta detailnya",
   request: {

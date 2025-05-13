@@ -30,6 +30,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { CalendarIcon, Check, ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
 import { UseFormReturn, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -47,6 +48,8 @@ export type OrangTuaRegistrationTwoFormValues = z.infer<
 >;
 
 export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
+  const [open, setOpen] = useState(false);
+
   const navigate = useNavigate();
   const orangTuaRegistrationCallbackMutation = useMutation({
     mutationFn: (data: OrangTuaRegistrationFormValues) =>
@@ -56,6 +59,8 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
       toast.success("Berhasil melakukan pendaftaran", {
         description: "Silakan tunggu hingga admin memverifikasi data",
       });
+
+      localStorage.removeItem("pendaftaran-ota");
 
       setTimeout(() => {
         navigate({ to: "/profile", reloadDocument: true });
@@ -83,6 +88,47 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
       allowAdminSelection: "false",
     },
   });
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("pendaftaran-ota");
+    if (storedData) {
+      const decodedData = atob(storedData);
+      const parsedData = JSON.parse(decodedData);
+      form.setValue("funds", parsedData.funds || "");
+      form.setValue("maxCapacity", parsedData.maxCapacity || "");
+      form.setValue("startDate", parsedData.startDate || "");
+      form.setValue("maxSemester", parsedData.maxSemester || "");
+      form.setValue("transferDate", parsedData.transferDate || "");
+      form.setValue("criteria", parsedData.criteria || "");
+      form.setValue("checked", parsedData.checked || false);
+      form.setValue(
+        "allowAdminSelection",
+        parsedData.allowAdminSelection || "false",
+      );
+    }
+  }, [form]);
+
+  // Save form data to local storage on interval of 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const formData = {
+        name: mainForm.getValues("name") || "",
+        job: mainForm.getValues("job") || "",
+        address: mainForm.getValues("address") || "",
+        linkage: mainForm.getValues("linkage") || "",
+        funds: form.getValues("funds") || "",
+        maxCapacity: form.getValues("maxCapacity") || "",
+        startDate: form.getValues("startDate") || "",
+        maxSemester: form.getValues("maxSemester") || "",
+        transferDate: form.getValues("transferDate") || "",
+        criteria: form.getValues("criteria") || "",
+        checked: form.getValues("checked") || false,
+        allowAdminSelection: form.getValues("allowAdminSelection") || "false",
+      };
+      localStorage.setItem("pendaftaran-ota", btoa(JSON.stringify(formData)));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [form, mainForm]);
 
   async function onSubmit(data: OrangTuaRegistrationTwoFormValues) {
     mainForm.setValue("funds", data.funds);
@@ -129,7 +175,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
               name="funds"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Bersedia memberikan dana setiap bulan sebesar (dalam Rp)
                   </FormLabel>
                   <FormControl>
@@ -145,7 +191,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
               name="maxCapacity"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Untuk diberikan kepada
                   </FormLabel>
                   <FormControl>
@@ -161,7 +207,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
               name="startDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Dana akan mulai diberikan pada
                   </FormLabel>
                   <Popover>
@@ -210,7 +256,9 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
               name="maxSemester"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">Selama</FormLabel>
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
+                    Selama
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Min. 1 semester" {...field} />
                   </FormControl>
@@ -224,10 +272,10 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
               name="transferDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Dana akan ditransfer ke rekening IOM setiap tanggal
                   </FormLabel>
-                  <Popover>
+                  <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -256,6 +304,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
                                 key={day.value}
                                 onSelect={() => {
                                   form.setValue("transferDate", day.value);
+                                  setOpen(false);
                                 }}
                               >
                                 {day.label}
@@ -315,7 +364,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
                       className="text-primary"
                     />
                   </FormControl>
-                  <span className="ml-2">
+                  <span className="ml-2 after:ml-1 after:text-red-500 after:content-['*']">
                     Saya tidak keberatan untuk berkomunikasi dengan anak asuh
                   </span>
                   <FormMessage />

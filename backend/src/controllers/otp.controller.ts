@@ -86,7 +86,7 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -129,7 +129,7 @@ otpProtectedRouter.openapi(getOtpExpiredDateRoute, async (c) => {
       {
         success: false,
         message: "Failed to retrieve OTP expired date",
-        error: {},
+        error: error,
       },
       500,
     );

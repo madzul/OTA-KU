@@ -21,7 +21,17 @@ import { z } from "zod";
 
 type UserRegisterFormValues = z.infer<typeof UserRegisRequestSchema>;
 
-export default function RegisterForm({ role }: { role: string }) {
+interface RegisterFormProps {
+  role: string;
+  setRole: (role: string) => void;
+  setIsClicked: (isClicked: boolean) => void;
+}
+
+export default function RegisterForm({
+  role,
+  setRole,
+  setIsClicked,
+}: RegisterFormProps) {
   const [state, setState] = useState<string | null>(null);
   const [clientId, setClientId] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -168,7 +178,10 @@ export default function RegisterForm({ role }: { role: string }) {
               <Button
                 type="button"
                 variant={"outline"}
-                onClick={() => navigate({ reloadDocument: true })}
+                onClick={() => {
+                  setIsClicked(false);
+                  setRole("");
+                }}
                 disabled={registerCallbackMutation.isPending}
               >
                 Kembali

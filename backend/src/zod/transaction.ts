@@ -115,6 +115,7 @@ export const TransactionListAdminQueryResponse = z.object({
           receipt: z
             .string()
             .openapi({ example: "https://example.com/file.pdf" }),
+          createdAt: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
         }),
       ),
       totalData: z.number().openapi({ example: 100 }),
@@ -174,6 +175,7 @@ export const UploadReceiptSchema = z.object({
       description: "ID mahasiswa asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
+  createdAt: z.string().openapi({ example: "2025-05-12 05:38:30.059417"}),
   receipt: z
     .instanceof(File, { message: "Bukti pembayaran harus diisi" })
     .refine((file) => 
@@ -225,6 +227,7 @@ export const VerifyTransactionAcceptSchema = z.object({
       description: "ID mahasiswa asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
+  createdAt: z.string().openapi({ example: "2025-05-12 05:38:30.059417"})
 });
 
 export const VerifyTransactionRejectSchema = z.object({
@@ -252,17 +255,22 @@ export const VerifyTransactionRejectSchema = z.object({
       description: "ID mahasiswa asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
-    amountPaid: z
-      .coerce
-      .number()
-      .int("Nominal yang telah dibayarkan harus berupa sebuah bilangan bulat")
-      .openapi({
-        description: "Nominal yang telah dibayarkan",
-        example: 300000
-    })
+  createdAt: z.string().openapi({ example: "2025-05-12 05:38:30.059417"}),
+  rejectionNote: z.string().openapi({
+    description: "Notes untuk menjelaskan alasan penolakan verifikasi transaction",
+    example: "Nominal yang ditransfer tidak sesuai dengan tagihan" 
+  }),
+  amountPaid: z
+    .coerce
+    .number()
+    .int("Nominal yang telah dibayarkan harus berupa sebuah bilangan bulat")
+    .openapi({
+      description: "Nominal yang telah dibayarkan",
+      example: 300000
+  })
 })
 
-export const VerifyTransactionResponse = z.object({
+export const VerifyTransactionAccResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({
     example: "Berhasil melakukan accept verifikasi pembayaran",
@@ -276,6 +284,7 @@ export const VerifyTransactionResponse = z.object({
       description: "ID orang tua asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
+    createdAt: z.string().openapi({ example: "2025-05-12 05:38:30.059417"}),
     amountPaid: z
       .number()
       .int("Nominal yang dibayarkan harus berupa sebuah bilangan bulat")
@@ -285,3 +294,33 @@ export const VerifyTransactionResponse = z.object({
       }),
   }),
 });
+
+export const VerifyTransactionRejectResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({
+    example: "Berhasil melakukan accept verifikasi pembayaran",
+  }),
+  body: z.object({
+    mahasiswaId: z.string().uuid().openapi({
+      description: "ID mahasiswa asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+    otaId: z.string().uuid().openapi({
+      description: "ID orang tua asuh",
+      example: "123e4567-e89b-12d3-a456-426614174000",
+    }),
+    createdAt: z.string().openapi({ example: "2025-05-12 05:38:30.059417"}),
+    rejectionNote: z.string().openapi({
+      description: "Notes untuk menjelaskan alasan penolakan verifikasi transaction",
+      example: "Nominal yang ditransfer tidak sesuai dengan tagihan" 
+    }),
+    amountPaid: z
+      .number()
+      .int("Nominal yang dibayarkan harus berupa sebuah bilangan bulat")
+      .openapi({
+        description: "Nominal yang telah dibayarkan",
+        example: 300000,
+      }),
+  }),
+});
+

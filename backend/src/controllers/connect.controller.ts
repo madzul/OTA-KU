@@ -1,4 +1,4 @@
-import { eq, sql, and, isNotNull, or, ilike, count } from "drizzle-orm";
+import { eq, sql, and, or, ilike, count } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -111,7 +111,7 @@ connectProtectedRouter.openapi(connectOtaMahasiswaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -132,7 +132,12 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async(c) => {
         .where(
           and(
             eq(connectionTable.mahasiswaId, mahasiswaId),
-            eq(connectionTable.otaId, otaId)
+            eq(connectionTable.otaId, otaId),
+            eq(connectionTable.connectionStatus, "pending"),
+            and(
+              eq(connectionTable.requestTerminateMahasiswa, false),
+              eq(connectionTable.requestTerminateOta, false)
+            )
           )
         )
     })
@@ -150,7 +155,7 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async(c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -171,7 +176,12 @@ connectProtectedRouter.openapi(verifyConnectionRejectRoute, async(c) => {
         .where(
           and(
             eq(connectionTable.mahasiswaId, mahasiswaId),
-            eq(connectionTable.otaId, otaId)
+            eq(connectionTable.otaId, otaId),
+            eq(connectionTable.connectionStatus, "pending"),
+            and(
+              eq(connectionTable.requestTerminateMahasiswa, false),
+              eq(connectionTable.requestTerminateOta, false)
+            )
           )
         )
     })
@@ -189,7 +199,7 @@ connectProtectedRouter.openapi(verifyConnectionRejectRoute, async(c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -228,6 +238,10 @@ connectProtectedRouter.openapi(listConnectionRoute, async(c) => {
             ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
             ilike(accountOtaDetailTable.name, `%${q || ""}%`),
           ),
+          and(
+            eq(connectionTable.requestTerminateMahasiswa, false),
+            eq(connectionTable.requestTerminateOta, false)
+          )
         ),
       );
 
@@ -261,6 +275,10 @@ connectProtectedRouter.openapi(listConnectionRoute, async(c) => {
             ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
             ilike(accountOtaDetailTable.name, `%${q || ""}%`),
           ),
+          and(
+            eq(connectionTable.requestTerminateMahasiswa, false),
+            eq(connectionTable.requestTerminateOta, false)
+          )
         ),
       )
       .limit(LIST_PAGE_SIZE)
@@ -295,7 +313,7 @@ connectProtectedRouter.openapi(listConnectionRoute, async(c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

@@ -149,7 +149,7 @@ export class ConnectService {
     };
   }> {
     return this.httpRequest.request({
-      method: 'POST',
+      method: 'GET',
       url: '/api/connect/daftar-connection',
       query: {
         'q': q,
