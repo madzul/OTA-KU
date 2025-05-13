@@ -259,7 +259,13 @@ export function DaftarTagihanPage() {
   });
 
   // Function to handle payment details confirmation
-  const handlePaymentDetailsConfirm = ({ amount }: { amount: string }) => {
+  const handlePaymentDetailsConfirm = ({
+    amount,
+    rejectionNote,
+  }: {
+    amount: string;
+    rejectionNote?: string;
+  }) => {
     if (selectedItemIndex !== null && pendingStatus) {
       const newData = [...transaksiData];
       const item = newData[selectedItemIndex];
@@ -291,8 +297,7 @@ export function DaftarTagihanPage() {
           otaId: item.otaId,
           amount: Number(amount),
           createdAt: item.createdAt,
-          // TODO: Nanti benerin rejection notenya fiq
-          rejectionNote: "",
+          rejectionNote: rejectionNote || "",
         });
       }
     }

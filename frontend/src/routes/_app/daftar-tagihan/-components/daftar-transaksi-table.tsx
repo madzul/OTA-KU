@@ -129,7 +129,7 @@ export function DaftarTransaksiTable({
   const renderFileIcon = (item: TransaksiItem) => {
     if (item.receipt) {
       return (
-        <a href={`//${item.receipt}`} target="_blank" rel="noopener noreferrer">
+        <a href={`${item.receipt}`} target="_blank" rel="noopener noreferrer">
           <Eye className="h-5 w-5 cursor-pointer text-blue-600" />
         </a>
       );

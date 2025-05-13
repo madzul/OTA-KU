@@ -16,12 +16,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const paymentDetailsSchema = z.object({
   amount: z.string().min(1, { message: "Jumlah pembayaran harus diisi" }),
+  rejectionNote: z.string().optional(),
 });
 
 type PaymentDetailsFormValues = z.infer<typeof paymentDetailsSchema>;
@@ -45,6 +47,7 @@ export function PaymentDetailsModal({
     resolver: zodResolver(paymentDetailsSchema),
     defaultValues: {
       amount: "300000",
+      rejectionNote: "",
     },
   });
 
@@ -87,19 +90,38 @@ export function PaymentDetailsModal({
             className="space-y-4"
           >
             {status === "unpaid" && (
-              <FormField
-                control={form.control}
-                name="amount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Jumlah Pembayaran (Rp)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Contoh: 300000" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <>
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Jumlah Pembayaran (Rp)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Contoh: 300000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="rejectionNote"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Catatan Penolakan</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Masukkan alasan penolakan pembayaran"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
             )}
 
             <DialogFooter className="pt-4">
