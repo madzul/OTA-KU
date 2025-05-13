@@ -88,7 +88,7 @@ export async function seed() {
           },
           {
             id: mahasiswa2Id,
-            email: "13599102@mahasiswa.itb.ac.id",
+            email: "13299102@mahasiswa.itb.ac.id",
             phoneNumber: "628198765432",
             password: hashedPassword,
             type: "mahasiswa",
@@ -97,7 +97,7 @@ export async function seed() {
           },
           {
             id: mahasiswa3Id,
-            email: "13599103@mahasiswa.itb.ac.id",
+            email: "13199103@mahasiswa.itb.ac.id",
             phoneNumber: "628198702490",
             password: hashedPassword,
             type: "mahasiswa",
@@ -106,7 +106,7 @@ export async function seed() {
           },
           {
             id: mahasiswa4Id,
-            email: "13599104@mahasiswa.itb.ac.id",
+            email: "15099104@mahasiswa.itb.ac.id",
             phoneNumber: "628198766782",
             password: hashedPassword,
             type: "mahasiswa",
@@ -115,7 +115,7 @@ export async function seed() {
           },
           {
             id: mahasiswa5Id,
-            email: "13599105@mahasiswa.itb.ac.id",
+            email: "13099105@mahasiswa.itb.ac.id",
             phoneNumber: "628198987411",
             password: hashedPassword,
             type: "mahasiswa",
@@ -124,7 +124,7 @@ export async function seed() {
           },
           {
             id: mahasiswa6Id,
-            email: "13599106@mahasiswa.itb.ac.id",
+            email: "15199106@mahasiswa.itb.ac.id",
             phoneNumber: "628100000006",
             password: hashedPassword,
             type: "mahasiswa",
@@ -133,7 +133,7 @@ export async function seed() {
           },
           {
             id: mahasiswa7Id,
-            email: "13599107@mahasiswa.itb.ac.id",
+            email: "12099107@mahasiswa.itb.ac.id",
             phoneNumber: "628100000007",
             password: hashedPassword,
             type: "mahasiswa",
@@ -142,7 +142,7 @@ export async function seed() {
           },
           {
             id: mahasiswa8Id,
-            email: "13599108@mahasiswa.itb.ac.id",
+            email: "15499108@mahasiswa.itb.ac.id",
             phoneNumber: "628100000008",
             password: hashedPassword,
             type: "mahasiswa",
@@ -151,7 +151,7 @@ export async function seed() {
           },
           {
             id: mahasiswa9Id,
-            email: "13599109@mahasiswa.itb.ac.id",
+            email: "15099109@mahasiswa.itb.ac.id",
             phoneNumber: "628100000009",
             password: hashedPassword,
             type: "mahasiswa",
@@ -160,7 +160,7 @@ export async function seed() {
           },
           {
             id: mahasiswa10Id,
-            email: "13599110@mahasiswa.itb.ac.id",
+            email: "15499110@mahasiswa.itb.ac.id",
             phoneNumber: "628100000010",
             password: hashedPassword,
             type: "mahasiswa",
@@ -169,7 +169,7 @@ export async function seed() {
           },
           {
             id: mahasiswa11Id,
-            email: "13599111@mahasiswa.itb.ac.id",
+            email: "13499111@mahasiswa.itb.ac.id",
             phoneNumber: "628100000011",
             password: hashedPassword,
             type: "mahasiswa",
@@ -178,7 +178,7 @@ export async function seed() {
           },
           {
             id: mahasiswa12Id,
-            email: "13599112@mahasiswa.itb.ac.id",
+            email: "13199112@mahasiswa.itb.ac.id",
             phoneNumber: "628100000012",
             password: hashedPassword,
             type: "mahasiswa",
@@ -187,7 +187,7 @@ export async function seed() {
           },
           {
             id: mahasiswa13Id,
-            email: "13599113@mahasiswa.itb.ac.id",
+            email: "13099113@mahasiswa.itb.ac.id",
             phoneNumber: "628100000013",
             password: hashedPassword,
             type: "mahasiswa",
@@ -196,7 +196,7 @@ export async function seed() {
           },
           {
             id: mahasiswa14Id,
-            email: "13599114@mahasiswa.itb.ac.id",
+            email: "10199114@mahasiswa.itb.ac.id",
             phoneNumber: "628100000014",
             password: hashedPassword,
             type: "mahasiswa",
@@ -205,7 +205,7 @@ export async function seed() {
           },
           {
             id: mahasiswa15Id,
-            email: "13599115@mahasiswa.itb.ac.id",
+            email: "15299115@mahasiswa.itb.ac.id",
             phoneNumber: "628100000015",
             password: hashedPassword,
             type: "mahasiswa",
@@ -214,7 +214,7 @@ export async function seed() {
           },
           {
             id: mahasiswa16Id,
-            email: "13599116@mahasiswa.itb.ac.id",
+            email: "19099116@mahasiswa.itb.ac.id",
             phoneNumber: "628100000016",
             password: hashedPassword,
             type: "mahasiswa",
@@ -223,7 +223,7 @@ export async function seed() {
           },
           {
             id: mahasiswa17Id,
-            email: "13599117@mahasiswa.itb.ac.id",
+            email: "10399117@mahasiswa.itb.ac.id",
             phoneNumber: "628100000017",
             password: hashedPassword,
             type: "mahasiswa",
@@ -415,7 +415,7 @@ export async function seed() {
           {
             accountId: mahasiswa2Id,
             name: "Mahasiswa Two",
-            nim: "13599102",
+            nim: "13299102",
             description: "Mahasiswa Two is an active student.",
             file: "https://example.com/mahasiswa2.pdf",
             mahasiswaStatus: "active",
@@ -443,7 +443,7 @@ export async function seed() {
           {
             accountId: mahasiswa3Id,
             name: "Mahasiswa Three",
-            nim: "13599103",
+            nim: "13199103",
             description: "Mahasiswa Three is an active student.",
             file: "https://example.com/mahasiswa3.pdf",
             mahasiswaStatus: "active",
@@ -471,7 +471,7 @@ export async function seed() {
           {
             accountId: mahasiswa4Id,
             name: "Mahasiswa Four",
-            nim: "13599104",
+            nim: "15099104",
             description: "Mahasiswa Four is an inactive student.",
             file: "https://example.com/mahasiswa4.pdf",
             mahasiswaStatus: "inactive",
@@ -496,7 +496,7 @@ export async function seed() {
           {
             accountId: mahasiswa5Id,
             name: "Mahasiswa Five",
-            nim: "13599105",
+            nim: "13099105",
             description: "Mahasiswa Five is an inactive student.",
             file: "https://example.com/mahasiswa5.pdf",
             mahasiswaStatus: "inactive",
@@ -524,11 +524,11 @@ export async function seed() {
           {
             accountId: mahasiswa6Id,
             name: "Mahasiswa Six",
-            nim: "13599106",
+            nim: "15199106",
             description: "Mahasiswa Six is an active student.",
             file: "https://example.com/mahasiswa6.pdf",
             mahasiswaStatus: "inactive",
-            major: "Teknik Geofisika",
+            major: "Teknik Geodesi dan Geomatika",
             faculty: "FITB",
             cityOfOrigin: "Makassar",
             highschoolAlumni: "SMA Negeri 6 Makassar",
@@ -552,7 +552,7 @@ export async function seed() {
           {
             accountId: mahasiswa7Id,
             name: "Mahasiswa Seven",
-            nim: "13599107",
+            nim: "12099107",
             description: "Mahasiswa Seven is an active student.",
             file: "https://example.com/mahasiswa7.pdf",
             mahasiswaStatus: "inactive",
@@ -580,11 +580,11 @@ export async function seed() {
           {
             accountId: mahasiswa8Id,
             name: "Mahasiswa Eight",
-            nim: "13599108",
+            nim: "15499108",
             description: "Mahasiswa Eight is an active student.",
             file: "https://example.com/mahasiswa8.pdf",
             mahasiswaStatus: "inactive",
-            major: "Teknik Lingkungan",
+            major: "Perencanaan Wilayah dan Kota",
             faculty: "SAPPK",
             cityOfOrigin: "Denpasar",
             highschoolAlumni: "SMA Negeri 8 Denpasar",
@@ -608,7 +608,7 @@ export async function seed() {
           {
             accountId: mahasiswa9Id,
             name: "Mahasiswa Nine",
-            nim: "13599109",
+            nim: "15099109",
             description: "Mahasiswa Nine is an active student.",
             file: "https://example.com/mahasiswa9.pdf",
             mahasiswaStatus: "active",
@@ -636,7 +636,7 @@ export async function seed() {
           {
             accountId: mahasiswa10Id,
             name: "Mahasiswa Ten",
-            nim: "13599110",
+            nim: "15499110",
             description: "Mahasiswa Ten is an active student.",
             file: "https://example.com/mahasiswa10.pdf",
             mahasiswaStatus: "inactive",
@@ -664,7 +664,7 @@ export async function seed() {
           {
             accountId: mahasiswa11Id,
             name: "Mahasiswa Eleven",
-            nim: "13599111",
+            nim: "13499111",
             description: "Mahasiswa Eleven is an active student.",
             file: "https://example.com/mahasiswa11.pdf",
             mahasiswaStatus: "inactive",
@@ -692,7 +692,7 @@ export async function seed() {
           {
             accountId: mahasiswa12Id,
             name: "Mahasiswa Twelve",
-            nim: "13599112",
+            nim: "13199112",
             description: "Mahasiswa Twelve is an active student.",
             file: "https://example.com/mahasiswa12.pdf",
             mahasiswaStatus: "inactive",
@@ -720,7 +720,7 @@ export async function seed() {
           {
             accountId: mahasiswa13Id,
             name: "Mahasiswa Thirteen",
-            nim: "13599113",
+            nim: "13099113",
             description: "Mahasiswa Thirteen is an active student.",
             file: "https://example.com/mahasiswa13.pdf",
             mahasiswaStatus: "inactive",
@@ -748,7 +748,7 @@ export async function seed() {
           {
             accountId: mahasiswa14Id,
             name: "Mahasiswa Fourteen",
-            nim: "13599114",
+            nim: "10199114",
             description: "Mahasiswa Fourteen is an active student.",
             file: "https://example.com/mahasiswa14.pdf",
             mahasiswaStatus: "inactive",
@@ -776,7 +776,7 @@ export async function seed() {
           {
             accountId: mahasiswa15Id,
             name: "Mahasiswa Fifteen",
-            nim: "13599115",
+            nim: "15299115",
             description: "Mahasiswa Fifteen is an active student.",
             file: "https://example.com/mahasiswa15.pdf",
             mahasiswaStatus: "inactive",
@@ -804,7 +804,7 @@ export async function seed() {
           {
             accountId: mahasiswa16Id,
             name: "Mahasiswa Sixteen",
-            nim: "13599116",
+            nim: "19099116",
             description: "Mahasiswa Sixteen is an active student.",
             file: "https://example.com/mahasiswa16.pdf",
             mahasiswaStatus: "inactive",
@@ -832,7 +832,7 @@ export async function seed() {
           {
             accountId: mahasiswa17Id,
             name: "Mahasiswa Seventeen",
-            nim: "13599117",
+            nim: "10399117",
             description: "Mahasiswa Seventeen is an active student.",
             file: "https://example.com/mahasiswa17.pdf",
             mahasiswaStatus: "inactive",
