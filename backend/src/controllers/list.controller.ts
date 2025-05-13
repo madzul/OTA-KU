@@ -31,6 +31,7 @@ import {
   VerifiedMahasiswaListQuerySchema,
 } from "../zod/list.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
+import type { Jurusan } from "../lib/nim.js";
 
 export const listRouter = createRouter();
 export const listProtectedRouter = createAuthRouter();
@@ -221,6 +222,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             status as "pending" | "accepted" | "rejected" | "unregistered",
           )
         : undefined,
+      jurusan ? eq(accountMahasiswaDetailTable.major, jurusan as Jurusan) : undefined,
     ];
 
     const countsQuery = db
