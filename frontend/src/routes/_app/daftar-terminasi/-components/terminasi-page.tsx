@@ -1,0 +1,133 @@
+"use client";
+
+import { api } from "@/api/client";
+import { ClientPagination } from "@/components/client-pagination";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import { Search } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import TerminasiModal from "./terminasi-modal";
+import TerminasiTable from "./terminasi-table";
+
+// Tipe data untuk response API
+interface TerminasiData {
+  otaId: string;
+  otaName: string;
+  otaNumber: string;
+  mahasiswaId: string;
+  maName: string;
+  maNIM: string;
+  createdAt: string;
+  requestTerminateOTA: boolean;
+  requestTerminateMA: boolean;
+}
+
+export default function TerminasiPage() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<TerminasiData | null>(null);
+  const perPage = 8;
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
+  // Fetch data with pagination and search
+  const { data, isLoading, isSuccess } = useQuery({
+    queryKey: ["ListTerminasi", currentPage, debouncedSearch],
+    queryFn: () =>
+      api.terminate.listTerminateForAdmin({
+        page: currentPage,
+        q: debouncedSearch,
+      }),
+  });
+
+  const terminasiData = data?.body?.data || [];
+
+  const handleTerminasi = (item: TerminasiData) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const confirmTerminasi = async () => {
+    if (!selectedItem) return;
+
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  if (isLoading && !data) {
+    return (
+      <div className="space-y-4">
+        <div className="mb-6 flex items-center space-x-4">
+          <Skeleton className="h-10 w-64" />
+        </div>
+        <div className="rounded-lg border bg-white p-4 shadow-sm">
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Search Bar */}
+      <div className="relative mb-6">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <Search className="h-4 w-4 text-gray-400" />
+        </div>
+        <Input
+          type="text"
+          placeholder="Cari OTA atau mahasiswa..."
+          className="w-full pl-10 md:w-64"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      <div className="rounded-lg border bg-white shadow-sm">
+        <TerminasiTable data={terminasiData} onTerminasi={handleTerminasi} />
+      </div>
+
+      {/* Pagination */}
+      {!isSuccess ? (
+        <div className="rounded-md bg-white">
+          <Skeleton className="h-10 w-full" />
+        </div>
+      ) : (
+        <ClientPagination
+          totalPerPage={perPage}
+          total={data.body.data.length}
+        />
+      )}
+
+      {isModalOpen && selectedItem && (
+        <TerminasiModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          onConfirm={confirmTerminasi}
+          item={selectedItem}
+        />
+      )}
+    </div>
+  );
+}
