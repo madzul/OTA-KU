@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 import { OrangTuaPageOneSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UseFormReturn, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -51,6 +51,40 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("pendaftaran-ota");
+    if (storedData) {
+      const decodedData = atob(storedData);
+      const parsedData = JSON.parse(decodedData);
+      form.setValue("name", parsedData.name || "");
+      form.setValue("job", parsedData.job || "");
+      form.setValue("address", parsedData.address || "");
+      form.setValue("linkage", parsedData.linkage || "");
+    }
+  }, [form]);
+
+  // Save form data to local storage on interval of 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const formData = {
+        name: form.getValues("name") || "",
+        job: form.getValues("job") || "",
+        address: form.getValues("address") || "",
+        linkage: form.getValues("linkage") || "",
+        funds: "",
+        maxCapacity: "",
+        startDate: "",
+        maxSemester: "",
+        transferDate: "",
+        criteria: "",
+        checked: false,
+        allowAdminSelection: "false",
+      };
+      localStorage.setItem("pendaftaran-ota", btoa(JSON.stringify(formData)));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [form]);
 
   async function onSubmit(data: OrangTuaRegistrationOneFormValues) {
     mainForm.setValue("name", data.name);
@@ -79,13 +113,14 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
               yang dapat berasal dari siapa saja, baik Orang Tua Mahasiswa
               (OTM), alumni, maupun pihak lain yang memiliki kepedulian untuk
               mendukung mahasiswa ITB. Bantuan ini diberikan untuk membiayai
-              sebagian atau seluruh kebutuhan seorang mahasiswa ITB dalam jangka
-              waktu tertentu (minimal 1 semester). Besar bantuan yang diberikan
+              sebagian atau seluruh kebutuhan mahasiswa ITB dalam jangka waktu
+              tertentu (minimal 1 semester). Besar bantuan yang diberikan
               disesuaikan dengan kesanggupan masing-masing Orang Tua Asuh. Kami
               memprogramkan bantuan minimal senilai Rp300.000,- per mahasiswa,
               yang berasal dari satu Orang Tua Asuh. Partisipasi dan kepedulian
               Bapak/Ibu sebagai Orang Tua Asuh akan sangat berarti bagi para
-              mahasiswa yang membutuhkan.{"  "}
+              mahasiswa yang membutuhkan.
+              {"  "}
               <span
                 className="cursor-pointer font-bold underline"
                 onClick={toggleExpand}
@@ -95,11 +130,12 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
             </p>
           ) : (
             <p className="text-justify text-[18px]">
-              Orang Tua Asuh (OTA) merupakan salah satu bentuk bantuan IOM - ITB
-              yang bersumber dari Orang Tua Mahasiswa (OTM) yang dengan sukarela
-              membiayai sebagian atau keseluruhan kebutuhan seorang mahasiswa
-              ITB dalam jangka waktu tertentu (minimal 1 semester). Besar
-              bantuan yang diberikan...{" "}
+              Orang Tua Asuh (OTA) merupakan salah satu bentuk bantuan IOM-ITB
+              yang dapat berasal dari siapa saja, baik Orang Tua Mahasiswa
+              (OTM), alumni, maupun pihak lain yang memiliki kepedulian untuk
+              mendukung mahasiswa ITB. Bantuan ini diberikan untuk membiayai
+              sebagian atau seluruh kebutuhan mahasiswa ITB dalam jangka waktu
+              tertentu (minimal 1 semester)...{" "}
               <span
                 className="cursor-pointer font-bold underline"
                 onClick={toggleExpand}
@@ -128,7 +164,7 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Nama Lengkap
                   </FormLabel>
                   <FormControl>
@@ -144,7 +180,7 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
               name="job"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Pekerjaan
                   </FormLabel>
                   <FormControl>
@@ -160,7 +196,9 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">Alamat</FormLabel>
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
+                    Alamat
+                  </FormLabel>
                   <FormControl>
                     <Textarea placeholder="Masukkan alamat Anda" {...field} />
                   </FormControl>
@@ -174,7 +212,7 @@ export default function OTAPageOne({ setPage, mainForm }: OTAPageOneProps) {
               name="linkage"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Keterkaitan dengan ITB
                   </FormLabel>
                   <Popover open={open} onOpenChange={setOpen}>

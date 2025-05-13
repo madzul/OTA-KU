@@ -6,8 +6,8 @@ import {
   NIMSchema,
   PDFSchema,
   PhoneNumberSchema,
+  ProfilePDFSchema,
   cloudinaryUrlSchema,
-  ProfilePDFSchema
 } from "./atomic.js";
 
 // Mahasiswa Registration
@@ -169,7 +169,7 @@ export const MahasiswaRegistrationFormSchema = z.object({
   salaryReport: PDFSchema.openapi({ description: "Slip Gaji Orang Tua" }),
   pbb: PDFSchema.openapi({ description: "Bukti Pembayaran PBB" }),
   electricityBill: PDFSchema.openapi({ description: "Tagihan Listrik" }),
-  ditmawaRecommendationLetter: PDFSchema.openapi({
+  ditmawaRecommendationLetter: PDFSchema.optional().openapi({
     description: "Surat Rekomendasi Ditmawa",
   }),
 });
@@ -241,17 +241,25 @@ export const MahasiswaProfileFormSchema = z.object({
     })
     .min(3, { message: "Deskripsi terlalu pendek" })
     .openapi({ example: "Mahasiswa baru", description: "Deskripsi mahasiswa" }),
-  file: ProfilePDFSchema.openapi({ description: "File Essay Mahasiswa" }).optional(),
+  file: ProfilePDFSchema.openapi({
+    description: "File Essay Mahasiswa",
+  }).optional(),
   kk: ProfilePDFSchema.openapi({ description: "Kartu Keluarga" }).optional(),
-  ktm: ProfilePDFSchema.openapi({ description: "Kartu Tanda Mahasiswa" }).optional(),
+  ktm: ProfilePDFSchema.openapi({
+    description: "Kartu Tanda Mahasiswa",
+  }).optional(),
   waliRecommendationLetter: ProfilePDFSchema.openapi({
     description: "Surat Rekomendasi Wali",
   }).optional(),
-  transcript: ProfilePDFSchema.openapi({ description: "Transkrip Nilai" }).optional(),
+  transcript: ProfilePDFSchema.openapi({
+    description: "Transkrip Nilai",
+  }).optional(),
   salaryReport: ProfilePDFSchema.openapi({
     description: "Slip Gaji Orang Tua",
   }).optional(),
-  pbb: ProfilePDFSchema.openapi({ description: "Bukti Pembayaran PBB" }).optional(),
+  pbb: ProfilePDFSchema.openapi({
+    description: "Bukti Pembayaran PBB",
+  }).optional(),
   electricityBill: ProfilePDFSchema.openapi({
     description: "Tagihan Listrik",
   }).optional(),
@@ -535,6 +543,31 @@ export const ProfileMahasiswaResponse = z.object({
       .string()
       .optional()
       .openapi({ example: "https://res.cloudinary.com/example/ditmawa.pdf" }),
+    createdAt: z
+      .string()
+      .optional()
+      .openapi({ example: "2025-01-01T00:00:00.000Z" }),
+    updatedAt: z
+      .string()
+      .optional()
+      .openapi({ example: "2025-01-01T00:00:00.000Z" }),
+    dueNextUpdateAt: z
+      .string()
+      .optional()
+      .openapi({ example: "2025-01-01T00:00:00.000Z" }),
+    applicationStatus: z
+      .enum([
+        "accepted",
+        "rejected",
+        "pending",
+        "unregistered",
+        "reapply",
+        "outdated",
+      ])
+      .openapi({
+        example: "accepted",
+        description: "Status aplikasi mahasiswa",
+      }),
     // join_date: z.string().openapi({ example: "March 2025" })
   }),
 });

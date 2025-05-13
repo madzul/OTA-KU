@@ -19,9 +19,9 @@ import {
   profileOrangTuaRoute,
 } from "../routes/profile.route.js";
 import {
+  MahasiswaProfileFormSchema,
   MahasiswaRegistrationFormSchema,
   OrangTuaRegistrationSchema,
-  MahasiswaProfileFormSchema,
 } from "../zod/profile.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -75,6 +75,23 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
   }
 
   try {
+    const uploads = [
+      uploadPdfToCloudinary(file),
+      uploadPdfToCloudinary(kk),
+      uploadPdfToCloudinary(ktm),
+      uploadPdfToCloudinary(waliRecommendationLetter),
+      uploadPdfToCloudinary(transcript),
+      uploadPdfToCloudinary(salaryReport),
+      uploadPdfToCloudinary(pbb),
+      uploadPdfToCloudinary(electricityBill),
+    ];
+
+    if (ditmawaRecommendationLetter !== undefined) {
+      uploads.push(uploadPdfToCloudinary(ditmawaRecommendationLetter));
+    }
+
+    const results = await Promise.all(uploads);
+
     const [
       fileResult,
       kkResult,
@@ -84,21 +101,17 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
       salaryReportResult,
       pbbResult,
       electricityBillResult,
-      ditmawaRecommendationLetterResult,
-    ] = await Promise.all([
-      uploadPdfToCloudinary(file),
-      uploadPdfToCloudinary(kk),
-      uploadPdfToCloudinary(ktm),
-      uploadPdfToCloudinary(waliRecommendationLetter),
-      uploadPdfToCloudinary(transcript),
-      uploadPdfToCloudinary(salaryReport),
-      uploadPdfToCloudinary(pbb),
-      uploadPdfToCloudinary(electricityBill),
-      uploadPdfToCloudinary(ditmawaRecommendationLetter),
-    ]);
+      ditmawaRecommendationLetterResult, // will be undefined if not uploaded
+    ] = [
+      ...results,
+      ditmawaRecommendationLetter !== undefined
+        ? results[results.length - 1]
+        : undefined,
+    ];
 
     await db.transaction(async (tx) => {
       const currentDateTime = new Date();
+
       // Due date time is 6 months from now
       const dueDateTime = new Date(
         currentDateTime.getFullYear(),
@@ -115,61 +128,41 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
         .set({ phoneNumber })
         .where(eq(accountTable.id, user.id));
 
-      await tx
-        .insert(accountMahasiswaDetailTable)
-        .values({
-          accountId: user.id,
-          name,
-          nim,
-          description,
-          major,
-          faculty,
-          cityOfOrigin,
-          highschoolAlumni,
-          religion,
-          gender,
-          gpa: String(gpa),
-          file: fileResult.secure_url,
-          kk: kkResult.secure_url,
-          ktm: ktmResult.secure_url,
-          waliRecommendationLetter: waliRecommendationLetterResult.secure_url,
-          transcript: transcriptResult.secure_url,
-          salaryReport: salaryReportResult.secure_url,
-          pbb: pbbResult.secure_url,
-          electricityBill: electricityBillResult.secure_url,
+      const baseValues = {
+        accountId: user.id,
+        name,
+        nim,
+        description,
+        major,
+        faculty,
+        cityOfOrigin,
+        highschoolAlumni,
+        religion,
+        gender,
+        gpa: String(gpa),
+        file: fileResult?.secure_url,
+        kk: kkResult?.secure_url,
+        ktm: ktmResult?.secure_url,
+        waliRecommendationLetter: waliRecommendationLetterResult?.secure_url,
+        transcript: transcriptResult?.secure_url,
+        salaryReport: salaryReportResult?.secure_url,
+        pbb: pbbResult?.secure_url,
+        electricityBill: electricityBillResult?.secure_url,
+        createdAt: currentDateTime,
+        updatedAt: currentDateTime,
+        dueNextUpdateAt: dueDateTime,
+        ...(ditmawaRecommendationLetterResult && {
           ditmawaRecommendationLetter:
             ditmawaRecommendationLetterResult.secure_url,
-          createdAt: currentDateTime,
-          updatedAt: currentDateTime,
-          dueNextUpdateAt: dueDateTime,
-        })
+        }),
+      };
+
+      await tx
+        .insert(accountMahasiswaDetailTable)
+        .values(baseValues)
         .onConflictDoUpdate({
           target: [accountMahasiswaDetailTable.accountId],
-          set: {
-            name,
-            nim,
-            description,
-            major,
-            faculty,
-            cityOfOrigin,
-            highschoolAlumni,
-            religion,
-            gender,
-            gpa: String(gpa),
-            file: fileResult.secure_url,
-            kk: kkResult.secure_url,
-            ktm: ktmResult.secure_url,
-            waliRecommendationLetter: waliRecommendationLetterResult.secure_url,
-            transcript: transcriptResult.secure_url,
-            salaryReport: salaryReportResult.secure_url,
-            pbb: pbbResult.secure_url,
-            electricityBill: electricityBillResult.secure_url,
-            ditmawaRecommendationLetter:
-              ditmawaRecommendationLetterResult.secure_url,
-            createdAt: currentDateTime,
-            updatedAt: currentDateTime,
-            dueNextUpdateAt: dueDateTime,
-          },
+          set: baseValues,
         });
 
       await tx
@@ -217,16 +210,17 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
           religion,
           gender,
           gpa,
-          file: fileResult.secure_url,
-          kk: kkResult.secure_url,
-          ktm: ktmResult.secure_url,
-          waliRecommendationLetter: waliRecommendationLetterResult.secure_url,
-          transcript: transcriptResult.secure_url,
-          salaryReport: salaryReportResult.secure_url,
-          pbb: pbbResult.secure_url,
-          electricityBill: electricityBillResult.secure_url,
+          file: fileResult?.secure_url ?? "",
+          kk: kkResult?.secure_url ?? "",
+          ktm: ktmResult?.secure_url ?? "",
+          waliRecommendationLetter:
+            waliRecommendationLetterResult?.secure_url ?? "",
+          transcript: transcriptResult?.secure_url ?? "",
+          salaryReport: salaryReportResult?.secure_url ?? "",
+          pbb: pbbResult?.secure_url ?? "",
+          electricityBill: electricityBillResult?.secure_url ?? "",
           ditmawaRecommendationLetter:
-            ditmawaRecommendationLetterResult.secure_url,
+            ditmawaRecommendationLetterResult?.secure_url ?? "",
         },
       },
       200,
@@ -237,7 +231,7 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -355,7 +349,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -441,7 +435,7 @@ profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -523,20 +517,29 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           return { field, url: result?.secure_url };
         }
         return { field, url: value }; // This could be string URL or undefined
-      })
+      }),
     );
 
     // Convert upload results to an object
-    const resultUrls = uploadResults.reduce((acc, { field, url }) => {
-      acc[field] = url || (existingProfile && field in existingProfile ? existingProfile[field as keyof typeof existingProfile] as string : "");
-      return acc;
-    }, {} as Record<string, string>);
+    const resultUrls = uploadResults.reduce(
+      (acc, { field, url }) => {
+        acc[field] =
+          url ||
+          (existingProfile && field in existingProfile
+            ? (existingProfile[field as keyof typeof existingProfile] as string)
+            : "");
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+
+    const currentDateTime = new Date();
 
     await db.transaction(async (tx) => {
-      // Update phone number in account table
+      // Update phone number in account table and application status = reapply
       await tx
         .update(accountTable)
-        .set({ phoneNumber })
+        .set({ phoneNumber, applicationStatus: "reapply" })
         .where(eq(accountTable.id, user.id));
 
       await tx
@@ -561,6 +564,16 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           pbb: resultUrls.pbb,
           electricityBill: resultUrls.electricityBill,
           ditmawaRecommendationLetter: resultUrls.ditmawaRecommendationLetter,
+          updatedAt: currentDateTime,
+          dueNextUpdateAt: new Date(
+            currentDateTime.getFullYear(),
+            currentDateTime.getMonth() + 6,
+            currentDateTime.getDate(),
+            currentDateTime.getHours(),
+            currentDateTime.getMinutes(),
+            currentDateTime.getSeconds(),
+            currentDateTime.getMilliseconds(),
+          ),
         })
         .where(eq(accountMahasiswaDetailTable.accountId, user.id));
     });
@@ -589,6 +602,17 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
           pbb: resultUrls.pbb,
           electricityBill: resultUrls.electricityBill,
           ditmawaRecommendationLetter: resultUrls.ditmawaRecommendationLetter,
+          createdAt: existingProfile.createdAt,
+          updatedAt: new Date(),
+          dueNextUpdateAt: new Date(
+            existingProfile.dueNextUpdateAt.getFullYear(),
+            existingProfile.dueNextUpdateAt.getMonth() + 6,
+            existingProfile.dueNextUpdateAt.getDate(),
+            existingProfile.dueNextUpdateAt.getHours(),
+            existingProfile.dueNextUpdateAt.getMinutes(),
+            existingProfile.dueNextUpdateAt.getSeconds(),
+            existingProfile.dueNextUpdateAt.getMilliseconds(),
+          ),
         },
       },
       200,
@@ -632,7 +656,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
         email: accountTable.email,
         phone_number: accountTable.phoneNumber,
         name: accountOtaDetailTable.name,
-        join_date: accountOtaDetailTable.startDate,
+        join_date: accountOtaDetailTable.createdAt,
         job: accountOtaDetailTable.job,
         address: accountOtaDetailTable.address,
         linkage: accountOtaDetailTable.linkage,
@@ -679,10 +703,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       transferDate: profileDataOTA[0].transferDate,
       criteria: profileDataOTA[0].criteria,
       allowAdminSelection: profileDataOTA[0].allowAdminSelection!,
-      join_date: new Date(profileDataOTA[0].join_date).toLocaleString("en-US", {
-        month: "long",
-        year: "numeric",
-      }),
+      join_date: profileDataOTA[0].join_date,
     };
 
     return c.json(
@@ -699,7 +720,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -753,6 +774,10 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
         electricityBill: accountMahasiswaDetailTable.electricityBill,
         ditmawaRecommendationLetter:
           accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        createdAt: accountMahasiswaDetailTable.createdAt,
+        updatedAt: accountMahasiswaDetailTable.updatedAt,
+        dueNextUpdateAt: accountMahasiswaDetailTable.dueNextUpdateAt,
+        applicationStatus: accountTable.applicationStatus,
         // join_date: accountMahasiswaDetailTable.startDate,
       })
       .from(accountTable)
@@ -798,6 +823,10 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
       electricityBill: profileDataMahasiswa[0].electricityBill ?? undefined,
       ditmawaRecommendationLetter:
         profileDataMahasiswa[0].ditmawaRecommendationLetter ?? undefined,
+      createdAt: profileDataMahasiswa[0].createdAt,
+      updatedAt: profileDataMahasiswa[0].updatedAt,
+      dueNextUpdateAt: profileDataMahasiswa[0].dueNextUpdateAt,
+      applicationStatus: profileDataMahasiswa[0].applicationStatus,
       // join_date: new Date(profileDataMahasiswa[0].join_date).toLocaleString("en-US", {
       //   month: "long",
       //   year: "numeric",
@@ -818,7 +847,7 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

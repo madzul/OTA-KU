@@ -115,6 +115,7 @@ export const TransactionListAdminQueryResponse = z.object({
           receipt: z
             .string()
             .openapi({ example: "https://example.com/file.pdf" }),
+          createdAt: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
         }),
       ),
       totalData: z.number().openapi({ example: 100 }),

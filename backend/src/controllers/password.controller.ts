@@ -53,7 +53,7 @@ passwordProtectedRouter.openapi(changePasswordRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

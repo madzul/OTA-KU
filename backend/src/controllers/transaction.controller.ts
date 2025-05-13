@@ -124,7 +124,7 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -181,6 +181,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
         due_date: transactionTable.dueDate,
         status: transactionTable.transactionStatus,
         receipt: transactionTable.transactionReceipt,
+        createdAt: transactionTable.createdAt,
       })
       .from(transactionTable)
       .innerJoin(
@@ -219,6 +220,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
             due_date: transaction.due_date,
             status: transaction.status,
             receipt: transaction.receipt ?? "",
+            createdAt: transaction.createdAt,
           })),
           totalData: counts[0].count,
         },
@@ -231,7 +233,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -313,13 +315,13 @@ transactionProtectedRouter.openapi(detailTransactionRoute, async (c) => {
       },
       200,
     );
-  } catch (err) {
-    console.error("Error fetching detail transaction:", err);
+  } catch (error) {
+    console.error("Error fetching detail transaction:", error);
     return c.json(
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -378,7 +380,7 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -529,7 +531,7 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500
     );

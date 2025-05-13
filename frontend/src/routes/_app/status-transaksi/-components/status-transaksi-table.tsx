@@ -26,6 +26,7 @@ interface Transaction {
   due_date: string;
   status: TransactionStatus;
   receipt: string;
+  createdAt: string;
 }
 
 interface StatusTransaksiTableProps {
@@ -185,6 +186,7 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
         year: 'numeric'
       });
     } catch (e) {
+      console.error("Error parsing date:", e);
       return dateString;
     }
   };

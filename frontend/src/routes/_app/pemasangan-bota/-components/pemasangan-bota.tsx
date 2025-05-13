@@ -72,8 +72,6 @@ export function PemasanganBOTA() {
         });
       }
 
-      toast;
-
       // Reset the flow
       setCurrentStep(PemasanganStep.SELECT_OTA);
       setSelectedOTA(null);

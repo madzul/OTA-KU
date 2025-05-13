@@ -93,7 +93,7 @@ export class ListService {
     q?: string,
     page?: number | null,
     jurusan?: string,
-    status?: 'pending' | 'accepted' | 'rejected',
+    status?: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated',
   }): CancelablePromise<{
     success: boolean;
     message: string;
