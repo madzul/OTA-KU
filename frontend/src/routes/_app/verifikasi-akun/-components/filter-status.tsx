@@ -30,18 +30,19 @@ const statuses = [
 ];
 
 interface FilterStatusProps {
+  status: "accepted" | "pending" | "rejected" | null;
   setStatus: (status: "accepted" | "pending" | "rejected" | null) => void;
 }
 
-function FilterStatus({ setStatus }: FilterStatusProps) {
+function FilterStatus({ status, setStatus }: FilterStatusProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
   useEffect(() => {
-    if (value === "") {
-      setStatus(null);
+    if (status) {
+      setValue(status);
     }
-  }, [setStatus, value]);
+  }, [status]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -72,7 +73,9 @@ function FilterStatus({ setStatus }: FilterStatusProps) {
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
                     setStatus(
-                      status.value as "accepted" | "pending" | "rejected",
+                      currentValue === value
+                        ? null
+                        : (currentValue as "accepted" | "pending" | "rejected"),
                     );
                     setOpen(false);
                   }}
