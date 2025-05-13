@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Select,
   SelectContent,
@@ -33,6 +31,7 @@ export interface TransaksiItem {
   status: StatusType;
   due_date: string; // Added date field for filtering
   receipt?: string; // URL to receipt document
+  createdAt: string;
 }
 
 interface DaftarTransaksiTableProps {
