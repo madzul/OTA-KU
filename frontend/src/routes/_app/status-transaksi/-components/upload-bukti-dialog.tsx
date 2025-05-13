@@ -156,6 +156,7 @@ export function UploadBuktiDialog({
       } else {
         toast.error("Gagal mengunggah bukti pembayaran");
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Error uploading file:", error);
       

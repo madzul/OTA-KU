@@ -70,7 +70,7 @@ pushProtectedRouter.openapi(getPushSubscription, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -133,7 +133,7 @@ pushProtectedRouter.openapi(createPushSubscription, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -173,7 +173,7 @@ pushProtectedRouter.openapi(deletePushSubscription, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -264,7 +264,7 @@ pushProtectedRouter.openapi(sendPushNotification, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

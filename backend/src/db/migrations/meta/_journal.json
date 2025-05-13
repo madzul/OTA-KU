@@ -176,6 +176,20 @@
       "when": 1746375900833,
       "tag": "0024_secret_nico_minoru",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1746970933711,
+      "tag": "0025_clumsy_reptil",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1747025744303,
+      "tag": "0026_skinny_serpent_society",
+      "breakpoints": true
     }
   ]
 }
