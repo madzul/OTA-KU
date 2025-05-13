@@ -14,6 +14,7 @@ import { useDebounce } from "use-debounce";
 
 import { Route } from "..";
 import { PemasanganBotaColumn, pemasanganBotaColumns } from "./columns";
+import ConfirmationDialog from "./confirmation-dialog";
 import { DataTable } from "./data-table";
 import DetailDialogMahasiswa from "./detail-dialog-mahasiswa";
 import FilterAgama from "./filter-agama";
@@ -22,7 +23,13 @@ import FilterJurusan from "./filter-jurusan";
 import FilterKelamin from "./filter-kelamin";
 import { OTA } from "./ota-popover";
 
-export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
+export function MahasiswaSelection({
+  selectedOTA,
+  onConfirmSuccess,
+}: {
+  selectedOTA: OTA;
+  onConfirmSuccess: () => void;
+}) {
   const navigate = useNavigate({ from: Route.fullPath });
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -182,6 +189,13 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
       }),
     });
   }, [navigate, searchValue]);
+
+  // Handle the confirmation dialog success for "Pasangkan" button
+  const handleConfirmSuccess = () => {
+    setSelectedMahasiswa(new Set());
+    setShowSelectedList(false);
+    onConfirmSuccess();
+  };
 
   return (
     <>
@@ -346,12 +360,13 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
               );
             })}
           </div>
-          {/* TODO: call ConnectService "connectOtaMahasiswa" by pairing each otaId and selected mahasiswaId(s) */}
-          <div className="mt-4 flex justify-center w-full">
-            <Button variant={"default"} className="max-w-3xs w-full">
-              Pasangkan
-            </Button>
-          </div>
+          <ConfirmationDialog
+            onConfirmSuccess={handleConfirmSuccess}
+            selectedCount={selectedMahasiswa.size}
+            otaName={selectedOTA.name}
+            otaId={selectedOTA.accountId}
+            selectedMahasiswa={selectedMahasiswa}
+          />
         </>
       )}
     </>
