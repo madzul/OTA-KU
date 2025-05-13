@@ -7,6 +7,123 @@ import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class TerminateService {
   constructor(public readonly httpRequest: BaseHttpRequest) {}
   /**
+   * Mendapatkan daftar request terminate untuk Admin
+   * @returns any Berhasil mendapatkan daftar request terminate untuk Admin
+   * @throws ApiError
+   */
+  public listTerminateForAdmin({
+    q,
+    page,
+  }: {
+    q?: string,
+    page?: number | null,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        /**
+         * ID orang tua asuh
+         */
+        otaId: string;
+        otaName: string;
+        otaNumber: string;
+        /**
+         * ID mahasiswa asuh
+         */
+        mahasiswaId: string;
+        maName: string;
+        maNIM: string;
+        createdAt: string;
+        requestTerminateOTA: boolean;
+        requestTerminateMA: boolean;
+      }>;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/terminate/admin/daftar-terminate',
+      query: {
+        'q': q,
+        'page': page,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Akun Admin belum terverifikasi.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Mendapatkan daftar terminate untuk OTA
+   * @returns any Berhasil mendapatkan daftar terminate untuk OTA
+   * @throws ApiError
+   */
+  public listTerminateForOta({
+    q,
+    page,
+  }: {
+    q?: string,
+    page?: number | null,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        /**
+         * ID mahasiswa asuh
+         */
+        mahasiswaId: string;
+        maName: string;
+        maNIM: string;
+        createdAt: string;
+      }>;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/terminate/ota/daftar-terminate',
+      query: {
+        'q': q,
+        'page': page,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Akun anda belum terverifikasi.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Mendapatkan status terminasi untuk MA
+   * @returns any Status terminasi untuk MA berhasil diambil
+   * @throws ApiError
+   */
+  public terminationStatusMa(): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+      otaName: string;
+      connectionStatus: string;
+      requestTerminateOTA: boolean;
+      requestTerminateMA: boolean;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/terminate/ma/status-terminate',
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Akun anda belum terverifikasi.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
    * Mengirimkan request terminate hubungan asuh dari akun MA
    * @returns any Berhasil mengirimkan request terminate hubungan asuh dari akun MA
    * @throws ApiError
@@ -135,6 +252,51 @@ export class TerminateService {
       mediaType: 'multipart/form-data',
       errors: {
         400: `Gagal memvalidasi terminasi hubungan`,
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Akun admin belum terverifikasi.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Melakukan penolakan request terminasi hubungan asuh
+   * @returns any Berhasil menolak request terminasi hubungan asuh
+   * @throws ApiError
+   */
+  public rejectTerminate({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * ID mahasiswa asuh
+       */
+      mahasiswaId: string;
+      /**
+       * ID orang tua asuh
+       */
+      otaId: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/terminate/reject',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        400: `Gagal menolak request terminasi hubungan asuh`,
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun admin belum terverifikasi.`,
         500: `Internal server error`,

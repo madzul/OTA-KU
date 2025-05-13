@@ -16,8 +16,8 @@ export const connectOtaMahasiswaRoute = createRoute({
   operationId: "connectOtaMahasiswa",
   tags: ["Connect"],
   method: "post",
-  path: "/mahasiswa",
-  description: "Menghubungkan orang tua asuh dengan mahasiswa asuh.",
+  path: "/by-ota",
+  description: "Menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA",
   request: {
     body: {
       content: {
@@ -30,7 +30,7 @@ export const connectOtaMahasiswaRoute = createRoute({
   responses: {
     200: {
       description:
-        "Berhasil menghubungkan orang tua asuh dengan mahasiswa asuh.",
+        "Berhasil menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA",
       content: {
         "application/json": {
           schema: OrangTuaSuccessResponse,
@@ -38,7 +38,58 @@ export const connectOtaMahasiswaRoute = createRoute({
       },
     },
     400: {
-      description: "Gagal menghubungkan orang tua asuh dengan mahasiswa asuh.",
+      description: "Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA",
+      content: {
+        "application/json": {
+          schema: OrangTuaFailedResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun belum terverifikasi.",
+      content: {
+        "application/json": {
+          schema: OrangTuaUnverifiedResponse,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const connectOtaMahasiswaByAdminRoute = createRoute({
+  operationId: "connectOtaMahasiswaByAdmin",
+  tags: ["Connect"],
+  method: "post",
+  path: "/by-admin",
+  description: "Menghubungkan orang tua asuh dengan mahasiswa asuh via Admin",
+  request: {
+    body: {
+      content: {
+        "multipart/form-data": {
+          schema: MahasiwaConnectSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description:
+        "Berhasil menghubungkan orang tua asuh dengan mahasiswa asuh via Admin",
+      content: {
+        "application/json": {
+          schema: OrangTuaSuccessResponse,
+        },
+      },
+    },
+    400: {
+      description: "Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via Admin",
       content: {
         "application/json": {
           schema: OrangTuaFailedResponse,
@@ -136,7 +187,7 @@ export const verifyConnectionRejectRoute = createRoute({
 export const listConnectionRoute = createRoute({
   operationId: "listConnection",
   tags: ["Connect"],
-  method: "post",
+  method: "get",
   path: "/daftar-connection",
   description: "List seluruh connection yang ada beserta detailnya",
   request: {

@@ -1,4 +1,15 @@
-import { and, count, eq, ilike, isNotNull, lt, or, sql, not } from "drizzle-orm";
+import {
+  and,
+  count,
+  eq,
+  ilike,
+  isNotNull,
+  lt,
+  not,
+  or,
+  sql,
+} from "drizzle-orm";
+
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
@@ -7,14 +18,18 @@ import {
   connectionTable,
 } from "../db/schema.js";
 import {
+  listAvailableOTARoute,
   listMAActiveRoute,
   listMAPendingRoute,
   listMahasiswaAdminRoute,
   listMahasiswaOtaRoute,
   listOrangTuaAdminRoute,
   listOtaKuRoute,
-  listAvailableOTARoute,
 } from "../routes/list.route.js";
+import {
+  OTAListQuerySchema,
+  VerifiedMahasiswaListQuerySchema,
+} from "../zod/list.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
 export const listRouter = createRouter();
@@ -24,7 +39,8 @@ const LIST_PAGE_SIZE = 6;
 const LIST_PAGE_DETAIL_SIZE = 8;
 
 listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
-  const { q, page } = c.req.query();
+  const zodParseResult = VerifiedMahasiswaListQuerySchema.parse(c.req.query());
+  const { q, page, major, faculty, religion, gender } = zodParseResult;
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -35,6 +51,35 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
   try {
     const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
 
+    const conditions = [
+      and(
+        eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
+        eq(accountTable.applicationStatus, "accepted"),
+        isNotNull(accountMahasiswaDetailTable.description),
+        isNotNull(accountMahasiswaDetailTable.file),
+        or(
+          ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
+          ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+        ),
+      ),
+    ];
+
+    if (major) {
+      conditions.push(eq(accountMahasiswaDetailTable.major, major));
+    }
+
+    if (faculty) {
+      conditions.push(eq(accountMahasiswaDetailTable.faculty, faculty));
+    }
+
+    if (religion) {
+      conditions.push(eq(accountMahasiswaDetailTable.religion, religion));
+    }
+
+    if (gender) {
+      conditions.push(eq(accountMahasiswaDetailTable.gender, gender));
+    }
+
     const countsQuery = db
       .select({ count: count() })
       .from(accountMahasiswaDetailTable)
@@ -42,18 +87,7 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         accountTable,
         eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
-      .where(
-        and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
-          eq(accountTable.applicationStatus, "accepted"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
-          or(
-            ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-          ),
-        ),
-      );
+      .where(and(...conditions));
 
     const mahasiswaListQuery = db
       .select({
@@ -93,17 +127,7 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         accountTable,
         eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
-      .where(
-        and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
-          or(
-            ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-          ),
-        ),
-      )
+      .where(and(...conditions))
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
 
@@ -159,7 +183,7 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -216,9 +240,14 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         accountMahasiswaDetailTable,
         eq(accountTable.id, accountMahasiswaDetailTable.accountId),
       )
-      .where(and(...baseConditions, searchCondition, ...filterConditions))
-      .limit(LIST_PAGE_DETAIL_SIZE)
-      .offset(offset);
+      .where(
+        and(
+          ...baseConditions,
+          searchCondition,
+          ...filterConditions,
+          isNotNull(accountMahasiswaDetailTable.description),
+        ),
+      );
 
     const mahasiswaListQuery = db
       .select({
@@ -328,7 +357,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -383,9 +412,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
         accountOtaDetailTable,
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
-      .where(and(...baseConditions, searchCondition, ...filterConditions))
-      .limit(LIST_PAGE_DETAIL_SIZE)
-      .offset(offset);
+      .where(and(...baseConditions, searchCondition, ...filterConditions));
 
     const orangTuaListQuery = db
       .select({
@@ -461,7 +488,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -547,7 +574,7 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -644,7 +671,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -746,7 +773,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -754,7 +781,8 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
-  const { q, page } = c.req.query();
+  const zodParseResult = OTAListQuerySchema.parse(c.req.query());
+  const { q, page } = zodParseResult;
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -784,6 +812,7 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .select({
         id: accountOtaDetailTable.accountId,
         name: accountOtaDetailTable.name,
+        number: accountTable.phoneNumber,
         funds: accountOtaDetailTable.funds,
         maxCapacity: accountOtaDetailTable.maxCapacity,
         currentCount: sql<number>`COUNT(${connectionTable.mahasiswaId})`,
@@ -811,6 +840,7 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .groupBy(
         accountOtaDetailTable.accountId,
         accountOtaDetailTable.name,
+        accountTable.phoneNumber,
         accountOtaDetailTable.funds,
         accountOtaDetailTable.maxCapacity,
         accountOtaDetailTable.criteria,
@@ -825,30 +855,30 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .offset(offset);
 
     const [otaList, counts] = await Promise.all([otaListQuery, countsQuery]);
-  
-      return c.json(
-        {
-          success: true,
-          message: "Daftar OTA yang tersedia berhasil diambil",
-          body: {
-            data: otaList.map((ota) => ({
-              accountId: ota.id,
-              name: ota.name,
-              phoneNumber: "", // Adding empty phoneNumber to match expected type
-              nominal: ota.funds, // Mapping funds to nominal to match expected type
-            })),
-            totalData: counts[0].count,
-          },
+
+    return c.json(
+      {
+        success: true,
+        message: "Daftar OTA yang tersedia berhasil diambil",
+        body: {
+          data: otaList.map((ota) => ({
+            accountId: ota.id,
+            name: ota.name,
+            phoneNumber: ota.number ?? "",
+            nominal: ota.funds,
+          })),
+          totalData: counts[0].count,
         },
-        200,
-      );
+      },
+      200,
+    );
   } catch (error) {
     console.error("Error fetching available OTA list:", error);
     return c.json(
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
