@@ -124,7 +124,7 @@ export const VerifiedMahasiswaListQueryResponse = z.object({
         type: z
           .enum(["mahasiswa", "admin", "ota"])
           .openapi({ example: "mahasiswa" }),
-        phoneNumber: z.string().openapi({ example: "+6281234567890" }),
+        phoneNumber: z.string().openapi({ example: "6281234567890" }),
         provider: z
           .enum(["credentials", "azure"])
           .openapi({ example: "credentials" }),
@@ -225,7 +225,7 @@ export const MahasiswaDetailsListQueryResponse = z.object({
         type: z
           .enum(["mahasiswa", "admin", "ota"])
           .openapi({ example: "mahasiswa" }),
-        phoneNumber: z.string().openapi({ example: "+6281234567890" }),
+        phoneNumber: z.string().openapi({ example: "6281234567890" }),
         provider: z
           .enum(["credentials", "azure"])
           .openapi({ example: "credentials" }),
@@ -322,7 +322,7 @@ export const OrangTuaDetailsListQueryResponse = z.object({
         id: z.string().openapi({ example: "1" }),
         name: z.string().openapi({ example: "John Doe" }),
         email: z.string().openapi({ example: "johndoe@example.com" }),
-        phoneNumber: z.string().openapi({ example: "081234567890" }),
+        phoneNumber: z.string().openapi({ example: "6281234567890" }),
         provider: z.enum(["credentials", "azure"]).openapi({
           example: "credentials",
         }),
