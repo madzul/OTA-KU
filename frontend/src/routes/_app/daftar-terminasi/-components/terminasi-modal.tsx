@@ -34,6 +34,7 @@ interface TerminasiModalProps {
 export default function TerminasiModal({
   isOpen,
   onClose,
+  onConfirm,
   item,
 }: TerminasiModalProps) {
   const terminateConnection = useMutation({
@@ -42,13 +43,18 @@ export default function TerminasiModal({
         formData: { mahasiswaId: data.maId, otaId: data.otaId },
       });
     },
+    onSuccess: () => {
+      // Call onConfirm to refresh the data after successful termination
+      onConfirm();
+      onClose();
+    },
   });
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-800">
+          <DialogTitle className="text-destructive text-xl font-semibold">
             Konfirmasi Terminasi
           </DialogTitle>
           <DialogDescription className="text-gray-600">
@@ -70,10 +76,6 @@ export default function TerminasiModal({
             <div className="font-semibold text-gray-700">NIM:</div>
             <div className="text-gray-800">{item.maNIM}</div>
           </div>
-          <p className="mt-2 border-t pt-2 text-sm text-red-500">
-            Tindakan ini tidak dapat dibatalkan. Hubungan antara OTA dan
-            Mahasiswa akan dihentikan secara permanen.
-          </p>
         </div>
         <DialogFooter className="sm:justify-end">
           <Button
@@ -90,11 +92,11 @@ export default function TerminasiModal({
                 maId: item.mahasiswaId,
                 otaId: item.otaId,
               });
-              onClose();
             }}
             className="border border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+            disabled={terminateConnection.isPending}
           >
-            Terminasi
+            {terminateConnection.isPending ? "Memproses..." : "Terminasi"}
           </Button>
         </DialogFooter>
       </DialogContent>

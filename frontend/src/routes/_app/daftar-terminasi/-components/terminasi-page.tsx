@@ -4,7 +4,7 @@ import { api } from "@/api/client";
 import { ClientPagination } from "@/components/client-pagination";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -30,6 +30,7 @@ export default function TerminasiPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<TerminasiData | null>(null);
+  const queryClient = useQueryClient();
   const perPage = 8;
 
   // Debounce search input
@@ -47,7 +48,7 @@ export default function TerminasiPage() {
   }, [debouncedSearch]);
 
   // Fetch data with pagination and search
-  const { data, isLoading, isSuccess } = useQuery({
+  const { data, isLoading, isSuccess, refetch } = useQuery({
     queryKey: ["ListTerminasi", currentPage, debouncedSearch],
     queryFn: () =>
       api.terminate.listTerminateForAdmin({
@@ -65,6 +66,10 @@ export default function TerminasiPage() {
 
   const confirmTerminasi = async () => {
     if (!selectedItem) return;
+
+    // Invalidate and refetch queries to update the UI after termination
+    await queryClient.invalidateQueries({ queryKey: ["ListTerminasi"] });
+    await refetch();
 
     setIsModalOpen(false);
     setSelectedItem(null);
@@ -91,14 +96,14 @@ export default function TerminasiPage() {
   return (
     <div className="space-y-4">
       {/* Search Bar */}
-      <div className="relative mb-6">
+      <div className="relative mb-6 w-full">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <Search className="h-4 w-4 text-gray-400" />
         </div>
         <Input
           type="text"
           placeholder="Cari OTA atau mahasiswa..."
-          className="w-full pl-10 md:w-64"
+          className="w-full pl-10"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
