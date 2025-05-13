@@ -15,11 +15,12 @@ import { useDebounce } from "use-debounce";
 import { Route } from "..";
 import { PemasanganBotaColumn, pemasanganBotaColumns } from "./columns";
 import { DataTable } from "./data-table";
-import { OTA } from "./ota-popover";
-import FilterJurusan from "./filter-jurusan";
-import FilterFakultas from "./filter-fakultas";
+import DetailDialogMahasiswa from "./detail-dialog-mahasiswa";
 import FilterAgama from "./filter-agama";
+import FilterFakultas from "./filter-fakultas";
+import FilterJurusan from "./filter-jurusan";
 import FilterKelamin from "./filter-kelamin";
+import { OTA } from "./ota-popover";
 
 export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
   const navigate = useNavigate({ from: Route.fullPath });
@@ -37,6 +38,7 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
   const [fakultas, setFakultas] = useState<string | null>(null);
   const [agama, setAgama] = useState<string | null>(null);
   const [kelamin, setKelamin] = useState<"M" | "F" | null>(null);
+  const [showSelectedList, setShowSelectedList] = useState(false);
 
   const handleCheckboxChange = (id: string, isChecked: boolean) => {
     setSelectedMahasiswa((prev) => {
@@ -46,6 +48,14 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
       } else {
         updated.delete(id);
       }
+      return updated;
+    });
+  };
+
+  const handleRemoveMahasiswa = (id: string) => {
+    setSelectedMahasiswa((prev) => {
+      const updated = new Set(prev);
+      updated.delete(id);
       return updated;
     });
   };
@@ -62,20 +72,69 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
 
   // Fetch the list of mahasiswa with pagination and search query
   const { data, isSuccess } = useQuery({
-    queryKey: ["listMahasiswaOta", page, searchValue, jurusan, fakultas, agama, kelamin],
+    queryKey: [
+      "listMahasiswaOta",
+      page,
+      searchValue,
+      jurusan,
+      fakultas,
+      agama,
+      kelamin,
+    ],
     queryFn: () =>
       api.list.listMahasiswaOta({
         page,
         q: searchValue,
-        major: jurusan as "Matematika" | "Fisika" | "Astronomi" | "Mikrobiologi" | "Kimia" | "Biologi" | "Sains dan Teknologi Farmasi" | "Aktuaria" | "Rekayasa Hayati" | "Rekayasa Pertanian" | "Rekayasa Kehutanan" | undefined,
-        faculty: fakultas as "FMIPA" | "SITH-S" | "SF" | "FITB" | "FTTM" | "STEI-R" | "FTSL" | "FTI" | "FSRD" | "FTMD" | "STEI-K" | "SBM" | "SITH-R" | "SAPPK" | undefined,
-        religion: ["Islam", "Kristen Protestan", "Katolik", "Hindu", "Buddha", "Konghucu"].includes(agama || "")
-          ? (agama as "Islam" | "Kristen Protestan" | "Katolik" | "Hindu" | "Buddha" | "Konghucu")
+        major: jurusan as
+          | "Matematika"
+          | "Fisika"
+          | "Astronomi"
+          | "Mikrobiologi"
+          | "Kimia"
+          | "Biologi"
+          | "Sains dan Teknologi Farmasi"
+          | "Aktuaria"
+          | "Rekayasa Hayati"
+          | "Rekayasa Pertanian"
+          | "Rekayasa Kehutanan"
+          | undefined,
+        faculty: fakultas as
+          | "FMIPA"
+          | "SITH-S"
+          | "SF"
+          | "FITB"
+          | "FTTM"
+          | "STEI-R"
+          | "FTSL"
+          | "FTI"
+          | "FSRD"
+          | "FTMD"
+          | "STEI-K"
+          | "SBM"
+          | "SITH-R"
+          | "SAPPK"
+          | undefined,
+        religion: [
+          "Islam",
+          "Kristen Protestan",
+          "Katolik",
+          "Hindu",
+          "Buddha",
+          "Konghucu",
+        ].includes(agama || "")
+          ? (agama as
+              | "Islam"
+              | "Kristen Protestan"
+              | "Katolik"
+              | "Hindu"
+              | "Buddha"
+              | "Konghucu")
           : undefined,
         gender: kelamin || undefined,
       }),
   });
 
+  // Map the data of mahasiswa to the format required by the DataTable
   const mahasiswaTableData = data?.body.data.map((item) => ({
     mahasiswaId: item.accountId,
     mahasiswaName: item.name,
@@ -88,6 +147,23 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
     isSelected: selectedMahasiswa.has(item.accountId),
     onCheckboxChange: handleCheckboxChange,
   }));
+
+  // Fetch detail ota according selectedOta.accountId
+  const { data: otaDetails } = useQuery({
+    queryKey: ["otaDetails", selectedOTA?.accountId],
+    queryFn: () =>
+      api.detail.getOtaDetail({
+        id: selectedOTA?.accountId || "",
+      }),
+  });
+
+  // Map the data of detail ota to match the format
+  const selectedOtaDetails = {
+    accountId: otaDetails?.body.id,
+    name: otaDetails?.body.name,
+    maxCapacity: otaDetails?.body.maxCapacity,
+    // Add other properties as needed
+  };
 
   useEffect(() => {
     queryClient.fetchQuery({
@@ -109,97 +185,174 @@ export function MahasiswaSelection({ selectedOTA }: { selectedOTA: OTA }) {
 
   return (
     <>
-      <p className="text-dark text-base ">
-        Pilih mahasiswa yang ingin dipasangkan dengan <span className="font-bold">{selectedOTA.name}</span>
-      </p>
-      <div className="flex w-full flex-wrap gap-3">
-        <div className="flex w-full max-w-[375px] gap-3 sm:flex-nowrap">
-          {/* Button to go to list of selected mahasiswa */}
-          <Button
-            variant="default"
-            className="flex flex-grow items-center justify-center gap-3"
-            onClick={() => {
-              if (selectedMahasiswa.size === 0) {
-                toast.warning("Belum Ada Mahasiswa yang Dipilih", {
-                  description:
-                    "Silakan pilih mahasiswa yang tersedia terlebih dahulu",
-                });
-              }
-            }}
-          >
-            Pilih {selectedMahasiswa.size} calon
-          </Button>
-
-          <Button
-            variant="outline"
-            className="border-destructive text-destructive h-9 hover:text-destructive"
-            disabled={selectedMahasiswa.size === 0}
-            onClick={() => {
-              setSelectedMahasiswa(new Set());
-            }}
-          >
-            Reset Pilihan
-            <Trash2 className="text-destructive" />
-          </Button>
-        </div>
-
-        <div className="w-full sm:flex-1">
-          <SearchInput placeholder="Cari nama atau NIM" setSearch={setSearch} />
-        </div>
-
-        <div className="w-full flex flex-wrap gap-3">
-          <FilterJurusan setJurusan={setJurusan} />
-          <FilterFakultas setFakultas={setFakultas} />
-          <FilterAgama setAgama={setAgama} />
-          <FilterKelamin setKelamin={setKelamin} />
-          <Button
-            variant="outline"
-            className="border-destructive text-destructive h-9 hover:text-destructive"
-            onClick={resetFilters}
-          >
-            Reset Filter
-            <Trash2 className="text-destructive ml-2" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Table Mahasiswa */}
-      {!isSuccess ? (
-        <div className="rounded-md bg-white">
-          <Skeleton className="h-80 w-full" />
-        </div>
-      ) : (
-        <DataTable
-          columns={pemasanganBotaColumns.map(
-            (column): ColumnDef<PemasanganBotaColumn, unknown> =>
-              column.id === "aksi"
-                ? {
-                    ...column,
-                    cell: ({ row }) => {
-                      const id = row.getValue("mahasiswaId") as string;
-                      return (
-                        <Checkbox
-                          checked={selectedMahasiswa.has(id)}
-                          onCheckedChange={(isChecked) =>
-                            handleCheckboxChange(id, isChecked as boolean)
-                          }
-                        />
-                      );
-                    },
+      {!showSelectedList ? (
+        <>
+          <p className="text-dark text-base">
+            Pilih mahasiswa yang ingin dipasangkan dengan{" "}
+            <span className="font-bold">{selectedOTA.name}</span>
+          </p>
+          <div className="flex w-full flex-wrap gap-3">
+            <div className="flex w-full max-w-[375px] gap-3 sm:flex-nowrap">
+              <Button
+                variant="default"
+                className="flex flex-grow items-center justify-center gap-3"
+                onClick={() => {
+                  if (selectedMahasiswa.size === 0) {
+                    toast.warning("Belum Ada Mahasiswa yang Dipilih", {
+                      description:
+                        "Silakan pilih mahasiswa yang tersedia terlebih dahulu",
+                    });
+                    return;
                   }
-                : column,
-          )}
-          data={mahasiswaTableData || []}
-        />
-      )}
+                  if (
+                    selectedOtaDetails.maxCapacity !== undefined &&
+                    // TODO: selectedMahasiswa.size > (selectedOtaDetails.maxCapacity - selectedOtaDetails.currentConnection) &&
+                    selectedMahasiswa.size > selectedOtaDetails.maxCapacity &&
+                    selectedOtaDetails.maxCapacity > 0
+                  ) {
+                    toast.warning("Kapasitas Terlampaui", {
+                      description: `OTA ini hanya sanggup membantu hingga ${selectedOtaDetails.maxCapacity} mahasiswa. Silahkan kurangi pilihan Anda.`,
+                    });
+                    return;
+                  }
+                  setShowSelectedList(true);
+                }}
+              >
+                Pilih {selectedMahasiswa.size} calon
+              </Button>
 
-      {/* Pagination */}
-      {!isSuccess ? (
-        <div className="rounded-md bg-white">
-          <Skeleton className="h-10 w-full" />
-        </div>
+              <Button
+                variant="outline"
+                className="border-destructive text-destructive hover:text-destructive h-9"
+                disabled={selectedMahasiswa.size === 0}
+                onClick={() => {
+                  setSelectedMahasiswa(new Set());
+                }}
+              >
+                Reset Pilihan
+                <Trash2 className="text-destructive" />
+              </Button>
+            </div>
+
+            <div className="w-full sm:flex-1">
+              <SearchInput
+                placeholder="Cari nama atau NIM"
+                setSearch={setSearch}
+              />
+            </div>
+
+            <div className="flex w-full flex-wrap gap-3">
+              <FilterJurusan setJurusan={setJurusan} />
+              <FilterFakultas setFakultas={setFakultas} />
+              <FilterAgama setAgama={setAgama} />
+              <FilterKelamin setKelamin={setKelamin} />
+              <Button
+                variant="outline"
+                className="border-destructive text-destructive hover:text-destructive h-9"
+                onClick={resetFilters}
+              >
+                Reset Filter
+                <Trash2 className="text-destructive ml-2" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Table Mahasiswa */}
+          {!isSuccess ? (
+            <div className="rounded-md bg-white">
+              <Skeleton className="h-80 w-full" />
+            </div>
+          ) : (
+            <DataTable
+              columns={pemasanganBotaColumns.map(
+                (column): ColumnDef<PemasanganBotaColumn, unknown> =>
+                  column.id === "aksi"
+                    ? {
+                        ...column,
+                        cell: ({ row }) => {
+                          const id = row.getValue("mahasiswaId") as string;
+                          return (
+                            <Checkbox
+                              checked={selectedMahasiswa.has(id)}
+                              onCheckedChange={(isChecked) =>
+                                handleCheckboxChange(id, isChecked as boolean)
+                              }
+                            />
+                          );
+                        },
+                      }
+                    : column,
+              )}
+              data={mahasiswaTableData || []}
+            />
+          )}
+
+          {/* Pagination */}
+          {!isSuccess ? (
+            <div className="rounded-md bg-white">
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : (
+            <ClientPagination totalPerPage={8} total={data.body.totalData} />
+          )}
+        </>
       ) : (
-        <ClientPagination totalPerPage={8} total={data.body.totalData} />
+        <>
+          <p className="text-dark text-base">
+            Pilih mahasiswa yang ingin dipasangkan dengan{" "}
+            <span className="font-bold">{selectedOTA.name}</span>
+          </p>
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              className="w-fit"
+              onClick={() => setShowSelectedList(false)}
+            >
+              Kembali
+            </Button>
+            <p className="text-dark text-base font-bold">
+              Total: <span className="font-bold">{selectedMahasiswa.size}</span>
+            </p>
+          </div>
+          <div className="space-y-4">
+            {[...selectedMahasiswa].map((id) => {
+              const mahasiswa = data?.body.data.find(
+                (item) => item.accountId === id,
+              );
+              if (!mahasiswa) return null;
+
+              return (
+                <div
+                  key={id}
+                  className="flex items-center justify-between rounded-md border p-4 shadow-sm"
+                >
+                  <div className="flex flex-1 items-center gap-4 overflow-hidden">
+                    <DetailDialogMahasiswa id={id} />
+                    <div className="flex-1 truncate">
+                      <p className="text-dark truncate font-bold">
+                        {mahasiswa.name}
+                      </p>
+                      <p className="text-muted-foreground truncate text-sm">
+                        {mahasiswa.nim}
+                      </p>
+                    </div>
+                  </div>
+                  <Trash2
+                    size={24}
+                    className="text-destructive cursor-pointer"
+                    onClick={() => handleRemoveMahasiswa(id)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          {/* TODO: call ConnectService "connectOtaMahasiswa" by pairing each otaId and selected mahasiswaId(s) */}
+          <div className="mt-4 flex justify-center w-full">
+            <Button variant={"default"} className="max-w-3xs w-full">
+              Pasangkan
+            </Button>
+          </div>
+        </>
       )}
     </>
   );
