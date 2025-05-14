@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { MahasiswaListElement } from '../models/MahasiswaListElement';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class ListService {
@@ -29,36 +30,7 @@ export class ListService {
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        accountId: string;
-        email: string;
-        type: 'mahasiswa' | 'admin' | 'ota';
-        phoneNumber: string;
-        provider: 'credentials' | 'azure';
-        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
-        name: string;
-        nim: string;
-        mahasiswaStatus: 'active' | 'inactive';
-        description: string;
-        file: string;
-        major: string;
-        faculty: string;
-        cityOfOrigin: string;
-        highschoolAlumni: string;
-        religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
-        gender: 'M' | 'F';
-        gpa: string;
-        kk: string;
-        ktm: string;
-        waliRecommendationLetter: string;
-        transcript: string;
-        salaryReport: string;
-        pbb: string;
-        electricityBill: string;
-        ditmawaRecommendationLetter: string;
-        notes: string;
-        adminOnlyNotes: string;
-      }>;
+      data: Array<MahasiswaListElement>;
       totalData: number;
     };
   }> {

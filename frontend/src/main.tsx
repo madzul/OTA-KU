@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 
 import { api, queryClient } from "./api/client";
 import { UserSchema } from "./api/generated";
+import Spinner from "./components/loading-spinner";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 
@@ -57,9 +58,12 @@ function App() {
     }
   }, [session, isSessionLoaded]);
 
-  // TODO: Add a loading state or spinner while the session is being verified
   if (!isSessionLoaded) {
-    return <div>Loading...</div>; // Add a loading indicator
+    return (
+      <main className="flex min-h-[calc(100vh-70px)] flex-col items-center justify-center px-4 py-8 text-4xl md:px-12 lg:min-h-[calc(100vh-96px)]">
+        <Spinner />;
+      </main>
+    );
   }
 
   return (

@@ -268,7 +268,7 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
     cell: ({ row }) => {
       const id = row.getValue("id") as string;
       const name = row.getValue("name") as string;
-      const email = row.getValue("email") as string;
+      const phoneNumber = row.getValue("phoneNumber") as string;
       const status = row.getValue("status") as
         | "pending"
         | "accepted"
@@ -278,7 +278,7 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
         <Combobox
           id={id}
           name={name}
-          email={email}
+          email={phoneNumber}
           status={status}
           type="ota"
         />

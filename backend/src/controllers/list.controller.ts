@@ -1,6 +1,7 @@
 import {
   and,
   count,
+  desc,
   eq,
   ilike,
   isNotNull,
@@ -17,6 +18,7 @@ import {
   accountTable,
   connectionTable,
 } from "../db/schema.js";
+import type { Jurusan } from "../lib/nim.js";
 import {
   listAvailableOTARoute,
   listMAActiveRoute,
@@ -92,16 +94,8 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
     const mahasiswaListQuery = db
       .select({
         accountId: accountMahasiswaDetailTable.accountId,
-        email: accountTable.email,
-        type: accountTable.type,
-        phoneNumber: accountTable.phoneNumber,
-        provider: accountTable.provider,
-        applicationStatus: accountTable.applicationStatus,
         name: accountMahasiswaDetailTable.name,
         nim: accountMahasiswaDetailTable.nim,
-        mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
-        description: accountMahasiswaDetailTable.description,
-        file: accountMahasiswaDetailTable.file,
         major: accountMahasiswaDetailTable.major,
         faculty: accountMahasiswaDetailTable.faculty,
         cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
@@ -109,18 +103,6 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         religion: accountMahasiswaDetailTable.religion,
         gender: accountMahasiswaDetailTable.gender,
         gpa: accountMahasiswaDetailTable.gpa,
-        kk: accountMahasiswaDetailTable.kk,
-        ktm: accountMahasiswaDetailTable.ktm,
-        waliRecommendationLetter:
-          accountMahasiswaDetailTable.waliRecommendationLetter,
-        transcript: accountMahasiswaDetailTable.transcript,
-        salaryReport: accountMahasiswaDetailTable.salaryReport,
-        pbb: accountMahasiswaDetailTable.pbb,
-        electricityBill: accountMahasiswaDetailTable.electricityBill,
-        ditmawaRecommendationLetter:
-          accountMahasiswaDetailTable.ditmawaRecommendationLetter,
-        notes: accountMahasiswaDetailTable.notes,
-        adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
       })
       .from(accountMahasiswaDetailTable)
       .innerJoin(
@@ -128,6 +110,7 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
       .where(and(...conditions))
+      .orderBy(desc(accountMahasiswaDetailTable.createdAt))
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
 
@@ -143,16 +126,8 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         body: {
           data: mahasiswaList.map((mahasiswa) => ({
             accountId: mahasiswa.accountId,
-            email: mahasiswa.email,
-            type: mahasiswa.type,
-            phoneNumber: mahasiswa.phoneNumber || "",
-            provider: mahasiswa.provider,
-            applicationStatus: mahasiswa.applicationStatus,
             name: mahasiswa.name!,
             nim: mahasiswa.nim,
-            mahasiswaStatus: mahasiswa.mahasiswaStatus,
-            description: mahasiswa.description || "",
-            file: mahasiswa.file || "",
             major: mahasiswa.major || "",
             faculty: mahasiswa.faculty || "",
             cityOfOrigin: mahasiswa.cityOfOrigin || "",
@@ -160,17 +135,6 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
             religion: mahasiswa.religion!,
             gender: mahasiswa.gender!,
             gpa: mahasiswa.gpa!,
-            kk: mahasiswa.kk || "",
-            ktm: mahasiswa.ktm || "",
-            waliRecommendationLetter: mahasiswa.waliRecommendationLetter || "",
-            transcript: mahasiswa.transcript || "",
-            salaryReport: mahasiswa.salaryReport || "",
-            pbb: mahasiswa.pbb || "",
-            electricityBill: mahasiswa.electricityBill || "",
-            ditmawaRecommendationLetter:
-              mahasiswa.ditmawaRecommendationLetter || "",
-            notes: mahasiswa.notes || "",
-            adminOnlyNotes: mahasiswa.adminOnlyNotes || "",
           })),
           totalData: counts[0].count,
         },
@@ -220,6 +184,9 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             accountTable.applicationStatus,
             status as "pending" | "accepted" | "rejected" | "unregistered",
           )
+        : undefined,
+      jurusan
+        ? eq(accountMahasiswaDetailTable.major, jurusan as Jurusan)
         : undefined,
     ];
 
@@ -296,6 +263,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
           isNotNull(accountMahasiswaDetailTable.description),
         ),
       )
+      .orderBy(desc(accountMahasiswaDetailTable.createdAt))
       .limit(LIST_PAGE_DETAIL_SIZE)
       .offset(offset);
 
@@ -440,6 +408,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
       .where(and(...baseConditions, searchCondition, ...filterConditions))
+      .orderBy(desc(accountOtaDetailTable.createdAt))
       .limit(LIST_PAGE_DETAIL_SIZE)
       .offset(offset);
 

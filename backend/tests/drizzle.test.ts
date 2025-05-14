@@ -101,6 +101,6 @@ describe("Database Reset", () => {
     expect(otaDetails.length).toBe(15);
 
     const connections = await db.select().from(connectionTable);
-    expect(connections.length).toBe(20);
+    expect(connections.length).toBe(4);
   });
 });

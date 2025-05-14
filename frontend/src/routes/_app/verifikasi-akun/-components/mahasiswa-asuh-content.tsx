@@ -2,6 +2,7 @@ import { api } from "@/api/client";
 import { ClientPagination } from "@/components/client-pagination";
 import { SearchInput } from "@/components/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Jurusan } from "@/lib/nim";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -12,10 +13,8 @@ import { mahasiswaColumns } from "./columns";
 import CountDataCard from "./count-data-card";
 import { DataTable } from "./data-table";
 import { totalCountMahasiswa } from "./dummy";
+import FilterJurusan from "./filter-jurusan";
 import FilterStatus from "./filter-status";
-
-// TODO: Tentuin jadi pake atau ga
-// import FilterJurusan from "./filter-jurusan";
 
 function MahasiswaAsuhContent() {
   const navigate = useNavigate({ from: Route.fullPath });
@@ -26,16 +25,18 @@ function MahasiswaAsuhContent() {
 
   const [search, setSearch] = useState<string>("");
   const [value] = useDebounce(search, 500);
+  const [jurusan, setJurusan] = useState<Jurusan | null>(null);
   const [status, setStatus] = useState<
     "accepted" | "pending" | "rejected" | null
   >(null);
 
   const { data, isSuccess } = useQuery({
-    queryKey: ["listMahasiswaAdmin", page, value, status],
+    queryKey: ["listMahasiswaAdmin", page, value, jurusan, status],
     queryFn: () =>
       api.list.listMahasiswaAdmin({
         page,
         q: value,
+        jurusan: jurusan as string,
         status: status as "accepted" | "pending" | "rejected",
       }),
   });
@@ -49,14 +50,14 @@ function MahasiswaAsuhContent() {
   }));
 
   useEffect(() => {
-    if (status || value) {
+    if (status || value || jurusan) {
       navigate({
         search: () => ({
           page: 1,
         }),
       });
     }
-  }, [navigate, status, value]);
+  }, [navigate, status, value, jurusan]);
 
   return (
     <section className="flex flex-col gap-4">
@@ -91,7 +92,7 @@ function MahasiswaAsuhContent() {
             placeholder="Cari nama atau email"
             setSearch={setSearch}
           />
-          {/* <FilterJurusan /> */}
+          <FilterJurusan jurusan={jurusan} setJurusan={setJurusan} />
           <FilterStatus status={status} setStatus={setStatus} />
         </div>
       )}

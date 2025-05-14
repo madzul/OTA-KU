@@ -1,117 +1,72 @@
 import { api } from "@/api/client";
 import { UserSchema } from "@/api/generated";
+import { ClientPagination } from "@/components/client-pagination";
+import Spinner from "@/components/loading-spinner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Fakultas, Jurusan } from "@/lib/nim";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { useMutation } from "@tanstack/react-query";
-import { LoaderCircle } from "lucide-react";
-import React, { JSX, useState } from "react";
-import { toast } from "sonner";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { ChevronDown } from "lucide-react";
+import React, { JSX, useEffect, useState } from "react";
+import { useDebounce } from "use-debounce";
 
-// Response data dari API
-interface MahasiswaResponse {
-  accountId: string;
-  email: string;
-  name: string;
-  nim: string;
-  mahasiswaStatus: "active" | "inactive";
-  description: string;
-  file: string;
-  major: string;
-  faculty: string;
-  cityOfOrigin: string;
-  highschoolAlumni: string;
-  notes: string;
-}
-
-// Data mahasiswa yang akan ditampilkan di UI
-interface Mahasiswa {
-  id: string;
-  name: string;
-  major: string;
-  faculty: string;
-  cityOfOrigin: string;
-  highschoolAlumni: string;
-  notes: string;
-}
-
-// TODO: FIKSASI DATA BELUM AMA IOM
-
-const mapApiDataToMahasiswa = (apiData: MahasiswaResponse[]): Mahasiswa[] => {
-  return apiData.map((item) => ({
-    id: item.accountId,
-    name: item.name,
-    major: item.major || "Jurusan tidak tersedia",
-    faculty: item.faculty || "Fakultas tidak tersedia",
-    cityOfOrigin: item.cityOfOrigin || "Asal kota tidak tersedia",
-    highschoolAlumni: item.highschoolAlumni || "Alumni SMA tidak tersedia",
-    notes: item.notes || "Catatan tidak tersedia",
-  }));
-};
+import { Route } from "..";
+import Filter from "./filter";
+import MahasiswaCard from "./mahasiswa-card";
 
 function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
+  const navigate = useNavigate({ from: Route.fullPath });
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  const page = parseInt(searchParams.get("page") ?? "1") || 1;
+
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedMahasiswa, setSelectedMahasiswa] = useState<null | Mahasiswa>(
-    null,
-  );
+  const [value] = useDebounce(searchQuery, 500);
+  const [major, setMajor] = useState<Jurusan>();
+  const [faculty, setFaculty] = useState<Fakultas>();
+  const [gender, setGender] = useState<"M" | "F">();
+  const [religion, setReligion] = useState<
+    "Islam" | "Kristen Protestan" | "Hindu" | "Buddha" | "Katolik" | "Konghucu"
+  >();
 
-  const bantuHandler = useMutation({
-    mutationFn: (id: { mahasiswa: string; ota: string }) => {
-      return api.connect.connectOtaMahasiswa({
-        formData: {
-          mahasiswaId: id.mahasiswa,
-          otaId: id.ota,
-        },
-      });
-    },
-    onSuccess: () => {
-      toast.success("Berhasil melakukan permintaan Bantuan Orang Tua Asuh", {
-        description: "Permintaan akan segera diproses oleh IOM ITB",
-      });
-      setSelectedMahasiswa(null);
-    },
-    onError: (error) => {
-      toast.warning("Gagal melakukan permintaan Bantuan Orang Tua Asuh", {
-        description: error.message,
-      });
-      setSelectedMahasiswa(null);
-    },
-  });
+  // Reset all filters
+  function resetFilters() {
+    setMajor(undefined);
+    setFaculty(undefined);
+    setGender(undefined);
+    setReligion(undefined);
+  }
 
-  const handleBantuConfirm = () => {
-    if (selectedMahasiswa) {
-      bantuHandler.mutate({
-        mahasiswa: selectedMahasiswa.id,
-        ota: session?.id || "",
-      });
-    }
-  };
+  const [showFilters, setShowFilters] = useState(false);
+
+  const activeFilterCount = [faculty, gender, major, religion].filter(
+    Boolean,
+  ).length;
 
   // Gunakan useQuery untuk fetch data
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["listMahasiswaOta", searchQuery],
+  const { data, isLoading } = useQuery({
+    queryKey: [
+      "listMahasiswaOta",
+      page,
+      value,
+      faculty,
+      gender,
+      major,
+      religion,
+    ],
     queryFn: () =>
       api.list.listMahasiswaOta({
-        q: searchQuery,
-        page: 1,
+        q: value,
+        page,
+        faculty,
+        gender,
+        major,
+        religion,
       }),
-    staleTime: 5 * 60 * 1000, // 5 menit
-
-    select: (response) => {
-      // Transform data API ke format UI
-      if (response.success && response.body && response.body.data) {
-        return mapApiDataToMahasiswa(response.body.data);
-      }
-      return [];
-    },
   });
 
   // Menangani perubahan input dengan debounce
@@ -119,33 +74,69 @@ function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
     setSearchQuery(e.target.value);
   };
 
-  const mahasiswaList = data || [];
-
-  // Handle error message
-  const errorMessage = isError
-    ? error instanceof Error
-      ? error.message
-      : "Gagal memuat data mahasiswa"
-    : null;
+  useEffect(() => {
+    if (value || faculty || gender || major || religion) {
+      navigate({
+        search: () => ({
+          page: 1,
+        }),
+      });
+    }
+  }, [value, faculty, gender, major, religion, navigate]);
 
   return (
     <div className="flex flex-col gap-4 text-[32px] md:gap-8">
       <h1 className="text-dark font-bold">Cari Mahasiswa</h1>
 
-      <div className="w-full">
-        {/* TODO: Pakein debounce search */}
+      <div className="flex w-full gap-2">
         <Input
           placeholder="Cari mahasiswa"
           value={searchQuery}
           onChange={handleInputChange}
           className="w-full"
         />
+
+        <Button
+          variant="outline"
+          className={cn(
+            "hover:bg-accent focus-visible:ring-ring data-[state=open]:bg-accent data-[state=open]:text-accent-foreground hover:text-accent-foreground text-accent-foreground justify-between rounded-md border border-[#BBBAB8] bg-white shadow-xs focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          )}
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          Filter
+          {activeFilterCount > 0 && (
+            <Badge className="flex h-5 w-5 items-center justify-center rounded-full p-0">
+              {activeFilterCount}
+            </Badge>
+          )}
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 transition-transform",
+              showFilters && "rotate-180",
+            )}
+          />
+        </Button>
       </div>
+
+      {showFilters && (
+        <Filter
+          activeFilterCount={activeFilterCount}
+          resetFilters={resetFilters}
+          faculty={faculty}
+          setFaculty={setFaculty}
+          major={major}
+          setMajor={setMajor}
+          gender={gender}
+          setGender={setGender}
+          religion={religion}
+          setReligion={setReligion}
+        />
+      )}
 
       {isLoading && (
         <div className="flex flex-col items-center justify-center gap-4 py-12">
-          <div className="flex animate-spin items-center justify-center">
-            <LoaderCircle size={32} />
+          <div className="flex items-center justify-center">
+            <Spinner />
           </div>
           <p className="text-dark text-center text-base font-medium">
             Sedang Memuat Data...
@@ -153,9 +144,7 @@ function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
         </div>
       )}
 
-      {errorMessage && <p className="text-base text-red-500">{errorMessage}</p>}
-
-      {!isLoading && mahasiswaList.length === 0 && (
+      {!isLoading && data?.body.data.length === 0 && (
         <div className="flex items-center justify-center py-16">
           <p className="text-dark text-center text-2xl font-bold md:text-3xl">
             Tidak ada mahasiswa yang ditemukan
@@ -163,86 +152,25 @@ function DaftarMahasiswa({ session }: { session: UserSchema }): JSX.Element {
         </div>
       )}
 
-      <section
-        className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))" }}
-      >
-        {mahasiswaList.map((mahasiswa) => (
-          <div
-            key={mahasiswa.id}
-            className="rounded-lg border bg-white p-4 shadow-md"
-          >
-            <h2 className="text-lg font-bold">{mahasiswa.name}</h2>
-            <p className="text-sm text-gray-600">Jurusan: {mahasiswa.major}</p>
-            <p className="text-sm text-gray-600">
-              Fakultas: {mahasiswa.faculty}
-            </p>
-            <p className="text-sm text-gray-600">
-              Asal Kota: {mahasiswa.cityOfOrigin}
-            </p>
-            <p className="text-sm text-gray-600">
-              Alumni SMA: {mahasiswa.highschoolAlumni}
-            </p>
-            <div className="text-sm text-gray-600">
-              <p>Catatan:</p>
-              <p>{mahasiswa.notes}</p>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {/* TODO: page detail belom nampilin schema db detail mahasiswa yang terbaru */}
-              <Button
-                variant="outline"
-                onClick={() =>
-                  (window.location.href = `/detail/mahasiswa/${mahasiswa.id}`)
-                }
-              >
-                Lihat Profil
-              </Button>
-              {/* TODO: Pas di klik masih internal server error */}
-              <Button onClick={() => setSelectedMahasiswa(mahasiswa)}>
-                Bantu
-              </Button>
-            </div>
-          </div>
+      <section className="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {data?.body.data.map((mahasiswa) => (
+          <MahasiswaCard
+            key={mahasiswa.accountId}
+            mahasiswa={mahasiswa}
+            session={session}
+            queries={{
+              page,
+              value,
+              faculty,
+              major,
+              gender,
+              religion,
+            }}
+          />
         ))}
       </section>
 
-      {selectedMahasiswa && (
-        <Dialog
-          open={!!selectedMahasiswa}
-          onOpenChange={() => setSelectedMahasiswa(null)}
-        >
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Konfirmasi Bantuan</DialogTitle>
-              <DialogDescription>
-                Apakah Anda yakin ingin memberikan bantuan kepada{" "}
-                <span className="text-dark font-bold">
-                  {selectedMahasiswa.name}
-                </span>
-                ?
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-              <Button
-                type="button"
-                variant="outline"
-                className="sm:flex-1"
-                onClick={() => setSelectedMahasiswa(null)}
-              >
-                Batal
-              </Button>
-              <Button
-                type="button"
-                onClick={handleBantuConfirm}
-                disabled={bantuHandler.isPending}
-                className="sm:flex-1"
-              >
-                {bantuHandler.isPending ? "Memproses..." : "Bantu"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+      <ClientPagination total={data?.body.totalData || 0} totalPerPage={6} />
     </div>
   );
 }

@@ -199,3 +199,105 @@ export function getNimFakultasFromNimJurusanMap(): Record<string, string> {
     "192": "197",
   };
 }
+
+export function censorNim(nim: string): string {
+  return `${nim.slice(0, 5)}XXX`;
+}
+
+export const majors = [
+  { value: "Matematika", label: "Matematika" },
+  { value: "Fisika", label: "Fisika" },
+  { value: "Astronomi", label: "Astronomi" },
+  { value: "Mikrobiologi", label: "Mikrobiologi" },
+  { value: "Kimia", label: "Kimia" },
+  { value: "Biologi", label: "Biologi" },
+  {
+    value: "Sains dan Teknologi Farmasi",
+    label: "Sains dan Teknologi Farmasi",
+  },
+  { value: "Aktuaria", label: "Aktuaria" },
+  { value: "Rekayasa Hayati", label: "Rekayasa Hayati" },
+  { value: "Rekayasa Pertanian", label: "Rekayasa Pertanian" },
+  { value: "Rekayasa Kehutanan", label: "Rekayasa Kehutanan" },
+  {
+    value: "Farmasi Klinik dan Komunitas",
+    label: "Farmasi Klinik dan Komunitas",
+  },
+  { value: "Teknologi Pasca Panen", label: "Teknologi Pasca Panen" },
+  { value: "Teknik Geologi", label: "Teknik Geologi" },
+  { value: "Teknik Pertambangan", label: "Teknik Pertambangan" },
+  { value: "Teknik Perminyakan", label: "Teknik Perminyakan" },
+  { value: "Teknik Geofisika", label: "Teknik Geofisika" },
+  { value: "Teknik Metalurgi", label: "Teknik Metalurgi" },
+  { value: "Meteorologi", label: "Meteorologi" },
+  { value: "Oseanografi", label: "Oseanografi" },
+  { value: "Teknik Kimia", label: "Teknik Kimia" },
+  { value: "Teknik Mesin", label: "Teknik Mesin" },
+  { value: "Teknik Elektro", label: "Teknik Elektro" },
+  { value: "Teknik Fisika", label: "Teknik Fisika" },
+  { value: "Teknik Industri", label: "Teknik Industri" },
+  { value: "Teknik Informatika", label: "Teknik Informatika" },
+  { value: "Aeronotika dan Astronotika", label: "Aeronotika dan Astronotika" },
+  { value: "Teknik Material", label: "Teknik Material" },
+  { value: "Teknik Pangan", label: "Teknik Pangan" },
+  {
+    value: "Manajemen Rekayasa Industri",
+    label: "Manajemen Rekayasa Industri",
+  },
+  {
+    value: "Teknik Bioenergi dan Kemurgi",
+    label: "Teknik Bioenergi dan Kemurgi",
+  },
+  { value: "Teknik Sipil", label: "Teknik Sipil" },
+  {
+    value: "Teknik Geodesi dan Geomatika",
+    label: "Teknik Geodesi dan Geomatika",
+  },
+  { value: "Arsitektur", label: "Arsitektur" },
+  { value: "Teknik Lingkungan", label: "Teknik Lingkungan" },
+  {
+    value: "Perencanaan Wilayah dan Kota",
+    label: "Perencanaan Wilayah dan Kota",
+  },
+  { value: "Teknik Kelautan", label: "Teknik Kelautan" },
+  {
+    value: "Rekayasa Infrastruktur Lingkungan",
+    label: "Rekayasa Infrastruktur Lingkungan",
+  },
+  {
+    value: "Teknik dan Pengelolaan Sumber Daya Air",
+    label: "Teknik dan Pengelolaan Sumber Daya Air",
+  },
+  { value: "Seni Rupa", label: "Seni Rupa" },
+  { value: "Desain", label: "Desain" },
+  { value: "Kriya", label: "Kriya" },
+  { value: "Desain Interior", label: "Desain Interior" },
+  { value: "Desain Komunikasi Visual", label: "Desain Komunikasi Visual" },
+  { value: "Desain Produk", label: "Desain Produk" },
+  { value: "Teknik Tenaga Listrik", label: "Teknik Tenaga Listrik" },
+  { value: "Teknik Telekomunikasi", label: "Teknik Telekomunikasi" },
+  {
+    value: "Sistem Teknologi dan Informasi",
+    label: "Sistem Teknologi dan Informasi",
+  },
+  { value: "Teknik Biomedis", label: "Teknik Biomedis" },
+  { value: "Manajemen", label: "Manajemen" },
+  { value: "Kewirausahaan", label: "Kewirausahaan" },
+];
+
+export const faculties = [
+  { value: "FMIPA", label: "FMIPA" },
+  { value: "SITH-S", label: "SITH-S" },
+  { value: "SF", label: "SF" },
+  { value: "FITB", label: "FITB" },
+  { value: "FTTM", label: "FTTM" },
+  { value: "STEI-R", label: "STEI-R" },
+  { value: "FTSL", label: "FTSL" },
+  { value: "FTI", label: "FTI" },
+  { value: "FSRD", label: "FSRD" },
+  { value: "FTMD", label: "FTMD" },
+  { value: "STEI-K", label: "STEI-K" },
+  { value: "SBM", label: "SBM" },
+  { value: "SITH-R", label: "SITH-R" },
+  { value: "SAPPK", label: "SAPPK" },
+];

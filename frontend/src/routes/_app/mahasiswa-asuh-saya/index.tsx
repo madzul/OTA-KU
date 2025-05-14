@@ -97,17 +97,6 @@ function RouteComponent() {
       }),
   });
 
-  // TODO: Boros
-  const activeStudents =
-    activeStudentsData?.body.data.map((student) => ({
-      name: student.name,
-    })) ?? [];
-
-  const pendingStudents =
-    pendingStudentsData?.body.data.map((student) => ({
-      name: student.name,
-    })) ?? [];
-
   return (
     <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <Metadata title="Mahasiswa Asuh Saya | BOTA" />
@@ -144,9 +133,9 @@ function RouteComponent() {
 
           {!isActiveSuccess ? (
             <Skeleton className="h-80 w-full" />
-          ) : (activeStudents ?? []).length > 0 ? (
+          ) : activeStudentsData.body.data.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {activeStudents.map((student, index) => (
+              {activeStudentsData.body.data.map((student, index) => (
                 <StudentCard key={index} student={student} />
               ))}
             </div>
@@ -170,9 +159,9 @@ function RouteComponent() {
 
           {!isPendingSuccess ? (
             <Skeleton className="h-80 w-full" />
-          ) : pendingStudents.length > 0 ? (
+          ) : pendingStudentsData.body.data.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {pendingStudents.map((student, index) => (
+              {pendingStudentsData.body.data.map((student, index) => (
                 <StudentCard key={index} student={student} />
               ))}
             </div>

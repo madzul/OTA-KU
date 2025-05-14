@@ -12,27 +12,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Jurusan } from "@/lib/nim";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { majors } from "./constant";
-
-interface FilterJurusanProps {
-  jurusan: Jurusan | null;
-  setJurusan: (jurusan: Jurusan | null) => void;
-}
-
-function FilterJurusan({ jurusan, setJurusan }: FilterJurusanProps) {
+export function ComboboxFilter({
+  options,
+  value,
+  onChange,
+  placeholder,
+  emptyMessage = "Data tidak ditemukan",
+}: {
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (value: string | undefined) => void;
+  placeholder: string;
+  emptyMessage?: string;
+}) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
-
-  useEffect(() => {
-    if (jurusan) {
-      setValue(jurusan);
-    }
-  }, [jurusan]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -47,36 +44,38 @@ function FilterJurusan({ jurusan, setJurusan }: FilterJurusanProps) {
           )}
         >
           {value
-            ? majors.find((major) => major.value === value)?.label
-            : "Filter Jurusan"}
+            ? options.find((option) => option.value === value)?.label
+            : placeholder}
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
         <Command>
-          <CommandInput placeholder="Cari jurusan..." />
+          {(placeholder === "Pilih Fakultas" ||
+            placeholder === "Pilih Jurusan") && (
+            <CommandInput
+              placeholder={`Cari ${placeholder.toLowerCase() === "pilih fakultas" ? "fakultas" : placeholder.toLowerCase() === "pilih jurusan" && "jurusan"}...`}
+            />
+          )}
           <CommandList>
-            <CommandEmpty>Jurusan tidak ditemukan</CommandEmpty>
+            <CommandEmpty>{emptyMessage}</CommandEmpty>
             <CommandGroup>
-              {majors.map((major) => (
+              {options.map((option) => (
                 <CommandItem
-                  key={major.value}
-                  value={major.value}
+                  key={option.value}
+                  value={option.value}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
-                    setJurusan(
-                      currentValue === value ? null : (currentValue as Jurusan),
-                    );
+                    onChange(currentValue === value ? undefined : currentValue);
                     setOpen(false);
                   }}
                 >
-                  {major.label}
                   <Check
                     className={cn(
-                      "ml-auto",
-                      value === major.value ? "opacity-100" : "opacity-0",
+                      "mr-2 h-4 w-4",
+                      value === option.value ? "opacity-100" : "opacity-0",
                     )}
                   />
+                  {option.label}
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -86,5 +85,3 @@ function FilterJurusan({ jurusan, setJurusan }: FilterJurusanProps) {
     </Popover>
   );
 }
-
-export default FilterJurusan;
