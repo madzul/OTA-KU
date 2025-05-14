@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils";
+import { UserSchema } from "@/api/generated";
 import SidebarMenuItem from "@/components/sidebar-menu-item";
 import SidebarUserInfo from "@/components/sidebar-user-info";
-import { UserSchema } from "@/api/generated";
+import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 
 interface MenuItem {
@@ -31,7 +31,7 @@ const SidebarContent = ({
   <div
     className={cn(
       "fixed top-0 -left-4 z-40 mt-[82px] mb-3 flex h-[calc(100vh-24px-70px)] w-[243px] flex-col justify-between rounded-r-[12px] bg-white px-5 py-6 shadow-[0_0_4px_rgba(0,0,0,0.4)] transition-transform duration-300 ease-in-out lg:mt-27 lg:ml-3 lg:h-[calc(100vh-24px-96px)] lg:rounded-l-[12px]",
-      isOpen ? "translate-x-4" : "-translate-x-full"
+      isOpen ? "translate-x-4" : "-translate-x-full",
     )}
     data-sidebar="true"
   >

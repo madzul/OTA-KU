@@ -2,6 +2,7 @@ import Metadata from "@/components/metadata";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { UserX } from "lucide-react";
 import { useEffect, useState } from "react";
+
 import DetailCardsOrangTuaAsuh from "./-components/detail-card";
 
 interface OtaDetailResponse {
@@ -215,6 +216,7 @@ function RouteComponent() {
         Orang Tua Asuh Saya
       </h1>
       <DetailCardsOrangTuaAsuh
+        otaId={otaData.id}
         name={otaData.name}
         role={
           otaData.linkage === "otm"

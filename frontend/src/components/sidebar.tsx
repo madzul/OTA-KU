@@ -11,6 +11,7 @@ interface MenuItem {
   label: string;
   icon: string;
   path: string;
+  iconColorClass?: string;
   textColorClass?: string;
   bgColorClass?: string;
 }
@@ -162,6 +163,14 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           icon: "/icon/Type=transaction.svg",
           path: "/daftar-tagihan",
         },
+        {
+          id: "daftar-terminasi",
+          label: "Daftar Terminasi",
+          icon: "/icon/Type=remove-destructive.svg",
+          path: "/daftar-terminasi",
+          bgColorClass: " bg-destructive/10",
+          textColorClass: "text-destructive",
+        },
       ];
     case "ota":
       return [
@@ -182,6 +191,14 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           label: "Status Transaksi",
           icon: "/icon/Type=facebook.svg",
           path: "/status-transaksi",
+        },
+        {
+          id: "terminasi-mahasiswa",
+          label: "Terminasi Mahasiswa",
+          icon: "/icon/Type=remove-destructive.svg",
+          path: "/daftar/terminasi-mahasiswa",
+          bgColorClass: " bg-destructive/10",
+          textColorClass: "text-destructive",
         },
       ];
     default:

@@ -502,17 +502,19 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
 
   try {
     await db.transaction(async (tx) => {
-      await tx.delete(connectionTable).where(
-        and(
-          eq(connectionTable.mahasiswaId, mahasiswaId),
-          eq(connectionTable.otaId, otaId),
-          eq(connectionTable.connectionStatus, "pending"),
-          or(
-            eq(connectionTable.requestTerminateMahasiswa, true),
-            eq(connectionTable.requestTerminateOta, true)
-          )
-        ),
-      );
+      await tx
+        .delete(connectionTable)
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+            eq(connectionTable.connectionStatus, "pending"),
+            or(
+              eq(connectionTable.requestTerminateMahasiswa, true),
+              eq(connectionTable.requestTerminateOta, true),
+            ),
+          ),
+        );
 
       await tx
         .update(accountMahasiswaDetailTable)
