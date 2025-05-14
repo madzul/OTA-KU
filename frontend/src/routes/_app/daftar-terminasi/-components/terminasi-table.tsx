@@ -35,8 +35,8 @@ export default function TerminasiTable({ data, onTerminasi }: TerminasiTableProp
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), "dd MMMM yyyy", { locale: id })
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      console.error("Error parsing date:", error)
       return dateString
     }
   }
