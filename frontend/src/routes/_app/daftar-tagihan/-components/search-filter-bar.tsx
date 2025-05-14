@@ -1,4 +1,4 @@
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/search-input";
 import {
   Select,
   SelectContent,
@@ -6,34 +6,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
 
 interface SearchFilterBarProps {
-  searchValue: string;
+  searchQuery: string;
   onSearchChange: (value: string) => void;
-  yearValue?: string;
-  onYearChange?: (value: string) => void;
-  monthValue?: string;
-  onMonthChange?: (value: string) => void;
-  statusValue?: string;
-  onStatusChange?: (value: string) => void;
+  yearFilter: string;
+  onYearChange: (value: string) => void;
+  monthFilter: string;
+  onMonthChange: (value: string) => void;
+  statusFilter: string;
+  onStatusChange: (value: string) => void;
 }
 
 export function SearchFilterBar({
-  searchValue,
+  searchQuery,
   onSearchChange,
-  yearValue,
+  yearFilter,
   onYearChange,
-  monthValue,
+  monthFilter,
   onMonthChange,
-  statusValue,
+  statusFilter,
   onStatusChange,
 }: SearchFilterBarProps) {
-  // Generate years (current year and 4 years back)
+  // TODO: Belum tentu 5 tahun ke belakang, tahunnya akan di fetch lewat API
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
-  // Months in English - make sure values match exactly with API's expected format
   const months = [
     { value: "January", label: "Januari" },
     { value: "February", label: "Februari" },
@@ -57,19 +55,17 @@ export function SearchFilterBar({
   ];
 
   return (
-    <div className="mb-6 flex flex-col gap-4 md:flex-row">
-      <div className="relative flex-1">
-        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-        <Input
-          className="border-gray-300 py-6 pl-10"
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-6">
+      <div className="md:col-span-2">
+        <SearchInput
           placeholder="Cari nama orang tua atau mahasiswa"
-          value={searchValue}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={searchQuery}
+          setSearch={onSearchChange}
         />
       </div>
 
-      <Select value={yearValue} onValueChange={onYearChange}>
-        <SelectTrigger className="w-[130px] bg-white">
+      <Select value={yearFilter} onValueChange={onYearChange}>
+        <SelectTrigger className="w-full bg-white">
           <SelectValue placeholder="Tahun" />
         </SelectTrigger>
         <SelectContent>
@@ -82,8 +78,8 @@ export function SearchFilterBar({
         </SelectContent>
       </Select>
 
-      <Select value={monthValue} onValueChange={onMonthChange}>
-        <SelectTrigger className="w-[130px] bg-white">
+      <Select value={monthFilter} onValueChange={onMonthChange}>
+        <SelectTrigger className="w-full bg-white">
           <SelectValue placeholder="Bulan" />
         </SelectTrigger>
         <SelectContent>
@@ -96,20 +92,18 @@ export function SearchFilterBar({
         </SelectContent>
       </Select>
 
-      {onStatusChange && (
-        <Select value={statusValue} onValueChange={onStatusChange}>
-          <SelectTrigger className="w-[150px] bg-white">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            {statusOptions.map((status) => (
-              <SelectItem key={status.value} value={status.value}>
-                {status.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
+      <Select value={statusFilter} onValueChange={onStatusChange}>
+        <SelectTrigger className="w-full bg-white">
+          <SelectValue placeholder="Status" />
+        </SelectTrigger>
+        <SelectContent>
+          {statusOptions.map((status) => (
+            <SelectItem key={status.value} value={status.value}>
+              {status.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
