@@ -79,9 +79,11 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
         bill: transactionTable.bill,
         amount_paid: transactionTable.amountPaid,
         paid_at: transactionTable.paidAt,
+        created_at: transactionTable.createdAt,
         due_date: transactionTable.dueDate,
         status: transactionTable.transactionStatus,
         receipt: transactionTable.transactionReceipt,
+        rejection_note: transactionTable.rejectionNote,
       })
       .from(transactionTable)
       .innerJoin(
@@ -109,9 +111,11 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
             bill: transaction.bill,
             amount_paid: transaction.amount_paid,
             paid_at: transaction.paid_at,
+            created_at: transaction.created_at,
             due_date: transaction.due_date,
             status: transaction.status,
             receipt: transaction.receipt ?? "",
+            rejection_note: transaction.rejection_note ?? "",
           })),
           totalData: counts[0].count,
         },
@@ -356,10 +360,6 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
           and(
             eq(transactionTable.mahasiswaId, mahasiswaId),
             eq(transactionTable.otaId, user.id),
-            and(
-              gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
-              lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
-            )
           ),
         );
     });

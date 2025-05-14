@@ -23,7 +23,7 @@ interface Transaction {
   due_date: string;
   status: "unpaid" | "pending" | "paid";
   receipt: string;
-  createdAt: string;
+  created_at: string;
 }
 
 interface UploadBuktiDialogProps {
@@ -132,6 +132,8 @@ export function UploadBuktiDialog({
     }
 
     const mahasiswaId = localTransaction.id;
+    console.log("localTransaction", localTransaction);
+    console.log("createdAt", localTransaction.created_at);
 
     if (!mahasiswaId) {
       toast.error("ID mahasiswa tidak ditemukan");
@@ -146,7 +148,7 @@ export function UploadBuktiDialog({
         formData: {
           mahasiswaId,
           receipt: file,
-          createdAt: localTransaction.createdAt,
+          createdAt: localTransaction.created_at,
         },
       });
 
