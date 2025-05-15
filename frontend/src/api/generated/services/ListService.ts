@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { MahasiswaListElement } from '../models/MahasiswaListElement';
+import type { MAListElementStatus } from '../models/MAListElementStatus';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class ListService {
@@ -242,18 +243,7 @@ export class ListService {
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        accountId: string;
-        name: string;
-        /**
-         * Nomor Induk Mahasiswa
-         */
-        nim: string;
-        /**
-         * Status mahasiswa
-         */
-        mahasiswaStatus: 'active' | 'inactive';
-      }>;
+      data: Array<MAListElementStatus>;
       totalData: number;
     };
   }> {
@@ -297,18 +287,7 @@ export class ListService {
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        accountId: string;
-        name: string;
-        /**
-         * Nomor Induk Mahasiswa
-         */
-        nim: string;
-        /**
-         * Status mahasiswa
-         */
-        mahasiswaStatus: 'active' | 'inactive';
-      }>;
+      data: Array<MAListElementStatus>;
       totalData: number;
     };
   }> {

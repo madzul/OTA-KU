@@ -366,6 +366,24 @@ export const MAListElementSchema = z.object({
   accountId: z.string().openapi({ example: "1" }),
   name: z.string().openapi({ example: "John Doe" }),
   nim: NIMSchema,
+  faculty: z.string().openapi({ example: "STEI-K" }),
+  major: z.string().openapi({ example: "Teknik Informatika" }),
+  cityOfOrigin: z.string().openapi({ example: "Jakarta" }),
+  highschoolAlumni: z.string().openapi({ example: "SMA Negeri 1 Jakarta" }),
+  gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+  religion: z
+    .enum([
+      "Islam",
+      "Kristen Protestan",
+      "Katolik",
+      "Hindu",
+      "Buddha",
+      "Konghucu",
+    ])
+    .openapi({
+      example: "Islam",
+    }),
+  gpa: z.string().openapi({ example: "3.5" }),
   mahasiswaStatus: z.enum(["active", "inactive"]).openapi({
     example: "active",
     description: "Status mahasiswa",
@@ -376,7 +394,7 @@ export const MAListQueryResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Daftar MA berhasil diambil" }),
   body: z.object({
-    data: z.array(MAListElementSchema),
+    data: z.array(MAListElementSchema.openapi("MAListElementStatus")),
     totalData: z.number().openapi({ example: 100 }),
   }),
 });
