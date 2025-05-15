@@ -276,25 +276,24 @@ export default function NavBar() {
                     sideOffset={5}
                   >
                     <MenubarItem
-                      className="text-dark relative"
-                      onClick={() => {
-                        navigate({
-                          to: "/profile",
-                        });
-                      }}
+                      className="text-dark relative hover:cursor-pointer"
+                      asChild
                     >
-                      <div className="flex w-full items-center justify-between">
+                      <Link
+                        to="/profile"
+                        className="flex w-full items-center justify-between"
+                      >
                         <span>Akun Saya</span>
                         {/* Red dot indicator next to "Akun Saya" */}
                         {profileData?.body.status && (
                           <div className="ml-2 h-3 w-3 rounded-full bg-red-600"></div>
                         )}
-                      </div>
+                      </Link>
                     </MenubarItem>
 
                     <MenubarSeparator />
                     <MenubarItem
-                      className="text-destructive"
+                      className="text-destructive hover:cursor-pointer"
                       onClick={() => {
                         api.auth.logout();
                         queryClient.invalidateQueries({ queryKey: ["verify"] });
