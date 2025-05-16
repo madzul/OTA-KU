@@ -157,6 +157,7 @@ export class ListService {
         maxSemester: number | null;
         transferDate: number | null;
         criteria: string;
+        isDetailVisible: boolean;
         allowAdminSelection: boolean;
       }>;
       totalPagination: number;
