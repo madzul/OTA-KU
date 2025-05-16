@@ -13,6 +13,7 @@ import { ArrowDownAZ, ArrowUpAZ, Eye } from "lucide-react";
 export type StatusType = "pending" | "unpaid" | "paid";
 
 export interface TransaksiItem {
+  id: string;
   mahasiswaId: string;
   otaId: string;
   namaMa: string;
