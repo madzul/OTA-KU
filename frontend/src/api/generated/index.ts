@@ -11,6 +11,7 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { CreatePushSubscriptionSchema } from './models/CreatePushSubscriptionSchema';
+export type { ListTerminateForAdmin } from './models/ListTerminateForAdmin';
 export type { MahasiswaListElement } from './models/MahasiswaListElement';
 export type { MahasiswaSayaDetailResponse } from './models/MahasiswaSayaDetailResponse';
 export type { MAListElementStatus } from './models/MAListElementStatus';

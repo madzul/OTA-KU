@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ListTerminateForAdmin } from '../models/ListTerminateForAdmin';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class TerminateService {
@@ -21,24 +22,7 @@ export class TerminateService {
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        /**
-         * ID orang tua asuh
-         */
-        otaId: string;
-        otaName: string;
-        otaNumber: string;
-        /**
-         * ID mahasiswa asuh
-         */
-        mahasiswaId: string;
-        maName: string;
-        maNIM: string;
-        createdAt: string;
-        requestTerminateOTA: boolean;
-        requestTerminateMA: boolean;
-        requestTerminationNote: string;
-      }>;
+      data: Array<ListTerminateForAdmin>;
     };
   }> {
     return this.httpRequest.request({
