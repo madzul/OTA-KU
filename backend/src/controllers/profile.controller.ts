@@ -747,7 +747,6 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
     );
   }
 
-  //TODO: add join_date to db
   try {
     const profileDataMahasiswa = await db
       .select({
@@ -778,7 +777,6 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
         updatedAt: accountMahasiswaDetailTable.updatedAt,
         dueNextUpdateAt: accountMahasiswaDetailTable.dueNextUpdateAt,
         applicationStatus: accountTable.applicationStatus,
-        // join_date: accountMahasiswaDetailTable.startDate,
       })
       .from(accountTable)
       .innerJoin(

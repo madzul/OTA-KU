@@ -497,7 +497,6 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
         accountId: accountOtaDetailTable.accountId,
         name: accountOtaDetailTable.name,
         phoneNumber: accountTable.phoneNumber,
-        //TO-DO: Ganti jadi nominal per anak nanti di connection sekalian tambahin kondisi where connectionTable.mahasiswa_id = user.id gitu lah
         nominal: accountOtaDetailTable.funds,
       })
       .from(accountOtaDetailTable)
