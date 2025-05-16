@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/api/client";
+import { ListTerminateForAdmin } from "@/api/generated";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,23 +13,11 @@ import {
 } from "@/components/ui/dialog";
 import { useMutation } from "@tanstack/react-query";
 
-interface TerminasiData {
-  otaId: string;
-  otaName: string;
-  otaNumber: string;
-  mahasiswaId: string;
-  maName: string;
-  maNIM: string;
-  createdAt: string;
-  requestTerminateOTA: boolean;
-  requestTerminateMA: boolean;
-}
-
 interface TerminasiModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  item: TerminasiData;
+  item: ListTerminateForAdmin;
 }
 
 export default function TerminasiModal({
@@ -37,10 +26,19 @@ export default function TerminasiModal({
   onConfirm,
   item,
 }: TerminasiModalProps) {
+  // TODO: Cek bisa atau ga setelah update db after sprint review 4
   const terminateConnection = useMutation({
-    mutationFn: (data: { maId: string; otaId: string }) => {
+    mutationFn: (data: {
+      maId: string;
+      otaId: string;
+      requestTerminationNote: string;
+    }) => {
       return api.terminate.validateTerminate({
-        formData: { mahasiswaId: data.maId, otaId: data.otaId },
+        formData: {
+          mahasiswaId: data.maId,
+          otaId: data.otaId,
+          requestTerminationNote: data.requestTerminationNote,
+        },
       });
     },
     onSuccess: () => {
@@ -91,6 +89,7 @@ export default function TerminasiModal({
               terminateConnection.mutate({
                 maId: item.mahasiswaId,
                 otaId: item.otaId,
+                requestTerminationNote: item.requestTerminationNote,
               });
             }}
             className="border border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"

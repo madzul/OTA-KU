@@ -256,6 +256,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
     maxSemester,
     startDate,
     transferDate,
+    isDetailVisible,
     allowAdminSelection,
   } = zodParseResult;
 
@@ -290,6 +291,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
         startDate: new Date(startDate),
         name,
         transferDate,
+        isDetailVisible: isDetailVisible === "true",
         allowAdminSelection: allowAdminSelection === "true",
       });
 
@@ -338,6 +340,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
           maxSemester,
           startDate,
           transferDate,
+          isDetailVisible,
           allowAdminSelection,
         },
       },
@@ -373,6 +376,7 @@ profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
     maxSemester,
     startDate,
     transferDate,
+    isDetailVisible,
     allowAdminSelection,
   } = zodParseResult;
 
@@ -424,6 +428,7 @@ profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
           maxSemester,
           startDate,
           transferDate,
+          isDetailVisible,
           allowAdminSelection,
         },
       },
@@ -666,6 +671,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
         maxSemester: accountOtaDetailTable.maxSemester,
         transferDate: accountOtaDetailTable.transferDate,
         criteria: accountOtaDetailTable.criteria,
+        isDetailVisible: accountOtaDetailTable.isDetailVisible,
         allowAdminSelection: accountOtaDetailTable.allowAdminSelection,
       })
       .from(accountTable)
@@ -702,6 +708,7 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
       maxSemester: profileDataOTA[0].maxSemester,
       transferDate: profileDataOTA[0].transferDate,
       criteria: profileDataOTA[0].criteria,
+      isDetailVisible: profileDataOTA[0].isDetailVisible,
       allowAdminSelection: profileDataOTA[0].allowAdminSelection!,
       join_date: profileDataOTA[0].join_date,
     };

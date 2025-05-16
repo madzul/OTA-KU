@@ -19,6 +19,15 @@ export const ApplicationStatusSchema = z.object({
       description: "Status aplikasi",
       example: "accepted",
     }),
+  bill: z.coerce
+    .number({
+      invalid_type_error: "Tagihan harus berupa angka",
+      required_error: "Tagihan harus diisi",
+    })
+    .min(0, {
+      message: "Tagihan tidak boleh kurang dari 0",
+    })
+    .optional(),
   notes: z
     .string({
       invalid_type_error: "Catatan untuk Orang Tua Asuh harus berupa string",

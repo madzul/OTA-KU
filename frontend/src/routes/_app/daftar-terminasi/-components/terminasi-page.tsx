@@ -1,6 +1,7 @@
 "use client";
 
 import { api } from "@/api/client";
+import { ListTerminateForAdmin } from "@/api/generated";
 import { ClientPagination } from "@/components/client-pagination";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,25 +12,13 @@ import { useEffect, useState } from "react";
 import TerminasiModal from "./terminasi-modal";
 import TerminasiTable from "./terminasi-table";
 
-// Tipe data untuk response API
-interface TerminasiData {
-  otaId: string;
-  otaName: string;
-  otaNumber: string;
-  mahasiswaId: string;
-  maName: string;
-  maNIM: string;
-  createdAt: string;
-  requestTerminateOTA: boolean;
-  requestTerminateMA: boolean;
-}
-
 export default function TerminasiPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<TerminasiData | null>(null);
+  const [selectedItem, setSelectedItem] =
+    useState<ListTerminateForAdmin | null>(null);
   const queryClient = useQueryClient();
   const perPage = 8;
 
@@ -59,7 +48,7 @@ export default function TerminasiPage() {
 
   const terminasiData = data?.body?.data || [];
 
-  const handleTerminasi = (item: TerminasiData) => {
+  const handleTerminasi = (item: ListTerminateForAdmin) => {
     setSelectedItem(item);
     setIsModalOpen(true);
   };

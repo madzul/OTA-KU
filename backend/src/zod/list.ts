@@ -193,7 +193,7 @@ export const MahasiswaDetailsListQueryResponse = z.object({
           .openapi({ example: "3fc0317f-f143-43bf-aa65-13a7a8eca788" }),
         email: z.string().openapi({ example: "johndoe@example.com" }),
         type: z
-          .enum(["mahasiswa", "admin", "ota"])
+          .enum(["mahasiswa", "admin", "ota", "bankes", "pengurus"])
           .openapi({ example: "mahasiswa" }),
         phoneNumber: z.string().openapi({ example: "6281234567890" }),
         provider: z
@@ -256,6 +256,10 @@ export const MahasiswaDetailsListQueryResponse = z.object({
         ditmawaRecommendationLetter: z
           .string()
           .openapi({ example: "https://example.com/file.pdf" }),
+        bill: z.number().openapi({
+          example: 1000000,
+          description: "Total bill of mahasiswa",
+        }),
         notes: z.string().openapi({ example: "Mahasiswa aktif" }),
         adminOnlyNotes: z.string().openapi({ example: "Catatan admin" }),
       }),
@@ -322,6 +326,9 @@ export const OrangTuaDetailsListQueryResponse = z.object({
         maxSemester: z.coerce.number().openapi({ example: 8 }),
         transferDate: z.coerce.number().openapi({ example: 1 }),
         criteria: z.string().openapi({ example: "Kriteria orang tua" }),
+        isDetailVisible: z.boolean().openapi({
+          example: true,
+        }),
         allowAdminSelection: z.boolean().openapi({
           example: true,
         }),

@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { db } from "../drizzle.js";
 import {
+  accountAdminDetailTable,
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
@@ -18,6 +19,10 @@ export async function seed() {
 
     // Generate UUIDs
     const adminId = uuidv4();
+    const bankes1Id = uuidv4();
+    const bankes2Id = uuidv4();
+    const pengurus1Id = uuidv4();
+    const pengurus2Id = uuidv4();
     const mahasiswa1Id = uuidv4();
     const mahasiswa2Id = uuidv4();
     const mahasiswa3Id = uuidv4();
@@ -72,6 +77,42 @@ export async function seed() {
             id: adminId,
             email: "admin@example.com",
             phoneNumber: "628123456789",
+            password: hashedPassword,
+            type: "admin",
+            status: "verified",
+            applicationStatus: "accepted",
+          },
+          {
+            id: bankes1Id,
+            email: "bankes1@example.com",
+            phoneNumber: "628121865489",
+            password: hashedPassword,
+            type: "admin",
+            status: "verified",
+            applicationStatus: "accepted",
+          },
+          {
+            id: bankes2Id,
+            email: "bankes2@example.com",
+            phoneNumber: "628129648526",
+            password: hashedPassword,
+            type: "admin",
+            status: "verified",
+            applicationStatus: "accepted",
+          },
+          {
+            id: pengurus1Id,
+            email: "pengurus1@example.com",
+            phoneNumber: "628127586245",
+            password: hashedPassword,
+            type: "admin",
+            status: "verified",
+            applicationStatus: "accepted",
+          },
+          {
+            id: pengurus2Id,
+            email: "pengurus2@example.com",
+            phoneNumber: "628126548253",
             password: hashedPassword,
             type: "admin",
             status: "verified",
@@ -905,6 +946,7 @@ export async function seed() {
             maxSemester: 8,
             transferDate: 10,
             criteria: "GPA minimum 3.5, active in organizations",
+            isDetailVisible: true,
             allowAdminSelection: true,
           },
           {
@@ -919,6 +961,7 @@ export async function seed() {
             maxSemester: 6,
             transferDate: 15,
             criteria: "From underprivileged family, GPA minimum 3.0",
+            isDetailVisible: true,
             allowAdminSelection: false,
           },
           {
@@ -933,6 +976,7 @@ export async function seed() {
             maxSemester: 7,
             transferDate: 6,
             criteria: "GPA minimum 3.0",
+            isDetailVisible: true,
             allowAdminSelection: true,
           },
           {
@@ -948,6 +992,7 @@ export async function seed() {
             transferDate: 7,
             criteria: "GPA 3.2 and above",
             allowAdminSelection: false,
+            isDetailVisible: true,
           },
           {
             accountId: ota5Id,
@@ -961,6 +1006,7 @@ export async function seed() {
             maxSemester: 6,
             transferDate: 8,
             criteria: "Active in community service",
+            isDetailVisible: true,
             allowAdminSelection: true,
           },
           {
@@ -975,6 +1021,7 @@ export async function seed() {
             maxSemester: 7,
             transferDate: 9,
             criteria: "Low-income background",
+            isDetailVisible: true,
             allowAdminSelection: false,
           },
           {
@@ -989,6 +1036,7 @@ export async function seed() {
             maxSemester: 8,
             transferDate: 10,
             criteria: "Eastern Indonesia origin",
+            isDetailVisible: true,
             allowAdminSelection: true,
           },
           {
@@ -1003,6 +1051,7 @@ export async function seed() {
             maxSemester: 6,
             transferDate: 11,
             criteria: "No active sanctions",
+            isDetailVisible: true,
             allowAdminSelection: false,
           },
           {
@@ -1017,6 +1066,7 @@ export async function seed() {
             maxSemester: 7,
             transferDate: 12,
             criteria: "Single parent household",
+            isDetailVisible: false,
             allowAdminSelection: true,
           },
           {
@@ -1031,6 +1081,7 @@ export async function seed() {
             maxSemester: 8,
             transferDate: 13,
             criteria: "Remote area student",
+            isDetailVisible: false,
             allowAdminSelection: false,
           },
           {
@@ -1045,6 +1096,7 @@ export async function seed() {
             maxSemester: 6,
             transferDate: 14,
             criteria: "First-generation college student",
+            isDetailVisible: false,
             allowAdminSelection: true,
           },
           {
@@ -1059,6 +1111,7 @@ export async function seed() {
             maxSemester: 7,
             transferDate: 15,
             criteria: "Participated in volunteer work",
+            isDetailVisible: false,
             allowAdminSelection: false,
           },
           {
@@ -1073,6 +1126,7 @@ export async function seed() {
             maxSemester: 8,
             transferDate: 16,
             criteria: "STEM focus",
+            isDetailVisible: false,
             allowAdminSelection: true,
           },
           {
@@ -1087,6 +1141,7 @@ export async function seed() {
             maxSemester: 6,
             transferDate: 17,
             criteria: "Under 22 years old",
+            isDetailVisible: false,
             allowAdminSelection: false,
           },
           {
@@ -1101,12 +1156,34 @@ export async function seed() {
             maxSemester: 7,
             transferDate: 18,
             criteria: "Good academic standing",
+            isDetailVisible: false,
             allowAdminSelection: true,
           },
         ])
         .onConflictDoNothing();
 
       console.log("OTA details seeded");
+
+      await tx.insert(accountAdminDetailTable).values([
+        {
+          accountId: adminId,
+          name: "Admin",
+        },
+        {
+          accountId: bankes1Id,
+          name: "Bankes 1",
+        },
+        {
+          accountId: bankes2Id,
+          name: "Bankes 2",
+        },
+        {
+          accountId: pengurus1Id,
+          name: "Pengurus 1",
+        },
+      ]);
+
+      console.log("Admin details seeded");
 
       await tx
         .insert(connectionTable)
@@ -1115,21 +1192,25 @@ export async function seed() {
             mahasiswaId: mahasiswa1Id,
             otaId: ota1Id,
             connectionStatus: "accepted",
+            paidFor: 0,
           },
           {
             mahasiswaId: mahasiswa2Id,
             otaId: ota1Id,
             connectionStatus: "accepted",
+            paidFor: 0,
           },
           {
             mahasiswaId: mahasiswa3Id,
             otaId: ota1Id,
             connectionStatus: "pending",
+            paidFor: 0,
           },
           {
             mahasiswaId: mahasiswa8Id,
             otaId: ota2Id,
             connectionStatus: "accepted",
+            paidFor: 0,
           },
         ])
         .onConflictDoNothing();

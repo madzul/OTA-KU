@@ -90,7 +90,7 @@ describe("Database Reset", () => {
 
     // 3. Verify all tables were reset properly
     const accounts = await db.select().from(accountTable);
-    expect(accounts.length).toBe(34); // admin + 18 mahasiswa + 15 ota
+    expect(accounts.length).toBe(38); // admin + 2 bankes + 2 pengurus + 18 mahasiswa + 15 ota
 
     const mahasiswaDetails = await db
       .select()

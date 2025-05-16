@@ -155,7 +155,9 @@ function DetailDialogMahasiswa({
                       variant={"outline"}
                     >
                       <a
-                        href={data?.body[key as keyof typeof data.body] ?? "#"}
+                        href={String(
+                          data?.body[key as keyof typeof data.body] ?? "#",
+                        )}
                         rel="noreferrer"
                         target="_blank"
                       >

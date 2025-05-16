@@ -21,6 +21,7 @@ export class StatusService {
        * Status aplikasi
        */
       status: 'accepted' | 'rejected' | 'pending' | 'unregistered' | 'reapply' | 'outdated';
+      bill?: number | null;
       notes?: string;
       adminOnlyNotes?: string;
     },

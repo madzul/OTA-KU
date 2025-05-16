@@ -133,6 +133,7 @@ export function DaftarTagihanContent() {
     if (transactionData?.body?.data) {
       const transformedData = transactionData.body.data.map((item, idx) => {
         return {
+          id: item.id,
           mahasiswaId: item.mahasiswa_id,
           otaId: item.ota_id,
           namaMa: item.name_ma,
@@ -191,16 +192,16 @@ export function DaftarTagihanContent() {
 
   const updateTransactionAccMutation = useMutation({
     mutationFn: ({
+      id,
       maId,
       otaId,
-      createdAt,
     }: {
+      id: string;
       maId: string;
       otaId: string;
-      createdAt: string;
     }) =>
       api.transaction.verifyTransactionAcc({
-        formData: { mahasiswaId: maId, otaId: otaId, createdAt: createdAt },
+        formData: { id: id, mahasiswaId: maId, otaId: otaId },
       }),
 
     onSuccess: () => {
@@ -217,24 +218,24 @@ export function DaftarTagihanContent() {
 
   const updateTransactionRejectMutation = useMutation({
     mutationFn: ({
+      id,
       maId,
       otaId,
       amount,
-      createdAt,
       rejectionNote,
     }: {
+      id: string;
       maId: string;
       otaId: string;
       amount: number;
-      createdAt: string;
       rejectionNote: string;
     }) =>
       api.transaction.verifyTransactionReject({
         formData: {
+          id: id,
           mahasiswaId: maId,
           otaId: otaId,
           amountPaid: amount,
-          createdAt: createdAt,
           rejectionNote: rejectionNote,
         },
       }),
@@ -278,18 +279,19 @@ export function DaftarTagihanContent() {
             ? "unpaid"
             : "pending";
 
+      // TODO: Cek bisa atau ga setelah update db after sprint review 4
       if (apiStatus === "paid") {
         updateTransactionAccMutation.mutate({
+          id: item.id,
           maId: item.mahasiswaId,
           otaId: item.otaId,
-          createdAt: item.createdAt,
         });
       } else if (apiStatus === "unpaid") {
         updateTransactionRejectMutation.mutate({
+          id: item.id,
           maId: item.mahasiswaId,
           otaId: item.otaId,
           amount: Number(amount),
-          createdAt: item.createdAt,
           rejectionNote: rejectionNote || "",
         });
       }

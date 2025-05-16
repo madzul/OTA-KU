@@ -43,6 +43,7 @@ function RouteComponent() {
         phoneNumber={data?.body.phoneNumber || "-"}
         transferDate={data?.body.transferDate || 0}
         createdAt={data?.body.createdAt || "-"}
+        isDetailVisible={data?.body.isDetailVisible || false}
       />
     </main>
   );

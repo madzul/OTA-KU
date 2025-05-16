@@ -23,7 +23,7 @@ export class DetailService {
     body: {
       id: string;
       email: string;
-      type: 'mahasiswa' | 'admin' | 'ota';
+      type: 'mahasiswa' | 'admin' | 'ota' | 'bankes' | 'pengurus';
       phoneNumber: string;
       provider: 'credentials' | 'azure';
       applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
@@ -47,6 +47,10 @@ export class DetailService {
       pbb: string;
       electricityBill: string;
       ditmawaRecommendationLetter: string;
+      /**
+       * The amount of the bill in IDR
+       */
+      bill: number;
       notes: string;
       adminOnlyNotes: string;
     };
@@ -107,7 +111,7 @@ export class DetailService {
     body: {
       id: string;
       email: string;
-      type: 'mahasiswa' | 'admin' | 'ota';
+      type: 'mahasiswa' | 'admin' | 'ota' | 'bankes' | 'pengurus';
       phoneNumber: string;
       provider: 'credentials' | 'azure';
       applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';

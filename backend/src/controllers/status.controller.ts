@@ -20,7 +20,7 @@ statusProtectedRouter.openapi(applicationStatusRoute, async (c) => {
   const data = Object.fromEntries(body.entries());
 
   const zodParseResult = ApplicationStatusSchema.parse(data);
-  const { status, adminOnlyNotes, notes } = zodParseResult;
+  const { status, adminOnlyNotes, notes, bill } = zodParseResult;
 
   try {
     await db.transaction(async (tx) => {
@@ -42,6 +42,7 @@ statusProtectedRouter.openapi(applicationStatusRoute, async (c) => {
         await tx
           .update(accountMahasiswaDetailTable)
           .set({
+            bill: bill ?? null,
             notes: notes ?? null,
             adminOnlyNotes: adminOnlyNotes ?? null,
           })
