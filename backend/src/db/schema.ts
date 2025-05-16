@@ -17,6 +17,8 @@ export const accountTypeEnum = pgEnum("account_type", [
   "mahasiswa",
   "ota",
   "admin",
+  "bankes",
+  "pengurus",
 ]);
 
 export const linkageEnum = pgEnum("linkage", [
@@ -227,6 +229,16 @@ export const accountOtaDetailTable = pgTable("account_ota_detail", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const accountAdminDetailTable = pgTable("account_admin_detail", {
+  accountId: uuid("account_id")
+    .primaryKey()
+    .notNull()
+    .references(() => accountTable.id, {
+      onDelete: "cascade",
+    }),
+  name: varchar({ length: 255 }).notNull(),
+});
+
 export const connectionTable = pgTable(
   "connection",
   {
@@ -257,36 +269,31 @@ export const connectionTable = pgTable(
   (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
 );
 
-export const transactionTable = pgTable(
-  "transaction",
-  {
-    id: uuid("id").defaultRandom().primaryKey().notNull(),
-    mahasiswaId: uuid("mahasiswa_id")
-      .notNull()
-      .references(() => accountMahasiswaDetailTable.accountId, {
-        onDelete: "cascade",
-      }),
-    otaId: uuid("ota_id")
-      .notNull()
-      .references(() => accountOtaDetailTable.accountId, {
-        onDelete: "cascade",
-      }),
-    bill: integer("bill").notNull(),
-    amountPaid: integer("amount_paid").notNull(),
-    paidAt: timestamp("paid_at"),
-    dueDate: timestamp("due_date").notNull(),
-    transactionStatus: transactionStatusEnum("transaction_status")
-      .notNull()
-      .default("unpaid"),
-    transferStatus: transferStatus("transfer_status")
-      .notNull()
-      .default("unpaid"),
-    transactionReceipt: text("transaction_receipt"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    rejectionNote: text("verif_note"),
-  }
-);
+export const transactionTable = pgTable("transaction", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  mahasiswaId: uuid("mahasiswa_id")
+    .notNull()
+    .references(() => accountMahasiswaDetailTable.accountId, {
+      onDelete: "cascade",
+    }),
+  otaId: uuid("ota_id")
+    .notNull()
+    .references(() => accountOtaDetailTable.accountId, {
+      onDelete: "cascade",
+    }),
+  bill: integer("bill").notNull(),
+  amountPaid: integer("amount_paid").notNull(),
+  paidAt: timestamp("paid_at"),
+  dueDate: timestamp("due_date").notNull(),
+  transactionStatus: transactionStatusEnum("transaction_status")
+    .notNull()
+    .default("unpaid"),
+  transferStatus: transferStatus("transfer_status").notNull().default("unpaid"),
+  transactionReceipt: text("transaction_receipt"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  rejectionNote: text("verif_note"),
+});
 
 export const otpTable = pgTable(
   "otp",
@@ -342,6 +349,10 @@ export const accountRelations = relations(accountTable, ({ one, many }) => ({
     fields: [accountTable.id],
     references: [accountOtaDetailTable.accountId],
   }),
+  accountAdminDetail: one(accountAdminDetailTable, {
+    fields: [accountTable.id],
+    references: [accountAdminDetailTable.accountId],
+  }),
   otps: many(otpTable),
   temporaryPasswords: many(temporaryPasswordTable),
   pushSubscriptions: many(pushSubscriptionTable),
@@ -368,6 +379,16 @@ export const accountOtaDetailRelations = relations(
     }),
     connection: many(connectionTable),
     transaction: many(transactionTable),
+  }),
+);
+
+export const accountAdminDetailRelations = relations(
+  accountAdminDetailTable,
+  ({ one }) => ({
+    account: one(accountTable, {
+      fields: [accountAdminDetailTable.accountId],
+      references: [accountTable.id],
+    }),
   }),
 );
 

@@ -16,7 +16,7 @@ export const MahasiswaDetailResponse = z.object({
     }),
     email: z.string().email().openapi({ example: "johndoe@example.com" }),
     type: z
-      .enum(["mahasiswa", "admin", "ota"])
+      .enum(["mahasiswa", "admin", "ota", "bankes", "pengurus"])
       .openapi({ example: "mahasiswa" }),
     phoneNumber: z.string().openapi({ example: "+6281234567890" }),
     provider: z
@@ -141,7 +141,7 @@ export const OtaDetailResponse = z.object({
     }),
     email: z.string().email().openapi({ example: "johndoe@example.com" }),
     type: z
-      .enum(["mahasiswa", "admin", "ota"])
+      .enum(["mahasiswa", "admin", "ota", "bankes", "pengurus"])
       .openapi({ example: "mahasiswa" }),
     phoneNumber: z.string().openapi({ example: "+6281234567890" }),
     provider: z

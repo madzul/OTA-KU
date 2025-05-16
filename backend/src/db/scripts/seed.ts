@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { db } from "../drizzle.js";
 import {
+  accountAdminDetailTable,
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
@@ -18,6 +19,10 @@ export async function seed() {
 
     // Generate UUIDs
     const adminId = uuidv4();
+    const bankes1Id = uuidv4();
+    const bankes2Id = uuidv4();
+    const pengurus1Id = uuidv4();
+    const pengurus2Id = uuidv4();
     const mahasiswa1Id = uuidv4();
     const mahasiswa2Id = uuidv4();
     const mahasiswa3Id = uuidv4();
@@ -72,6 +77,42 @@ export async function seed() {
             id: adminId,
             email: "admin@example.com",
             phoneNumber: "628123456789",
+            password: hashedPassword,
+            type: "admin",
+            status: "verified",
+            applicationStatus: "accepted",
+          },
+          {
+            id: bankes1Id,
+            email: "bankes1@example.com",
+            phoneNumber: "628121865489",
+            password: hashedPassword,
+            type: "admin",
+            status: "verified",
+            applicationStatus: "accepted",
+          },
+          {
+            id: bankes2Id,
+            email: "bankes2@example.com",
+            phoneNumber: "628129648526",
+            password: hashedPassword,
+            type: "admin",
+            status: "verified",
+            applicationStatus: "accepted",
+          },
+          {
+            id: pengurus1Id,
+            email: "pengurus1@example.com",
+            phoneNumber: "628127586245",
+            password: hashedPassword,
+            type: "admin",
+            status: "verified",
+            applicationStatus: "accepted",
+          },
+          {
+            id: pengurus2Id,
+            email: "pengurus2@example.com",
+            phoneNumber: "628126548253",
             password: hashedPassword,
             type: "admin",
             status: "verified",
@@ -1122,6 +1163,27 @@ export async function seed() {
         .onConflictDoNothing();
 
       console.log("OTA details seeded");
+
+      await tx.insert(accountAdminDetailTable).values([
+        {
+          accountId: adminId,
+          name: "Admin",
+        },
+        {
+          accountId: bankes1Id,
+          name: "Bankes 1",
+        },
+        {
+          accountId: bankes2Id,
+          name: "Bankes 2",
+        },
+        {
+          accountId: pengurus1Id,
+          name: "Pengurus 1",
+        },
+      ]);
+
+      console.log("Admin details seeded");
 
       await tx
         .insert(connectionTable)

@@ -193,7 +193,7 @@ export const MahasiswaDetailsListQueryResponse = z.object({
           .openapi({ example: "3fc0317f-f143-43bf-aa65-13a7a8eca788" }),
         email: z.string().openapi({ example: "johndoe@example.com" }),
         type: z
-          .enum(["mahasiswa", "admin", "ota"])
+          .enum(["mahasiswa", "admin", "ota", "bankes", "pengurus"])
           .openapi({ example: "mahasiswa" }),
         phoneNumber: z.string().openapi({ example: "6281234567890" }),
         provider: z

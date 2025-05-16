@@ -23,7 +23,7 @@ export class DetailService {
     body: {
       id: string;
       email: string;
-      type: 'mahasiswa' | 'admin' | 'ota';
+      type: 'mahasiswa' | 'admin' | 'ota' | 'bankes' | 'pengurus';
       phoneNumber: string;
       provider: 'credentials' | 'azure';
       applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
@@ -111,7 +111,7 @@ export class DetailService {
     body: {
       id: string;
       email: string;
-      type: 'mahasiswa' | 'admin' | 'ota';
+      type: 'mahasiswa' | 'admin' | 'ota' | 'bankes' | 'pengurus';
       phoneNumber: string;
       provider: 'credentials' | 'azure';
       applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
