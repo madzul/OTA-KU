@@ -9,7 +9,7 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { SessionContext } from "@/context/session";
-import { useSidebar } from "@/context/sidebar";
+import { useSidebar } from "@/context/sidebar-context";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";

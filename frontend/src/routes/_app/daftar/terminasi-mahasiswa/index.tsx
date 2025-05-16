@@ -163,7 +163,7 @@ function RouteComponent() {
   const [localStudents, setLocalStudents] = useState<any[]>([]);
 
   const { data: activeStudentsData, isSuccess: isActiveSuccess } = useQuery({
-    queryKey: ["listMaActive", debouncedSearchQuery],
+    queryKey: ["listTerminateForOta", debouncedSearchQuery],
     queryFn: () =>
       api.terminate.listTerminateForOta({
         q: debouncedSearchQuery,
@@ -186,7 +186,7 @@ function RouteComponent() {
     );
 
     queryClient.invalidateQueries({
-      queryKey: ["listMaActive"],
+      queryKey: ["listTerminateForOta"],
     });
   };
 
