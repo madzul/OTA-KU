@@ -1130,21 +1130,25 @@ export async function seed() {
             mahasiswaId: mahasiswa1Id,
             otaId: ota1Id,
             connectionStatus: "accepted",
+            paidFor: 0,
           },
           {
             mahasiswaId: mahasiswa2Id,
             otaId: ota1Id,
             connectionStatus: "accepted",
+            paidFor: 0,
           },
           {
             mahasiswaId: mahasiswa3Id,
             otaId: ota1Id,
             connectionStatus: "pending",
+            paidFor: 0,
           },
           {
             mahasiswaId: mahasiswa8Id,
             otaId: ota2Id,
             connectionStatus: "accepted",
+            paidFor: 0,
           },
         ])
         .onConflictDoNothing();

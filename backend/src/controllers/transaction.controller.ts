@@ -5,8 +5,10 @@ import {
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
+  connectionTable,
   transactionTable,
 } from "../db/schema.js";
+import { uploadPdfToCloudinary } from "../lib/file-upload.js";
 import {
   detailTransactionRoute,
   listTransactionAdminRoute,
@@ -24,17 +26,10 @@ import {
   VerifyTransactionRejectSchema,
 } from "../zod/transaction.js";
 import { createAuthRouter } from "./router-factory.js";
-import { uploadPdfToCloudinary } from "../lib/file-upload.js";
 
 export const transactionProtectedRouter = createAuthRouter();
 
 const LIST_PAGE_SIZE = 6;
-
-function convertUtcToWib(utcDateString: string): Date {
-  const utcDate = new Date(utcDateString);
-  // Add 7 hours (GMT+7 offset in ms)
-  return new Date(utcDate.getTime() + 7 * 60 * 60 * 1000);
-}
 
 transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
   const user = c.var.user;
@@ -334,18 +329,15 @@ transactionProtectedRouter.openapi(detailTransactionRoute, async (c) => {
 
 transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   const user = c.var.user;
-  
+
   // Get the form data
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
-  
+
   // Parse using the UploadReceiptSchema
   const zodParseResult = UploadReceiptSchema.parse(data);
-  const { mahasiswaId, createdAt, receipt } = zodParseResult;
-  const createdAtDate = convertUtcToWib(createdAt)
+  const { mahasiswaId, paidFor, receipt } = zodParseResult;
 
-  console.log(createdAtDate)
-  
   try {
     const receiptUrl = await uploadPdfToCloudinary(receipt);
 
@@ -356,6 +348,16 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
           transactionReceipt: receiptUrl.secure_url,
           transactionStatus: "pending",
         })
+        .where(
+          and(
+            eq(transactionTable.mahasiswaId, mahasiswaId),
+            eq(transactionTable.otaId, user.id),
+          ),
+        );
+
+      await tx
+        .update(connectionTable)
+        .set({ paidFor })
         .where(
           and(
             eq(transactionTable.mahasiswaId, mahasiswaId),
@@ -387,88 +389,108 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   }
 });
 
-transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
-    const body = await c.req.formData();
-    const data = Object.fromEntries(body.entries());
-    const zodParseResult = VerifyTransactionAcceptSchema.parse(data);
-    const { createdAt, otaId, mahasiswaId } = zodParseResult
-    const createdAtDate = new Date(createdAt);
+transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+  const zodParseResult = VerifyTransactionAcceptSchema.parse(data);
+  const { createdAt, otaId, mahasiswaId } = zodParseResult;
+  const createdAtDate = new Date(createdAt);
 
-    try{
-        const result = await db.transaction(async(tx) => {
-          // Get the updated bill (amount paid)
-            const billRow = await tx
-              .select({ bill: transactionTable.bill })
-              .from(transactionTable)
-              .where(
-                  and(
-                      eq(transactionTable.mahasiswaId, mahasiswaId),
-                      eq(transactionTable.otaId, otaId),
-                      and(
-                        gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
-                        lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
-                      )
-                  )
-              )
-              .limit(1);
+  try {
+    const result = await db.transaction(async (tx) => {
+      // Get the updated bill (amount paid)
+      const billRow = await tx
+        .select({ bill: transactionTable.bill })
+        .from(transactionTable)
+        .where(
+          and(
+            eq(transactionTable.mahasiswaId, mahasiswaId),
+            eq(transactionTable.otaId, otaId),
+            and(
+              gte(
+                transactionTable.createdAt,
+                new Date(createdAtDate.getTime() - 500),
+              ),
+              lte(
+                transactionTable.createdAt,
+                new Date(createdAtDate.getTime() + 500),
+              ),
+            ),
+          ),
+        )
+        .limit(1);
 
-            await tx
-              .update(transactionTable)
-                .set(
-                    { 
-                        transactionStatus: "paid",
-                        transactionReceipt: "",
-                        amountPaid: billRow[0]?.bill ?? 0
-                    }
-                )
-                .where(
-                    and(
-                        eq(transactionTable.mahasiswaId, mahasiswaId),
-                        eq(transactionTable.otaId, otaId),
-                        and(
-                          gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
-                          lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
-                        )
-                    )
-                )
-
-            return billRow[0]?.bill ?? 0;
-        });
-
-        return c.json(
-            {
-              success: true,
-              message: "Berhasil melakukan penerimaan verifikasi pembayaran",
-              body: {
-                mahasiswaId: mahasiswaId,
-                otaId: otaId,
-                createdAt: createdAtDate,
-                amountPaid: result
-              },
-            },
-            200
+      await tx
+        .update(transactionTable)
+        .set({
+          transactionStatus: "paid",
+          transactionReceipt: "",
+          amountPaid: billRow[0]?.bill ?? 0,
+        })
+        .where(
+          and(
+            eq(transactionTable.mahasiswaId, mahasiswaId),
+            eq(transactionTable.otaId, otaId),
+            and(
+              gte(
+                transactionTable.createdAt,
+                new Date(createdAtDate.getTime() - 500),
+              ),
+              lte(
+                transactionTable.createdAt,
+                new Date(createdAtDate.getTime() + 500),
+              ),
+            ),
+          ),
         );
-    } catch (error) {
-        console.error(error);
-        return c.json(
-          {
-            success: false,
-            message: "Internal server error",
-            error: error,
-          },
-          500,
-        );
-    }
-})
 
+      await tx
+        .update(connectionTable)
+        .set({ paidFor: sql`${connectionTable.paidFor} - 1` })
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+          ),
+        );
+
+      return billRow[0]?.bill ?? 0;
+    });
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil melakukan penerimaan verifikasi pembayaran",
+        body: {
+          mahasiswaId: mahasiswaId,
+          otaId: otaId,
+          createdAt: createdAtDate,
+          amountPaid: result,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+});
 
 transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
   const zodParseResult = VerifyTransactionRejectSchema.parse(data);
-  const { createdAt, otaId, mahasiswaId, amountPaid, rejectionNote } = zodParseResult;
+  const { createdAt, otaId, mahasiswaId, amountPaid, rejectionNote } =
+    zodParseResult;
   const createdAtDate = new Date(createdAt);
-  
+
   try {
     await db.transaction(async (tx) => {
       const existingTransaction = await tx
@@ -481,10 +503,16 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
             eq(transactionTable.mahasiswaId, mahasiswaId),
             eq(transactionTable.otaId, otaId),
             and(
-              gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
-              lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
-            )
-          )
+              gte(
+                transactionTable.createdAt,
+                new Date(createdAtDate.getTime() - 500),
+              ),
+              lte(
+                transactionTable.createdAt,
+                new Date(createdAtDate.getTime() + 500),
+              ),
+            ),
+          ),
         )
         .limit(1);
 
@@ -504,10 +532,26 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
             eq(transactionTable.mahasiswaId, mahasiswaId),
             eq(transactionTable.otaId, otaId),
             and(
-              gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
-              lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
-            )
-          )
+              gte(
+                transactionTable.createdAt,
+                new Date(createdAtDate.getTime() - 500),
+              ),
+              lte(
+                transactionTable.createdAt,
+                new Date(createdAtDate.getTime() + 500),
+              ),
+            ),
+          ),
+        );
+
+      await tx
+        .update(connectionTable)
+        .set({ paidFor: 0 })
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+          ),
         );
     });
 
@@ -523,7 +567,7 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
           amountPaid: amountPaid,
         },
       },
-      200
+      200,
     );
   } catch (error) {
     console.error(error);
@@ -533,7 +577,7 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
         message: "Internal server error",
         error: error,
       },
-      500
+      500,
     );
   }
 });

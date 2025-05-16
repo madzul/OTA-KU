@@ -247,6 +247,7 @@ export const connectionTable = pgTable(
       .default(false)
       .notNull(),
     requestTerminationNote: text("request_termination_note"),
+    paidFor: integer("paid_for").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

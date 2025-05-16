@@ -137,8 +137,12 @@ export class TransactionService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
-      createdAt: string;
       receipt: Blob;
+      /**
+       * Pembayaran untuk berapa bulan
+       */
+      paidFor: number | null;
+      createdAt: string;
     },
   }): CancelablePromise<{
     success: boolean;

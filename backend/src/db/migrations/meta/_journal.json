@@ -239,6 +239,13 @@
       "when": 1747405686479,
       "tag": "0033_lumpy_la_nuit",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1747405893068,
+      "tag": "0034_rapid_maestro",
+      "breakpoints": true
     }
   ]
 }
