@@ -25,6 +25,18 @@ export const TerminateRequestSchema = z.object({
       description: "ID mahasiswa asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
+  requestTerminationNote: z
+    .string({
+      required_error: "Catatan request terminasi harus diisi",
+      invalid_type_error: "Catatan request terminasi harus berupa string",
+    })
+    .min(1, {
+      message: "Catatan request terminasi tidak boleh kosong",
+    })
+    .openapi({
+      description: "Catatan request terminasi",
+      example: "Request terminasi hubungan",
+    }),
 });
 
 export const listTerminateQuerySchema = z.object({
@@ -140,6 +152,9 @@ export const terminationStatusMA = z.object({
       }),
     otaName: z.string().openapi({ example: "John Doe " }),
     connectionStatus: z.string().openapi({ example: "pending" }),
+    requestTerminationNote: z.string().openapi({
+      example: "Request terminasi hubungan",
+    }),
     requestTerminateOTA: z.boolean().openapi({ example: true }),
     requestTerminateMA: z.boolean().openapi({ example: false }),
   }),

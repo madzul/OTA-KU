@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, or, sql } from "drizzle-orm";
+import { and, count, eq, ilike, or } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -305,6 +305,7 @@ terminateProtectedRouter.openapi(terminationStatusMARoute, async (c) => {
         otaId: connectionTable.otaId,
         otaName: accountOtaDetailTable.name,
         connectionStatus: connectionTable.connectionStatus,
+        requestTerminationNote: connectionTable.requestTerminationNote,
         requestTerminateOTA: connectionTable.requestTerminateOta,
         requestTerminateMA: connectionTable.requestTerminateMahasiswa,
       })
@@ -326,6 +327,7 @@ terminateProtectedRouter.openapi(terminationStatusMARoute, async (c) => {
           otaId: status.otaId,
           otaName: status.otaName,
           connectionStatus: status.connectionStatus,
+          requestTerminationNote: status.requestTerminationNote!,
           requestTerminateOTA: status.requestTerminateOTA,
           requestTerminateMA: status.requestTerminateMA,
         },
@@ -351,7 +353,7 @@ terminateProtectedRouter.openapi(requestTerminateFromMARoute, async (c) => {
   const data = Object.fromEntries(body.entries());
 
   const zodParseResult = TerminateRequestSchema.parse(data);
-  const { mahasiswaId, otaId } = zodParseResult;
+  const { mahasiswaId, otaId, requestTerminationNote } = zodParseResult;
 
   const userAccount = await db
     .select()
@@ -377,6 +379,7 @@ terminateProtectedRouter.openapi(requestTerminateFromMARoute, async (c) => {
         .set({
           connectionStatus: "pending",
           requestTerminateMahasiswa: true,
+          requestTerminationNote: requestTerminationNote,
         })
         .where(
           and(
@@ -417,7 +420,7 @@ terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
   const data = Object.fromEntries(body.entries());
 
   const zodParseResult = TerminateRequestSchema.parse(data);
-  const { mahasiswaId, otaId } = zodParseResult;
+  const { mahasiswaId, otaId, requestTerminationNote } = zodParseResult;
 
   const userAccount = await db
     .select()
@@ -443,6 +446,7 @@ terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
         .set({
           connectionStatus: "pending",
           requestTerminateOta: true,
+          requestTerminationNote: requestTerminationNote,
         })
         .where(
           and(

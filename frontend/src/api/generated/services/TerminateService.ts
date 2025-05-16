@@ -111,6 +111,7 @@ export class TerminateService {
       otaId: string;
       otaName: string;
       connectionStatus: string;
+      requestTerminationNote: string;
       requestTerminateOTA: boolean;
       requestTerminateMA: boolean;
     };
@@ -142,6 +143,10 @@ export class TerminateService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      /**
+       * Catatan request terminasi
+       */
+      requestTerminationNote: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -187,6 +192,10 @@ export class TerminateService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      /**
+       * Catatan request terminasi
+       */
+      requestTerminationNote: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -232,6 +241,10 @@ export class TerminateService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      /**
+       * Catatan request terminasi
+       */
+      requestTerminationNote: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -277,6 +290,10 @@ export class TerminateService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      /**
+       * Catatan request terminasi
+       */
+      requestTerminationNote: string;
     },
   }): CancelablePromise<{
     success: boolean;
