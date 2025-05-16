@@ -190,6 +190,13 @@
       "when": 1747025744303,
       "tag": "0026_skinny_serpent_society",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1747391411138,
+      "tag": "0027_curly_maria_hill",
+      "breakpoints": true
     }
   ]
 }

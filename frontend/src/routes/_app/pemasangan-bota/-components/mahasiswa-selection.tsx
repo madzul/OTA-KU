@@ -289,7 +289,7 @@ export function MahasiswaSelection({
             </div>
           ) : (
             // TODO: Set to 3 just for testing. Change to 10 later
-            <ClientPagination totalPerPage={3} total={data.body.totalData} />
+            <ClientPagination totalPerPage={6} total={data.body.totalData} />
           )}
         </>
       ) : (

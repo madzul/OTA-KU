@@ -475,7 +475,6 @@ export const ProfileOrangTuaResponse = z.object({
   }),
 });
 
-//TODO: add join_date to db
 export const ProfileMahasiswaResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mengakses profil MA" }),
