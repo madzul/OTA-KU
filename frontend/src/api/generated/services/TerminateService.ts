@@ -37,6 +37,7 @@ export class TerminateService {
         createdAt: string;
         requestTerminateOTA: boolean;
         requestTerminateMA: boolean;
+        requestTerminationNote: string;
       }>;
     };
   }> {
@@ -76,6 +77,7 @@ export class TerminateService {
         mahasiswaId: string;
         maName: string;
         maNIM: string;
+        requestTerminationNote: string;
         createdAt: string;
       }>;
     };

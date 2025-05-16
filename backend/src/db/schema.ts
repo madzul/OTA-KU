@@ -245,6 +245,7 @@ export const connectionTable = pgTable(
     requestTerminateMahasiswa: boolean("request_terminate_mahasiswa")
       .default(false)
       .notNull(),
+    requestTerminationNote: text("request_termination_note"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -274,9 +275,11 @@ export const transactionTable = pgTable(
     transactionReceipt: text("transaction_receipt"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    rejectionNote: text("verif_note")
+    rejectionNote: text("verif_note"),
   },
-  (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId, table.createdAt] })],
+  (table) => [
+    primaryKey({ columns: [table.mahasiswaId, table.otaId, table.createdAt] }),
+  ],
 );
 
 export const otpTable = pgTable(
