@@ -108,28 +108,30 @@ export const listTerminateForOTAResponse = z.object({
   }),
   body: z.object({
     data: z.array(
-      z.object({
-        mahasiswaId: z
-          .string({
-            required_error: "ID mahasiswa asuh harus diisi",
-            invalid_type_error: "ID mahasiswa asuh harus berupa string",
-          })
-          .uuid({
-            message: "ID mahasiswa asuh tidak valid",
-          })
-          .openapi({
-            description: "ID mahasiswa asuh",
-            example: "123e4567-e89b-12d3-a456-426614174000",
+      z
+        .object({
+          mahasiswaId: z
+            .string({
+              required_error: "ID mahasiswa asuh harus diisi",
+              invalid_type_error: "ID mahasiswa asuh harus berupa string",
+            })
+            .uuid({
+              message: "ID mahasiswa asuh tidak valid",
+            })
+            .openapi({
+              description: "ID mahasiswa asuh",
+              example: "123e4567-e89b-12d3-a456-426614174000",
+            }),
+          maName: z.string().openapi({ example: "Jane Doe " }),
+          maNIM: z.string().openapi({ example: "13522005" }),
+          requestTerminationNote: z.string().openapi({
+            example: "Request terminasi hubungan",
           }),
-        maName: z.string().openapi({ example: "Jane Doe " }),
-        maNIM: z.string().openapi({ example: "13522005" }),
-        requestTerminationNote: z.string().openapi({
-          example: "Request terminasi hubungan",
-        }),
-        createdAt: z
-          .string()
-          .openapi({ example: "2025-05-12 05:38:29.984502" }),
-      }),
+          createdAt: z
+            .string()
+            .openapi({ example: "2025-05-12 05:38:29.984502" }),
+        })
+        .openapi("ListTerminateForOTA"),
     ),
   }),
 });

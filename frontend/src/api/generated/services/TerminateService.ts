@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ListTerminateForAdmin } from '../models/ListTerminateForAdmin';
+import type { ListTerminateForOTA } from '../models/ListTerminateForOTA';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class TerminateService {
@@ -54,16 +55,7 @@ export class TerminateService {
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        /**
-         * ID mahasiswa asuh
-         */
-        mahasiswaId: string;
-        maName: string;
-        maNIM: string;
-        requestTerminationNote: string;
-        createdAt: string;
-      }>;
+      data: Array<ListTerminateForOTA>;
     };
   }> {
     return this.httpRequest.request({
