@@ -49,7 +49,7 @@ export const TransactionListOTAQueryResponse = z.object({
           description: "Alasan penolakan verifikasi pembayaran",
           example: "Nominal yang ditransfer tidak sesuai dengan tagihan",
         }),
-      }),
+      }).openapi("TransactionOTA"),
     ),
     totalData: z.number().openapi({ example: 100 }),
   }),

@@ -1,4 +1,5 @@
 import { api } from "@/api/client";
+import { TransactionOTA } from "@/api/generated";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,23 +14,10 @@ import { FileUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-interface Transaction {
-  id: string;
-  name: string;
-  nim: string;
-  bill: number;
-  amount_paid: number;
-  paid_at: string | null;
-  due_date: string;
-  status: "unpaid" | "pending" | "paid";
-  receipt: string;
-  created_at: string;
-}
-
 interface UploadBuktiDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  transaction: Transaction | null;
+  transaction: TransactionOTA | null;
   onSuccess?: () => void;
 }
 
@@ -43,9 +31,8 @@ export function UploadBuktiDialog({
   const [fileName, setFileName] = useState<string>("");
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [localTransaction, setLocalTransaction] = useState<Transaction | null>(
-    null,
-  );
+  const [localTransaction, setLocalTransaction] =
+    useState<TransactionOTA | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -133,7 +120,6 @@ export function UploadBuktiDialog({
 
     const mahasiswaId = localTransaction.id;
     console.log("localTransaction", localTransaction);
-    console.log("createdAt", localTransaction.created_at);
 
     if (!mahasiswaId) {
       toast.error("ID mahasiswa tidak ditemukan");
@@ -146,9 +132,10 @@ export function UploadBuktiDialog({
       // Use the API client to upload
       const response = await api.transaction.uploadReceipt({
         formData: {
-          mahasiswaId,
+          id: localTransaction.id,
+          // TODO: Nanti sesuaiin paidFor sama data aslinya yang pake dropdown
+          paidFor: 0,
           receipt: file,
-          createdAt: localTransaction.created_at,
         },
       });
 

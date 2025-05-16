@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { TransactionDetailSchema } from '../models/TransactionDetailSchema';
 import type { TransactionListAdminSchema } from '../models/TransactionListAdminSchema';
+import type { TransactionOTA } from '../models/TransactionOTA';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class TransactionService {
@@ -25,31 +26,7 @@ export class TransactionService {
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        /**
-         * ID transaksi
-         */
-        id: string;
-        /**
-         * ID transaksi
-         */
-        mahasiswa_id: string;
-        name: string;
-        /**
-         * Nomor Induk Mahasiswa
-         */
-        nim: string;
-        bill: number;
-        amount_paid: number;
-        paid_at: string;
-        due_date: string;
-        status: 'unpaid' | 'pending' | 'paid';
-        receipt: string;
-        /**
-         * Alasan penolakan verifikasi pembayaran
-         */
-        rejection_note?: string;
-      }>;
+      data: Array<TransactionOTA>;
       totalData: number;
     };
   }> {
