@@ -3,7 +3,7 @@ import SidebarContent from "@/components/sidebar-content";
 import SidebarOverlay from "@/components/sidebar-overlay";
 import { SessionContext } from "@/context/session";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useLocation } from "@tanstack/react-router";
 import { useContext, useEffect, useState } from "react";
 
 interface MenuItem {
@@ -23,7 +23,6 @@ interface SidebarProps {
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const session = useContext(SessionContext);
-  const navigate = useNavigate();
   const location = useLocation();
   const [activeItem, setActiveItem] = useState<string>("");
 
@@ -81,15 +80,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     };
   }, [isOpen, onClose]);
 
-  const handleItemClick = (item: MenuItem) => {
-    setActiveItem(item.id);
-    navigate({ to: item.path });
-
-    if (window.innerWidth < 1024) {
-      onClose();
-    }
-  };
-
   if (!session) {
     return null;
   }
@@ -102,7 +92,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         onClose={onClose}
         menuItems={menuItems}
         activeItem={activeItem}
-        handleItemClick={handleItemClick}
         userData={session}
       />
     </>

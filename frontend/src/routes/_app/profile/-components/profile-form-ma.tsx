@@ -20,7 +20,13 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Fakultas, Jurusan } from "@/lib/nim";
+import {
+  Fakultas,
+  Jurusan,
+  getNimFakultasCodeMap,
+  getNimFakultasFromNimJurusanMap,
+  getNimJurusanCodeMap,
+} from "@/lib/nim";
 import { cn } from "@/lib/utils";
 import { MahasiswaProfileFormSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -82,18 +88,19 @@ const religionOptions = [
 
 // Gender options from enum
 const genderOptions = [
-  { value: "M", label: "Laki-laki" },
+  { value: "M", label: "Laki-Laki" },
   { value: "F", label: "Perempuan" },
 ];
 
 interface ProfileFormProps {
   session: UserSchema;
   isEditable?: boolean;
-  isWithin30Days?: boolean;
+  setIsEditingEnabled: (isEditing: boolean) => void;
 }
 
 const ProfileFormMA: React.FC<ProfileFormProps> = ({
   session,
+  setIsEditingEnabled,
   isEditable = false,
 }) => {
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
@@ -266,6 +273,28 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
     updateProfileMutation.mutate(dataToSubmit);
   };
 
+  const watchedNim = form.watch("nim");
+
+  useEffect(() => {
+    if (watchedNim) {
+      const isValidNim =
+        MahasiswaProfileFormSchema.shape.nim.safeParse(watchedNim).success;
+
+      if (isValidNim) {
+        console.log("NIM valid, setting jurusan and fakultas");
+
+        const jurusanCode = watchedNim.slice(0, 3);
+        const jurusan = getNimJurusanCodeMap()[jurusanCode] || "TPB";
+        const fakultasCode =
+          getNimFakultasFromNimJurusanMap()[jurusanCode] || jurusanCode;
+        const fakultas = getNimFakultasCodeMap()[fakultasCode];
+
+        form.setValue("major", jurusan);
+        form.setValue("faculty", fakultas);
+      }
+    }
+  }, [watchedNim, form]);
+
   return (
     <div className="mx-auto w-full">
       <Form {...form}>
@@ -341,7 +370,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                           <Input
                             placeholder="Masukkan NIM Anda"
                             {...field}
-                            disabled={!isEditable}
+                            disabled={
+                              !isEditable || session.provider === "azure"
+                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -360,7 +391,7 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                           <Input
                             placeholder="Masukkan jurusan Anda"
                             {...field}
-                            disabled={!isEditable}
+                            disabled
                           />
                         </FormControl>
                         <FormMessage />
@@ -379,7 +410,7 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                           <Input
                             placeholder="Masukkan fakultas Anda"
                             {...field}
-                            disabled={!isEditable}
+                            disabled
                           />
                         </FormControl>
                         <FormMessage />
@@ -469,9 +500,6 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                           <Input
                             placeholder="Masukkan IPK Anda"
                             {...field}
-                            onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value))
-                            }
                             disabled={!isEditable}
                           />
                         </FormControl>
@@ -717,7 +745,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                 type="button"
                 className="w-24 xl:w-40"
                 variant="outline"
-                onClick={() => form.reset()}
+                onClick={() => {
+                  setIsEditingEnabled(false);
+                }}
               >
                 Batal
               </Button>

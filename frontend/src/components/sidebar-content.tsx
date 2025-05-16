@@ -18,14 +18,12 @@ const SidebarContent = ({
   onClose,
   menuItems,
   activeItem,
-  handleItemClick,
   userData,
 }: {
   isOpen: boolean;
   onClose: () => void;
   menuItems: MenuItem[];
   activeItem: string;
-  handleItemClick: (item: MenuItem) => void;
   userData: UserSchema | undefined;
 }) => (
   <div
@@ -51,7 +49,6 @@ const SidebarContent = ({
             key={item.id}
             item={item}
             isActive={activeItem === item.id}
-            onClick={() => handleItemClick(item)}
           />
         ))}
       </div>

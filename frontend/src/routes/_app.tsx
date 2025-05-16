@@ -1,6 +1,7 @@
 import NavBar from "@/components/navbar";
 import SessionProvider from "@/components/session";
-import { SidebarProvider, useSidebar } from "@/context/sidebar";
+import { SidebarProvider } from "@/context/sidebar";
+import { useSidebar } from "@/context/sidebar-context";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";

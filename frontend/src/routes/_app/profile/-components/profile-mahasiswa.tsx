@@ -89,7 +89,7 @@ function ProfileMahasiswa({
           <ProfileFormMA
             session={session}
             isEditable={isEditingEnabled && data?.body.status}
-            isWithin30Days={data?.body.status}
+            setIsEditingEnabled={setIsEditingEnabled}
           />
           {/* Only show change password form for credentials provider */}
           {session.provider === "credentials" && (
