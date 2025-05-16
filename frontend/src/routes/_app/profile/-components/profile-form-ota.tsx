@@ -281,9 +281,6 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                             disabled={!isEditingEnabled}
                             placeholder="Minimal Rp 300.000"
                             {...field}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value))
-                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -303,9 +300,6 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                             disabled={!isEditingEnabled}
                             placeholder="Jumlah anak asuh"
                             {...field}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value))
-                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -372,9 +366,6 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                             disabled={!isEditingEnabled}
                             placeholder="Min. 1 semester"
                             {...field}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value))
-                            }
                           />
                         </FormControl>
                         <FormMessage />
@@ -396,9 +387,6 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                             min={1}
                             max={28}
                             {...field}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value))
-                            }
                           />
                         </FormControl>
                         <FormMessage />

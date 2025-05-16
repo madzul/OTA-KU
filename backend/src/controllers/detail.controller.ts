@@ -9,8 +9,9 @@ import {
 } from "../db/schema.js";
 import {
   getMahasiswaDetailRoute,
+  getMahasiswaSayaDetailRoute,
+  getMyOtaDetailRoute,
   getOtaDetailRoute,
-  getMyOtaDetailRoute
 } from "../routes/detail.route.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -100,6 +101,109 @@ detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
   }
 });
 
+detailProtectedRouter.openapi(getMahasiswaSayaDetailRoute, async (c) => {
+  const user = c.var.user;
+  const { id } = c.req.param();
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Unauthorized",
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Hanya orang tua asuh yang dapat mengakses detail ini",
+        },
+      },
+      403,
+    );
+  }
+
+  try {
+    const mahasiswaDetail = await db
+      .select({
+        id: accountTable.id,
+        email: accountTable.email,
+        phoneNumber: accountTable.phoneNumber,
+        name: accountMahasiswaDetailTable.name,
+        nim: accountMahasiswaDetailTable.nim,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        religion: accountMahasiswaDetailTable.religion,
+        gender: accountMahasiswaDetailTable.gender,
+        gpa: accountMahasiswaDetailTable.gpa,
+        notes: accountMahasiswaDetailTable.notes,
+        createdAt: accountMahasiswaDetailTable.createdAt,
+      })
+      .from(accountTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(accountTable.id, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        connectionTable,
+        and(
+          eq(connectionTable.mahasiswaId, accountTable.id),
+          eq(connectionTable.otaId, user.id),
+        ),
+      )
+      .where(eq(accountTable.id, id))
+      .limit(1);
+
+    if (mahasiswaDetail.length === 0) {
+      return c.json(
+        {
+          success: false,
+          message: "Mahasiswa tidak ditemukan",
+          error: {
+            code: "NOT_FOUND",
+            message: "Mahasiswa dengan ID tersebut tidak ditemukan",
+          },
+        },
+        404,
+      );
+    }
+
+    const mahasiswa = mahasiswaDetail[0];
+
+    return c.json(
+      {
+        success: true,
+        message: "Detail mahasiswa berhasil diambil",
+        body: {
+          id: mahasiswa.id,
+          email: mahasiswa.email,
+          phoneNumber: mahasiswa.phoneNumber!,
+          name: mahasiswa.name!,
+          nim: mahasiswa.nim!,
+          major: mahasiswa.major!,
+          faculty: mahasiswa.faculty!,
+          cityOfOrigin: mahasiswa.cityOfOrigin!,
+          highschoolAlumni: mahasiswa.highschoolAlumni!,
+          religion: mahasiswa.religion!,
+          gender: mahasiswa.gender!,
+          gpa: mahasiswa.gpa!,
+          notes: mahasiswa.notes!,
+          createdAt: mahasiswa.createdAt.toISOString(),
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error("Error fetching mahasiswa detail:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+});
+
 detailProtectedRouter.openapi(getOtaDetailRoute, async (c) => {
   const { id } = c.req.param();
 
@@ -172,37 +276,37 @@ detailProtectedRouter.openapi(getOtaDetailRoute, async (c) => {
 detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
   const user = c.var.user;
 
+  if (user.type !== "mahasiswa") {
+    return c.json(
+      {
+        success: false,
+        message: "Unauthorized",
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Hanya mahasiswa yang dapat mengakses detail ini",
+        },
+      },
+      403,
+    );
+  }
+
   try {
-    const [connection] = await db
-      .select({
-        otaId: connectionTable.otaId
-      })
-      .from(connectionTable)
-      .where(eq(connectionTable.mahasiswaId, user.id))
-      .limit(1);
-    
-    // Check if a connection was found
-    if (!connection) {
-      throw new Error("No OTA connection found for this mahasiswa.");
-    }
-    
     const otaDetail = await db
-      .select()
+      .select({
+        id: accountTable.id,
+        email: accountTable.email,
+        phoneNumber: accountTable.phoneNumber,
+        name: accountOtaDetailTable.name,
+        transferDate: accountOtaDetailTable.transferDate,
+        createdAt: accountOtaDetailTable.createdAt,
+      })
       .from(accountTable)
       .innerJoin(
         accountOtaDetailTable,
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
-      .innerJoin(
-        connectionTable,
-        eq(connectionTable.mahasiswaId, user.id),
-      )
-      .where(
-        and(
-          eq(accountTable.id, connection.otaId),
-          eq(connectionTable.connectionStatus, "accepted")
-        )
-      )
+      .innerJoin(connectionTable, eq(connectionTable.mahasiswaId, user.id))
+      .where(eq(connectionTable.connectionStatus, "accepted"))
       .limit(1);
 
     if (otaDetail.length === 0) {
@@ -223,23 +327,12 @@ detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
         success: true,
         message: "Detail orang tua asuh berhasil diambil",
         body: {
-          id: ota.account.id,
-          email: ota.account.email,
-          type: ota.account.type,
-          phoneNumber: ota.account.phoneNumber!,
-          provider: ota.account.provider,
-          applicationStatus: ota.account.applicationStatus,
-          name: ota.account_ota_detail.name!,
-          job: ota.account_ota_detail.job!,
-          address: ota.account_ota_detail.address!,
-          linkage: ota.account_ota_detail.linkage,
-          funds: ota.account_ota_detail.funds,
-          maxCapacity: ota.account_ota_detail.maxCapacity,
-          startDate: ota.account_ota_detail.startDate.toISOString(),
-          maxSemester: ota.account_ota_detail.maxSemester,
-          transferDate: ota.account_ota_detail.transferDate,
-          criteria: ota.account_ota_detail.criteria,
-          allowAdminSelection: ota.account_ota_detail.allowAdminSelection,
+          id: ota.id,
+          email: ota.email,
+          phoneNumber: ota.phoneNumber!,
+          name: ota.name!,
+          transferDate: ota.transferDate,
+          createdAt: ota.createdAt.toISOString(),
         },
       },
       200,

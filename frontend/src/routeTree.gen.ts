@@ -30,7 +30,6 @@ import { Route as AppAuthOtpVerificationIndexImport } from './routes/_app/auth/o
 import { Route as AppAuthLupaPasswordIndexImport } from './routes/_app/auth/lupa-password/index'
 import { Route as AppAuthLoginIndexImport } from './routes/_app/auth/login/index'
 import { Route as AppMahasiswaAsuhSayaDetailIdStatusBayarImport } from './routes/_app/mahasiswa-asuh-saya_/$detailId/status-bayar'
-import { Route as AppDetailOrangTuaAsuhDetailIdImport } from './routes/_app/detail/orang-tua-asuh/$detailId'
 import { Route as AppDetailMahasiswaDetailIdImport } from './routes/_app/detail/mahasiswa/$detailId'
 import { Route as AppIntegrationsAzureKeyVaultOauth2CallbackIndexImport } from './routes/_app/integrations/azure-key-vault/oauth2/callback/index'
 
@@ -152,13 +151,6 @@ const AppMahasiswaAsuhSayaDetailIdStatusBayarRoute =
     getParentRoute: () => AppRoute,
   } as any)
 
-const AppDetailOrangTuaAsuhDetailIdRoute =
-  AppDetailOrangTuaAsuhDetailIdImport.update({
-    id: '/detail/orang-tua-asuh/$detailId',
-    path: '/detail/orang-tua-asuh/$detailId',
-    getParentRoute: () => AppRoute,
-  } as any)
-
 const AppDetailMahasiswaDetailIdRoute = AppDetailMahasiswaDetailIdImport.update(
   {
     id: '/detail/mahasiswa/$detailId',
@@ -276,13 +268,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDetailMahasiswaDetailIdImport
       parentRoute: typeof AppImport
     }
-    '/_app/detail/orang-tua-asuh/$detailId': {
-      id: '/_app/detail/orang-tua-asuh/$detailId'
-      path: '/detail/orang-tua-asuh/$detailId'
-      fullPath: '/detail/orang-tua-asuh/$detailId'
-      preLoaderRoute: typeof AppDetailOrangTuaAsuhDetailIdImport
-      parentRoute: typeof AppImport
-    }
     '/_app/mahasiswa-asuh-saya_/$detailId/status-bayar': {
       id: '/_app/mahasiswa-asuh-saya_/$detailId/status-bayar'
       path: '/mahasiswa-asuh-saya/$detailId/status-bayar'
@@ -351,7 +336,6 @@ interface AppRouteChildren {
   AppStatusTransaksiIndexRoute: typeof AppStatusTransaksiIndexRoute
   AppVerifikasiAkunIndexRoute: typeof AppVerifikasiAkunIndexRoute
   AppDetailMahasiswaDetailIdRoute: typeof AppDetailMahasiswaDetailIdRoute
-  AppDetailOrangTuaAsuhDetailIdRoute: typeof AppDetailOrangTuaAsuhDetailIdRoute
   AppMahasiswaAsuhSayaDetailIdStatusBayarRoute: typeof AppMahasiswaAsuhSayaDetailIdStatusBayarRoute
   AppAuthLoginIndexRoute: typeof AppAuthLoginIndexRoute
   AppAuthLupaPasswordIndexRoute: typeof AppAuthLupaPasswordIndexRoute
@@ -375,7 +359,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppStatusTransaksiIndexRoute: AppStatusTransaksiIndexRoute,
   AppVerifikasiAkunIndexRoute: AppVerifikasiAkunIndexRoute,
   AppDetailMahasiswaDetailIdRoute: AppDetailMahasiswaDetailIdRoute,
-  AppDetailOrangTuaAsuhDetailIdRoute: AppDetailOrangTuaAsuhDetailIdRoute,
   AppMahasiswaAsuhSayaDetailIdStatusBayarRoute:
     AppMahasiswaAsuhSayaDetailIdStatusBayarRoute,
   AppAuthLoginIndexRoute: AppAuthLoginIndexRoute,
@@ -404,7 +387,6 @@ export interface FileRoutesByFullPath {
   '/status-transaksi': typeof AppStatusTransaksiIndexRoute
   '/verifikasi-akun': typeof AppVerifikasiAkunIndexRoute
   '/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
-  '/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
   '/mahasiswa-asuh-saya/$detailId/status-bayar': typeof AppMahasiswaAsuhSayaDetailIdStatusBayarRoute
   '/auth/login': typeof AppAuthLoginIndexRoute
   '/auth/lupa-password': typeof AppAuthLupaPasswordIndexRoute
@@ -428,7 +410,6 @@ export interface FileRoutesByTo {
   '/status-transaksi': typeof AppStatusTransaksiIndexRoute
   '/verifikasi-akun': typeof AppVerifikasiAkunIndexRoute
   '/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
-  '/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
   '/mahasiswa-asuh-saya/$detailId/status-bayar': typeof AppMahasiswaAsuhSayaDetailIdStatusBayarRoute
   '/auth/login': typeof AppAuthLoginIndexRoute
   '/auth/lupa-password': typeof AppAuthLupaPasswordIndexRoute
@@ -454,7 +435,6 @@ export interface FileRoutesById {
   '/_app/status-transaksi/': typeof AppStatusTransaksiIndexRoute
   '/_app/verifikasi-akun/': typeof AppVerifikasiAkunIndexRoute
   '/_app/detail/mahasiswa/$detailId': typeof AppDetailMahasiswaDetailIdRoute
-  '/_app/detail/orang-tua-asuh/$detailId': typeof AppDetailOrangTuaAsuhDetailIdRoute
   '/_app/mahasiswa-asuh-saya_/$detailId/status-bayar': typeof AppMahasiswaAsuhSayaDetailIdStatusBayarRoute
   '/_app/auth/login/': typeof AppAuthLoginIndexRoute
   '/_app/auth/lupa-password/': typeof AppAuthLupaPasswordIndexRoute
@@ -481,7 +461,6 @@ export interface FileRouteTypes {
     | '/status-transaksi'
     | '/verifikasi-akun'
     | '/detail/mahasiswa/$detailId'
-    | '/detail/orang-tua-asuh/$detailId'
     | '/mahasiswa-asuh-saya/$detailId/status-bayar'
     | '/auth/login'
     | '/auth/lupa-password'
@@ -504,7 +483,6 @@ export interface FileRouteTypes {
     | '/status-transaksi'
     | '/verifikasi-akun'
     | '/detail/mahasiswa/$detailId'
-    | '/detail/orang-tua-asuh/$detailId'
     | '/mahasiswa-asuh-saya/$detailId/status-bayar'
     | '/auth/login'
     | '/auth/lupa-password'
@@ -528,7 +506,6 @@ export interface FileRouteTypes {
     | '/_app/status-transaksi/'
     | '/_app/verifikasi-akun/'
     | '/_app/detail/mahasiswa/$detailId'
-    | '/_app/detail/orang-tua-asuh/$detailId'
     | '/_app/mahasiswa-asuh-saya_/$detailId/status-bayar'
     | '/_app/auth/login/'
     | '/_app/auth/lupa-password/'
@@ -576,7 +553,6 @@ export const routeTree = rootRoute
         "/_app/status-transaksi/",
         "/_app/verifikasi-akun/",
         "/_app/detail/mahasiswa/$detailId",
-        "/_app/detail/orang-tua-asuh/$detailId",
         "/_app/mahasiswa-asuh-saya_/$detailId/status-bayar",
         "/_app/auth/login/",
         "/_app/auth/lupa-password/",
@@ -636,10 +612,6 @@ export const routeTree = rootRoute
     },
     "/_app/detail/mahasiswa/$detailId": {
       "filePath": "_app/detail/mahasiswa/$detailId.tsx",
-      "parent": "/_app"
-    },
-    "/_app/detail/orang-tua-asuh/$detailId": {
-      "filePath": "_app/detail/orang-tua-asuh/$detailId.tsx",
       "parent": "/_app"
     },
     "/_app/mahasiswa-asuh-saya_/$detailId/status-bayar": {

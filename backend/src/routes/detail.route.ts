@@ -3,10 +3,12 @@ import { AuthorizationErrorResponse } from "../types/response.js";
 import {
   MahasiswaDetailParamsSchema,
   MahasiswaDetailResponse,
+  MahasiswaSayaDetailResponse,
+  MyOtaDetailResponse,
   OtaDetailParamsSchema,
   OtaDetailResponse,
 } from "../zod/detail.js";
-import { InternalServerErrorResponse, NotFoundResponse } from "../zod/response.js";
+import { ForbiddenResponse, InternalServerErrorResponse, NotFoundResponse } from "../zod/response.js";
 
 export const getMahasiswaDetailRoute = createRoute({
   operationId: "getMahasiswaDetail",
@@ -27,6 +29,46 @@ export const getMahasiswaDetailRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    404: {
+      description: "Mahasiswa tidak ditemukan",
+      content: {
+        "application/json": { schema: NotFoundResponse },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const getMahasiswaSayaDetailRoute = createRoute({
+  operationId: "getMahasiswaSayaDetail",
+  tags: ["Detail"],
+  method: "get",
+  path: "/mahasiswa-saya/{id}",
+  description: "Get detailed information of my current mahasiswa.",
+  request: {
+    params: MahasiswaDetailParamsSchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan detail mahasiswa.",
+      content: {
+        "application/json": {
+          schema: MahasiswaSayaDetailResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Anda tidak memiliki akses ke mahasiswa ini",
+      content: {
+        "application/json": { schema: ForbiddenResponse },
+      },
+    },
     404: {
       description: "Mahasiswa tidak ditemukan",
       content: {
@@ -80,18 +122,24 @@ export const getMyOtaDetailRoute = createRoute({
   operationId: "getMyOtaDetail",
   tags: ["Detail"],
   method: "get",
-  path: "my-orang-tua",
+  path: "orang-tua-saya",
   description: "Get detailed information of my current orang tua asuh.",
   responses: {
     200: {
       description: "Berhasil mendapatkan detail orang tua asuh saya.",
       content: {
         "application/json": {
-          schema: OtaDetailResponse,
+          schema: MyOtaDetailResponse,
         },
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Anda tidak memiliki akses ke orang tua asuh ini",
+      content: {
+        "application/json": { schema: ForbiddenResponse },
+      },
+    },
     404: {
       description: "Orang tua asuh saya tidak ditemukan",
       content: {
