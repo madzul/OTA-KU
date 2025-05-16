@@ -266,7 +266,7 @@ export const transactionTable = pgTable(
       }),
     bill: integer("bill").notNull(),
     amountPaid: integer("amount_paid").notNull(),
-    paidAt: timestamp("paid_at").notNull(),
+    paidAt: timestamp("paid_at"),
     dueDate: timestamp("due_date").notNull(),
     transactionStatus: transactionStatusEnum("transaction_status")
       .notNull()
@@ -274,7 +274,7 @@ export const transactionTable = pgTable(
     transactionReceipt: text("transaction_receipt"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
-    rejectionNote: text("rejection_note")
+    rejectionNote: text("verif_note")
   },
   (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId, table.createdAt] })],
 );

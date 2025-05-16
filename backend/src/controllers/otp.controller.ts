@@ -44,7 +44,9 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
       .set({ code, expiredAt: new Date(Date.now() + 1000 * 60 * 15) })
       .where(eq(otpTable.accountId, user[0].account.id));
 
-    const transporter = nodemailer.createTransport({
+    //REFERENCE: buat notif
+    //createTransport block gada yang diubah
+      const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       secure: true,
       port: 465,
@@ -62,6 +64,7 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
       }
     });
 
+    //Ubah subject + html
     await transporter
       .sendMail({
         from: env.EMAIL_FROM,
