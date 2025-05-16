@@ -187,6 +187,10 @@ export const MyOtaDetailResponse = z.object({
       phoneNumber: z.string().openapi({ example: "+6281234567890" }),
       name: z.string().openapi({ example: "OTA Organization One" }),
       transferDate: z.number().openapi({ example: 10 }),
+      isDetailVisible: z.boolean().openapi({
+        example: true,
+        description: "Indicates if the detail is visible to the mahasiswa",
+      }),
       createdAt: z.string().openapi({
         example: "2025-03-30T09:40:05.508Z",
         description: "Timestamp when the orang tua asuh was created",

@@ -322,6 +322,9 @@ export const OrangTuaDetailsListQueryResponse = z.object({
         maxSemester: z.coerce.number().openapi({ example: 8 }),
         transferDate: z.coerce.number().openapi({ example: 1 }),
         criteria: z.string().openapi({ example: "Kriteria orang tua" }),
+        isDetailVisible: z.boolean().openapi({
+          example: true,
+        }),
         allowAdminSelection: z.boolean().openapi({
           example: true,
         }),

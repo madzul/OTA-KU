@@ -216,6 +216,7 @@ export const accountOtaDetailTable = pgTable("account_ota_detail", {
   maxSemester: integer("max_semester").notNull(),
   transferDate: integer("transfer_date").notNull(),
   criteria: text("criteria").notNull(),
+  isDetailVisible: boolean("is_detail_visible").default(false).notNull(),
   allowAdminSelection: boolean("allow_admin_selection")
     .default(false)
     .notNull(),

@@ -298,6 +298,7 @@ detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
         phoneNumber: accountTable.phoneNumber,
         name: accountOtaDetailTable.name,
         transferDate: accountOtaDetailTable.transferDate,
+        isDetailVisible: accountOtaDetailTable.isDetailVisible,
         createdAt: accountOtaDetailTable.createdAt,
       })
       .from(accountTable)
@@ -332,6 +333,7 @@ detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
           phoneNumber: ota.phoneNumber!,
           name: ota.name!,
           transferDate: ota.transferDate,
+          isDetailVisible: ota.isDetailVisible,
           createdAt: ota.createdAt.toISOString(),
         },
       },
