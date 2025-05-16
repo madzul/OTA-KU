@@ -246,6 +246,20 @@
       "when": 1747405893068,
       "tag": "0034_rapid_maestro",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1747407421797,
+      "tag": "0035_giant_komodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1747409442577,
+      "tag": "0036_classy_thunderbolt_ross",
+      "breakpoints": true
     }
   ]
 }

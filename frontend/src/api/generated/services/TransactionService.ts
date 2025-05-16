@@ -26,6 +26,14 @@ export class TransactionService {
     message: string;
     body: {
       data: Array<{
+        /**
+         * ID transaksi
+         */
+        id: string;
+        /**
+         * ID transaksi
+         */
+        mahasiswa_id: string;
         name: string;
         /**
          * Nomor Induk Mahasiswa
@@ -134,15 +142,14 @@ export class TransactionService {
   }: {
     formData?: {
       /**
-       * ID mahasiswa asuh
+       * ID transaksi
        */
-      mahasiswaId: string;
+      id: string;
       receipt: Blob;
       /**
        * Pembayaran untuk berapa bulan
        */
       paidFor: number | null;
-      createdAt: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -172,6 +179,10 @@ export class TransactionService {
   }: {
     formData?: {
       /**
+       * ID transaksi
+       */
+      id: string;
+      /**
        * ID orang tua asuh
        */
       otaId: string;
@@ -179,13 +190,16 @@ export class TransactionService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
-      createdAt: string;
     },
   }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
       /**
+       * ID transaksi
+       */
+      id: string;
+      /**
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
@@ -193,7 +207,6 @@ export class TransactionService {
        * ID orang tua asuh
        */
       otaId: string;
-      createdAt: string;
       /**
        * Nominal yang telah dibayarkan
        */
@@ -221,6 +234,10 @@ export class TransactionService {
   }: {
     formData?: {
       /**
+       * ID transaksi
+       */
+      id: string;
+      /**
        * ID orang tua asuh
        */
       otaId: string;
@@ -228,7 +245,6 @@ export class TransactionService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
-      createdAt: string;
       /**
        * Notes untuk menjelaskan alasan penolakan verifikasi transaction
        */
@@ -243,6 +259,10 @@ export class TransactionService {
     message: string;
     body: {
       /**
+       * ID transaksi
+       */
+      id: string;
+      /**
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
@@ -250,7 +270,6 @@ export class TransactionService {
        * ID orang tua asuh
        */
       otaId: string;
-      createdAt: string;
       /**
        * Notes untuk menjelaskan alasan penolakan verifikasi transaction
        */
@@ -264,6 +283,42 @@ export class TransactionService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/transaction/verify-reject',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Mengubah status transfer menjadi paid
+   * @returns any Berhasil mengubah status transfer menjadi paid
+   * @throws ApiError
+   */
+  public acceptTransferStatus({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * ID transaksi
+       */
+      id: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * ID transaksi
+       */
+      id: string;
+      status: 'unpaid' | 'paid';
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/transaction/accept-transfer-status',
       formData: formData,
       mediaType: 'multipart/form-data',
       errors: {

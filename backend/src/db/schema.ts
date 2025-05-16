@@ -143,6 +143,8 @@ export const transactionStatusEnum = pgEnum("transaction_status", [
   "unpaid",
 ]);
 
+export const transferStatus = pgEnum("transfer_status", ["paid", "unpaid"]);
+
 export const accountTable = pgTable("account", {
   id: uuid("id").defaultRandom().primaryKey().unique().notNull(),
   email: varchar({ length: 255 }).unique().notNull(),
@@ -257,6 +259,7 @@ export const connectionTable = pgTable(
 export const transactionTable = pgTable(
   "transaction",
   {
+    id: uuid("id").defaultRandom().primaryKey().notNull(),
     mahasiswaId: uuid("mahasiswa_id")
       .notNull()
       .references(() => accountMahasiswaDetailTable.accountId, {
@@ -274,14 +277,14 @@ export const transactionTable = pgTable(
     transactionStatus: transactionStatusEnum("transaction_status")
       .notNull()
       .default("unpaid"),
+    transferStatus: transferStatus("transfer_status")
+      .notNull()
+      .default("unpaid"),
     transactionReceipt: text("transaction_receipt"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
     rejectionNote: text("verif_note"),
-  },
-  (table) => [
-    primaryKey({ columns: [table.mahasiswaId, table.otaId, table.createdAt] }),
-  ],
+  }
 );
 
 export const otpTable = pgTable(
