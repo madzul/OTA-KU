@@ -47,6 +47,10 @@ export class DetailService {
       pbb: string;
       electricityBill: string;
       ditmawaRecommendationLetter: string;
+      /**
+       * The amount of the bill in IDR
+       */
+      bill: number;
       notes: string;
       adminOnlyNotes: string;
     };

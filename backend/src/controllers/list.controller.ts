@@ -247,6 +247,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         electricityBill: accountMahasiswaDetailTable.electricityBill,
         ditmawaRecommendationLetter:
           accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        bill: accountMahasiswaDetailTable.bill,
         notes: accountMahasiswaDetailTable.notes,
         adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
       })
@@ -307,6 +308,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             electricityBill: mahasiswa.electricityBill || "",
             ditmawaRecommendationLetter:
               mahasiswa.ditmawaRecommendationLetter || "",
+            bill: mahasiswa.bill || 0,
             notes: mahasiswa.notes || "",
             adminOnlyNotes: mahasiswa.adminOnlyNotes || "",
           })),

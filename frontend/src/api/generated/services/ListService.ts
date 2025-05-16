@@ -98,6 +98,10 @@ export class ListService {
         pbb: string;
         electricityBill: string;
         ditmawaRecommendationLetter: string;
+        /**
+         * Total bill of mahasiswa
+         */
+        bill: number;
         notes: string;
         adminOnlyNotes: string;
       }>;

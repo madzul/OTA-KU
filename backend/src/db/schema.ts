@@ -191,6 +191,7 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
   electricityBill: text("electricity_bill"),
   ditmawaRecommendationLetter: text("ditmawa_recommendation_letter"),
   // Notes from interview given by admin
+  bill: integer("bill"),
   notes: text("notes"),
   adminOnlyNotes: text("admin_only_notes"),
   mahasiswaStatus: mahasiswaStatusEnum("mahasiswa_status")

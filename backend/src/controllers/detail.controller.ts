@@ -82,6 +82,7 @@ detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
           electricityBill: mahasiswa.account_mahasiswa_detail.electricityBill!,
           ditmawaRecommendationLetter:
             mahasiswa.account_mahasiswa_detail.ditmawaRecommendationLetter!,
+          bill: mahasiswa.account_mahasiswa_detail.bill!,
           notes: mahasiswa.account_mahasiswa_detail.notes!,
           adminOnlyNotes: mahasiswa.account_mahasiswa_detail.adminOnlyNotes!,
         },

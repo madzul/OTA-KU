@@ -256,6 +256,10 @@ export const MahasiswaDetailsListQueryResponse = z.object({
         ditmawaRecommendationLetter: z
           .string()
           .openapi({ example: "https://example.com/file.pdf" }),
+        bill: z.number().openapi({
+          example: 1000000,
+          description: "Total bill of mahasiswa",
+        }),
         notes: z.string().openapi({ example: "Mahasiswa aktif" }),
         adminOnlyNotes: z.string().openapi({ example: "Catatan admin" }),
       }),
