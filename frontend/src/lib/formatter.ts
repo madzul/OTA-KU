@@ -137,3 +137,12 @@ export function formatValue(
       return String(val);
   }
 }
+
+export function censorEmail(email: string): string {
+  const [localPart, domain] = email.split("@");
+  const censoredLocalPart =
+    localPart.length > 2
+      ? localPart.slice(0, 2) + "*".repeat(localPart.length - 2)
+      : localPart;
+  return `${censoredLocalPart}@${domain}`;
+}

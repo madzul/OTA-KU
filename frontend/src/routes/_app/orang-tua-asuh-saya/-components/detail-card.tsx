@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { SessionContext } from "@/context/session";
+import { censorEmail } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
@@ -22,13 +23,13 @@ import {
 } from "lucide-react";
 import React, { useContext, useState } from "react";
 
-// TODO: Sensor data pribadi kalo gadibolehin sama ota nya
 const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
   id,
   name,
   email,
   phoneNumber,
   transferDate,
+  isDetailVisible,
   createdAt,
 }) => {
   const session = useContext(SessionContext);
@@ -38,6 +39,8 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
     mutationFn: (data: { otaId: string }) => {
       return api.terminate.requestTerminateFromMa({
         formData: {
+          // TODO: Nanti tambahin input catatan terminasi
+          requestTerminationNote: "Pengakhiran hubungan asuh",
           mahasiswaId: session?.id ? session.id : "",
           otaId: data.otaId,
         },
@@ -76,18 +79,22 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
             <div className="text-primary space-y-3 text-sm xl:text-base">
               <div className="flex items-start space-x-3">
                 <Mail className="text-muted-foreground h-5 w-5" />
-                <a href={`mailto:${email}`} target="_blank" className="text-sm">
-                  {email}
+                <a
+                  href={isDetailVisible ? `mailto:${email}` : "#"}
+                  target={isDetailVisible ? "_blank" : "_self"}
+                  className="text-sm"
+                >
+                  {isDetailVisible ? email : censorEmail(email)}
                 </a>
               </div>
               <div className="flex items-start space-x-3">
                 <Phone className="text-muted-foreground h-5 w-5" />
                 <a
-                  href={`https://wa.me/${phoneNumber}`}
-                  target="_blank"
+                  href={isDetailVisible ? `https://wa.me/${phoneNumber}` : "#"}
+                  target={isDetailVisible ? "_blank" : "_self"}
                   className="text-sm"
                 >
-                  +{phoneNumber}
+                  +{isDetailVisible ? phoneNumber : "**********"}
                 </a>
               </div>
               <div className="flex items-start space-x-3">
