@@ -14,6 +14,7 @@ export type { CreatePushSubscriptionSchema } from './models/CreatePushSubscripti
 export type { MahasiswaListElement } from './models/MahasiswaListElement';
 export type { MahasiswaSayaDetailResponse } from './models/MahasiswaSayaDetailResponse';
 export type { MAListElementStatus } from './models/MAListElementStatus';
+export type { MyOtaDetailResponse } from './models/MyOtaDetailResponse';
 export type { NotificationAction } from './models/NotificationAction';
 export type { NotificationDataSchema } from './models/NotificationDataSchema';
 export type { SendOtpRequestSchema } from './models/SendOtpRequestSchema';

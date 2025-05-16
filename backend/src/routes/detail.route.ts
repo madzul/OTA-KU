@@ -4,6 +4,7 @@ import {
   MahasiswaDetailParamsSchema,
   MahasiswaDetailResponse,
   MahasiswaSayaDetailResponse,
+  MyOtaDetailResponse,
   OtaDetailParamsSchema,
   OtaDetailResponse,
 } from "../zod/detail.js";
@@ -121,18 +122,24 @@ export const getMyOtaDetailRoute = createRoute({
   operationId: "getMyOtaDetail",
   tags: ["Detail"],
   method: "get",
-  path: "my-orang-tua",
+  path: "orang-tua-saya",
   description: "Get detailed information of my current orang tua asuh.",
   responses: {
     200: {
       description: "Berhasil mendapatkan detail orang tua asuh saya.",
       content: {
         "application/json": {
-          schema: OtaDetailResponse,
+          schema: MyOtaDetailResponse,
         },
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Anda tidak memiliki akses ke orang tua asuh ini",
+      content: {
+        "application/json": { schema: ForbiddenResponse },
+      },
+    },
     404: {
       description: "Orang tua asuh saya tidak ditemukan",
       content: {

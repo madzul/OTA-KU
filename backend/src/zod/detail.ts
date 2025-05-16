@@ -172,3 +172,25 @@ export const OtaDetailResponse = z.object({
     }),
   }),
 });
+
+export const MyOtaDetailResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z
+    .string()
+    .openapi({ example: "Detail orang tua asuh berhasil diambil" }),
+  body: z
+    .object({
+      id: z.string().uuid().openapi({
+        example: "3fc0317f-f143-43bf-aa65-13a7a8eca788",
+      }),
+      email: z.string().email().openapi({ example: "johndoe@example.com" }),
+      phoneNumber: z.string().openapi({ example: "+6281234567890" }),
+      name: z.string().openapi({ example: "OTA Organization One" }),
+      transferDate: z.number().openapi({ example: 10 }),
+      createdAt: z.string().openapi({
+        example: "2025-03-30T09:40:05.508Z",
+        description: "Timestamp when the orang tua asuh was created",
+      }),
+    })
+    .openapi("MyOtaDetailResponse"),
+});

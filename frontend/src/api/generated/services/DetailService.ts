@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { MahasiswaSayaDetailResponse } from '../models/MahasiswaSayaDetailResponse';
+import type { MyOtaDetailResponse } from '../models/MyOtaDetailResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class DetailService {
@@ -144,31 +145,14 @@ export class DetailService {
   public getMyOtaDetail(): CancelablePromise<{
     success: boolean;
     message: string;
-    body: {
-      id: string;
-      email: string;
-      type: 'mahasiswa' | 'admin' | 'ota';
-      phoneNumber: string;
-      provider: 'credentials' | 'azure';
-      applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
-      name: string;
-      job: string;
-      address: string;
-      linkage: 'otm' | 'dosen' | 'alumni' | 'lainnya' | 'none';
-      funds: number;
-      maxCapacity: number;
-      startDate: string;
-      maxSemester: number;
-      transferDate: number;
-      criteria: string;
-      allowAdminSelection: boolean;
-    };
+    body: MyOtaDetailResponse;
   }> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/api/detail/my-orang-tua',
+      url: '/api/detail/orang-tua-saya',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Anda tidak memiliki akses ke orang tua asuh ini`,
         404: `Orang tua asuh saya tidak ditemukan`,
         500: `Internal server error`,
       },
