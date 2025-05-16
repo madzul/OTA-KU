@@ -9,8 +9,9 @@ import {
 } from "../db/schema.js";
 import {
   getMahasiswaDetailRoute,
+  getMahasiswaSayaDetailRoute,
+  getMyOtaDetailRoute,
   getOtaDetailRoute,
-  getMyOtaDetailRoute
 } from "../routes/detail.route.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -83,6 +84,109 @@ detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
             mahasiswa.account_mahasiswa_detail.ditmawaRecommendationLetter!,
           notes: mahasiswa.account_mahasiswa_detail.notes!,
           adminOnlyNotes: mahasiswa.account_mahasiswa_detail.adminOnlyNotes!,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error("Error fetching mahasiswa detail:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+});
+
+detailProtectedRouter.openapi(getMahasiswaSayaDetailRoute, async (c) => {
+  const user = c.var.user;
+  const { id } = c.req.param();
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Unauthorized",
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Hanya orang tua asuh yang dapat mengakses detail ini",
+        },
+      },
+      403,
+    );
+  }
+
+  try {
+    const mahasiswaDetail = await db
+      .select({
+        id: accountTable.id,
+        email: accountTable.email,
+        phoneNumber: accountTable.phoneNumber,
+        name: accountMahasiswaDetailTable.name,
+        nim: accountMahasiswaDetailTable.nim,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        religion: accountMahasiswaDetailTable.religion,
+        gender: accountMahasiswaDetailTable.gender,
+        gpa: accountMahasiswaDetailTable.gpa,
+        notes: accountMahasiswaDetailTable.notes,
+        createdAt: accountMahasiswaDetailTable.createdAt,
+      })
+      .from(accountTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(accountTable.id, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        connectionTable,
+        and(
+          eq(connectionTable.mahasiswaId, accountTable.id),
+          eq(connectionTable.otaId, user.id),
+        ),
+      )
+      .where(eq(accountTable.id, id))
+      .limit(1);
+
+    if (mahasiswaDetail.length === 0) {
+      return c.json(
+        {
+          success: false,
+          message: "Mahasiswa tidak ditemukan",
+          error: {
+            code: "NOT_FOUND",
+            message: "Mahasiswa dengan ID tersebut tidak ditemukan",
+          },
+        },
+        404,
+      );
+    }
+
+    const mahasiswa = mahasiswaDetail[0];
+
+    return c.json(
+      {
+        success: true,
+        message: "Detail mahasiswa berhasil diambil",
+        body: {
+          id: mahasiswa.id,
+          email: mahasiswa.email,
+          phoneNumber: mahasiswa.phoneNumber!,
+          name: mahasiswa.name!,
+          nim: mahasiswa.nim!,
+          major: mahasiswa.major!,
+          faculty: mahasiswa.faculty!,
+          cityOfOrigin: mahasiswa.cityOfOrigin!,
+          highschoolAlumni: mahasiswa.highschoolAlumni!,
+          religion: mahasiswa.religion!,
+          gender: mahasiswa.gender!,
+          gpa: mahasiswa.gpa!,
+          notes: mahasiswa.notes!,
+          createdAt: mahasiswa.createdAt.toISOString(),
         },
       },
       200,
@@ -175,17 +279,17 @@ detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
   try {
     const [connection] = await db
       .select({
-        otaId: connectionTable.otaId
+        otaId: connectionTable.otaId,
       })
       .from(connectionTable)
       .where(eq(connectionTable.mahasiswaId, user.id))
       .limit(1);
-    
+
     // Check if a connection was found
     if (!connection) {
       throw new Error("No OTA connection found for this mahasiswa.");
     }
-    
+
     const otaDetail = await db
       .select()
       .from(accountTable)
@@ -193,15 +297,12 @@ detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
         accountOtaDetailTable,
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
-      .innerJoin(
-        connectionTable,
-        eq(connectionTable.mahasiswaId, user.id),
-      )
+      .innerJoin(connectionTable, eq(connectionTable.mahasiswaId, user.id))
       .where(
         and(
           eq(accountTable.id, connection.otaId),
-          eq(connectionTable.connectionStatus, "accepted")
-        )
+          eq(connectionTable.connectionStatus, "accepted"),
+        ),
       )
       .limit(1);
 

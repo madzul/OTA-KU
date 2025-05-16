@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { MahasiswaSayaDetailResponse } from '../models/MahasiswaSayaDetailResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class DetailService {
@@ -57,6 +58,34 @@ export class DetailService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        404: `Mahasiswa tidak ditemukan`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Get detailed information of my current mahasiswa.
+   * @returns any Berhasil mendapatkan detail mahasiswa.
+   * @throws ApiError
+   */
+  public getMahasiswaSayaDetail({
+    id,
+  }: {
+    id: string,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: MahasiswaSayaDetailResponse;
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/detail/mahasiswa-saya/{id}',
+      path: {
+        'id': id,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Anda tidak memiliki akses ke mahasiswa ini`,
         404: `Mahasiswa tidak ditemukan`,
         500: `Internal server error`,
       },

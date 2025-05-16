@@ -80,6 +80,45 @@ export const MahasiswaDetailResponse = z.object({
   }),
 });
 
+export const MahasiswaSayaDetailResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Detail mahasiswa berhasil diambil" }),
+  body: z
+    .object({
+      id: z.string().uuid().openapi({
+        example: "3fc0317f-f143-43bf-aa65-13a7a8eca788",
+      }),
+      email: z.string().email().openapi({ example: "johndoe@example.com" }),
+      phoneNumber: z.string().openapi({ example: "+6281234567890" }),
+      name: z.string().openapi({ example: "John Doe" }),
+      nim: z.string().openapi({ example: "13522005" }),
+      major: z.string().openapi({ example: "Computer Science" }),
+      faculty: z.string().openapi({ example: "Engineering" }),
+      cityOfOrigin: z.string().openapi({ example: "Jakarta" }),
+      highschoolAlumni: z.string().openapi({ example: "SMA Negeri 1 Jakarta" }),
+      religion: z
+        .enum([
+          "Islam",
+          "Kristen Protestan",
+          "Katolik",
+          "Hindu",
+          "Buddha",
+          "Konghucu",
+        ])
+        .openapi({
+          example: "Islam",
+        }),
+      gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+      gpa: z.string().openapi({ example: "3.5" }),
+      notes: z.string().openapi({ example: "Mahasiswa aktif" }),
+      createdAt: z.string().openapi({
+        example: "2025-03-30T09:40:05.508Z",
+        description: "Timestamp when the mahasiswa was created",
+      }),
+    })
+    .openapi("MahasiswaSayaDetailResponse"),
+});
+
 export const OtaDetailParamsSchema = z.object({
   id: z.string().uuid().openapi({
     description: "ID of the orang tua asuh to retrieve.",

@@ -12,6 +12,7 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { CreatePushSubscriptionSchema } from './models/CreatePushSubscriptionSchema';
 export type { MahasiswaListElement } from './models/MahasiswaListElement';
+export type { MahasiswaSayaDetailResponse } from './models/MahasiswaSayaDetailResponse';
 export type { MAListElementStatus } from './models/MAListElementStatus';
 export type { NotificationAction } from './models/NotificationAction';
 export type { NotificationDataSchema } from './models/NotificationDataSchema';
