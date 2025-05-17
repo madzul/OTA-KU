@@ -453,6 +453,7 @@ export const createBankesPengurusResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mendaftar" }),
   body: z.object({
+    id: z.string().openapi({ description: "ID akun" }), 
     name: z
       .string({
         invalid_type_error: "Nama harus berupa string",
@@ -466,8 +467,7 @@ export const createBankesPengurusResponse = z.object({
       })
       .openapi({ example: "John Doe", description: "Nama dari bankes atau pengurus" }),
     email: EmailSchema,
-    password: PasswordSchema,
-    type: z.enum(["bankes", "pengurus"]).openapi({
+    type: z.enum([  "mahasiswa", "ota", "admin", "bankes", "pengurus"]).openapi({
       example: "bankes",
       description: "Jenis akun",
     }),

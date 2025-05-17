@@ -5,6 +5,7 @@ import { sign } from "hono/jwt";
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
+  accountAdminDetailTable,
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
@@ -379,7 +380,7 @@ profileProtectedRouter.openapi(pembuatanAkunBankesPengurusRoute, async(c) => {
   const hashedPassword = await hash(password, 10);
 
   try{
-    await db.insert(accountTable).values({
+    const newUser = await db.insert(accountTable).values({
       email: email,
       password: hashedPassword,
       type: type,
@@ -388,20 +389,26 @@ profileProtectedRouter.openapi(pembuatanAkunBankesPengurusRoute, async(c) => {
       status: "verified",
       applicationStatus: "accepted"
     })
+    .returning();
+
+    await db.insert(accountAdminDetailTable).values({
+      accountId: newUser[0].id,
+      name: name
+    })
 
     return c.json(
       {
         success: true,
         message: "Berhasil mendaftar.",
         body: {
+          id: newUser[0].id,
           name: name,
-          email: email,
-          password: hashedPassword,
-          type: type,
-          phoneNumber: phoneNumber,
-          provider: "credentials" as const,
-          status: "verified" as const,
-          application_status: "accepted" as const
+          email: newUser[0].email,
+          type: newUser[0].type,
+          phoneNumber: newUser[0].phoneNumber ?? "",
+          provider: newUser[0].provider,
+          status: newUser[0].status,
+          application_status: newUser[0].applicationStatus
         },
       },
       200,

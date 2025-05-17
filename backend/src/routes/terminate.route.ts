@@ -1,7 +1,7 @@
 import { createRoute } from "@hono/zod-openapi";
 import { AuthorizationErrorResponse } from "../types/response.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
-import { MahasiswaUnverifiedResponse } from "../zod/profile.js";
+import { UnverifiedResponse } from "../zod/profile.js";
 import { AdminUnverifiedResponse, listTerminateForAdminResponse, listTerminateForOTAResponse, listTerminateQuerySchema, requestTerminateMAFailedResponse, requestTerminateMASuccessResponse, requestTerminateOTAFailedResponse, requestTerminateOTASuccessResponse, TerminateRequestSchema, terminationStatusMA, validateTerminateFailedResponse, validateTerminateSuccessResponse } from "../zod/terminate.js";
 import { OrangTuaUnverifiedResponse } from "../zod/connect.js";
 
@@ -128,7 +128,7 @@ export const requestTerminateFromMARoute = createRoute({
         403: {
             description: "Akun MA belum terverifikasi.",
             content: {
-                "application/json": { schema: MahasiswaUnverifiedResponse },
+                "application/json": { schema: UnverifiedResponse },
             }
         },
         500: {
