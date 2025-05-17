@@ -97,3 +97,8 @@ export const connectionListQueryResponse = z.object({
     )
   })
 })
+
+export const isConnectedResponse = z.object({
+  isConnected:  z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Ada connection antara OTA dan MA" }),
+})

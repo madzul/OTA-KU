@@ -4,6 +4,7 @@ import { AuthorizationErrorResponse } from "../types/response.js";
 import {
   connectionListQueryResponse,
   connectionListQuerySchema,
+  isConnectedResponse,
   MahasiwaConnectSchema,
   OrangTuaFailedResponse,
   OrangTuaSuccessResponse,
@@ -199,6 +200,42 @@ export const listConnectionRoute = createRoute({
       content: {
         "application/json": {
           schema: connectionListQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+})
+
+export const isConnectedRoute = createRoute({
+  operationId: "isConnected",
+  tags: ["Connect"],
+  method: "get",
+  path: "/is-connected",
+  description: "Memeriksa apakah OTA dan MA tertentu sudah memiliki hubungan asuh",
+  request: {
+    query: MahasiwaConnectSchema,
+  },
+  responses: {
+    200: {
+      description: "Ditemukan hubungan asuh antara MA dan OTA",
+      content: {
+        "application/json": {
+          schema: isConnectedResponse,
+        },
+      },
+    },
+    400: {
+      description: "Gagal menemukan hubungan asuh antara MA dan OTA",
+      content: {
+        "application/json": {
+          schema: isConnectedResponse,
         },
       },
     },

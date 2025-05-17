@@ -7,7 +7,7 @@ import {
   accountTable,
   connectionTable,
 } from "../db/schema.js";
-import { connectOtaMahasiswaByAdminRoute, connectOtaMahasiswaRoute, listConnectionRoute, verifyConnectionAccRoute, verifyConnectionRejectRoute } from "../routes/connect.route.js";
+import { connectOtaMahasiswaByAdminRoute, connectOtaMahasiswaRoute, isConnectedRoute, listConnectionRoute, verifyConnectionAccRoute, verifyConnectionRejectRoute } from "../routes/connect.route.js";
 import { connectionListQuerySchema, MahasiwaConnectSchema } from "../zod/connect.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -413,7 +413,63 @@ connectProtectedRouter.openapi(listConnectionRoute, async(c) => {
         200
       )
   }catch (error) {
-    console.error("Error fetching mahasiswa list:", error);
+    console.error("Error fetching connection list:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+})
+
+connectProtectedRouter.openapi(isConnectedRoute, async(c) => {
+  const query = c.req.query();
+  const zodParseResult = MahasiwaConnectSchema.parse(query);
+  const { mahasiswaId, otaId } = zodParseResult;
+
+  try{
+    const connection = await db
+      .select()
+      .from(connectionTable)
+      .where(
+        and(
+          eq(connectionTable.mahasiswaId, mahasiswaId),
+          eq(connectionTable.otaId, otaId),
+        )
+      )
+      .limit(1);
+
+    if (!connection.length) {
+      return c.json(
+        {
+          isConnected: false,
+          message: `Tidak ditemukan hubungan asuh antara ${mahasiswaId} dan ${otaId}`,
+        },
+        400
+      );
+    }
+
+    if (connection[0].connectionStatus === "accepted"){
+      return c.json(
+        {
+          isConnected: true,
+          message: `Ditemukan hubungan asuh antara ${mahasiswaId} dan ${otaId}`
+        },
+        200
+      )
+    } 
+    
+    return c.json(
+      {
+        isConnected: false,
+        message: `Hubungan asuh antara ${mahasiswaId} dan ${otaId} telah diajukan, tetapi belum diverifikasi admin`
+      },
+      400
+    )
+  } catch (error) {
     return c.json(
       {
         success: false,
