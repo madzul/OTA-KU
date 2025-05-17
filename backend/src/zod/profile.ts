@@ -5,6 +5,7 @@ import {
   EmailSchema,
   NIMSchema,
   PDFSchema,
+  PasswordSchema,
   PhoneNumberSchema,
   ProfilePDFSchema,
   cloudinaryUrlSchema,
@@ -280,7 +281,7 @@ export const MahasiswaRegistrationFailedResponse = z.object({
   error: z.object({}),
 });
 
-export const MahasiswaUnverifiedResponse = z.object({
+export const UnverifiedResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "Akun MA belum terverifikasi" }),
   error: z.object({}),
@@ -417,6 +418,63 @@ export const OrangTuaRegistrationSchema = z.object({
     }),
 });
 
+export const createBankesPengurusSchema = z.object({
+  name: z
+    .string({
+      invalid_type_error: "Nama harus berupa string",
+      required_error: "Nama harus diisi",
+    })
+    .min(3, {
+      message: "Nama terlalu pendek",
+    })
+    .max(255, {
+      message: "Nama terlalu panjang",
+    })
+    .openapi({ example: "John Doe", description: "Nama dari bankes atau pengurus" }),
+  email: EmailSchema,
+  password: PasswordSchema,
+  type: z.enum(["bankes", "pengurus"]).openapi({
+    example: "bankes",
+    description: "Jenis akun",
+  }),
+  phoneNumber: PhoneNumberSchema
+});
+
+export const createBankesPengurusResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Berhasil mendaftar" }),
+  body: z.object({
+    name: z
+      .string({
+        invalid_type_error: "Nama harus berupa string",
+        required_error: "Nama harus diisi",
+      })
+      .min(3, {
+        message: "Nama terlalu pendek",
+      })
+      .max(255, {
+        message: "Nama terlalu panjang",
+      })
+      .openapi({ example: "John Doe", description: "Nama dari bankes atau pengurus" }),
+    email: EmailSchema,
+    password: PasswordSchema,
+    type: z.enum(["bankes", "pengurus"]).openapi({
+      example: "bankes",
+      description: "Jenis akun",
+    }),
+    phoneNumber: PhoneNumberSchema,
+    provider: z
+      .enum(["credentials", "azure"])
+      .openapi({ example: "credentials" }),
+    status: z
+      .enum(["verified", "unverified"])
+      .openapi({ example: "verified" }),
+    application_status: z
+      .enum([ "accepted", "rejected", "pending", "unregistered", "reapply", "outdated"])
+      .openapi({ example: "accepted" })
+  })
+})
+
 export const OrangTuaRegistrationSuccessfulResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mendaftar" }),
@@ -426,12 +484,6 @@ export const OrangTuaRegistrationSuccessfulResponse = z.object({
 export const OrangTuaRegistrationFailedResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "Gagal mendaftar" }),
-  error: z.object({}),
-});
-
-export const OrangTuaUnverifiedResponse = z.object({
-  success: z.boolean().openapi({ example: false }),
-  message: z.string().openapi({ example: "Akun belum terverifikasi" }),
   error: z.object({}),
 });
 

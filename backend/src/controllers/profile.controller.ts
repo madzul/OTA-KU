@@ -13,17 +13,20 @@ import { uploadPdfToCloudinary } from "../lib/file-upload.js";
 import {
   editProfileMahasiswaRoute,
   editProfileOrangTuaRoute,
+  pembuatanAkunBankesPengurusRoute,
   pendaftaranMahasiswaRoute,
   pendaftaranOrangTuaRoute,
   profileMahasiswaRoute,
   profileOrangTuaRoute,
 } from "../routes/profile.route.js";
 import {
+  createBankesPengurusSchema,
   MahasiswaProfileFormSchema,
   MahasiswaRegistrationFormSchema,
   OrangTuaRegistrationSchema,
 } from "../zod/profile.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
+import { hash } from "bcrypt";
 
 export const profileRouter = createRouter();
 export const profileProtectedRouter = createAuthRouter();
@@ -355,6 +358,63 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
     );
   }
 });
+
+profileProtectedRouter.openapi(pembuatanAkunBankesPengurusRoute, async(c) => {
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+
+  const zodParseResult = createBankesPengurusSchema.parse(data);
+
+  const {
+    name,
+    email,
+    password,
+    type,
+    phoneNumber
+  } = zodParseResult;
+
+  const hashedPassword = await hash(password, 10);
+
+  try{
+    await db.insert(accountTable).values({
+      email: email,
+      password: hashedPassword,
+      type: type,
+      phoneNumber: phoneNumber,
+      provider: "credentials",
+      status: "verified",
+      applicationStatus: "accepted"
+    })
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil mendaftar.",
+        body: {
+          name: name,
+          email: email,
+          password: hashedPassword,
+          type: type,
+          phoneNumber: phoneNumber,
+          provider: "credentials" as const,
+          status: "verified" as const,
+          application_status: "accepted" as const
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+})
 
 profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
   const user = c.var.user;

@@ -7,15 +7,16 @@ import {
   MahasiswaRegistrationFormSchema,
   MahasiswaRegistrationParams,
   MahasiswaRegistrationSuccessfulResponse,
-  MahasiswaUnverifiedResponse,
   OrangTuaRegistrationFailedResponse,
   OrangTuaRegistrationParams,
   OrangTuaRegistrationSchema,
   OrangTuaRegistrationSuccessfulResponse,
-  OrangTuaUnverifiedResponse,
   ProfileMahasiswaResponse,
   ProfileOrangTuaResponse,
-  MahasiswaProfileFormSchema
+  MahasiswaProfileFormSchema,
+  UnverifiedResponse,
+  createBankesPengurusSchema,
+  createBankesPengurusResponse
 } from "../zod/profile.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 
@@ -51,7 +52,7 @@ export const pendaftaranMahasiswaRoute = createRoute({
     403: {
       description: "Akun belum terverifikasi.",
       content: {
-        "application/json": { schema: MahasiswaUnverifiedResponse },
+        "application/json": { schema: UnverifiedResponse },
       },
     },
     500: {
@@ -95,7 +96,7 @@ export const pendaftaranOrangTuaRoute = createRoute({
     403: {
       description: "Akun belum terverifikasi.",
       content: {
-        "application/json": { schema: OrangTuaUnverifiedResponse },
+        "application/json": { schema: UnverifiedResponse },
       },
     },
     500: {
@@ -105,6 +106,38 @@ export const pendaftaranOrangTuaRoute = createRoute({
       },
     },
   },
+});
+
+export const pembuatanAkunBankesPengurusRoute = createRoute({
+  operationId: "pembuatanAkunBankesPengurus",
+  tags: ["Profile"],
+  method: "post",
+  path: "/bankes-pengurus",
+  description: "Pembuatan akun bankes dan pengurus oleh admin",
+  request: {
+    body: {
+      content: {
+        "multipart/form-data": {
+          schema: createBankesPengurusSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendaftar.",
+      content: {
+        "application/json": { schema: createBankesPengurusResponse }
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  }
 });
 
 export const profileOrangTuaRoute = createRoute({
@@ -127,7 +160,7 @@ export const profileOrangTuaRoute = createRoute({
     403: {
       description: "Akun belum terverifikasi.",
       content: {
-        "application/json": { schema: OrangTuaUnverifiedResponse },
+        "application/json": { schema: UnverifiedResponse },
       },
     },
     404: {
@@ -178,7 +211,7 @@ export const editProfileOrangTuaRoute = createRoute({
     403: {
       description: "Akun belum terverifikasi.",
       content: {
-        "application/json": { schema: OrangTuaUnverifiedResponse },
+        "application/json": { schema: UnverifiedResponse },
       },
     },
     500: {
@@ -210,7 +243,7 @@ export const profileMahasiswaRoute = createRoute({
     403: {
       description: "Akun belum terverifikasi.",
       content: {
-        "application/json": { schema: MahasiswaUnverifiedResponse },
+        "application/json": { schema: UnverifiedResponse },
       },
     },
     404: {
@@ -260,7 +293,7 @@ export const editProfileMahasiswaRoute = createRoute({
     403: {
       description: "Akun belum terverifikasi.",
       content: {
-        "application/json": { schema: MahasiswaUnverifiedResponse },
+        "application/json": { schema: UnverifiedResponse },
       },
     },
     500: {

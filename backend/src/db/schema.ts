@@ -17,6 +17,8 @@ export const accountTypeEnum = pgEnum("account_type", [
   "mahasiswa",
   "ota",
   "admin",
+  "bankes",
+  "pengurus"
 ]);
 
 export const linkageEnum = pgEnum("linkage", [
