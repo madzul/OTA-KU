@@ -6,6 +6,7 @@ import {
   connectionListAllQuerySchema,
   connectionListQueryResponse,
   connectionListQuerySchema,
+  connectionListTerminateQueryResponse,
   DeleteConnectionSuccessfulResponseSchema,
   isConnectedResponse,
   MahasiwaConnectSchema,
@@ -203,6 +204,34 @@ export const listPendingConnectionRoute = createRoute({
       content: {
         "application/json": {
           schema: connectionListQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+})
+
+export const listPendingTerminationConnectionRoute = createRoute({
+  operationId: "listPendingTerminationConnection",
+  tags: ["Connect"],
+  method: "get",
+  path: "/list/pending-terminate",
+  description: "List seluruh connection yang pending terminasi beserta detailnya",
+  request: {
+    query: connectionListQuerySchema
+  },
+  responses: {
+    200: {
+      description: "Daftar connection pending berhasil diambil",
+      content: {
+        "application/json": {
+          schema: connectionListTerminateQueryResponse,
         },
       },
     },

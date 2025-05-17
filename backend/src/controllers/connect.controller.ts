@@ -7,7 +7,7 @@ import {
   accountTable,
   connectionTable,
 } from "../db/schema.js";
-import { connectOtaMahasiswaByAdminRoute, connectOtaMahasiswaRoute, deleteConnectionRoute, isConnectedRoute, listAllConnectionRoute, listPendingConnectionRoute, verifyConnectionAccRoute, verifyConnectionRejectRoute } from "../routes/connect.route.js";
+import { connectOtaMahasiswaByAdminRoute, connectOtaMahasiswaRoute, deleteConnectionRoute, isConnectedRoute, listAllConnectionRoute, listPendingConnectionRoute, listPendingTerminationConnectionRoute, verifyConnectionAccRoute, verifyConnectionRejectRoute } from "../routes/connect.route.js";
 import { connectionListAllQuerySchema, connectionListQuerySchema, MahasiwaConnectSchema } from "../zod/connect.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -406,6 +406,124 @@ connectProtectedRouter.openapi(listPendingConnectionRoute, async(c) => {
               ota_id: connection.ota_id,
               name_ota: connection.name_ota,
               number_ota: connection.number_ota ?? ""
+            })),
+            totalData: counts[0].count,
+          }
+        },
+        200
+      )
+  }catch (error) {
+    console.error("Error fetching connection list:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+})
+
+connectProtectedRouter.openapi(listPendingTerminationConnectionRoute, async(c) => {
+  const zodParseResult = connectionListQuerySchema.parse(c.req.query());
+  const { q, page } = zodParseResult
+
+  // Validate page to be a positive integer
+  let pageNumber = Number(page);
+  if (isNaN(pageNumber) || pageNumber < 1) {
+    pageNumber = 1;
+  }
+
+  try{
+    const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
+    
+    const countsQuery = db
+      .select({ count: count() })
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountOtaDetailTable,
+        eq(connectionTable.otaId, accountOtaDetailTable.accountId),
+      )
+      .where(
+        and(
+          eq(connectionTable.connectionStatus, "pending"),
+          or(
+            ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+            ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+          ),
+          or(
+            eq(connectionTable.requestTerminateMahasiswa, true),
+            eq(connectionTable.requestTerminateOta, true)
+          )
+        ),
+      );
+
+    const connectionListQuery = db
+      .select({
+        mahasiswa_id: connectionTable.mahasiswaId,
+        name_ma: accountMahasiswaDetailTable.name,
+        nim_ma: accountMahasiswaDetailTable.nim,
+        ota_id: connectionTable.otaId,
+        name_ota: accountOtaDetailTable.name,
+        number_ota: accountTable.phoneNumber,
+        request_term_ota: connectionTable.requestTerminateOta,
+        request_term_ma: connectionTable.requestTerminateMahasiswa
+      })
+      .from(connectionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(connectionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountOtaDetailTable,
+        eq(connectionTable.otaId, accountOtaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountTable,
+        eq(connectionTable.otaId, accountTable.id),
+      )
+      .where(
+        and(
+          eq(connectionTable.connectionStatus, "pending"),
+          or(
+            ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
+            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+            ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+          ),
+          or(
+            eq(connectionTable.requestTerminateMahasiswa, true),
+            eq(connectionTable.requestTerminateOta, true)
+          )
+        ),
+      )
+      .limit(LIST_PAGE_SIZE)
+      .offset(offset);
+
+      const [connectionList, counts] = await Promise.all([
+        connectionListQuery,
+        countsQuery,
+      ]);
+
+      return c.json(
+        {
+          success: true,
+          message: "Daftar connection pending berhasil diambil",
+          body: {
+            data: connectionList.map((connection) => ({
+              mahasiswa_id: connection.mahasiswa_id,
+              name_ma: connection.name_ma ?? "",
+              nim_ma: connection.nim_ma,
+              ota_id: connection.ota_id,
+              name_ota: connection.name_ota,
+              number_ota: connection.number_ota ?? "",
+              request_term_ota: connection.request_term_ota,
+              request_term_ma: connection.request_term_ma
             })),
             totalData: counts[0].count,
           }
