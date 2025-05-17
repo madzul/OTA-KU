@@ -193,7 +193,7 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
   electricityBill: text("electricity_bill"),
   ditmawaRecommendationLetter: text("ditmawa_recommendation_letter"),
   // Notes from interview given by admin
-  bill: integer("bill"),
+  bill: integer("bill").notNull().default(0),
   notes: text("notes"),
   adminOnlyNotes: text("admin_only_notes"),
   mahasiswaStatus: mahasiswaStatusEnum("mahasiswa_status")
@@ -282,7 +282,7 @@ export const transactionTable = pgTable("transaction", {
       onDelete: "cascade",
     }),
   bill: integer("bill").notNull(),
-  amountPaid: integer("amount_paid").notNull(),
+  amountPaid: integer("amount_paid").notNull().default(0),
   paidAt: timestamp("paid_at"),
   dueDate: timestamp("due_date").notNull(),
   transactionStatus: transactionStatusEnum("transaction_status")

@@ -6,6 +6,7 @@ import {
   accountOtaDetailTable,
   accountTable,
   connectionTable,
+  transactionTable,
 } from "../db/schema.js";
 import { connectOtaMahasiswaByAdminRoute, connectOtaMahasiswaRoute, deleteConnectionRoute, isConnectedRoute, listAllConnectionRoute, listPendingConnectionRoute, listPendingTerminationConnectionRoute, verifyConnectionAccRoute, verifyConnectionRejectRoute } from "../routes/connect.route.js";
 import { connectionListAllQuerySchema, connectionListQuerySchema, MahasiwaConnectSchema } from "../zod/connect.js";
@@ -133,6 +134,8 @@ connectProtectedRouter.openapi(connectOtaMahasiswaByAdminRoute, async (c) => {
     .where(eq(accountTable.id, user.id))
     .limit(1);
 
+  console.log(user.id)
+
   if (userAccount[0].status === "unverified") {
     return c.json(
       {
@@ -197,6 +200,48 @@ connectProtectedRouter.openapi(connectOtaMahasiswaByAdminRoute, async (c) => {
         connectionStatus: "accepted",
         paidFor: 0,
       });
+
+      // Get bill
+      const billResult = await tx
+      .select({
+        bill: accountMahasiswaDetailTable.bill,
+      })
+      .from(accountMahasiswaDetailTable)
+      .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
+      .limit(1);
+
+      const bill_mahasiswa = billResult[0]?.bill;
+
+      // Get transfer_date from OTA
+      const transferDateResult = await tx
+      .select({
+        transferDate: accountOtaDetailTable.transferDate,
+      })
+      .from(accountOtaDetailTable)
+      .where(eq(accountOtaDetailTable.accountId, otaId))
+      .limit(1);
+
+      const transfer_date = transferDateResult[0]?.transferDate;
+
+      // Calculate due_date
+      const now = new Date();
+      const todayDay = now.getDate();
+      const currentMonth = now.getMonth(); // 0-indexed
+      const currentYear = now.getFullYear();
+
+      const dueMonth = todayDay < transfer_date ? currentMonth : currentMonth + 1;
+      const dueYear = dueMonth > 11 ? currentYear + 1 : currentYear;
+      const normalizedMonth = dueMonth % 12;
+
+      const dueDate = new Date(dueYear, normalizedMonth, transfer_date, 23, 59, 59);
+
+      await tx.insert(transactionTable).values({
+        transferStatus: "unpaid",
+        mahasiswaId: mahasiswaId,
+        otaId: otaId,
+        bill: bill_mahasiswa,
+        dueDate: dueDate,
+      });
     });
 
     return c.json(
@@ -245,7 +290,49 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async(c) => {
             )
           )
         )
-    })
+
+      // Get bill
+      const billResult = await tx
+      .select({
+        bill: accountMahasiswaDetailTable.bill,
+      })
+      .from(accountMahasiswaDetailTable)
+      .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
+      .limit(1);
+
+      const bill_mahasiswa = billResult[0]?.bill;
+
+      // Get transfer_date from OTA
+      const transferDateResult = await tx
+      .select({
+        transferDate: accountOtaDetailTable.transferDate,
+      })
+      .from(accountOtaDetailTable)
+      .where(eq(accountOtaDetailTable.accountId, otaId))
+      .limit(1);
+
+      const transfer_date = transferDateResult[0]?.transferDate;
+
+      // Calculate due_date
+      const now = new Date();
+      const todayDay = now.getDate();
+      const currentMonth = now.getMonth(); // 0-indexed
+      const currentYear = now.getFullYear();
+
+      const dueMonth = todayDay < transfer_date ? currentMonth : currentMonth + 1;
+      const dueYear = dueMonth > 11 ? currentYear + 1 : currentYear;
+      const normalizedMonth = dueMonth % 12;
+
+      const dueDate = new Date(dueYear, normalizedMonth, transfer_date, 23, 59, 59);
+
+      await tx.insert(transactionTable).values({
+        transferStatus: "unpaid",
+        mahasiswaId: mahasiswaId,
+        otaId: otaId,
+        bill: bill_mahasiswa,
+        dueDate: dueDate,
+      });
+    });
 
     return c.json(
       {
