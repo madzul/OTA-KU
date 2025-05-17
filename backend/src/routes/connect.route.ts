@@ -2,8 +2,11 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
+  connectionListAllQueryResponse,
+  connectionListAllQuerySchema,
   connectionListQueryResponse,
   connectionListQuerySchema,
+  DeleteConnectionSuccessfulResponseSchema,
   isConnectedResponse,
   MahasiwaConnectSchema,
   OrangTuaFailedResponse,
@@ -185,21 +188,49 @@ export const verifyConnectionRejectRoute = createRoute({
   }
 })
 
-export const listConnectionRoute = createRoute({
-  operationId: "listConnection",
+export const listPendingConnectionRoute = createRoute({
+  operationId: "listPendingConnection",
   tags: ["Connect"],
   method: "get",
-  path: "/daftar-connection",
-  description: "List seluruh connection yang ada beserta detailnya",
+  path: "/list/pending",
+  description: "List seluruh connection yang pending beserta detailnya",
   request: {
     query: connectionListQuerySchema
   },
   responses: {
     200: {
-      description: "Daftar connection berhasil diambil",
+      description: "Daftar connection pending berhasil diambil",
       content: {
         "application/json": {
           schema: connectionListQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+})
+
+export const listAllConnectionRoute = createRoute({
+  operationId: "listAllConnection",
+  tags: ["Connect"],
+  method: "get",
+  path: "/list/all",
+  description: "List seluruh connection yang ada beserta detailnya",
+  request: {
+    query: connectionListAllQuerySchema
+  },
+  responses: {
+    200: {
+      description: "Daftar semua connection berhasil diambil",
+      content: {
+        "application/json": {
+          schema: connectionListAllQueryResponse,
         },
       },
     },
@@ -248,3 +279,29 @@ export const isConnectedRoute = createRoute({
     },
   },
 })
+
+export const deleteConnectionRoute = createRoute({
+  operationId: "deleteConnection",
+  tags: ["Connect"],
+  method: "delete",
+  path: "/delete",
+  description: "Delete an account",
+  request: {
+    query: MahasiwaConnectSchema,
+  },
+  responses: {
+    200: {
+      description: "Successfully deleted a connection",
+      content: {
+        "application/json": { schema: DeleteConnectionSuccessfulResponseSchema },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
