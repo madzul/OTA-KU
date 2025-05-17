@@ -399,7 +399,7 @@ profileProtectedRouter.openapi(pembuatanAkunBankesPengurusRoute, async(c) => {
     return c.json(
       {
         success: true,
-        message: "Berhasil mendaftar.",
+        message: "Berhasil membuat akun bankes/pengurus",
         body: {
           id: newUser[0].id,
           name: name,

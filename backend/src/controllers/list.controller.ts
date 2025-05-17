@@ -13,6 +13,7 @@ import {
 
 import { db } from "../db/drizzle.js";
 import {
+  accountAdminDetailTable,
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
@@ -20,6 +21,7 @@ import {
 } from "../db/schema.js";
 import type { Jurusan } from "../lib/nim.js";
 import {
+  listAllAccountRoute,
   listAvailableOTARoute,
   listMAActiveRoute,
   listMAPendingRoute,
@@ -457,6 +459,232 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
     );
   } catch (error) {
     console.error("Error fetching orang tua list:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+});
+
+listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
+  const { q, page, status, type, applicationStatus } = c.req.query();
+
+  // Validate page to be a positive integer
+  let pageNumber = Number(page);
+  if (isNaN(pageNumber) || pageNumber < 1) {
+    pageNumber = 1;
+  }
+
+  try {
+    const offset = (pageNumber - 1) * LIST_PAGE_DETAIL_SIZE;
+
+    const searchCondition = q
+      ? or(
+          ilike(accountMahasiswaDetailTable.name, `%${q}%`),
+          ilike(accountOtaDetailTable.name, `%${q}%`),
+          ilike(accountAdminDetailTable.name, `%${q}%`),
+          ilike(accountTable.email, `%${q}%`),
+        )
+      : undefined;
+
+    const filterConditions = [
+      status
+        ? eq(
+            accountTable.status,
+            status as "verified" | "unverified",
+          )
+        : undefined,
+      type
+        ? eq(
+            accountTable.type,
+            type as "mahasiswa" | "ota" | "admin" | "bankes" | "pengurus",
+          )
+        : undefined,
+      applicationStatus
+        ? eq(
+            accountTable.applicationStatus,
+            applicationStatus as "pending" | "accepted" | "rejected" | "unregistered" | "reapply" | "outdated",
+          )
+        : undefined,
+    ];
+
+    const countsQuery = db
+      .select({
+        total: sql<number>`sum(case when ${accountTable.applicationStatus} != 'unregistered' then 1 else 0 end)`,
+        accepted: sql<number>`sum(case when ${accountTable.applicationStatus} = 'accepted' then 1 else 0 end)`,
+        pending: sql<number>`sum(case when ${accountTable.applicationStatus} = 'pending' then 1 else 0 end)`,
+        rejected: sql<number>`sum(case when ${accountTable.applicationStatus} = 'rejected' then 1 else 0 end)`,
+      })
+      .from(accountTable)
+      .where(
+        and(
+          searchCondition,
+          ...filterConditions
+        ),
+      );
+
+    const countsPaginationQuery = db
+      .select({ count: count() })
+      .from(accountTable)
+      .leftJoin(
+        accountMahasiswaDetailTable,
+        eq(accountTable.id, accountMahasiswaDetailTable.accountId),
+      )
+      .leftJoin(
+        accountOtaDetailTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .leftJoin(
+        accountAdminDetailTable,
+        eq(accountTable.id, accountAdminDetailTable.accountId),
+      )
+      .where(
+        and(
+          searchCondition,
+          ...filterConditions
+        ),
+      );
+
+    const accountListQuery = db
+      .select({
+        id: accountTable.id,
+        email: accountTable.email,
+        type: accountTable.type,
+        phoneNumber: accountTable.phoneNumber,
+        provider: accountTable.provider,
+        status: accountTable.status,
+        applicationStatus: accountTable.applicationStatus,
+        ma_name: accountMahasiswaDetailTable.name,
+        ota_name: accountOtaDetailTable.name,
+        admin_name: accountAdminDetailTable.name,
+        nim: accountMahasiswaDetailTable.nim,
+        mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
+        description: accountMahasiswaDetailTable.description,
+        file: accountMahasiswaDetailTable.file,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        religion: accountMahasiswaDetailTable.religion,
+        gender: accountMahasiswaDetailTable.gender,
+        gpa: accountMahasiswaDetailTable.gpa,
+        kk: accountMahasiswaDetailTable.kk,
+        ktm: accountMahasiswaDetailTable.ktm,
+        waliRecommendationLetter: accountMahasiswaDetailTable.waliRecommendationLetter,
+        transcript: accountMahasiswaDetailTable.transcript,
+        salaryReport: accountMahasiswaDetailTable.salaryReport,
+        pbb: accountMahasiswaDetailTable.pbb,
+        electricityBill: accountMahasiswaDetailTable.electricityBill,
+        ditmawaRecommendationLetter: accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        bill: accountMahasiswaDetailTable.bill,
+        notes: accountMahasiswaDetailTable.notes,
+        adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
+        job: accountOtaDetailTable.job,
+        address: accountOtaDetailTable.address,
+        linkage: accountOtaDetailTable.linkage,
+        funds: accountOtaDetailTable.funds,
+        maxCapacity: accountOtaDetailTable.maxCapacity,
+        startDate: accountOtaDetailTable.startDate,
+        maxSemester: accountOtaDetailTable.maxSemester,
+        transferDate: accountOtaDetailTable.transferDate,
+        criteria: accountOtaDetailTable.criteria,
+        isDetailVisible: accountOtaDetailTable.isDetailVisible,
+        allowAdminSelection: accountOtaDetailTable.allowAdminSelection,
+      })
+      .from(accountTable)
+      .leftJoin(
+        accountMahasiswaDetailTable,
+        eq(accountTable.id, accountMahasiswaDetailTable.accountId),
+      )
+      .leftJoin(
+        accountOtaDetailTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .leftJoin(
+        accountAdminDetailTable,
+        eq(accountTable.id, accountAdminDetailTable.accountId),
+      )
+      .where(
+        and(
+          searchCondition,
+          ...filterConditions
+        ),
+      )
+      .orderBy(desc(accountTable.createdAt))
+      .limit(LIST_PAGE_DETAIL_SIZE)
+      .offset(offset);
+
+    const [accountList, counts, countsPagination] = await Promise.all([
+      accountListQuery,
+      countsQuery,
+      countsPaginationQuery,
+    ]);
+
+    return c.json(
+      {
+        success: true,
+        message: "Daftar seluruh akun berhasil diambil",
+        body: {
+          data: accountList.map((account) => ({
+            id: account.id,
+            email: account.email,
+            phoneNumber: account.phoneNumber!,
+            provider: account.provider,
+            status: account.status,
+            applicationStatus: account.applicationStatus,
+            type: account.type,
+            ma_name: account.ma_name!,
+            ota_name: account.ota_name!,
+            admin_name: account.admin_name!,
+            nim: account.nim!,
+            mahasiswaStatus: account.mahasiswaStatus!,
+            description: account.description!,
+            file: account.file!,
+            major: account.major || "",
+            faculty: account.faculty || "",
+            cityOfOrigin: account.cityOfOrigin || "",
+            highschoolAlumni: account.highschoolAlumni || "",
+            religion: account.religion!,
+            gender: account.gender!,
+            gpa: account.gpa!,
+            kk: account.kk || "",
+            ktm: account.ktm || "",
+            waliRecommendationLetter: account.waliRecommendationLetter || "",
+            transcript: account.transcript || "",
+            salaryReport: account.salaryReport || "",
+            pbb: account.pbb || "",
+            electricityBill: account.electricityBill || "",
+            ditmawaRecommendationLetter: account.ditmawaRecommendationLetter || "",
+            bill: account.bill || 0,
+            notes: account.notes || "",
+            adminOnlyNotes: account.adminOnlyNotes || "",
+            job: account.job || "",
+            address: account.address || "",
+            linkage: account.linkage!,
+            funds: account.funds || 0,
+            maxCapacity: account.maxCapacity || 0,
+            startDate: account.startDate || "",
+            maxSemester: account.maxSemester || 0,
+            transferDate: account.transferDate || 0,
+            criteria: account.criteria || "",
+            isDetailVisible: account.isDetailVisible!,
+            allowAdminSelection: account.allowAdminSelection!,
+          })),
+          totalPagination: countsPagination[0].count,
+          totalData: Number(counts[0].total),
+          totalPending: Number(counts[0].pending),
+          totalAccepted: Number(counts[0].accepted),
+          totalRejected: Number(counts[0].rejected),
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error("Error fetching mahasiswa list:", error);
     return c.json(
       {
         success: false,

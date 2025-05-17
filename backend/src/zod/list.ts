@@ -293,7 +293,7 @@ export const OrangTuaDetailsListQueryResponse = z.object({
   body: z.object({
     data: z.array(
       z.object({
-        id: z.string().openapi({ example: "1" }),
+        id: z.string().openapi({ example: "dfe6dd7c-ae07-4e91-b412-c8bdecad0c33" }),
         name: z.string().openapi({ example: "John Doe" }),
         email: z.string().openapi({ example: "johndoe@example.com" }),
         phoneNumber: z.string().openapi({ example: "6281234567890" }),
@@ -354,7 +354,7 @@ export const OTAListQuerySchema = z.object({
 });
 
 export const OTAListElementSchema = z.object({
-  accountId: z.string().openapi({ example: "1" }),
+  accountId: z.string().openapi({ example: "dfe6dd7c-ae07-4e91-b412-c8bdecad0c33" }),
   name: z.string().openapi({ example: "John Doe" }),
   phoneNumber: PhoneNumberSchema,
   nominal: z.number().openapi({ example: 5000000 }),
@@ -370,7 +370,7 @@ export const OTAListQueryResponse = z.object({
 });
 
 export const MAListElementSchema = z.object({
-  accountId: z.string().openapi({ example: "1" }),
+  accountId: z.string().openapi({ example: "dfe6dd7c-ae07-4e91-b412-c8bdecad0c33" }),
   name: z.string().openapi({ example: "John Doe" }),
   nim: NIMSchema,
   faculty: z.string().openapi({ example: "STEI-K" }),
@@ -402,6 +402,152 @@ export const MAListQueryResponse = z.object({
   message: z.string().openapi({ example: "Daftar MA berhasil diambil" }),
   body: z.object({
     data: z.array(MAListElementSchema.openapi("MAListElementStatus")),
+    totalData: z.number().openapi({ example: 100 }),
+  }),
+});
+
+export const AllAccountListQuerySchema = z.object({
+  q: z.string().optional().openapi({
+    description: "Query string for searching mahasiswa.",
+    example: "John Doe",
+  }),
+  page: z.coerce.number().optional().openapi({
+    description: "Page number for pagination.",
+    example: 1,
+  }),
+  status: z
+    .enum([
+      "verified",
+      "unverified"
+    ])
+    .optional()
+    .openapi({
+      description: "Verification status of account",
+      example: "verified",
+    }),
+  type: z
+    .enum(["mahasiswa", "ota", "admin", "bankes", "pengurus"])
+    .optional()
+    .openapi({
+      example: "bankes",
+      description: "Type of account",
+    }),
+  applicationStatus: z
+    .enum([
+      "pending",
+      "accepted",
+      "rejected",
+      "unregistered",
+      "reapply",
+      "outdated",
+    ])
+    .optional()
+    .openapi({ 
+      description: "Application status of account",
+      example: "pending" 
+    }),
+});
+
+export const AllAccountListElementSchema = z.object({
+  id: z.string().uuid().openapi({
+    example: "3fc0317f-f143-43bf-aa65-13a7a8eca788",
+  }),
+  email: z.string().email().openapi({ example: "johndoe@example.com" }),
+  type: z
+    .enum(["mahasiswa", "admin", "ota", "bankes", "pengurus"])
+    .openapi({ example: "mahasiswa" }),
+  phoneNumber: z.string().openapi({ example: "+6281234567890" }),
+  provider: z
+    .enum(["credentials", "azure"])
+    .openapi({ example: "credentials" }),
+  status: z.enum(["verified", "unverified"]).openapi({
+    description: "Verification status of account",
+    example: "verified",
+  }),
+  applicationStatus: z
+    .enum([
+      "pending",
+      "accepted",
+      "rejected",
+      "unregistered",
+      "reapply",
+      "outdated",
+    ])
+    .openapi({ example: "pending" }),
+  ma_name: z.string().openapi({ example: "John Doe" }),
+  ota_name: z.string().openapi({ example: "John Doe" }),
+  admin_name: z.string().openapi({ example: "John Doe" }),
+  nim: z.string().openapi({ example: "13522005" }),
+  mahasiswaStatus: z
+    .enum(["active", "inactive"])
+    .openapi({ example: "inactive" }),
+  description: z.string().openapi({
+    example: "Mahasiswa aktif yang sedang mencari orang tua asuh",
+  }),
+  file: z.string().openapi({ example: "https://example.com/file.pdf" }),
+  major: z.string().openapi({ example: "Computer Science" }),
+  faculty: z.string().openapi({ example: "Engineering" }),
+  cityOfOrigin: z.string().openapi({ example: "Jakarta" }),
+  highschoolAlumni: z.string().openapi({ example: "SMA Negeri 1 Jakarta" }),
+  religion: z
+    .enum([
+      "Islam",
+      "Kristen Protestan",
+      "Katolik",
+      "Hindu",
+      "Buddha",
+      "Konghucu",
+    ])
+    .openapi({
+      example: "Islam",
+    }),
+  gender: z.enum(["M", "F"]).openapi({ example: "M" }),
+  gpa: z.string().openapi({ example: "3.5" }),
+  kk: z.string().openapi({ example: "https://example.com/file.pdf" }),
+  ktm: z.string().openapi({ example: "https://example.com/file.pdf" }),
+  waliRecommendationLetter: z
+    .string()
+    .openapi({ example: "https://example.com/file.pdf" }),
+  transcript: z.string().openapi({ example: "https://example.com/file.pdf" }),
+  salaryReport: z
+    .string()
+    .openapi({ example: "https://example.com/file.pdf" }),
+  pbb: z.string().openapi({ example: "https://example.com/file.pdf" }),
+  electricityBill: z
+    .string()
+    .openapi({ example: "https://example.com/file.pdf" }),
+  ditmawaRecommendationLetter: z
+    .string()
+    .openapi({ example: "https://example.com/file.pdf" }),
+  bill: z.number().openapi({
+    example: 1000000,
+    description: "The amount of the bill in IDR",
+  }),
+  notes: z.string().openapi({ example: "Mahasiswa aktif" }),
+  adminOnlyNotes: z.string().openapi({ example: "Catatan admin" }),
+  job: z.string().openapi({ example: "Scholarship Provider" }),
+  address: z.string().openapi({ example: "Jl. Example No. 1, Jakarta" }),
+  linkage: z.enum(["otm", "dosen", "alumni", "lainnya", "none"]).openapi({
+    example: "otm",
+  }),
+  funds: z.number().openapi({ example: 50000000 }),
+  maxCapacity: z.number().openapi({ example: 10 }),
+  startDate: z.string().openapi({ example: "2025-03-30T09:40:05.508Z" }),
+  maxSemester: z.number().openapi({ example: 8 }),
+  transferDate: z.number().openapi({ example: 10 }),
+  criteria: z
+    .string()
+    .openapi({ example: "GPA minimum 3.5, active in organizations" }),
+  allowAdminSelection: z.boolean().openapi({
+    example: true,
+  }),
+});
+
+export const AllAccountListQueryResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Daftar MA berhasil diambil" }),
+  body: z.object({
+    data: z.array(AllAccountListElementSchema.openapi("MAListElementStatus")),
     totalData: z.number().openapi({ example: 100 }),
   }),
 });

@@ -451,7 +451,7 @@ export const createBankesPengurusSchema = z.object({
 
 export const createBankesPengurusResponse = z.object({
   success: z.boolean().openapi({ example: true }),
-  message: z.string().openapi({ example: "Berhasil mendaftar" }),
+  message: z.string().openapi({ example: "Berhasil membuat akun bankes/pengurus" }),
   body: z.object({
     id: z.string().openapi({ description: "ID akun" }), 
     name: z
