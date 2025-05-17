@@ -7,7 +7,7 @@ export type UserSchema = {
   name: string | null;
   email: string;
   phoneNumber: string | null;
-  type: 'mahasiswa' | 'ota' | 'admin';
+  type: 'mahasiswa' | 'ota' | 'admin' | 'bankes' | 'pengurus';
   provider: 'credentials' | 'azure';
   oid: string | null;
   createdAt: string;

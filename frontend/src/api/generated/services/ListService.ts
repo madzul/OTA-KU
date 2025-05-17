@@ -186,6 +186,47 @@ export class ListService {
     });
   }
   /**
+   * List detail semua akun yang ada
+   * @returns any Berhasil mendapatkan daftar semua akun yang ada
+   * @throws ApiError
+   */
+  public listAllAccount({
+    q,
+    page,
+    status,
+    type,
+    applicationStatus,
+  }: {
+    q?: string,
+    page?: number | null,
+    status?: 'verified' | 'unverified',
+    type?: 'mahasiswa' | 'ota' | 'admin' | 'bankes' | 'pengurus',
+    applicationStatus?: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated',
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<MAListElementStatus>;
+      totalData: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/list/admin/all',
+      query: {
+        'q': q,
+        'page': page,
+        'status': status,
+        'type': type,
+        'applicationStatus': applicationStatus,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
    * List orang tua asuh yang membantu saya
    * @returns any Berhasil mendapatkan daftar OTA-ku
    * @throws ApiError
