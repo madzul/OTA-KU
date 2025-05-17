@@ -16,13 +16,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { NotesVerificationRequestSchema } from "@/lib/zod/admin-verification";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { CircleCheck, CircleX } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -49,6 +50,9 @@ function Combobox({
 
   const form = useForm<NotesVerificationFormValues>({
     resolver: zodResolver(NotesVerificationRequestSchema),
+    defaultValues: {
+      bill: 0,
+    },
   });
 
   const applicationStatusCallbackMutation = useMutation({
@@ -90,9 +94,28 @@ function Combobox({
     },
   });
 
+  const { data } = useQuery({
+    queryKey: ["detailMahasiswa", id],
+    queryFn: () => {
+      if (type === "ota") return null;
+      return api.detail.getMahasiswaDetail({ id });
+    },
+    enabled: false,
+  });
+
   async function onSubmit(data: NotesVerificationFormValues) {
     applicationStatusCallbackMutation.mutate(data);
   }
+
+  useEffect(() => {
+    if (type === "mahasiswa" && data) {
+      form.reset({
+        bill: data.body.bill ?? 0,
+        notes: data.body.notes ?? "",
+        adminOnlyNotes: data.body.adminOnlyNotes ?? "",
+      });
+    }
+  }, [data, form, type]);
 
   return (
     <div className="flex gap-6">
@@ -118,6 +141,26 @@ function Combobox({
                   onSubmit={form.handleSubmit(onSubmit)}
                   className="flex flex-col gap-4"
                 >
+                  <FormField
+                    control={form.control}
+                    name="bill"
+                    render={({ field }) => (
+                      <FormItem className={cn(type === "ota" && "hidden")}>
+                        <FormLabel>Kebutuhan Dana</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={
+                              status !== "pending" && status !== "reapply"
+                            }
+                            placeholder="Masukkan dana kebutuhan"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="notes"
@@ -160,7 +203,6 @@ function Combobox({
 
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      className="bg-succeed hover:bg-succeed"
                       onClick={() => {
                         form.setValue("status", "accepted");
                         if (type === "ota") {
@@ -172,16 +214,16 @@ function Combobox({
                         form.reset();
                       }}
                     >
-                      Ya
+                      Lanjutkan
                     </Button>
                     <Button
-                      className="bg-destructive hover:bg-destructive"
+                      variant="outline"
                       onClick={() => {
                         setOpenAccept(false);
                         form.reset();
                       }}
                     >
-                      Tidak
+                      Batal
                     </Button>
                   </div>
                 </form>
@@ -250,7 +292,6 @@ function Combobox({
 
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      className="bg-succeed hover:bg-succeed"
                       type="submit"
                       onClick={() => {
                         form.setValue("status", "rejected");
@@ -263,17 +304,17 @@ function Combobox({
                         form.reset();
                       }}
                     >
-                      Ya
+                      Lanjutkan
                     </Button>
                     <Button
-                      className="bg-destructive hover:bg-destructive"
+                      variant="outline"
                       type="button"
                       onClick={() => {
                         setOpenReject(false);
                         form.reset();
                       }}
                     >
-                      Tidak
+                      Batal
                     </Button>
                   </div>
                 </form>

@@ -15,6 +15,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SessionContext } from "@/context/session";
 import { formatValue } from "@/lib/formatter";
@@ -23,7 +24,7 @@ import { NotesVerificationRequestSchema } from "@/lib/zod/admin-verification";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CircleCheck, CircleX } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -91,6 +92,16 @@ function DetailDialogMahasiswa({
   async function onSubmit(data: NotesVerificationFormValues) {
     changeStatusCallbackMutation.mutate(data);
   }
+
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        bill: data.body.bill ?? 0,
+        notes: data.body.notes ?? "",
+        adminOnlyNotes: data.body.adminOnlyNotes ?? "",
+      });
+    }
+  }, [data, form]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -177,22 +188,26 @@ function DetailDialogMahasiswa({
                         status !== "pending" && status !== "reapply" ? "-" : ""
                       }
                       render={({ field }) => {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        const { value, ...rest } = field;
                         return (
                           <FormItem className="mr-4">
                             <FormControl>
-                              <Textarea
-                                disabled={
-                                  status !== "pending" && status !== "reapply"
-                                }
-                                placeholder="Masukkan catatan"
-                                value={
-                                  data?.body[key as keyof typeof data.body] ??
-                                  "-"
-                                }
-                                {...rest}
-                              />
+                              {key === "bill" ? (
+                                <Input
+                                  disabled={
+                                    status !== "pending" && status !== "reapply"
+                                  }
+                                  placeholder="Masukkan dana kebutuhan"
+                                  {...field}
+                                />
+                              ) : (
+                                <Textarea
+                                  disabled={
+                                    status !== "pending" && status !== "reapply"
+                                  }
+                                  placeholder="Masukkan catatan"
+                                  {...field}
+                                />
+                              )}
                             </FormControl>
                             <FormMessage />
                           </FormItem>
