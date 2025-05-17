@@ -208,7 +208,7 @@ export class ListService {
     message: string;
     body: {
       data: Array<AllAccountListElement>;
-      totalData: number;
+      totalPagination: number;
     };
   }> {
     return this.httpRequest.request({

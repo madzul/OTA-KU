@@ -87,7 +87,7 @@ export async function seed() {
             email: "bankes1@example.com",
             phoneNumber: "628121865489",
             password: hashedPassword,
-            type: "admin",
+            type: "bankes",
             status: "verified",
             applicationStatus: "accepted",
           },
@@ -96,7 +96,7 @@ export async function seed() {
             email: "bankes2@example.com",
             phoneNumber: "628129648526",
             password: hashedPassword,
-            type: "admin",
+            type: "bankes",
             status: "verified",
             applicationStatus: "accepted",
           },
@@ -105,7 +105,7 @@ export async function seed() {
             email: "pengurus1@example.com",
             phoneNumber: "628127586245",
             password: hashedPassword,
-            type: "admin",
+            type: "pengurus",
             status: "verified",
             applicationStatus: "accepted",
           },
@@ -114,7 +114,7 @@ export async function seed() {
             email: "pengurus2@example.com",
             phoneNumber: "628126548253",
             password: hashedPassword,
-            type: "admin",
+            type: "pengurus",
             status: "verified",
             applicationStatus: "accepted",
           },
@@ -1180,6 +1180,10 @@ export async function seed() {
         {
           accountId: pengurus1Id,
           name: "Pengurus 1",
+        },
+        {
+          accountId: pengurus2Id,
+          name: "Pengurus 2",
         },
       ]);
 
