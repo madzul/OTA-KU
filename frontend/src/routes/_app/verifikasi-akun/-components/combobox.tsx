@@ -41,7 +41,7 @@ function Combobox({
   id: string;
   name: string;
   email: string;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "reapply" | "outdated";
   type: "mahasiswa" | "ota";
 }) {
   const [openAccept, setOpenAccept] = useState(false);
@@ -96,7 +96,7 @@ function Combobox({
 
   return (
     <div className="flex gap-6">
-      {status === "pending" ? (
+      {status === "pending" || status === "reapply" ? (
         <>
           <Dialog open={openAccept} onOpenChange={setOpenAccept}>
             <DialogTrigger>
@@ -126,7 +126,9 @@ function Combobox({
                         <FormLabel>Catatan Mahasiswa</FormLabel>
                         <FormControl>
                           <Textarea
-                            disabled={status !== "pending"}
+                            disabled={
+                              status !== "pending" && status !== "reapply"
+                            }
                             placeholder="Masukkan catatan"
                             {...field}
                           />
@@ -144,7 +146,9 @@ function Combobox({
                         <FormLabel>Catatan Admin</FormLabel>
                         <FormControl>
                           <Textarea
-                            disabled={status !== "pending"}
+                            disabled={
+                              status !== "pending" && status !== "reapply"
+                            }
                             placeholder="Masukkan catatan"
                             {...field}
                           />
@@ -212,7 +216,9 @@ function Combobox({
                         <FormLabel>Catatan Mahasiswa</FormLabel>
                         <FormControl>
                           <Textarea
-                            disabled={status !== "pending"}
+                            disabled={
+                              status !== "pending" && status !== "reapply"
+                            }
                             placeholder="Masukkan catatan"
                             {...field}
                           />
@@ -230,7 +236,9 @@ function Combobox({
                         <FormLabel>Catatan Admin</FormLabel>
                         <FormControl>
                           <Textarea
-                            disabled={status !== "pending"}
+                            disabled={
+                              status !== "pending" && status !== "reapply"
+                            }
                             placeholder="Masukkan catatan"
                             {...field}
                           />
