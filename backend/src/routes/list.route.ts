@@ -2,6 +2,9 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
+  AllAccountListElementSchema,
+  AllAccountListQueryResponse,
+  AllAccountListQuerySchema,
   MAListQueryResponse,
   MahasiswaDetailsListQueryResponse,
   MahasiswaDetailsListQuerySchema,
@@ -197,6 +200,34 @@ export const listAvailableOTARoute = createRoute({
       content: {
         "application/json": {
           schema: OTAListQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const listAllAccountRoute = createRoute({
+  operationId: "listAllAccount",
+  tags: ["List"],
+  method: "get",
+  path: "/admin/all",
+  description: "List detail semua akun yang ada",
+  request: {
+    query: AllAccountListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan daftar semua akun yang ada",
+      content: {
+        "application/json": {
+          schema: AllAccountListQueryResponse,
         },
       },
     },

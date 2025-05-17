@@ -163,11 +163,11 @@ export class ConnectService {
     });
   }
   /**
-   * List seluruh connection yang ada beserta detailnya
-   * @returns any Daftar connection berhasil diambil
+   * List seluruh connection yang pending beserta detailnya
+   * @returns any Daftar connection pending berhasil diambil
    * @throws ApiError
    */
-  public listConnection({
+  public listPendingConnection({
     q,
     page,
   }: {
@@ -195,10 +195,167 @@ export class ConnectService {
   }> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/api/connect/daftar-connection',
+      url: '/api/connect/list/pending',
       query: {
         'q': q,
         'page': page,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * List seluruh connection yang pending terminasi beserta detailnya
+   * @returns any Daftar connection pending berhasil diambil
+   * @throws ApiError
+   */
+  public listPendingTerminationConnection({
+    q,
+    page,
+  }: {
+    q?: string,
+    page?: number | null,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        /**
+         * ID mahasiswa asuh
+         */
+        mahasiswa_id: string;
+        name_ma: string;
+        nim_ma: string;
+        /**
+         * ID orang tua asuh
+         */
+        ota_id: string;
+        name_ota: string;
+        number_ota: string;
+        request_term_ota: boolean;
+        request_term_ma: boolean;
+      }>;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/connect/list/pending-terminate',
+      query: {
+        'q': q,
+        'page': page,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * List seluruh connection yang ada beserta detailnya
+   * @returns any Daftar semua connection berhasil diambil
+   * @throws ApiError
+   */
+  public listAllConnection({
+    q,
+    page,
+    connectionStatus,
+  }: {
+    q?: string,
+    page?: number | null,
+    connectionStatus?: 'accepted' | 'pending' | 'rejected',
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        /**
+         * ID mahasiswa asuh
+         */
+        mahasiswa_id: string;
+        name_ma: string;
+        nim_ma: string;
+        /**
+         * ID orang tua asuh
+         */
+        ota_id: string;
+        name_ota: string;
+        number_ota: string;
+        /**
+         * Connection status of a given connection
+         */
+        connection_status: 'accepted' | 'pending' | 'rejected';
+        request_term_ota: boolean;
+        request_term_ma: boolean;
+        paidFor: number;
+      }>;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/connect/list/all',
+      query: {
+        'q': q,
+        'page': page,
+        'connection_status': connectionStatus,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Memeriksa apakah OTA dan MA tertentu sudah memiliki hubungan asuh
+   * @returns any Ditemukan hubungan asuh antara MA dan OTA
+   * @throws ApiError
+   */
+  public isConnected({
+    otaId,
+    mahasiswaId,
+  }: {
+    otaId: string,
+    mahasiswaId: string,
+  }): CancelablePromise<{
+    isConnected: boolean;
+    message: string;
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/connect/is-connected',
+      query: {
+        'otaId': otaId,
+        'mahasiswaId': mahasiswaId,
+      },
+      errors: {
+        400: `Gagal menemukan hubungan asuh antara MA dan OTA`,
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Delete an account
+   * @returns any Successfully deleted a connection
+   * @throws ApiError
+   */
+  public deleteConnection({
+    otaId,
+    mahasiswaId,
+  }: {
+    otaId: string,
+    mahasiswaId: string,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+  }> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/api/connect/delete',
+      query: {
+        'otaId': otaId,
+        'mahasiswaId': mahasiswaId,
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,

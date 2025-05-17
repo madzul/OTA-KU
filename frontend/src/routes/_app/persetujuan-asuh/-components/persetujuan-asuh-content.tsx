@@ -22,7 +22,7 @@ function PersetujuanAsuhContent() {
 
   const { data, isLoading, isSuccess } = useQuery({
     queryKey: ["listConnection"],
-    queryFn: () => api.connect.listConnection({ page }),
+    queryFn: () => api.connect.listPendingConnection({ page }),
   });
   
   const isLoadingState = isLoading || !isSuccess;
@@ -40,7 +40,7 @@ function PersetujuanAsuhContent() {
     queryClient.fetchQuery({
       queryKey: ["listConnection"],
       queryFn: () =>
-        api.connect.listConnection({
+        api.connect.listPendingConnection({
           page: 1,
           q: value,
         }),

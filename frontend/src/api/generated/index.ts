@@ -10,6 +10,7 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
+export type { AllAccountListElement } from './models/AllAccountListElement';
 export type { CreatePushSubscriptionSchema } from './models/CreatePushSubscriptionSchema';
 export type { ListTerminateForAdmin } from './models/ListTerminateForAdmin';
 export type { ListTerminateForOTA } from './models/ListTerminateForOTA';

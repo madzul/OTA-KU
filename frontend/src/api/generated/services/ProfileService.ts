@@ -287,6 +287,76 @@ export class ProfileService {
     });
   }
   /**
+   * Pembuatan akun bankes dan pengurus oleh admin
+   * @returns any Berhasil mendaftar.
+   * @throws ApiError
+   */
+  public pembuatanAkunBankesPengurus({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * Nama dari bankes atau pengurus
+       */
+      name: string;
+      /**
+       * The user's email.
+       */
+      email: string;
+      /**
+       * The user's password.
+       */
+      password: string;
+      /**
+       * Jenis akun
+       */
+      type: 'bankes' | 'pengurus';
+      /**
+       * Nomor telepon pengguna yang dimulai dengan 62.
+       */
+      phoneNumber: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * ID akun
+       */
+      id: string;
+      /**
+       * Nama dari bankes atau pengurus
+       */
+      name: string;
+      /**
+       * The user's email.
+       */
+      email: string;
+      /**
+       * Jenis akun
+       */
+      type: 'mahasiswa' | 'ota' | 'admin' | 'bankes' | 'pengurus';
+      /**
+       * Nomor telepon pengguna yang dimulai dengan 62.
+       */
+      phoneNumber: string;
+      provider: 'credentials' | 'azure';
+      status: 'verified' | 'unverified';
+      application_status: 'accepted' | 'rejected' | 'pending' | 'unregistered' | 'reapply' | 'outdated';
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/profile/bankes-pengurus',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
    * Edit profile OTA
    * @returns any Berhasil edit profile OTA.
    * @throws ApiError
@@ -680,6 +750,37 @@ export class ProfileService {
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun belum terverifikasi.`,
         404: `Data tidak ditemukan.`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Delete an account
+   * @returns any Successfully deleted an account
+   * @throws ApiError
+   */
+  public deleteAccount({
+    id,
+  }: {
+    id: string,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * Unique account ID
+       */
+      id: string;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'DELETE',
+      url: '/api/profile/delete/{id}',
+      path: {
+        'id': id,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
         500: `Internal server error`,
       },
     });

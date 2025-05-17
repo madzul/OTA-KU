@@ -29,7 +29,20 @@ app.onError((err, c) => {
   if (err instanceof HTTPException) {
     return err.getResponse();
   }
-  return c.json({ error: err }, 500);
+  
+  console.error("Unexpected Error:", err);
+
+  return c.json(
+    {
+      success: false,
+      error: {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+      },
+    },
+    500
+  );
 });
 
 app.use(
