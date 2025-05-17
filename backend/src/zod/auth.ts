@@ -134,7 +134,7 @@ export const UserAuthenticatedResponse = z.object({
       email: z.string().openapi({ example: "johndoe@example.com" }),
       phoneNumber: z.string().nullable().openapi({ example: "081234567890" }),
       type: z
-        .enum(["mahasiswa", "ota", "admin"])
+        .enum(["mahasiswa", "ota", "admin", "bankes", "pengurus"])
         .openapi({ example: "mahasiswa" }),
       provider: z
         .enum(["credentials", "azure"])
@@ -166,7 +166,7 @@ export const JWTPayloadSchema = z
     email: z.string().openapi({ example: "johndoe@example.com" }),
     phoneNumber: z.string().nullable().openapi({ example: "081234567890" }),
     type: z
-      .enum(["mahasiswa", "ota", "admin"])
+      .enum(["mahasiswa", "ota", "admin", "bankes", "pengurus"])
       .openapi({ example: "mahasiswa" }),
     provider: z
       .enum(["credentials", "azure"])

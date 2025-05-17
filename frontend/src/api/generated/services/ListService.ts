@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AllAccountListElement } from '../models/AllAccountListElement';
 import type { MahasiswaListElement } from '../models/MahasiswaListElement';
 import type { MAListElementStatus } from '../models/MAListElementStatus';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -178,6 +179,47 @@ export class ListService {
         'q': q,
         'page': page,
         'status': status,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * List detail semua akun yang ada
+   * @returns any Berhasil mendapatkan daftar semua akun yang ada
+   * @throws ApiError
+   */
+  public listAllAccount({
+    q,
+    page,
+    status,
+    type,
+    applicationStatus,
+  }: {
+    q?: string,
+    page?: number | null,
+    status?: 'verified' | 'unverified',
+    type?: 'mahasiswa' | 'ota' | 'admin' | 'bankes' | 'pengurus',
+    applicationStatus?: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated',
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<AllAccountListElement>;
+      totalData: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/list/admin/all',
+      query: {
+        'q': q,
+        'page': page,
+        'status': status,
+        'type': type,
+        'applicationStatus': applicationStatus,
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,

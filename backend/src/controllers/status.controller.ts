@@ -42,7 +42,7 @@ statusProtectedRouter.openapi(applicationStatusRoute, async (c) => {
         await tx
           .update(accountMahasiswaDetailTable)
           .set({
-            bill: bill ?? null,
+            bill: bill,
             notes: notes ?? null,
             adminOnlyNotes: adminOnlyNotes ?? null,
           })

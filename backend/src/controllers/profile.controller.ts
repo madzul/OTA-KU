@@ -5,25 +5,30 @@ import { sign } from "hono/jwt";
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
+  accountAdminDetailTable,
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
 } from "../db/schema.js";
 import { uploadPdfToCloudinary } from "../lib/file-upload.js";
 import {
+  deleteAccountRoute,
   editProfileMahasiswaRoute,
   editProfileOrangTuaRoute,
+  pembuatanAkunBankesPengurusRoute,
   pendaftaranMahasiswaRoute,
   pendaftaranOrangTuaRoute,
   profileMahasiswaRoute,
   profileOrangTuaRoute,
 } from "../routes/profile.route.js";
 import {
+  createBankesPengurusSchema,
   MahasiswaProfileFormSchema,
   MahasiswaRegistrationFormSchema,
   OrangTuaRegistrationSchema,
 } from "../zod/profile.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
+import { hash } from "bcrypt";
 
 export const profileRouter = createRouter();
 export const profileProtectedRouter = createAuthRouter();
@@ -358,6 +363,69 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
     );
   }
 });
+
+profileProtectedRouter.openapi(pembuatanAkunBankesPengurusRoute, async(c) => {
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+
+  const zodParseResult = createBankesPengurusSchema.parse(data);
+
+  const {
+    name,
+    email,
+    password,
+    type,
+    phoneNumber
+  } = zodParseResult;
+
+  const hashedPassword = await hash(password, 10);
+
+  try{
+    const newUser = await db.insert(accountTable).values({
+      email: email,
+      password: hashedPassword,
+      type: type,
+      phoneNumber: phoneNumber,
+      provider: "credentials",
+      status: "verified",
+      applicationStatus: "accepted"
+    })
+    .returning();
+
+    await db.insert(accountAdminDetailTable).values({
+      accountId: newUser[0].id,
+      name: name
+    })
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil membuat akun bankes/pengurus",
+        body: {
+          id: newUser[0].id,
+          name: name,
+          email: newUser[0].email,
+          type: newUser[0].type,
+          phoneNumber: newUser[0].phoneNumber ?? "",
+          provider: newUser[0].provider,
+          status: newUser[0].status,
+          application_status: newUser[0].applicationStatus
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+})
 
 profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
   const user = c.var.user;
@@ -858,3 +926,32 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
     );
   }
 });
+
+profileProtectedRouter.openapi(deleteAccountRoute, async(c) => {
+  const { id } = c.req.param();
+
+  try{
+    await db
+      .delete(accountTable)
+      .where(eq(accountTable.id, id))
+
+    return c.json(
+      {
+        success: true,
+        message: "Successfully deleted an account",
+        body: { id: id }
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+})

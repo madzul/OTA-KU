@@ -23,6 +23,7 @@
     "backend": "file:",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.6.0",
+    "cron": "^4.3.0",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.41.0",
     "env-cmd": "^10.1.0",
