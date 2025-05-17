@@ -14,7 +14,6 @@ import {
   otpTable,
   temporaryPasswordTable,
 } from "../db/schema.js";
-import { emailHTML, emailHTMLPassword } from "../lib/email-html.js";
 import {
   getNimFakultasCodeMap,
   getNimFakultasFromNimJurusanMap,
@@ -39,6 +38,8 @@ import {
   UserRegisRequestSchema,
 } from "../zod/auth.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
+import { otpEmail } from "../lib/email/otp.js";
+import { temporaryPasswordEmail } from "../lib/email/password.js";
 
 export const authRouter = createRouter();
 export const authProtectedRouter = createAuthRouter();
@@ -294,7 +295,7 @@ authRouter.openapi(regisRoute, async (c) => {
         from: env.EMAIL_FROM,
         to: newUser[0].email,
         subject: "Token OTP Bantuan Orang Tua Asuh",
-        html: emailHTML(code),
+        html: otpEmail(code),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
@@ -746,7 +747,7 @@ authRouter.openapi(forgotPasswordRoute, async (c) => {
         from: env.EMAIL_FROM,
         to: foundAccount.email,
         subject: "Kata Sandi Sementara Bantuan Orang Tua Asuh",
-        html: emailHTMLPassword(password),
+        html: temporaryPasswordEmail(password),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
