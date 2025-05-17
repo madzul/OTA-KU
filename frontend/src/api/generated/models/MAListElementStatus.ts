@@ -3,53 +3,22 @@
 /* tslint:disable */
 /* eslint-disable */
 export type MAListElementStatus = {
-  id: string;
-  email: string;
-  type: 'mahasiswa' | 'admin' | 'ota' | 'bankes' | 'pengurus';
-  phoneNumber: string;
-  provider: 'credentials' | 'azure';
+  accountId: string;
+  name: string;
   /**
-   * Verification status of account
+   * Nomor Induk Mahasiswa
    */
-  status: 'verified' | 'unverified';
-  applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
-  ma_name: string;
-  ota_name: string;
-  admin_name: string;
   nim: string;
-  mahasiswaStatus: 'active' | 'inactive';
-  description: string;
-  file: string;
-  major: string;
   faculty: string;
+  major: string;
   cityOfOrigin: string;
   highschoolAlumni: string;
-  religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
   gender: 'M' | 'F';
+  religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
   gpa: string;
-  kk: string;
-  ktm: string;
-  waliRecommendationLetter: string;
-  transcript: string;
-  salaryReport: string;
-  pbb: string;
-  electricityBill: string;
-  ditmawaRecommendationLetter: string;
   /**
-   * The amount of the bill in IDR
+   * Status mahasiswa
    */
-  bill: number;
-  notes: string;
-  adminOnlyNotes: string;
-  job: string;
-  address: string;
-  linkage: 'otm' | 'dosen' | 'alumni' | 'lainnya' | 'none';
-  funds: number;
-  maxCapacity: number;
-  startDate: string;
-  maxSemester: number;
-  transferDate: number;
-  criteria: string;
-  allowAdminSelection: boolean;
+  mahasiswaStatus: 'active' | 'inactive';
 };
 

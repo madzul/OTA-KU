@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AllAccountListElement } from '../models/AllAccountListElement';
 import type { MahasiswaListElement } from '../models/MahasiswaListElement';
 import type { MAListElementStatus } from '../models/MAListElementStatus';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -206,7 +207,7 @@ export class ListService {
     success: boolean;
     message: string;
     body: {
-      data: Array<MAListElementStatus>;
+      data: Array<AllAccountListElement>;
       totalData: number;
     };
   }> {
