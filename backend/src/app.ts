@@ -40,12 +40,12 @@ app.use(
   }),
 );
 
-// app.use(
-//   "/api/*",
-//   csrf({
-//     origin: env.ALLOWED_ORIGINS,
-//   }),
-// );
+app.use(
+  "/api/*",
+  csrf({
+    origin: env.ALLOWED_ORIGINS,
+  }),
+);
 
 // Base routes
 app.get("/", (c) => c.json({ message: "Server runs successfully" }));
@@ -70,17 +70,8 @@ app.doc("/doc", {
     version: packageJson.version,
     title: packageJson.name,
   },
-  // tags: [
-  //   {
-  //     name: "API Docs",
-  //     description: "Documentation for the numerous existing APIs",
-  //   },
-  // ],
 });
 
 app.use("/swagger", swaggerUI({ url: "/doc" }));
-
-//http://localhost:3000/swagger utk swagger
-//http://localhost:3000/doc utk raw JSON
 
 export default app;
