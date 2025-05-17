@@ -3,6 +3,7 @@ import { afterAll, beforeAll } from "vitest";
 
 import { db } from "../src/db/drizzle.js";
 import {
+  accountAdminDetailTable,
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
@@ -18,6 +19,7 @@ let originalData: {
   accounts: any[];
   mahasiswaDetails: any[];
   otaDetails: any[];
+  adminDetails: any[];
   connections: any[];
   transactions: any[];
   otps: any[];
@@ -31,6 +33,9 @@ beforeAll(async () => {
     accounts: await db.select().from(accountTable),
     mahasiswaDetails: await db.select().from(accountMahasiswaDetailTable),
     otaDetails: await db.select().from(accountOtaDetailTable),
+    adminDetails: await db
+      .select()
+      .from(accountAdminDetailTable),
     connections: await db.select().from(connectionTable),
     transactions: await db.select().from(transactionTable),
     otps: await db.select().from(otpTable),
@@ -41,6 +46,7 @@ beforeAll(async () => {
   await db.transaction(async (tx) => {
     // Clear all tables
     await tx.delete(connectionTable);
+    await tx.delete(accountAdminDetailTable);
     await tx.delete(accountOtaDetailTable);
     await tx.delete(accountMahasiswaDetailTable);
     await tx.delete(accountTable);
@@ -66,6 +72,7 @@ afterAll(async () => {
   await db.transaction(async (tx) => {
     // Clear all tables
     await tx.delete(connectionTable);
+    await tx.delete(accountAdminDetailTable);
     await tx.delete(accountOtaDetailTable);
     await tx.delete(accountMahasiswaDetailTable);
     await tx.delete(accountTable);
@@ -85,6 +92,11 @@ afterAll(async () => {
     }
     if (originalData.otaDetails.length > 0) {
       await tx.insert(accountOtaDetailTable).values(originalData.otaDetails);
+    }
+    if (originalData.adminDetails.length > 0) {
+      await tx
+        .insert(accountAdminDetailTable)
+        .values(originalData.adminDetails);
     }
     if (originalData.connections.length > 0) {
       await tx.insert(connectionTable).values(originalData.connections);

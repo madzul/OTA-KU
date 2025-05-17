@@ -9,6 +9,10 @@ export type MyOtaDetailResponse = {
   name: string;
   transferDate: number;
   /**
+   * Indicates if the detail is visible to the mahasiswa
+   */
+  isDetailVisible: boolean;
+  /**
    * Timestamp when the orang tua asuh was created
    */
   createdAt: string;

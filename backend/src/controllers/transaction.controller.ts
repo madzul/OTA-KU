@@ -5,9 +5,12 @@ import {
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
+  connectionTable,
   transactionTable,
 } from "../db/schema.js";
+import { uploadPdfToCloudinary } from "../lib/file-upload.js";
 import {
+  acceptTransferStatusRoute,
   detailTransactionRoute,
   listTransactionAdminRoute,
   listTransactionOTARoute,
@@ -16,6 +19,7 @@ import {
   verifyTransactionRejectRoute,
 } from "../routes/transaction.route.js";
 import {
+  AcceptTransferStatusSchema,
   DetailTransactionParams,
   TransactionListAdminQuerySchema,
   TransactionListOTAQuerySchema,
@@ -24,17 +28,10 @@ import {
   VerifyTransactionRejectSchema,
 } from "../zod/transaction.js";
 import { createAuthRouter } from "./router-factory.js";
-import { uploadPdfToCloudinary } from "../lib/file-upload.js";
 
 export const transactionProtectedRouter = createAuthRouter();
 
 const LIST_PAGE_SIZE = 6;
-
-function convertUtcToWib(utcDateString: string): Date {
-  const utcDate = new Date(utcDateString);
-  // Add 7 hours (GMT+7 offset in ms)
-  return new Date(utcDate.getTime() + 7 * 60 * 60 * 1000);
-}
 
 transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
   const user = c.var.user;
@@ -73,6 +70,7 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
 
     const transactionOTAListQuery = db
       .select({
+        id: transactionTable.id,
         mahasiswa_id: transactionTable.mahasiswaId,
         mahasiswa_name: accountMahasiswaDetailTable.name,
         mahasiswa_nim: accountMahasiswaDetailTable.nim,
@@ -106,6 +104,7 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
         body: {
           data: transactionOTAList.map((transaction) => ({
             id: transaction.mahasiswa_id,
+            mahasiswa_id: transaction.mahasiswa_id,
             name: transaction.mahasiswa_name ?? "",
             nim: transaction.mahasiswa_nim,
             bill: transaction.bill,
@@ -173,6 +172,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
 
     const transactionAdminListQuery = db
       .select({
+        id: transactionTable.id,
         mahasiswa_id: transactionTable.mahasiswaId,
         ota_id: transactionTable.otaId,
         mahasiswa_name: accountMahasiswaDetailTable.name,
@@ -184,6 +184,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
         paid_at: transactionTable.paidAt,
         due_date: transactionTable.dueDate,
         status: transactionTable.transactionStatus,
+        transferStatus: transactionTable.transferStatus,
         receipt: transactionTable.transactionReceipt,
         createdAt: transactionTable.createdAt,
       })
@@ -212,6 +213,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
         message: "Daftar transaction untuk Admin berhasil diambil",
         body: {
           data: transactionAdminList.map((transaction) => ({
+            id: transaction.id,
             mahasiswa_id: transaction.mahasiswa_id,
             ota_id: transaction.ota_id,
             name_ma: transaction.mahasiswa_name ?? "",
@@ -223,6 +225,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
             paid_at: transaction.paid_at ?? "",
             due_date: transaction.due_date,
             status: transaction.status,
+            transferStatus: transaction.transferStatus,
             receipt: transaction.receipt ?? "",
             createdAt: transaction.createdAt,
           })),
@@ -334,18 +337,15 @@ transactionProtectedRouter.openapi(detailTransactionRoute, async (c) => {
 
 transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   const user = c.var.user;
-  
+
   // Get the form data
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
-  
+
   // Parse using the UploadReceiptSchema
   const zodParseResult = UploadReceiptSchema.parse(data);
-  const { mahasiswaId, createdAt, receipt } = zodParseResult;
-  const createdAtDate = convertUtcToWib(createdAt)
+  const { id, paidFor, receipt } = zodParseResult;
 
-  console.log(createdAtDate)
-  
   try {
     const receiptUrl = await uploadPdfToCloudinary(receipt);
 
@@ -356,12 +356,12 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
           transactionReceipt: receiptUrl.secure_url,
           transactionStatus: "pending",
         })
-        .where(
-          and(
-            eq(transactionTable.mahasiswaId, mahasiswaId),
-            eq(transactionTable.otaId, user.id),
-          ),
-        );
+        .where(eq(transactionTable.id, id));
+
+      await tx
+        .update(connectionTable)
+        .set({ paidFor })
+        .where(eq(transactionTable.id, id));
     });
 
     return c.json(
@@ -387,88 +387,75 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   }
 });
 
-transactionProtectedRouter.openapi(verifyTransactionAccRoute, async(c) => {
-    const body = await c.req.formData();
-    const data = Object.fromEntries(body.entries());
-    const zodParseResult = VerifyTransactionAcceptSchema.parse(data);
-    const { createdAt, otaId, mahasiswaId } = zodParseResult
-    const createdAtDate = new Date(createdAt);
+transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+  const zodParseResult = VerifyTransactionAcceptSchema.parse(data);
+  const { id, mahasiswaId, otaId } = zodParseResult;
 
-    try{
-        const result = await db.transaction(async(tx) => {
-          // Get the updated bill (amount paid)
-            const billRow = await tx
-              .select({ bill: transactionTable.bill })
-              .from(transactionTable)
-              .where(
-                  and(
-                      eq(transactionTable.mahasiswaId, mahasiswaId),
-                      eq(transactionTable.otaId, otaId),
-                      and(
-                        gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
-                        lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
-                      )
-                  )
-              )
-              .limit(1);
+  try {
+    const result = await db.transaction(async (tx) => {
+      // Get the updated bill (amount paid)
+      const billRow = await tx
+        .select({ bill: transactionTable.bill })
+        .from(transactionTable)
+        .where(eq(transactionTable.id, id))
+        .limit(1);
 
-            await tx
-              .update(transactionTable)
-                .set(
-                    { 
-                        transactionStatus: "paid",
-                        transactionReceipt: "",
-                        amountPaid: billRow[0]?.bill ?? 0
-                    }
-                )
-                .where(
-                    and(
-                        eq(transactionTable.mahasiswaId, mahasiswaId),
-                        eq(transactionTable.otaId, otaId),
-                        and(
-                          gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
-                          lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
-                        )
-                    )
-                )
+      await tx
+        .update(transactionTable)
+        .set({
+          transactionStatus: "paid",
+          transactionReceipt: "",
+          amountPaid: billRow[0]?.bill ?? 0,
+        })
+        .where(eq(transactionTable.id, id));
 
-            return billRow[0]?.bill ?? 0;
-        });
-
-        return c.json(
-            {
-              success: true,
-              message: "Berhasil melakukan penerimaan verifikasi pembayaran",
-              body: {
-                mahasiswaId: mahasiswaId,
-                otaId: otaId,
-                createdAt: createdAtDate,
-                amountPaid: result
-              },
-            },
-            200
+      await tx
+        .update(connectionTable)
+        .set({ paidFor: sql`${connectionTable.paidFor} - 1` })
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+          ),
         );
-    } catch (error) {
-        console.error(error);
-        return c.json(
-          {
-            success: false,
-            message: "Internal server error",
-            error: error,
-          },
-          500,
-        );
-    }
-})
 
+      return billRow[0]?.bill ?? 0;
+    });
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil melakukan penerimaan verifikasi pembayaran",
+        body: {
+          id: id,
+          mahasiswaId: mahasiswaId,
+          otaId: otaId,
+          amountPaid: result,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+});
 
 transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
   const zodParseResult = VerifyTransactionRejectSchema.parse(data);
-  const { createdAt, otaId, mahasiswaId, amountPaid, rejectionNote } = zodParseResult;
-  const createdAtDate = new Date(createdAt);
-  
+  const { id, otaId, mahasiswaId, amountPaid, rejectionNote } = zodParseResult;
+
   try {
     await db.transaction(async (tx) => {
       const existingTransaction = await tx
@@ -476,16 +463,7 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
           amountPaid: transactionTable.amountPaid,
         })
         .from(transactionTable)
-        .where(
-          and(
-            eq(transactionTable.mahasiswaId, mahasiswaId),
-            eq(transactionTable.otaId, otaId),
-            and(
-              gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
-              lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
-            )
-          )
-        )
+        .where(eq(transactionTable.id, id))
         .limit(1);
 
       const currentAmountPaid = existingTransaction[0]?.amountPaid ?? 0;
@@ -499,15 +477,16 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
           rejectionNote: rejectionNote,
           amountPaid: newAmountPaid,
         })
+        .where(eq(transactionTable.id, id));
+
+      await tx
+        .update(connectionTable)
+        .set({ paidFor: 0 })
         .where(
           and(
-            eq(transactionTable.mahasiswaId, mahasiswaId),
-            eq(transactionTable.otaId, otaId),
-            and(
-              gte(transactionTable.createdAt, new Date(createdAtDate.getTime() - 500)),
-              lte(transactionTable.createdAt, new Date(createdAtDate.getTime() + 500)),
-            )
-          )
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+          ),
         );
     });
 
@@ -516,14 +495,14 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
         success: true,
         message: "Berhasil melakukan penolakan verifikasi pembayaran",
         body: {
+          id: id,
           mahasiswaId: mahasiswaId,
           otaId: otaId,
-          createdAt: createdAtDate,
           rejectionNote: rejectionNote,
           amountPaid: amountPaid,
         },
       },
-      200
+      200,
     );
   } catch (error) {
     console.error(error);
@@ -533,7 +512,45 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
         message: "Internal server error",
         error: error,
       },
-      500
+      500,
+    );
+  }
+});
+
+transactionProtectedRouter.openapi(acceptTransferStatusRoute, async (c) => {
+  const body = await c.req.formData();
+  const data = Object.fromEntries(body.entries());
+  const zodParseResult = AcceptTransferStatusSchema.parse(data);
+  const { id } = zodParseResult;
+
+  try {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(transactionTable)
+        .set({ transferStatus: "paid" })
+        .where(eq(transactionTable.id, id));
+    });
+
+    return c.json(
+      {
+        success: true,
+        message: "Berhasil melakukan penerimaan transfer status",
+        body: {
+          id: id,
+          status: "paid" as const,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
     );
   }
 });

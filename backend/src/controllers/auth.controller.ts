@@ -7,6 +7,7 @@ import nodemailer from "nodemailer";
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
+  accountAdminDetailTable,
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
@@ -134,25 +135,38 @@ authRouter.openapi(loginRoute, async (c) => {
 
     let name = null;
 
-    const mahasiswaDetail = await db
-      .select({ name: accountMahasiswaDetailTable.name })
-      .from(accountMahasiswaDetailTable)
-      .where(eq(accountMahasiswaDetailTable.accountId, accountId))
-      .limit(1);
+    if (account[0].type === "mahasiswa") {
+      const mahasiswaDetail = await db
+        .select({ name: accountMahasiswaDetailTable.name })
+        .from(accountMahasiswaDetailTable)
+        .where(eq(accountMahasiswaDetailTable.accountId, accountId))
+        .limit(1);
 
-    const otaDetail = await db
-      .select({ name: accountOtaDetailTable.name })
-      .from(accountOtaDetailTable)
-      .where(eq(accountOtaDetailTable.accountId, accountId))
-      .limit(1);
+      if (mahasiswaDetail && mahasiswaDetail.length > 0) {
+        name = mahasiswaDetail[0].name;
+      }
+    } else if (account[0].type === "ota") {
+      const otaDetail = await db
+        .select({ name: accountOtaDetailTable.name })
+        .from(accountOtaDetailTable)
+        .where(eq(accountOtaDetailTable.accountId, accountId))
+        .limit(1);
 
-    // TODO: Logicnya masih salah
-    if (mahasiswaDetail && mahasiswaDetail.length > 0) {
-      name = mahasiswaDetail[0].name;
-    } else if (otaDetail && otaDetail.length > 0) {
-      name = otaDetail[0].name;
+      if (otaDetail && otaDetail.length > 0) {
+        name = otaDetail[0].name;
+      }
     } else {
-      name = "Admin";
+      const adminDetail = await db
+        .select({
+          name: accountAdminDetailTable.name,
+        })
+        .from(accountAdminDetailTable)
+        .where(eq(accountAdminDetailTable.accountId, accountId))
+        .limit(1);
+
+      if (adminDetail && adminDetail.length > 0) {
+        name = adminDetail[0].name;
+      }
     }
 
     const accessToken = await sign(

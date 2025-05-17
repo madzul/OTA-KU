@@ -4,6 +4,7 @@
 /* eslint-disable */
 export type TransactionListAdminSchema = {
   data: Array<{
+    id: string;
     mahasiswa_id: string;
     ota_id: string;
     name_ma: string;
@@ -21,6 +22,7 @@ export type TransactionListAdminSchema = {
     paid_at: string;
     due_date: string;
     status: 'unpaid' | 'pending' | 'paid';
+    transferStatus: 'unpaid' | 'paid';
     receipt: string;
     createdAt: string;
   }>;

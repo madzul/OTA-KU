@@ -407,6 +407,15 @@ export const OrangTuaRegistrationSchema = z.object({
     .string()
     .optional()
     .openapi({ example: "Mahasiswa dari daerah Indonesia Timur" }),
+  isDetailVisible: z
+    .enum(["true", "false"], {
+      required_error: "Checkbox harus diisi",
+      invalid_type_error: "Checkbox tidak valid",
+    })
+    .default("false")
+    .openapi({
+      example: "true",
+    }),
   allowAdminSelection: z
     .enum(["true", "false"], {
       required_error: "Checkbox harus diisi",
@@ -516,6 +525,14 @@ export const ProfileOrangTuaResponse = z.object({
       .string()
       .optional()
       .openapi({ example: "Mahasiswa dari daerah Indonesia Timur" }),
+    isDetailVisible: z
+      .boolean({
+        required_error: "Checkbox harus diisi",
+      })
+      .optional()
+      .openapi({
+        example: true,
+      }),
     allowAdminSelection: z
       .boolean({
         required_error: "Checkbox harus diisi",

@@ -1,4 +1,5 @@
 import { api } from "@/api/client";
+import { ListTerminateForOTA } from "@/api/generated";
 import Metadata from "@/components/metadata";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,7 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SessionContext } from "@/context/session";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import {  Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounce } from "use-debounce";
@@ -38,12 +39,7 @@ export const Route = createFileRoute("/_app/daftar/terminasi-mahasiswa/")({
 });
 
 interface StudentCardProps {
-  student: {
-    mahasiswaId: string;
-    maName: string;
-    maNIM: string;
-    createdAt: string;
-  };
+  student: ListTerminateForOTA;
   onTerminateSuccess: (studentId: string) => void;
 }
 
@@ -52,11 +48,12 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const deleteConnection = useMutation({
-    mutationFn: (data: { maId: string }) => {
+    mutationFn: (data: { maId: string; requestTerminationNote: string }) => {
       return api.terminate.requestTerminateFromOta({
         formData: {
           otaId: session?.id ? session.id : "",
           mahasiswaId: data.maId,
+          requestTerminationNote: data.requestTerminationNote,
         },
       });
     },
@@ -77,6 +74,9 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
   const handleTerminate = () => {
     deleteConnection.mutate({
       maId: student.mahasiswaId,
+      // TODO: Nanti tambahin input catatan terminasi
+      requestTerminationNote:
+        "Saya sudah tidak ingin berhubungan dengan mahasiswa ini.",
     });
   };
 
@@ -159,8 +159,7 @@ function RouteComponent() {
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
   const queryClient = useQueryClient();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [localStudents, setLocalStudents] = useState<any[]>([]);
+  const [localStudents, setLocalStudents] = useState<ListTerminateForOTA[]>([]);
 
   const { data: activeStudentsData, isSuccess: isActiveSuccess } = useQuery({
     queryKey: ["listTerminateForOta", debouncedSearchQuery],
@@ -186,7 +185,7 @@ function RouteComponent() {
     );
 
     queryClient.invalidateQueries({
-      queryKey: ["listTerminateForOta"],
+      queryKey: ["listTerminateForOta", debouncedSearchQuery],
     });
   };
 

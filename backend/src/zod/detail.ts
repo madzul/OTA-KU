@@ -16,7 +16,7 @@ export const MahasiswaDetailResponse = z.object({
     }),
     email: z.string().email().openapi({ example: "johndoe@example.com" }),
     type: z
-      .enum(["mahasiswa", "admin", "ota"])
+      .enum(["mahasiswa", "admin", "ota", "bankes", "pengurus"])
       .openapi({ example: "mahasiswa" }),
     phoneNumber: z.string().openapi({ example: "+6281234567890" }),
     provider: z
@@ -75,6 +75,10 @@ export const MahasiswaDetailResponse = z.object({
     ditmawaRecommendationLetter: z
       .string()
       .openapi({ example: "https://example.com/file.pdf" }),
+    bill: z.number().openapi({
+      example: 1000000,
+      description: "The amount of the bill in IDR",
+    }),
     notes: z.string().openapi({ example: "Mahasiswa aktif" }),
     adminOnlyNotes: z.string().openapi({ example: "Catatan admin" }),
   }),
@@ -137,7 +141,7 @@ export const OtaDetailResponse = z.object({
     }),
     email: z.string().email().openapi({ example: "johndoe@example.com" }),
     type: z
-      .enum(["mahasiswa", "admin", "ota"])
+      .enum(["mahasiswa", "admin", "ota", "bankes", "pengurus"])
       .openapi({ example: "mahasiswa" }),
     phoneNumber: z.string().openapi({ example: "+6281234567890" }),
     provider: z
@@ -187,6 +191,10 @@ export const MyOtaDetailResponse = z.object({
       phoneNumber: z.string().openapi({ example: "+6281234567890" }),
       name: z.string().openapi({ example: "OTA Organization One" }),
       transferDate: z.number().openapi({ example: 10 }),
+      isDetailVisible: z.boolean().openapi({
+        example: true,
+        description: "Indicates if the detail is visible to the mahasiswa",
+      }),
       createdAt: z.string().openapi({
         example: "2025-03-30T09:40:05.508Z",
         description: "Timestamp when the orang tua asuh was created",

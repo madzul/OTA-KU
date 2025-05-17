@@ -1,4 +1,15 @@
-import { useState, useEffect } from "react";
+import { api } from "@/api/client";
+import { TransactionOTA } from "@/api/generated";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -7,53 +18,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+
 import { UploadBuktiDialog } from "./upload-bukti-dialog";
 import { ViewReceiptDialog } from "./view-receipt-dialog";
-import { api } from "@/api/client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  AlertCircle, 
-} from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 
 type TransactionStatus = "unpaid" | "pending" | "paid";
-
-interface Transaction {
-  id: string;
-  name: string;
-  nim: string;
-  bill: number;
-  amount_paid: number;
-  paid_at: string | null;
-  due_date: string;
-  status: TransactionStatus;
-  receipt: string;
-  created_at: string;
-  rejection_note?: string;
-}
 
 interface StatusTransaksiTableProps {
   year: string;
   month: string;
 }
 
-export default function StatusTransaksiTable({ year, month }: StatusTransaksiTableProps) {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+export default function StatusTransaksiTable({
+  year,
+  month,
+}: StatusTransaksiTableProps) {
+  const [transactions, setTransactions] = useState<TransactionOTA[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isReasonModalOpen, setIsReasonModalOpen] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<TransactionOTA | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const searchQuery = "";
@@ -75,11 +63,16 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
     setIsLoading(true);
     try {
       const queryParams: Record<string, any> = {
-        page: currentPage
+        page: currentPage,
       };
-      
-      console.log("Fetching transactions with due_date filters - year:", year, "month:", month);
-      
+
+      console.log(
+        "Fetching transactions with due_date filters - year:",
+        year,
+        "month:",
+        month,
+      );
+
       // Try these different parameter formats that the API might expect
       if (month) {
         queryParams.due_date_month = parseInt(month);
@@ -87,36 +80,42 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
         queryParams.dueMonth = parseInt(month);
         queryParams.month = parseInt(month);
       }
-      
+
       if (year) {
         queryParams.due_date_year = parseInt(year);
         // Alternative formats
         queryParams.dueYear = parseInt(year);
         queryParams.year = parseInt(year);
       }
-      
+
       if (searchQuery) queryParams.q = searchQuery;
-      
+
       console.log("Fetching with params:", queryParams);
-      
+
       const response = await api.transaction.listTransactionOta(queryParams);
       console.log("API Response:", response);
-      
+
       if (response.success && response.body?.data) {
         // If the API returns data, we still want to double-check the filtering
         // in case the API didn't apply our filters correctly
         let processedData = response.body.data;
-        
+
         // Add this as a fallback to ensure filtering works even if API doesn't support it
         if (year && month) {
-          processedData = filterTransactionsByDueDate(processedData, parseInt(year), parseInt(month));
+          processedData = filterTransactionsByDueDate(
+            processedData,
+            parseInt(year),
+            parseInt(month),
+          );
         }
-        
-        setTransactions(processedData.map((item: any) => ({
-          ...item,
-          id: item.id || item._id || item.nim || String(Math.random())
-        })));
-        
+
+        setTransactions(
+          processedData.map((item: any) => ({
+            ...item,
+            id: item.id || item._id || item.nim || String(Math.random()),
+          })),
+        );
+
         // Adjust the total pages based on our filtered data
         if (processedData.length < response.body.data.length) {
           // If we filtered client-side, update the total pages
@@ -134,41 +133,45 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
       setIsLoading(false);
     }
   };
-  
+
   // Helper function to filter transactions by due_date
-  const filterTransactionsByDueDate = (data: any[], filterYear: number, filterMonth: number) => {
-    return data.filter(transaction => {
+  const filterTransactionsByDueDate = (
+    data: any[],
+    filterYear: number,
+    filterMonth: number,
+  ) => {
+    return data.filter((transaction) => {
       if (!transaction.due_date) return false;
-      
+
       const dueDate = new Date(transaction.due_date);
       const dueYear = dueDate.getFullYear();
       const dueMonth = dueDate.getMonth() + 1; // JavaScript months are 0-indexed
-      
+
       // Match both year and month
       return dueYear === filterYear && dueMonth === filterMonth;
     });
   };
 
-  const handleUploadClick = (transaction: Transaction) => {
+  const handleUploadClick = (transaction: TransactionOTA) => {
     setSelectedTransaction({
       ...transaction,
-      id: transaction.id
+      id: transaction.id,
     });
     setIsUploadModalOpen(true);
   };
-  
-  const handleViewClick = (transaction: Transaction) => {
+
+  const handleViewClick = (transaction: TransactionOTA) => {
     setSelectedTransaction({
       ...transaction,
-      id: transaction.id
+      id: transaction.id,
     });
     setIsViewModalOpen(true);
   };
 
-  const handleReasonClick = (transaction: Transaction) => {
+  const handleReasonClick = (transaction: TransactionOTA) => {
     setSelectedTransaction({
       ...transaction,
-      id: transaction.id
+      id: transaction.id,
     });
     setIsReasonModalOpen(true);
   };
@@ -187,17 +190,17 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
 
     const { text, classes } = statusMap[status];
     return (
-      <div className={`px-4 py-1 rounded-full inline-block ${classes}`}>
+      <div className={`inline-block rounded-full px-4 py-1 ${classes}`}>
         {text}
       </div>
     );
   };
 
-  const getActionButton = (transaction: Transaction) => {
+  const getActionButton = (transaction: TransactionOTA) => {
     if (transaction.status === "paid") {
       return (
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           className="rounded-full"
           onClick={() => handleViewClick(transaction)}
           disabled={!transaction.receipt}
@@ -205,29 +208,26 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
           Lihat
         </Button>
       );
-    }
-    
-    else if (transaction.status === "pending") {
+    } else if (transaction.status === "pending") {
       return (
         <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              className="rounded-full"
-              onClick={() => handleViewClick(transaction)}
-            >
-              Lihat
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => handleViewClick(transaction)}
+          >
+            Lihat
+          </Button>
+        </div>
       );
     }
-    
 
     if (transaction.status === "unpaid") {
       if (transaction.receipt) {
         return (
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="rounded-full border-red-500 text-red-500 hover:bg-red-50"
               onClick={() => handleUploadClick(transaction)}
             >
@@ -235,12 +235,11 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
             </Button>
           </div>
         );
-      } 
-      else {
+      } else {
         return (
-          <Button 
-            variant="default" 
-            className="rounded-full bg-blue-700 hover:bg-blue-800 text-white"
+          <Button
+            variant="default"
+            className="rounded-full bg-blue-700 text-white hover:bg-blue-800"
             onClick={() => handleUploadClick(transaction)}
           >
             Unggah
@@ -252,13 +251,13 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
     return null;
   };
 
-  const getReasonButton = (transaction: Transaction) => {
+  const getReasonButton = (transaction: TransactionOTA) => {
     if (transaction.status === "unpaid" && transaction.rejection_note) {
       return (
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="icon"
-          className="rounded-full text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+          className="rounded-full text-amber-500 hover:bg-amber-50 hover:text-amber-600"
           onClick={() => handleReasonClick(transaction)}
           title="Lihat alasan penolakan"
         >
@@ -266,17 +265,17 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
         </Button>
       );
     }
-    
+
     return "-";
   };
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "-";
     try {
-      return new Date(dateString).toLocaleDateString('id-ID', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+      return new Date(dateString).toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
       });
     } catch (e) {
       console.error("Error parsing date:", e);
@@ -285,56 +284,77 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
   };
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+    <div className="overflow-hidden rounded-lg bg-white shadow-sm">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50">
-              <TableHead className="text-gray-600 font-medium">Nama</TableHead>
-              <TableHead className="text-gray-600 font-medium">NIM (MA)</TableHead>
-              <TableHead className="text-gray-600 font-medium">Besar Bantuan</TableHead>
-              <TableHead className="text-gray-600 font-medium">Bantuan Terkirim</TableHead>
-              <TableHead className="text-gray-600 font-medium">Waktu Bayar</TableHead>
-              <TableHead className="text-gray-600 font-medium">Tenggat Waktu</TableHead>
-              <TableHead className="text-gray-600 font-medium">Alasan</TableHead>
-              <TableHead className="text-gray-600 font-medium">Bukti</TableHead>
-              <TableHead className="text-gray-600 font-medium">Status</TableHead>
+              <TableHead className="font-medium text-gray-600">Nama</TableHead>
+              <TableHead className="font-medium text-gray-600">
+                NIM (MA)
+              </TableHead>
+              <TableHead className="font-medium text-gray-600">
+                Besar Bantuan
+              </TableHead>
+              <TableHead className="font-medium text-gray-600">
+                Bantuan Terkirim
+              </TableHead>
+              <TableHead className="font-medium text-gray-600">
+                Waktu Bayar
+              </TableHead>
+              <TableHead className="font-medium text-gray-600">
+                Tenggat Waktu
+              </TableHead>
+              <TableHead className="font-medium text-gray-600">
+                Alasan
+              </TableHead>
+              <TableHead className="font-medium text-gray-600">Bukti</TableHead>
+              <TableHead className="font-medium text-gray-600">
+                Status
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              Array(6).fill(0).map((_, index) => (
-                <TableRow key={`skeleton-${index}`}>
-                  {Array(9).fill(0).map((_, cellIndex) => (
-                    <TableCell key={`cell-${index}-${cellIndex}`}>
-                      <Skeleton className="h-6 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              Array(6)
+                .fill(0)
+                .map((_, index) => (
+                  <TableRow key={`skeleton-${index}`}>
+                    {Array(9)
+                      .fill(0)
+                      .map((_, cellIndex) => (
+                        <TableCell key={`cell-${index}-${cellIndex}`}>
+                          <Skeleton className="h-6 w-full" />
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                ))
             ) : transactions.length > 0 ? (
               transactions.map((transaction, index) => (
-                <TableRow key={`${transaction.nim}-${index}`} className="border-t">
+                <TableRow
+                  key={`${transaction.nim}-${index}`}
+                  className="border-t"
+                >
                   <TableCell>{transaction.name}</TableCell>
                   <TableCell>{transaction.nim}</TableCell>
                   <TableCell>{transaction.bill.toLocaleString()}</TableCell>
-                  <TableCell>{transaction.amount_paid ? transaction.amount_paid.toLocaleString() : "-"}</TableCell>
+                  <TableCell>
+                    {transaction.amount_paid
+                      ? transaction.amount_paid.toLocaleString()
+                      : "-"}
+                  </TableCell>
                   <TableCell>{formatDate(transaction.paid_at)}</TableCell>
                   <TableCell>{formatDate(transaction.due_date)}</TableCell>
                   <TableCell className="text-center">
                     {getReasonButton(transaction)}
                   </TableCell>
-                  <TableCell>
-                    {getActionButton(transaction)}
-                  </TableCell>
-                  <TableCell>
-                    {getStatusBadge(transaction.status)}
-                  </TableCell>
+                  <TableCell>{getActionButton(transaction)}</TableCell>
+                  <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-4">
+                <TableCell colSpan={9} className="py-4 text-center">
                   Tidak ada data transaksi
                 </TableCell>
               </TableRow>
@@ -345,24 +365,26 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
 
       {/* Pagination */}
       {!isLoading && transactions.length > 0 && (
-        <div className="flex justify-center items-center py-4 px-6 gap-4">
-          <Button 
-            variant="ghost" 
+        <div className="flex items-center justify-center gap-4 px-6 py-4">
+          <Button
+            variant="ghost"
             size="icon"
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          
+
           <span className="text-sm">
             Page {currentPage} of {totalPages}
           </span>
-          
-          <Button 
-            variant="ghost" 
+
+          <Button
+            variant="ghost"
             size="icon"
-            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+            }
             disabled={currentPage === totalPages}
           >
             <ChevronRight className="h-4 w-4" />
@@ -371,25 +393,25 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
       )}
 
       {/* Upload Dialog */}
-      <UploadBuktiDialog 
-        open={isUploadModalOpen} 
+      <UploadBuktiDialog
+        open={isUploadModalOpen}
         onOpenChange={setIsUploadModalOpen}
         transaction={selectedTransaction}
         onSuccess={handleUploadSuccess}
       />
-      
+
       {/* View Receipt Dialog */}
-      <ViewReceiptDialog 
-        open={isViewModalOpen} 
+      <ViewReceiptDialog
+        open={isViewModalOpen}
         onOpenChange={setIsViewModalOpen}
         transaction={selectedTransaction}
       />
-      
+
       {/* Reason Dialog */}
       <Dialog open={isReasonModalOpen} onOpenChange={setIsReasonModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-amber-600 flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold text-amber-600">
               <AlertCircle className="h-5 w-5" />
               Alasan Penolakan
             </DialogTitle>
@@ -397,13 +419,14 @@ export default function StatusTransaksiTable({ year, month }: StatusTransaksiTab
               Bukti pembayaran untuk {selectedTransaction?.name} ditolak
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="bg-amber-50 p-4 rounded-md border border-amber-200">
+
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-4">
             <p className="text-amber-800">
-              {selectedTransaction?.rejection_note || "Tidak ada alasan yang diberikan."}
+              {selectedTransaction?.rejection_note ||
+                "Tidak ada alasan yang diberikan."}
             </p>
           </div>
-          
+
           <DialogFooter>
             <Button
               variant="outline"

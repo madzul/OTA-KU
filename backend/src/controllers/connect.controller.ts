@@ -91,6 +91,7 @@ connectProtectedRouter.openapi(connectOtaMahasiswaRoute, async (c) => {
       await tx.insert(connectionTable).values({
         mahasiswaId,
         otaId,
+        paidFor: 0,
       });
     });
 
@@ -193,7 +194,8 @@ connectProtectedRouter.openapi(connectOtaMahasiswaByAdminRoute, async (c) => {
       await tx.insert(connectionTable).values({
         mahasiswaId: mahasiswaId,
         otaId: otaId,
-        connectionStatus: "accepted"
+        connectionStatus: "accepted",
+        paidFor: 0,
       });
     });
 

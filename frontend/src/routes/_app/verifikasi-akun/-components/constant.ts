@@ -24,6 +24,7 @@ export const mahasiswaColumns = {
   pbb: "Berkas PBB",
   electricityBill: "Berkas Tagihan Listrik",
   ditmawaRecommendationLetter: "Berkas Rekomendasi Ditmawa",
+  bill: "Kebutuhan Dana",
   notes: "Catatan Mahasiswa",
   adminOnlyNotes: "Catatan Admin",
 };
@@ -59,7 +60,7 @@ export const linkColumns = [
   "ditmawaRecommendationLetter",
 ];
 
-export const inputColumns = ["notes", "adminOnlyNotes"];
+export const inputColumns = ["bill", "notes", "adminOnlyNotes"];
 
 export const majors = [
   { value: "Matematika", label: "Matematika" },

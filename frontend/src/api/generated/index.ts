@@ -11,6 +11,8 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { CreatePushSubscriptionSchema } from './models/CreatePushSubscriptionSchema';
+export type { ListTerminateForAdmin } from './models/ListTerminateForAdmin';
+export type { ListTerminateForOTA } from './models/ListTerminateForOTA';
 export type { MahasiswaListElement } from './models/MahasiswaListElement';
 export type { MahasiswaSayaDetailResponse } from './models/MahasiswaSayaDetailResponse';
 export type { MAListElementStatus } from './models/MAListElementStatus';
@@ -20,6 +22,7 @@ export type { NotificationDataSchema } from './models/NotificationDataSchema';
 export type { SendOtpRequestSchema } from './models/SendOtpRequestSchema';
 export type { TransactionDetailSchema } from './models/TransactionDetailSchema';
 export type { TransactionListAdminSchema } from './models/TransactionListAdminSchema';
+export type { TransactionOTA } from './models/TransactionOTA';
 export type { UserLoginRequestSchema } from './models/UserLoginRequestSchema';
 export type { UserRegisRequestSchema } from './models/UserRegisRequestSchema';
 export type { UserSchema } from './models/UserSchema';

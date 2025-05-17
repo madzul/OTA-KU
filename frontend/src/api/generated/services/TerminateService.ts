@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ListTerminateForAdmin } from '../models/ListTerminateForAdmin';
+import type { ListTerminateForOTA } from '../models/ListTerminateForOTA';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class TerminateService {
@@ -21,23 +23,7 @@ export class TerminateService {
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        /**
-         * ID orang tua asuh
-         */
-        otaId: string;
-        otaName: string;
-        otaNumber: string;
-        /**
-         * ID mahasiswa asuh
-         */
-        mahasiswaId: string;
-        maName: string;
-        maNIM: string;
-        createdAt: string;
-        requestTerminateOTA: boolean;
-        requestTerminateMA: boolean;
-      }>;
+      data: Array<ListTerminateForAdmin>;
     };
   }> {
     return this.httpRequest.request({
@@ -69,15 +55,7 @@ export class TerminateService {
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        /**
-         * ID mahasiswa asuh
-         */
-        mahasiswaId: string;
-        maName: string;
-        maNIM: string;
-        createdAt: string;
-      }>;
+      data: Array<ListTerminateForOTA>;
     };
   }> {
     return this.httpRequest.request({
@@ -109,6 +87,7 @@ export class TerminateService {
       otaId: string;
       otaName: string;
       connectionStatus: string;
+      requestTerminationNote: string;
       requestTerminateOTA: boolean;
       requestTerminateMA: boolean;
     };
@@ -140,6 +119,10 @@ export class TerminateService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      /**
+       * Catatan request terminasi
+       */
+      requestTerminationNote: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -185,6 +168,10 @@ export class TerminateService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      /**
+       * Catatan request terminasi
+       */
+      requestTerminationNote: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -230,6 +217,10 @@ export class TerminateService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      /**
+       * Catatan request terminasi
+       */
+      requestTerminationNote: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -275,6 +266,10 @@ export class TerminateService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
+      /**
+       * Catatan request terminasi
+       */
+      requestTerminationNote: string;
     },
   }): CancelablePromise<{
     success: boolean;

@@ -74,7 +74,7 @@ export class ListService {
       data: Array<{
         id: string;
         email: string;
-        type: 'mahasiswa' | 'admin' | 'ota';
+        type: 'mahasiswa' | 'admin' | 'ota' | 'bankes' | 'pengurus';
         phoneNumber: string;
         provider: 'credentials' | 'azure';
         applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
@@ -98,6 +98,10 @@ export class ListService {
         pbb: string;
         electricityBill: string;
         ditmawaRecommendationLetter: string;
+        /**
+         * Total bill of mahasiswa
+         */
+        bill: number;
         notes: string;
         adminOnlyNotes: string;
       }>;
@@ -157,6 +161,7 @@ export class ListService {
         maxSemester: number | null;
         transferDate: number | null;
         criteria: string;
+        isDetailVisible: boolean;
         allowAdminSelection: boolean;
       }>;
       totalPagination: number;

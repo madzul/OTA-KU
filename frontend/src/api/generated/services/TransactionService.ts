@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { TransactionDetailSchema } from '../models/TransactionDetailSchema';
 import type { TransactionListAdminSchema } from '../models/TransactionListAdminSchema';
+import type { TransactionOTA } from '../models/TransactionOTA';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class TransactionService {
@@ -25,23 +26,7 @@ export class TransactionService {
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        name: string;
-        /**
-         * Nomor Induk Mahasiswa
-         */
-        nim: string;
-        bill: number;
-        amount_paid: number;
-        paid_at: string;
-        due_date: string;
-        status: 'unpaid' | 'pending' | 'paid';
-        receipt: string;
-        /**
-         * Alasan penolakan verifikasi pembayaran
-         */
-        rejection_note?: string;
-      }>;
+      data: Array<TransactionOTA>;
       totalData: number;
     };
   }> {
@@ -134,11 +119,14 @@ export class TransactionService {
   }: {
     formData?: {
       /**
-       * ID mahasiswa asuh
+       * ID transaksi
        */
-      mahasiswaId: string;
-      createdAt: string;
+      id: string;
       receipt: Blob;
+      /**
+       * Pembayaran untuk berapa bulan
+       */
+      paidFor: number | null;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -168,6 +156,10 @@ export class TransactionService {
   }: {
     formData?: {
       /**
+       * ID transaksi
+       */
+      id: string;
+      /**
        * ID orang tua asuh
        */
       otaId: string;
@@ -175,13 +167,16 @@ export class TransactionService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
-      createdAt: string;
     },
   }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
       /**
+       * ID transaksi
+       */
+      id: string;
+      /**
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
@@ -189,7 +184,6 @@ export class TransactionService {
        * ID orang tua asuh
        */
       otaId: string;
-      createdAt: string;
       /**
        * Nominal yang telah dibayarkan
        */
@@ -217,6 +211,10 @@ export class TransactionService {
   }: {
     formData?: {
       /**
+       * ID transaksi
+       */
+      id: string;
+      /**
        * ID orang tua asuh
        */
       otaId: string;
@@ -224,7 +222,6 @@ export class TransactionService {
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
-      createdAt: string;
       /**
        * Notes untuk menjelaskan alasan penolakan verifikasi transaction
        */
@@ -239,6 +236,10 @@ export class TransactionService {
     message: string;
     body: {
       /**
+       * ID transaksi
+       */
+      id: string;
+      /**
        * ID mahasiswa asuh
        */
       mahasiswaId: string;
@@ -246,7 +247,6 @@ export class TransactionService {
        * ID orang tua asuh
        */
       otaId: string;
-      createdAt: string;
       /**
        * Notes untuk menjelaskan alasan penolakan verifikasi transaction
        */
@@ -260,6 +260,42 @@ export class TransactionService {
     return this.httpRequest.request({
       method: 'POST',
       url: '/api/transaction/verify-reject',
+      formData: formData,
+      mediaType: 'multipart/form-data',
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Mengubah status transfer menjadi paid
+   * @returns any Berhasil mengubah status transfer menjadi paid
+   * @throws ApiError
+   */
+  public acceptTransferStatus({
+    formData,
+  }: {
+    formData?: {
+      /**
+       * ID transaksi
+       */
+      id: string;
+    },
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      /**
+       * ID transaksi
+       */
+      id: string;
+      status: 'unpaid' | 'paid';
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'POST',
+      url: '/api/transaction/accept-transfer-status',
       formData: formData,
       mediaType: 'multipart/form-data',
       errors: {

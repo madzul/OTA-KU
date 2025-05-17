@@ -225,6 +225,7 @@ export class ProfileService {
        */
       transferDate: number | null;
       criteria?: string;
+      isDetailVisible?: 'true' | 'false';
       allowAdminSelection?: 'true' | 'false';
     },
   }): CancelablePromise<{
@@ -268,6 +269,7 @@ export class ProfileService {
        */
       transferDate: number | null;
       criteria?: string;
+      isDetailVisible?: 'true' | 'false';
       allowAdminSelection?: 'true' | 'false';
     };
   }> {
@@ -332,6 +334,7 @@ export class ProfileService {
        */
       transferDate: number | null;
       criteria?: string;
+      isDetailVisible?: 'true' | 'false';
       allowAdminSelection?: 'true' | 'false';
     },
   }): CancelablePromise<{
@@ -375,6 +378,7 @@ export class ProfileService {
        */
       transferDate: number | null;
       criteria?: string;
+      isDetailVisible?: 'true' | 'false';
       allowAdminSelection?: 'true' | 'false';
     };
   }> {
@@ -426,6 +430,7 @@ export class ProfileService {
       maxSemester?: number;
       transferDate?: number;
       criteria?: string;
+      isDetailVisible?: boolean;
       allowAdminSelection?: boolean;
     };
   }> {
