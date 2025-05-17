@@ -12,6 +12,7 @@ import {
 } from "../db/schema.js";
 import { uploadPdfToCloudinary } from "../lib/file-upload.js";
 import {
+  deleteAccountRoute,
   editProfileMahasiswaRoute,
   editProfileOrangTuaRoute,
   pembuatanAkunBankesPengurusRoute,
@@ -925,3 +926,32 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
     );
   }
 });
+
+profileProtectedRouter.openapi(deleteAccountRoute, async(c) => {
+  const { id } = c.req.param();
+
+  try{
+    await db
+      .delete(accountTable)
+      .where(eq(accountTable.id, id))
+
+    return c.json(
+      {
+        success: true,
+        message: "Successfully deleted an account",
+        body: { id: id }
+      },
+      200,
+    );
+  } catch (error) {
+    console.error(error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+})

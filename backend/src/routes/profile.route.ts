@@ -16,7 +16,9 @@ import {
   MahasiswaProfileFormSchema,
   UnverifiedResponse,
   createBankesPengurusSchema,
-  createBankesPengurusResponse
+  createBankesPengurusResponse,
+  DeleteAccountParamsSchema,
+  DeleteAccountSuccessfulResponseSchema
 } from "../zod/profile.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 
@@ -296,6 +298,32 @@ export const editProfileMahasiswaRoute = createRoute({
         "application/json": { schema: UnverifiedResponse },
       },
     },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const deleteAccountRoute = createRoute({
+  operationId: "deleteAccount",
+  tags: ["Profile"],
+  method: "delete",
+  path: "/delete/{id}",
+  description: "Delete an account",
+  request: {
+    params: DeleteAccountParamsSchema
+  },
+  responses: {
+    200: {
+      description: "Successfully deleted an account",
+      content: {
+        "application/json": { schema: DeleteAccountSuccessfulResponseSchema },
+      },
+    },
+    401: AuthorizationErrorResponse,
     500: {
       description: "Internal server error",
       content: {

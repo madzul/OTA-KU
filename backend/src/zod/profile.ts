@@ -635,7 +635,19 @@ export const ProfileMahasiswaResponse = z.object({
       .openapi({
         example: "accepted",
         description: "Status aplikasi mahasiswa",
-      }),
-    // join_date: z.string().openapi({ example: "March 2025" })
+      })
   }),
+});
+
+export const DeleteAccountParamsSchema = z.object({
+  id: z.string().openapi({
+    example: "3762d870-158e-4832-804c-f0be220d40c0",
+    description: "Unique account ID",
+  }),
+});
+
+export const DeleteAccountSuccessfulResponseSchema = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Berhasil menghapus akun" }),
+  body: DeleteAccountParamsSchema,
 });
