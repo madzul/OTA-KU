@@ -8,7 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FileText, Loader2 } from "lucide-react";
+import { FileText, Loader2, Download } from "lucide-react";
 
 interface Transaction {
   id: string;
@@ -58,7 +58,7 @@ export function ViewReceiptDialog({
           };
           img.src = transaction.receipt;
         } else {
-          // For PDFs and other types, we'll just set loading to false
+          // For PDFs and other types, we'll just set loading to false after a delay
           setTimeout(() => setLoading(false), 500);
         }
       } else {
@@ -75,7 +75,8 @@ export function ViewReceiptDialog({
     if (
       lowerUrl.endsWith('.pdf') || 
       lowerUrl.includes('/pdf/') || 
-      lowerUrl.includes('application/pdf')
+      lowerUrl.includes('application/pdf') ||
+      lowerUrl.includes('/raw/upload/') // Cloudinary raw uploads are typically PDFs
     ) {
       setFileType("pdf");
       return;
@@ -89,7 +90,8 @@ export function ViewReceiptDialog({
       lowerUrl.endsWith('.gif') || 
       lowerUrl.endsWith('.webp') || 
       lowerUrl.includes('/image/') ||
-      lowerUrl.includes('data:image/')
+      lowerUrl.includes('data:image/') ||
+      lowerUrl.includes('/upload/') // Most Cloudinary uploads without /raw/ are images
     ) {
       setFileType("image");
       return;
@@ -104,11 +106,22 @@ export function ViewReceiptDialog({
     window.open(transaction.receipt, '_blank');
   };
 
+  const downloadFile = () => {
+    if (!transaction?.receipt) return;
+    
+    const link = document.createElement('a');
+    link.href = transaction.receipt;
+    link.download = `bukti_pembayaran_${transaction.nim || 'mahasiswa'}.${fileType === 'pdf' ? 'pdf' : 'jpg'}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (!transaction) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[60vh] flex flex-col">
+      <DialogContent className="sm:max-w-3xl max-h-[70vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-[#0A2463]">
             Bukti Pembayaran
@@ -166,11 +179,18 @@ export function ViewReceiptDialog({
         <DialogFooter className="gap-2 mt-4">
           <Button 
             variant="outline" 
+            onClick={downloadFile}
+            className="flex gap-2 items-center"
+          >
+            <Download className="h-4 w-4" />
+            Unduh
+          </Button>
+          <Button 
+            variant="outline" 
             onClick={() => onOpenChange(false)}
           >
             Tutup
           </Button>
-         
         </DialogFooter>
       </DialogContent>
     </Dialog>

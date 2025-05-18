@@ -8,7 +8,7 @@ import {
   connectionTable,
   transactionTable,
 } from "../db/schema.js";
-import { uploadPdfToCloudinary } from "../lib/file-upload.js";
+import { uploadFileToCloudinary } from "../lib/file-upload.js";
 import {
   acceptTransferStatusRoute,
   detailTransactionRoute,
@@ -354,7 +354,7 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   console.log("id", id);
 
   try {
-    const receiptUrl = await uploadPdfToCloudinary(receipt);
+    const receiptUrl = await uploadFileToCloudinary(receipt);
 
     await db.transaction(async (tx) => {
       await tx
