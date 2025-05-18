@@ -2,7 +2,7 @@ import { createRoute } from "@hono/zod-openapi";
 import { AuthorizationErrorResponse } from "../types/response.js";
 import { InternalServerErrorResponse } from "../zod/response.js";
 import { UnverifiedResponse } from "../zod/profile.js";
-import { AdminUnverifiedResponse, listTerminateForAdminResponse, listTerminateForOTAResponse, listTerminateQuerySchema, requestTerminateMAFailedResponse, requestTerminateMASuccessResponse, requestTerminateOTAFailedResponse, requestTerminateOTASuccessResponse, TerminateRequestSchema, terminationStatusMA, validateTerminateFailedResponse, validateTerminateSuccessResponse } from "../zod/terminate.js";
+import { AdminUnverifiedResponse, listTerminateForAdminResponse, listTerminateForOTAResponse, listTerminateQuerySchema, requestTerminateMAFailedResponse, requestTerminateMASuccessResponse, requestTerminateOTAFailedResponse, requestTerminateOTASuccessResponse, TerminateRequestSchema, terminationStatusMA, validateTerminateFailedResponse, validateTerminateSuccessResponse, verifTerminateRequestSchema } from "../zod/terminate.js";
 import { OrangTuaUnverifiedResponse } from "../zod/connect.js";
 
 export const listTerminateForAdminRoute = createRoute({
@@ -191,7 +191,7 @@ export const validateTerminateRoute = createRoute({
     request: {
         body:{
             content:{
-                "multipart/form-data": { schema: TerminateRequestSchema }
+                "multipart/form-data": { schema: verifTerminateRequestSchema }
             }
         }
     },
@@ -233,7 +233,7 @@ export const rejectTerminateRoute = createRoute({
     request: {
         body:{
             content:{
-                "multipart/form-data": { schema: TerminateRequestSchema }
+                "multipart/form-data": { schema: verifTerminateRequestSchema }
             }
         }
     },

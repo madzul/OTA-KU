@@ -35,6 +35,7 @@ import {
   VerifiedMahasiswaListQuerySchema,
 } from "../zod/list.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
+import { connect } from "http2";
 
 export const listRouter = createRouter();
 export const listProtectedRouter = createAuthRouter();
@@ -780,6 +781,7 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
     );
   }
 });
+
 listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
   const { q, page } = c.req.query();
   const otaId = c.get("user").id;
@@ -828,6 +830,8 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
         religion: accountMahasiswaDetailTable.religion,
         gpa: accountMahasiswaDetailTable.gpa,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
+        request_term_ota: connectionTable.requestTerminateOta,
+        request_term_ma: connectionTable.requestTerminateMahasiswa
       })
       .from(connectionTable)
       .innerJoin(
@@ -873,6 +877,8 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
             religion: mahasiswa.religion!,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
             gpa: mahasiswa.gpa!,
+            request_term_ota: mahasiswa.request_term_ota,
+            request_term_ma: mahasiswa.request_term_ma
           })),
           totalData: counts[0].count,
         },
@@ -942,6 +948,8 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         religion: accountMahasiswaDetailTable.religion,
         gpa: accountMahasiswaDetailTable.gpa,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
+        request_term_ota: connectionTable.requestTerminateOta,
+        request_term_ma: connectionTable.requestTerminateMahasiswa
       })
       .from(connectionTable)
       .innerJoin(
@@ -989,6 +997,8 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
             religion: mahasiswa.religion!,
             gpa: mahasiswa.gpa!,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
+            request_term_ota: mahasiswa.request_term_ota,
+            request_term_ma: mahasiswa.request_term_ma
           })),
           totalData: counts[0].count,
         },

@@ -395,6 +395,8 @@ export const MAListElementSchema = z.object({
     example: "active",
     description: "Status mahasiswa",
   }),
+  request_term_ota: z.boolean().openapi({ example: false }),
+  request_term_ma: z.boolean().openapi({ example: false })
 });
 
 export const MAListQueryResponse = z.object({
