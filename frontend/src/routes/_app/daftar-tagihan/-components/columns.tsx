@@ -30,6 +30,7 @@ export interface TransaksiItem {
   receipt?: string;
   createdAt: string;
   index: number;
+  paidFor?: number; // Added paidFor field
 }
 
 export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
@@ -108,6 +109,19 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
     header: "Pembayaran",
   },
   {
+    accessorKey: "paidFor",
+    header: "Bayar Untuk",
+    cell: ({ row }) => {
+      const paidFor = row.getValue("paidFor") as number | undefined;
+      
+      return (
+        <span className="font-medium">
+          {paidFor ? `${paidFor} bulan` : "-"}
+        </span>
+      );
+    },
+  },
+  {
     accessorKey: "waktuBayar",
     header: "Waktu Bayar",
   },
@@ -120,7 +134,6 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
     header: "Bukti",
     cell: ({ row }) => {
       const receipt = row.getValue("receipt") as string | undefined;
-
       if (receipt) {
         return (
           <a href={`${receipt}`} target="_blank" rel="noopener noreferrer">
@@ -150,10 +163,8 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
     },
     cell: ({ row }) => {
       const status = row.getValue("status") as StatusType;
-
       let statusText = "";
       let statusClass = "";
-
       switch (status) {
         case "paid":
           statusText = "Dibayar";
@@ -171,7 +182,6 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
             "bg-red-50 text-red-600 border border-red-300 rounded-full px-3 py-1 text-xs font-semibold";
           break;
       }
-
       return <span className={statusClass}>{statusText}</span>;
     },
   },
@@ -182,9 +192,7 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
       const index = row.original.index;
       const status = row.getValue("status") as StatusType;
       const namaOta = row.getValue("namaOta") as string;
-
       const isDisabled = status === "paid" || status === "unpaid";
-
       return (
         <Select
           value={status}
@@ -238,10 +246,8 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
       const transferStatus =
         (row.getValue("transferStatus") as TransferStatusType) || "unpaid";
       const status = row.getValue("status") as StatusType;
-
       // Only enable transfer status change for paid transactions
       const isDisabled = status !== "paid";
-
       return (
         <Select
           value={transferStatus}

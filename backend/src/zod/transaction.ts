@@ -129,6 +129,10 @@ export const TransactionListAdminQueryResponse = z.object({
           amount_paid: z.number().openapi({ example: 200000 }),
           paid_at: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
           due_date: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
+          paid_for: z.number().openapi({
+            description: "Jumlah bulan yang dibayarkan",
+            example: 3,
+          }),
           status: z
             .enum(["unpaid", "pending", "paid"])
             .openapi({ example: "pending" }),

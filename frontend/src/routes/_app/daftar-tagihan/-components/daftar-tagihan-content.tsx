@@ -188,6 +188,7 @@ export function DaftarTagihanContent() {
           receipt: item.receipt,
           createdAt: item.createdAt,
           index: idx,
+          paidFor: item.paid_for,
         };
       });
 

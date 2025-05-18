@@ -193,6 +193,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
         transferStatus: transactionTable.transferStatus,
         receipt: transactionTable.transactionReceipt,
         createdAt: transactionTable.createdAt,
+        paid_for: connectionTable.paidFor,
       })
       .from(transactionTable)
       .innerJoin(
@@ -204,6 +205,10 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
         eq(transactionTable.otaId, accountOtaDetailTable.accountId),
       )
       .innerJoin(accountTable, eq(transactionTable.otaId, accountTable.id))
+      .leftJoin(
+        connectionTable,
+        eq(transactionTable.mahasiswaId, connectionTable.mahasiswaId),
+      )
       .where(and(...conditions))
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
@@ -234,6 +239,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
             transferStatus: transaction.transferStatus,
             receipt: transaction.receipt ?? "",
             createdAt: transaction.createdAt,
+            paid_for: transaction.paid_for ?? 0,
           })),
           totalData: counts[0].count,
         },
