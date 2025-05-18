@@ -203,7 +203,8 @@ function Combobox({
 
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         form.setValue("status", "accepted");
                         if (type === "ota") {
                           form.setValue("notes", "-");
