@@ -121,7 +121,7 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
 
       if (receipt) {
         return (
-          <a href={`//${receipt}`} target="_blank" rel="noopener noreferrer">
+          <a href={`${receipt}`} target="_blank" rel="noopener noreferrer">
             <Eye className="h-5 w-5 cursor-pointer text-blue-600" />
           </a>
         );
