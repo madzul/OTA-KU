@@ -170,7 +170,6 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
     .references(() => accountTable.id, {
       onDelete: "cascade",
     }),
-  // Personal Information (form input)
   name: varchar({ length: 255 }),
   nim: varchar({ length: 8 }).unique().notNull(),
   major: jurusanEnum("major"),
@@ -181,8 +180,6 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
   gender: genderEnum("gender"),
   gpa: decimal("gpa", { precision: 3, scale: 2 }),
   description: text("description"),
-  // Files (links)
-  // Field file di bawah ini maksudnya file essay
   file: text("file"),
   kk: text("kk"),
   ktm: text("ktm"),
@@ -192,7 +189,6 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
   pbb: text("pbb"),
   electricityBill: text("electricity_bill"),
   ditmawaRecommendationLetter: text("ditmawa_recommendation_letter"),
-  // Notes from interview given by admin
   bill: integer("bill").notNull().default(0),
   notes: text("notes"),
   adminOnlyNotes: text("admin_only_notes"),
@@ -261,7 +257,8 @@ export const connectionTable = pgTable(
     requestTerminateMahasiswa: boolean("request_terminate_mahasiswa")
       .default(false)
       .notNull(),
-    requestTerminationNote: text("request_termination_note"),
+    requestTerminationNoteOTA: text("request_termination_note_ota"),
+    requestTerminationNoteMA: text("request_termination_note_ma"),
     paidFor: integer("paid_for").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

@@ -373,8 +373,13 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
 
       await tx
         .update(connectionTable)
-        .set({ paidFor: paidFor })
-        .where(eq(connectionTable.mahasiswaId, id));
+        .set({ paidFor })
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, id),
+            eq(connectionTable.otaId, user.id)
+          )
+        );
     });
 
     return c.json(

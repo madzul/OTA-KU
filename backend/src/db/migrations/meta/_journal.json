@@ -281,6 +281,13 @@
       "when": 1747468892069,
       "tag": "0039_low_tana_nile",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1747560287548,
+      "tag": "0040_natural_cloak",
+      "breakpoints": true
     }
   ]
 }

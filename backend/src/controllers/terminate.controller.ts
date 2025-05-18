@@ -19,6 +19,7 @@ import {
 import {
   TerminateRequestSchema,
   listTerminateQuerySchema,
+  verifTerminateRequestSchema,
 } from "../zod/terminate.js";
 import { createAuthRouter } from "./router-factory.js";
 
@@ -94,7 +95,8 @@ terminateProtectedRouter.openapi(listTerminateForAdminRoute, async (c) => {
         createdAt: connectionTable.createdAt,
         requestTerminateOTA: connectionTable.requestTerminateOta,
         requestTerminateMA: connectionTable.requestTerminateMahasiswa,
-        requestTerminationNote: connectionTable.requestTerminationNote,
+        requestTerminationNoteOTA: connectionTable.requestTerminationNoteOTA,
+        requestTerminationNoteMA: connectionTable.requestTerminationNoteMA,
       })
       .from(connectionTable)
       .innerJoin(
@@ -143,7 +145,8 @@ terminateProtectedRouter.openapi(listTerminateForAdminRoute, async (c) => {
             createdAt: terminate.createdAt,
             requestTerminateOTA: terminate.requestTerminateOTA,
             requestTerminateMA: terminate.requestTerminateMA,
-            requestTerminationNote: terminate.requestTerminationNote!,
+            requestTerminationNoteOTA: terminate.requestTerminationNoteOTA!,
+            requestTerminationNoteMA: terminate.requestTerminationNoteMA!,
           })),
           totalData: counts[0].count,
         },
@@ -220,7 +223,8 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
         mahasiswaId: connectionTable.mahasiswaId,
         maName: accountMahasiswaDetailTable.name,
         maNIM: accountMahasiswaDetailTable.nim,
-        requestTerminationNote: connectionTable.requestTerminationNote,
+        requestTerminationNoteOTA: connectionTable.requestTerminationNoteOTA,
+        requestTerminationNoteMA: connectionTable.requestTerminationNoteMA,
         createdAt: connectionTable.createdAt,
       })
       .from(connectionTable)
@@ -258,7 +262,8 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
             mahasiswaId: terminate.mahasiswaId,
             maName: terminate.maName ?? "",
             maNIM: terminate.maNIM,
-            requestTerminationNote: terminate.requestTerminationNote!,
+            requestTerminationNoteOTA: terminate.requestTerminationNoteOTA!,
+            requestTerminationNoteMA: terminate.requestTerminationNoteMA!,
             createdAt: terminate.createdAt,
           })),
           totalData: counts[0].count,
@@ -305,7 +310,8 @@ terminateProtectedRouter.openapi(terminationStatusMARoute, async (c) => {
         otaId: connectionTable.otaId,
         otaName: accountOtaDetailTable.name,
         connectionStatus: connectionTable.connectionStatus,
-        requestTerminationNote: connectionTable.requestTerminationNote,
+        requestTerminationNoteOTA: connectionTable.requestTerminationNoteOTA,
+        requestTerminationNoteMA: connectionTable.requestTerminationNoteMA,
         requestTerminateOTA: connectionTable.requestTerminateOta,
         requestTerminateMA: connectionTable.requestTerminateMahasiswa,
       })
@@ -327,7 +333,8 @@ terminateProtectedRouter.openapi(terminationStatusMARoute, async (c) => {
           otaId: status.otaId,
           otaName: status.otaName,
           connectionStatus: status.connectionStatus,
-          requestTerminationNote: status.requestTerminationNote!,
+          requestTerminationNoteOTA: status.requestTerminationNoteOTA!,
+          requestTerminationNoteMA: status.requestTerminationNoteMA!,
           requestTerminateOTA: status.requestTerminateOTA,
           requestTerminateMA: status.requestTerminateMA,
         },
@@ -377,9 +384,9 @@ terminateProtectedRouter.openapi(requestTerminateFromMARoute, async (c) => {
       await tx
         .update(connectionTable)
         .set({
-          connectionStatus: "pending",
+          connectionStatus: "accepted",
           requestTerminateMahasiswa: true,
-          requestTerminationNote: requestTerminationNote,
+          requestTerminationNoteMA: requestTerminationNote,
         })
         .where(
           and(
@@ -444,9 +451,9 @@ terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
       await tx
         .update(connectionTable)
         .set({
-          connectionStatus: "pending",
+          connectionStatus: "accepted",
           requestTerminateOta: true,
-          requestTerminationNote: requestTerminationNote,
+          requestTerminationNoteOTA: requestTerminationNote,
         })
         .where(
           and(
@@ -486,7 +493,7 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = TerminateRequestSchema.parse(data);
+  const zodParseResult = verifTerminateRequestSchema.parse(data);
   const { mahasiswaId, otaId } = zodParseResult;
 
   const userAccount = await db
@@ -514,7 +521,7 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
           and(
             eq(connectionTable.mahasiswaId, mahasiswaId),
             eq(connectionTable.otaId, otaId),
-            eq(connectionTable.connectionStatus, "pending"),
+            eq(connectionTable.connectionStatus, "accepted"),
             or(
               eq(connectionTable.requestTerminateMahasiswa, true),
               eq(connectionTable.requestTerminateOta, true),
@@ -557,7 +564,7 @@ terminateProtectedRouter.openapi(rejectTerminateRoute, async (c) => {
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
 
-  const zodParseResult = TerminateRequestSchema.parse(data);
+  const zodParseResult = verifTerminateRequestSchema.parse(data);
   const { mahasiswaId, otaId } = zodParseResult;
 
   const userAccount = await db
@@ -585,12 +592,14 @@ terminateProtectedRouter.openapi(rejectTerminateRoute, async (c) => {
           requestTerminateMahasiswa: false,
           requestTerminateOta: false,
           connectionStatus: "accepted",
+          requestTerminationNoteMA: null,
+          requestTerminationNoteOTA: null
         })
         .where(
           and(
             eq(connectionTable.mahasiswaId, mahasiswaId),
             eq(connectionTable.otaId, otaId),
-            eq(connectionTable.connectionStatus, "pending"),
+            eq(connectionTable.connectionStatus, "accepted"),
             or(
               eq(connectionTable.requestTerminateMahasiswa, true),
               eq(connectionTable.requestTerminateOta, true),
