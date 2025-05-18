@@ -1,9 +1,9 @@
-import { useState } from "react";
 import Metadata from "@/components/metadata";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import StatusTransaksiTable from "./-components/status-transaksi-table";
+import { useState } from "react";
+
 import StatusTransaksiFilter from "./-components/status-transaksi-filter";
-import { Toaster } from "sonner";
+import StatusTransaksiTable from "./-components/status-transaksi-table";
 
 export const Route = createFileRoute("/_app/status-transaksi/")({
   component: RouteComponent,
@@ -24,7 +24,7 @@ function RouteComponent() {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear().toString();
   const currentMonth = (currentDate.getMonth() + 1).toString(); // 1-12
-  
+
   // Set initial filters with current date
   const [filters, setFilters] = useState<{
     year: string;
@@ -33,23 +33,21 @@ function RouteComponent() {
     year: currentYear,
     month: currentMonth,
   });
-  
+
   const handleFilterChange = (newFilters: { year: string; month: string }) => {
     console.log("Filters changed:", newFilters);
     setFilters(newFilters);
   };
-  
+
   return (
-    <main className="px-6 py-8 md:px-12 min-h-screen">
+    <main className="min-h-screen px-6 py-8 md:px-12">
       <Metadata title="Status Transaksi | BOTA" />
-      <h1 className="text-primary text-4xl font-bold mb-6">Status Transaksi</h1>
-     
+      <h1 className="text-primary mb-6 text-4xl font-bold">Status Transaksi</h1>
+
       <div className="space-y-6">
         <StatusTransaksiFilter onFilterChange={handleFilterChange} />
         <StatusTransaksiTable year={filters.year} month={filters.month} />
       </div>
-     
-      <Toaster position="top-center" />
     </main>
   );
 }

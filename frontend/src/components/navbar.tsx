@@ -302,6 +302,9 @@ export default function NavBar() {
                       className="text-destructive hover:cursor-pointer"
                       onClick={() => {
                         api.auth.logout();
+                        localStorage.removeItem("state");
+                        localStorage.removeItem("pendaftaran-ota");
+                        localStorage.removeItem("pendaftaran-mahasiswa");
                         queryClient.invalidateQueries({ queryKey: ["verify"] });
                         navigate({
                           to: "/",
