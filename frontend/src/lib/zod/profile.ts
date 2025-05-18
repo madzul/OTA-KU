@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 import {
+  EmailSchema,
   NIMSchema,
+  PasswordSchema,
   PDFSchema,
   PhoneNumberSchema,
   ProfilePDFSchema,
@@ -497,7 +499,33 @@ export const OrangTuaRegistrationSchema = z.object({
       required_error: "Checkbox harus diisi",
       invalid_type_error: "Checkbox tidak valid",
     })
-    .min(3, {
-      message: "Kriteria terlalu pendek",
-    }),
+    .default("false").optional(),
+  allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
+
+export const CreateBankesPengurusSchema = z
+  .object({
+    name: z
+      .string({
+        invalid_type_error: "Nama harus berupa string",
+        required_error: "Nama harus diisi",
+      })
+      .min(3, {
+        message: "Nama terlalu pendek",
+      })
+      .max(255, {
+        message: "Nama terlalu panjang",
+      }),
+    email: EmailSchema,
+    password: PasswordSchema,
+    confirmPassword: PasswordSchema,
+    type: z.enum(["bankes", "pengurus"], {
+      required_error: "Tipe harus dipilih",
+      invalid_type_error: "Tipe tidak valid",
+    }),
+    phoneNumber: PhoneNumberSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Kata sandi tidak cocok",
+    path: ["confirmPassword"],
+  });
