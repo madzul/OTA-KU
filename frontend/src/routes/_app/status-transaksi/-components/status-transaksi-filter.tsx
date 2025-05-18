@@ -8,18 +8,18 @@ import {
 import { useEffect, useState } from "react";
 
 const months = [
-  { name: "January", value: "1" },
-  { name: "February", value: "2" },
-  { name: "March", value: "3" },
+  { name: "Januari", value: "1" },
+  { name: "Februari", value: "2" },
+  { name: "Maret", value: "3" },
   { name: "April", value: "4" },
-  { name: "May", value: "5" },
-  { name: "June", value: "6" },
-  { name: "July", value: "7" },
-  { name: "August", value: "8" },
+  { name: "Mei", value: "5" },
+  { name: "Juni", value: "6" },
+  { name: "Juli", value: "7" },
+  { name: "Agustus", value: "8" },
   { name: "September", value: "9" },
-  { name: "October", value: "10" },
+  { name: "Oktober", value: "10" },
   { name: "November", value: "11" },
-  { name: "December", value: "12" },
+  { name: "Desember", value: "12" },
 ];
 
 const years = ["2023", "2024", "2025", "2026"];

@@ -11,6 +11,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowDownAZ, ArrowUpAZ, Eye } from "lucide-react";
 
 export type StatusType = "pending" | "unpaid" | "paid";
+export type TransferStatusType = "unpaid" | "paid";
 
 export interface TransaksiItem {
   id: string;
@@ -24,10 +25,12 @@ export interface TransaksiItem {
   pembayaran: number;
   waktuBayar: string;
   status: StatusType;
+  transferStatus: TransferStatusType;
   due_date: string;
   receipt?: string;
   createdAt: string;
   index: number;
+  paidFor?: number; // Added paidFor field
 }
 
 export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
@@ -106,6 +109,19 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
     header: "Pembayaran",
   },
   {
+    accessorKey: "paidFor",
+    header: "Bayar Untuk",
+    cell: ({ row }) => {
+      const paidFor = row.getValue("paidFor") as number | undefined;
+      
+      return (
+        <span className="font-medium">
+          {paidFor ? `${paidFor} bulan` : "-"}
+        </span>
+      );
+    },
+  },
+  {
     accessorKey: "waktuBayar",
     header: "Waktu Bayar",
   },
@@ -118,10 +134,9 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
     header: "Bukti",
     cell: ({ row }) => {
       const receipt = row.getValue("receipt") as string | undefined;
-
       if (receipt) {
         return (
-          <a href={`//${receipt}`} target="_blank" rel="noopener noreferrer">
+          <a href={`${receipt}`} target="_blank" rel="noopener noreferrer">
             <Eye className="h-5 w-5 cursor-pointer text-blue-600" />
           </a>
         );
@@ -148,10 +163,8 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
     },
     cell: ({ row }) => {
       const status = row.getValue("status") as StatusType;
-
       let statusText = "";
       let statusClass = "";
-
       switch (status) {
         case "paid":
           statusText = "Dibayar";
@@ -169,7 +182,6 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
             "bg-red-50 text-red-600 border border-red-300 rounded-full px-3 py-1 text-xs font-semibold";
           break;
       }
-
       return <span className={statusClass}>{statusText}</span>;
     },
   },
@@ -180,9 +192,7 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
       const index = row.original.index;
       const status = row.getValue("status") as StatusType;
       const namaOta = row.getValue("namaOta") as string;
-
       const isDisabled = status === "paid" || status === "unpaid";
-
       return (
         <Select
           value={status}
@@ -202,7 +212,7 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
         >
           <SelectTrigger
             className={cn(
-              "w-32",
+              "w-40",
               status === "paid"
                 ? "border-green-300 bg-green-50 text-green-600"
                 : status === "pending"
@@ -223,6 +233,54 @@ export const tagihanColumns: ColumnDef<TransaksiItem>[] = [
             <SelectItem value="unpaid">Belum Bayar</SelectItem>
             <SelectItem value="paid">Sudah Dibayar</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    },
+  },
+  {
+    accessorKey: "transferStatus",
+    header: "Status Transfer",
+    cell: ({ row }) => {
+      const index = row.original.index;
+      const transferStatus =
+        (row.getValue("transferStatus") as TransferStatusType) || "unpaid";
+      const status = row.getValue("status") as StatusType;
+      // Only enable transfer status change for paid transactions
+      const isDisabled = status !== "paid";
+      return (
+        <Select
+          value={transferStatus}
+          onValueChange={(value: TransferStatusType) => {
+            // Trigger custom event to handle transfer status change
+            window.dispatchEvent(
+              new CustomEvent("transfer-status-change", {
+                detail: {
+                  index,
+                  transferStatus: value as TransferStatusType,
+                  id: row.original.id,
+                },
+              }),
+            );
+          }}
+          disabled={isDisabled}
+        >
+          <SelectTrigger
+            className={cn(
+              "w-40",
+              transferStatus === "paid"
+                ? "border-green-300 bg-green-50 text-green-600"
+                : "border-orange-300 bg-orange-50 text-orange-600",
+              isDisabled && "cursor-not-allowed opacity-80",
+            )}
+          >
+            <SelectValue placeholder="-">
+              {transferStatus === "paid" ? "Ditransfer" : "Belum Ditransfer"}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="unpaid">Belum Ditransfer</SelectItem>
+            <SelectItem value="paid">Ditransfer</SelectItem>
           </SelectContent>
         </Select>
       );

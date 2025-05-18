@@ -26,5 +26,9 @@ export type TransactionOTA = {
    * Alasan penolakan verifikasi pembayaran
    */
   rejection_note?: string;
+  /**
+   * Jumlah bulan yang dibayarkan
+   */
+  paid_for: number;
 };
 
