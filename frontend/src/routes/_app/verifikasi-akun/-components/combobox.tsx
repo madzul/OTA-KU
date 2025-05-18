@@ -156,16 +156,15 @@ function Combobox({
 
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      className="bg-succeed hover:bg-succeed"
-                      onClick={() => {
+                      className="bg-primary"
+                      onClick={(e) => {
+                        e.preventDefault();
                         form.setValue("status", "accepted");
                         if (type === "ota") {
                           form.setValue("notes", "-");
                           form.setValue("adminOnlyNotes", "-");
                         }
                         form.handleSubmit(onSubmit)();
-                        setOpenAccept(false);
-                        form.reset();
                       }}
                     >
                       Ya
@@ -242,17 +241,16 @@ function Combobox({
 
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      className="bg-succeed hover:bg-succeed"
+                      className="bg-primary"
                       type="submit"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         form.setValue("status", "rejected");
                         if (type === "ota") {
                           form.setValue("notes", "-");
                           form.setValue("adminOnlyNotes", "-");
                         }
                         form.handleSubmit(onSubmit)();
-                        setOpenReject(false);
-                        form.reset();
                       }}
                     >
                       Ya

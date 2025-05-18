@@ -178,7 +178,7 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
         {
           id: "status-transaksi",
           label: "Status Transaksi",
-          icon: "/icon/Type=facebook.svg",
+          icon: "/icon/Type=transaction-status.svg",
           path: "/status-transaksi",
         },
         {
