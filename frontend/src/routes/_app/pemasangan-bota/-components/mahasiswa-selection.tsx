@@ -288,7 +288,6 @@ export function MahasiswaSelection({
               <Skeleton className="h-10 w-full" />
             </div>
           ) : (
-            // TODO: Set to 3 just for testing. Change to 10 later
             <ClientPagination totalPerPage={6} total={data.body.totalData} />
           )}
         </>
