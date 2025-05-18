@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-import { NIMSchema, PDFSchema, ProfilePDFSchema, PhoneNumberSchema } from "./atomic";
+import {
+  NIMSchema,
+  PDFSchema,
+  PhoneNumberSchema,
+  ProfilePDFSchema,
+} from "./atomic";
 
 export const MahasiswaRegistrationFormSchema = z.object({
   name: z
@@ -387,16 +392,12 @@ export const OrangTuaPageTwoSchema = z.object({
       message: "Tanggal transfer tidak valid",
     }),
   criteria: z.string().optional(),
-  checked: z
-    .boolean({
-      invalid_type_error: "Checked harus berupa boolean",
-      required_error: "Harus diisi",
+  isDetailVisible: z
+    .enum(["true", "false"], {
+      required_error: "Checkbox harus diisi",
+      invalid_type_error: "Checkbox tidak valid",
     })
-    .default(false)
-    .refine((value) => value, {
-      message: "Harus diisi",
-      path: ["checked"],
-    }),
+    .default("false").optional(),
   allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
 
@@ -491,4 +492,11 @@ export const OrangTuaRegistrationSchema = z.object({
       message: "Tanggal transfer tidak valid",
     }),
   criteria: z.string().optional(),
+  isDetailVisible: z
+    .enum(["true", "false"], {
+      required_error: "Checkbox harus diisi",
+      invalid_type_error: "Checkbox tidak valid",
+    })
+    .default("false").optional(),
+  allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
