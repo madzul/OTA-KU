@@ -15,7 +15,7 @@ const RootComponent = () => {
       <QueryClientProvider client={queryClient}>
         <Outlet />
         <Footer />
-        <Toaster />
+        <Toaster position="top-center" />
         <ReactQueryDevtools />
       </QueryClientProvider>
       {/* <TanStackRouterDevtools /> */}

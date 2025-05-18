@@ -8,7 +8,7 @@ import {
   connectionTable,
   transactionTable,
 } from "../db/schema.js";
-import { uploadPdfToCloudinary } from "../lib/file-upload.js";
+import { uploadFileToCloudinary } from "../lib/file-upload.js";
 import {
   acceptTransferStatusRoute,
   detailTransactionRoute,
@@ -82,11 +82,16 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
         status: transactionTable.transactionStatus,
         receipt: transactionTable.transactionReceipt,
         rejection_note: transactionTable.rejectionNote,
+        paid_for: connectionTable.paidFor,
       })
       .from(transactionTable)
       .innerJoin(
         accountMahasiswaDetailTable,
         eq(transactionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .leftJoin(
+        connectionTable,
+        eq(transactionTable.mahasiswaId, connectionTable.mahasiswaId)
       )
       .where(and(...conditions))
       .limit(LIST_PAGE_SIZE)
@@ -115,6 +120,7 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
             status: transaction.status,
             receipt: transaction.receipt ?? "",
             rejection_note: transaction.rejection_note ?? "",
+            paid_for: transaction.paid_for ?? 0,
           })),
           totalData: counts[0].count,
         },
@@ -187,6 +193,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
         transferStatus: transactionTable.transferStatus,
         receipt: transactionTable.transactionReceipt,
         createdAt: transactionTable.createdAt,
+        paid_for: connectionTable.paidFor,
       })
       .from(transactionTable)
       .innerJoin(
@@ -198,6 +205,10 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
         eq(transactionTable.otaId, accountOtaDetailTable.accountId),
       )
       .innerJoin(accountTable, eq(transactionTable.otaId, accountTable.id))
+      .leftJoin(
+        connectionTable,
+        eq(transactionTable.mahasiswaId, connectionTable.mahasiswaId),
+      )
       .where(and(...conditions))
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
@@ -228,6 +239,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
             transferStatus: transaction.transferStatus,
             receipt: transaction.receipt ?? "",
             createdAt: transaction.createdAt,
+            paid_for: transaction.paid_for ?? 0,
           })),
           totalData: counts[0].count,
         },
@@ -345,9 +357,10 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   // Parse using the UploadReceiptSchema
   const zodParseResult = UploadReceiptSchema.parse(data);
   const { id, paidFor, receipt } = zodParseResult;
+  console.log("id", id);
 
   try {
-    const receiptUrl = await uploadPdfToCloudinary(receipt);
+    const receiptUrl = await uploadFileToCloudinary(receipt);
 
     await db.transaction(async (tx) => {
       await tx
@@ -356,12 +369,17 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
           transactionReceipt: receiptUrl.secure_url,
           transactionStatus: "pending",
         })
-        .where(eq(transactionTable.id, id));
+        .where(eq(transactionTable.mahasiswaId, id));
 
       await tx
         .update(connectionTable)
         .set({ paidFor })
-        .where(eq(transactionTable.id, id));
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, id),
+            eq(connectionTable.otaId, user.id)
+          )
+        );
     });
 
     return c.json(

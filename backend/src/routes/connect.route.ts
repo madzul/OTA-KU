@@ -2,6 +2,7 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
+  checkConnectParamsSchema,
   connectionListAllQueryResponse,
   connectionListAllQuerySchema,
   connectionListQueryResponse,
@@ -52,7 +53,7 @@ export const connectOtaMahasiswaRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun belum terverifikasi.",
+      description: "Akun unauthorized",
       content: {
         "application/json": {
           schema: OrangTuaUnverifiedResponse,
@@ -103,7 +104,7 @@ export const connectOtaMahasiswaByAdminRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun belum terverifikasi.",
+      description: "Akun unauthorized",
       content: {
         "application/json": {
           schema: OrangTuaUnverifiedResponse,
@@ -145,6 +146,14 @@ export const verifyConnectionAccRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun unauthorized",
+      content: {
+        "application/json": {
+          schema: OrangTuaUnverifiedResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -180,6 +189,14 @@ export const verifyConnectionRejectRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun unauthorized",
+      content: {
+        "application/json": {
+          schema: OrangTuaUnverifiedResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -208,6 +225,14 @@ export const listPendingConnectionRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun unauthorized",
+      content: {
+        "application/json": {
+          schema: OrangTuaUnverifiedResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -236,6 +261,14 @@ export const listPendingTerminationConnectionRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun unauthorized",
+      content: {
+        "application/json": {
+          schema: OrangTuaUnverifiedResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -264,6 +297,14 @@ export const listAllConnectionRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun unauthorized",
+      content: {
+        "application/json": {
+          schema: OrangTuaUnverifiedResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -277,10 +318,10 @@ export const isConnectedRoute = createRoute({
   operationId: "isConnected",
   tags: ["Connect"],
   method: "get",
-  path: "/is-connected",
+  path: "/is-connected/{id}",
   description: "Memeriksa apakah OTA dan MA tertentu sudah memiliki hubungan asuh",
   request: {
-    query: MahasiwaConnectSchema,
+    params: checkConnectParamsSchema,
   },
   responses: {
     200: {
@@ -300,6 +341,14 @@ export const isConnectedRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun unauthorized",
+      content: {
+        "application/json": {
+          schema: OrangTuaUnverifiedResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -326,6 +375,14 @@ export const deleteConnectionRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Akun unauthorized",
+      content: {
+        "application/json": {
+          schema: OrangTuaUnverifiedResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {

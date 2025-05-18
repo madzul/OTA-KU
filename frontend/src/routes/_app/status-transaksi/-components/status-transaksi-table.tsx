@@ -11,6 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -45,6 +52,7 @@ export default function StatusTransaksiTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const searchQuery = "";
+  const [paidForValues, setPaidForValues] = useState<Record<string, number>>({});
 
   // Fetch transactions when filters change
   useEffect(() => {
@@ -109,12 +117,19 @@ export default function StatusTransaksiTable({
           );
         }
 
-        setTransactions(
-          processedData.map((item: any) => ({
-            ...item,
-            id: item.id || item._id || item.nim || String(Math.random()),
-          })),
-        );
+        const updatedTransactions = processedData.map((item: any) => ({
+          ...item,
+          id: item.id || item._id || item.nim || String(Math.random()),
+        }));
+
+        setTransactions(updatedTransactions);
+
+        // Initialize paidFor values for each transaction
+        const initialPaidForValues: Record<string, number> = {};
+        updatedTransactions.forEach((transaction: TransactionOTA) => {
+          initialPaidForValues[transaction.id] = transaction.paid_for || 1;
+        });
+        setPaidForValues(initialPaidForValues);
 
         // Adjust the total pages based on our filtered data
         if (processedData.length < response.body.data.length) {
@@ -156,6 +171,7 @@ export default function StatusTransaksiTable({
     setSelectedTransaction({
       ...transaction,
       id: transaction.id,
+      paid_for: paidForValues[transaction.id] || 1,
     });
     setIsUploadModalOpen(true);
   };
@@ -174,6 +190,13 @@ export default function StatusTransaksiTable({
       id: transaction.id,
     });
     setIsReasonModalOpen(true);
+  };
+
+  const handlePaidForChange = (transactionId: string, value: string) => {
+    setPaidForValues((prev) => ({
+      ...prev,
+      [transactionId]: parseInt(value),
+    }));
   };
 
   const handleUploadSuccess = () => {
@@ -300,6 +323,9 @@ export default function StatusTransaksiTable({
                 Bantuan Terkirim
               </TableHead>
               <TableHead className="font-medium text-gray-600">
+                Bayar Untuk
+              </TableHead>
+              <TableHead className="font-medium text-gray-600">
                 Waktu Bayar
               </TableHead>
               <TableHead className="font-medium text-gray-600">
@@ -320,7 +346,7 @@ export default function StatusTransaksiTable({
                 .fill(0)
                 .map((_, index) => (
                   <TableRow key={`skeleton-${index}`}>
-                    {Array(9)
+                    {Array(10)
                       .fill(0)
                       .map((_, cellIndex) => (
                         <TableCell key={`cell-${index}-${cellIndex}`}>
@@ -343,6 +369,27 @@ export default function StatusTransaksiTable({
                       ? transaction.amount_paid.toLocaleString()
                       : "-"}
                   </TableCell>
+                  <TableCell>
+                    {transaction.status === "unpaid" ? (
+                      <Select
+                        value={String(paidForValues[transaction.id] || 1)}
+                        onValueChange={(value) => handlePaidForChange(transaction.id, value)}
+                      >
+                        <SelectTrigger className="w-30">
+                          <SelectValue placeholder="1" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5, 6].map((num) => (
+                            <SelectItem key={num} value={String(num)}>
+                              {num} bulan
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      transaction.paid_for ? `${transaction.paid_for} bulan` : "1 bulan"
+                    )}
+                  </TableCell>
                   <TableCell>{formatDate(transaction.paid_at)}</TableCell>
                   <TableCell>{formatDate(transaction.due_date)}</TableCell>
                   <TableCell className="text-center">
@@ -354,7 +401,7 @@ export default function StatusTransaksiTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={9} className="py-4 text-center">
+                <TableCell colSpan={10} className="py-4 text-center">
                   Tidak ada data transaksi
                 </TableCell>
               </TableRow>
@@ -398,6 +445,7 @@ export default function StatusTransaksiTable({
         onOpenChange={setIsUploadModalOpen}
         transaction={selectedTransaction}
         onSuccess={handleUploadSuccess}
+        paidFor={selectedTransaction?.id ? paidForValues[selectedTransaction.id] || 1 : 1}
       />
 
       {/* View Receipt Dialog */}
