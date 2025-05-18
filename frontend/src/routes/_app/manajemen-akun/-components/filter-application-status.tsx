@@ -35,6 +35,10 @@ const statuses = [
     value: "outdated",
     label: "Kedaluarsa",
   },
+  {
+    value: "unregistered",
+    label: "Belum Terdaftar",
+  },
 ];
 
 interface FilterApplicationStatusProps {
@@ -85,7 +89,7 @@ function FilterApplicationStatus({
         >
           {value
             ? statuses.find((status) => status.value === value)?.label
-            : "Filter Application Status"}
+            : "Filter Status Pendaftaran"}
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>

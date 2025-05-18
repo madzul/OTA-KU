@@ -56,7 +56,7 @@ function FilterStatus({ status, setStatus }: FilterStatusProps) {
         >
           {value
             ? statuses.find((item) => item.value === value)?.label
-            : "Filter Status"}
+            : "Filter Status Akun"}
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>

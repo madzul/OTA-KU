@@ -70,7 +70,7 @@ function FilterType({ type, setType }: FilterTypeProps) {
         >
           {value
             ? userTypes.find((item) => item.value === value)?.label
-            : "Filter Tipe"}
+            : "Filter Tipe Akun"}
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>

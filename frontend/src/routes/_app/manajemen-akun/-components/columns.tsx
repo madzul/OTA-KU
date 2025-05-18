@@ -46,10 +46,10 @@ export const accountColumns: ColumnDef<AllAccountListElement>[] = [
       return (
         <p>
           {account.type === "mahasiswa"
-            ? account.ma_name
+            ? account.ma_name || "-"
             : account.type === "ota"
-              ? account.ota_name
-              : account.admin_name}
+              ? account.ota_name || "-"
+              : account.admin_name || "-"}
         </p>
       );
     },
@@ -80,7 +80,7 @@ export const accountColumns: ColumnDef<AllAccountListElement>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Tipe
+          Tipe Akun
           {column.getIsSorted() === "asc" ? (
             <ArrowUpAZ className="ml-2 h-4 w-4" />
           ) : (
@@ -126,7 +126,7 @@ export const accountColumns: ColumnDef<AllAccountListElement>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Status
+          Status Akun
           {column.getIsSorted() === "asc" ? (
             <ArrowUpAZ className="ml-2 h-4 w-4" />
           ) : (
@@ -141,11 +141,11 @@ export const accountColumns: ColumnDef<AllAccountListElement>[] = [
         <div className="capitalize">
           {status === "verified" ? (
             <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
-              Verified
+              Terverifikasi
             </span>
           ) : (
             <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-800">
-              Unverified
+              Belum Terverifikasi
             </span>
           )}
         </div>
@@ -160,7 +160,7 @@ export const accountColumns: ColumnDef<AllAccountListElement>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Application Status
+          Status Pendaftaran
           {column.getIsSorted() === "asc" ? (
             <ArrowUpAZ className="ml-2 h-4 w-4" />
           ) : (
@@ -190,11 +190,11 @@ export const accountColumns: ColumnDef<AllAccountListElement>[] = [
               Pengajuan Ulang
             </span>
           ) : applicationStatus === "outdated" ? (
-            <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
+            <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-800">
               Kedaluarsa
             </span>
           ) : (
-            <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
+            <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-800">
               Belum Terdaftar
             </span>
           )}
