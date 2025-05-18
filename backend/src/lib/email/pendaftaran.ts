@@ -19,7 +19,6 @@ export function registrationEmailToBankesAdmin(
           <tr id="igjcv" style="box-sizing: border-box;">
             <td id="idtom" align="center" style="box-sizing: border-box; border-collapse: collapse; direction: ltr; font-size: 0px; padding: 0px; text-align: center;">
               <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
-              
               <!--[if mso | IE]></td></tr></table><![endif]-->
             </td>
           </tr>
@@ -86,11 +85,11 @@ export function registrationEmailToBankesAdmin(
                                                 </b>,
                                               </p>
                                               <p data-start="166" data-end="238" id="inp5x4" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Email ini dikirim sebagai pengingat rutin untuk melakukan verifikasi pendaftaran program Bantuan Orang Tua Asuh. Saat ini, terdapat 
-                                                <b style="box-sizing: border-box;">${numberOfPendingApplicationMa}
+                                                <b id="i0u3esn" style="box-sizing: border-box;">${numberOfPendingApplicationMa}
                                                 </b> pendaftaran mahasiswa asuh baru dan 
                                                 <b id="ibj8wj" style="box-sizing: border-box;">${numberOfPendingApplicationOta}
                                                 </b>
-                                                <span draggable="true" style="box-sizing: border-box;"> pendaftaran orang tua asuh baru </span>yang perlu Anda verifikasi. 
+                                                <span draggable="true" id="izs2298" style="box-sizing: border-box;"> pendaftaran orang tua asuh baru </span>yang perlu Anda verifikasi. 
                                               </p>
                                               <p data-start="317" data-end="392" id="i2ymh9" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Terima kasih atas kerjasama Anda. 
                                               </p>
