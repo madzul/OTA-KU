@@ -1,15 +1,18 @@
 export function terminationEmail(
   emailReceiverName: string,
-  requestTerminationFromRole: string,
-  requestTerminationFromName: string,
-  requestTerminationFromEmail: string,
-  requestTerminationToRole: string,
-  requestTerminationToName: string,
-  requestTerminationToEmail: string,
+  numberOfRequestTerminateMa: string,
+  numberOfRequestTerminateOta: string,
   linkToDaftarTerminasi: string,
-  terminationReason: string,
 ) {
   return `<body style="box-sizing: border-box; margin: 0;">
+  <table class="table" style="box-sizing: border-box;">
+    <tbody style="box-sizing: border-box;">
+      <tr style="box-sizing: border-box;">
+        <td class="cell" style="box-sizing: border-box;">Hello world!
+        </td>
+      </tr>
+    </tbody>
+  </table>
   <title>
   </title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -108,27 +111,13 @@ export function terminationEmail(
                                                 <b id="i4kqx5" style="box-sizing: border-box;">${emailReceiverName}
                                                 </b>,
                                               </p>
-                                              <p data-start="166" data-end="238" id="inp5x4" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Terdapat permintaan baru dari:
-                                              </p>
-                                              <p data-start="240" data-end="315" id="iq0vlu" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">
-                                                <strong data-start="240" data-end="254" id="i7lctm" style="box-sizing: border-box;">Nama ${requestTerminationFromRole}:</strong> ${requestTerminationFromName}
-                                                <br id="i8nxuk" style="box-sizing: border-box;">
-                                                <b id="ifnsxs" style="box-sizing: border-box;">Email: 
-                                                </b>${requestTerminationFromEmail}
-                                                <br style="box-sizing: border-box;">
-                                              </p>
-                                              <p data-start="166" data-end="238" id="irgbw8" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">untuk memberhentikan masa asuh dengan:
-                                              </p>
-                                              <p data-start="240" data-end="315" id="i98qjk" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">
-                                                <strong data-start="240" data-end="254" id="irx3cb-2" style="box-sizing: border-box;">Nama ${requestTerminationToRole}:</strong> ${requestTerminationToName}
-                                                <br id="iwn9to" style="box-sizing: border-box;">
-                                                <b id="ilm5ch" style="box-sizing: border-box;">Email: 
-                                                </b>${requestTerminationToEmail}
+                                              <p data-start="166" data-end="238" id="inp5x4" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Email ini dikirim sebagai pengingat rutin untuk memeriksa permintaan pemberhentian masa asuh dari Orang Tua Asuh maupun Mahasiswa Asuh dalam program Bantuan Orang Tua Asuh. Saat ini terdapat 
+                                                <b style="box-sizing: border-box;">${numberOfRequestTerminateOta}
+                                                </b> permintaan dari Orang Tua Asuh dan terdapat 
+                                                <b style="box-sizing: border-box;">${numberOfRequestTerminateMa}
+                                                </b> permintaan dari Mahasiswa Asuh.
                                               </p>
                                               <!-- TODO: mau pake termination reason atau ga disini -->
-                                              <p data-start="317" data-end="392" id="i2ymh9-2" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Karena alasan berikut: ${terminationReason}.
-                                                <br style="box-sizing: border-box;">
-                                              </p>
                                               <p data-start="452" data-end="485" id="iut4gc-2" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Mohon segera lakukan persetujuan/penolkan untuk permintaan tersebut melalui tautan tombol berikut:
                                               </p>
                                             </div>
@@ -139,9 +128,9 @@ export function terminationEmail(
                                             <table border="0" cellpadding="0" cellspacing="0" role="presentation" id="i4p3wm-2" style="box-sizing: border-box; border-collapse: separate; line-height: 100%;">
                                               <tbody id="inven4" style="box-sizing: border-box;">
                                                 <tr id="ig81yl" style="box-sizing: border-box;">
-                                                  <td align="center" bgcolor="#4f46e5" role="presentation" valign="middle" id="ivnb3k-2" style="box-sizing: border-box; border-collapse: collapse; border: none; border-radius: 4px; cursor: auto; mso-padding-alt: 10px 25px; background: #4f46e5;">
+                                                  <td align="center" bgcolor="#003399" role="presentation" valign="middle" id="ivnb3k-2" style="box-sizing: border-box; border-collapse: collapse; border: none; border-radius: 4px; cursor: auto; mso-padding-alt: 10px 25px; background: #003399;">
                                                     <!-- TODO: Ganti link ini dengan link verifikasi yang sesuai -->
-                                                    <a href="${linkToDaftarTerminasi}" target="_blank" id="i4mvl2-2" style="box-sizing: border-box; display: inline-block; background: #4f46e5; color: #ffffff; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 4px;">Lihat Permintaan Pemberhentian Masa Asuh</a>
+                                                    <a href="${linkToDaftarTerminasi}" target="_blank" id="i4mvl2-2" style="box-sizing: border-box; display: inline-block; background: #003399; color: #ffffff; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 4px;">Lihat Permintaan Pemberhentian Masa Asuh</a>
                                                   </td>
                                                 </tr>
                                               </tbody>

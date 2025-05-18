@@ -1,7 +1,7 @@
 export function verifikasiPembayaranOtaEmail(
   currentUserName: string,
-  payerName: string,
-  dueMonth: string,
+  numberOfPendingTransactionOtaToIOM: string,
+  numberOfUnpaidTransactionIOMToMa: string,
   linkToDaftarTagihan: string,
 ) {
   return `<body style="box-sizing: border-box; margin: 0;">
@@ -103,11 +103,12 @@ export function verifikasiPembayaranOtaEmail(
                                                 <b id="i4kqx5" style="box-sizing: border-box;">${currentUserName}
                                                 </b>,
                                               </p>
-                                              <p data-start="166" data-end="238" id="inp5x4" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Orang Tua Asuh dengan nama 
-                                                <b style="box-sizing: border-box;">${payerName}
-                                                </b> baru saja membayar sumbangannya untuk bulan 
-                                                <b style="box-sizing: border-box;">${dueMonth}
-                                                </b>, mohon lakukan verifikasi bukti pembayaran pada tautan tombol berikut
+                                              <p data-start="166" data-end="238" id="inp5x4" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Email ini dikirim sebagai pengingat rutin untuk memeriksa pembayaran beserta buktinya yang telah masuk dari Orang Tua Asuh dalam program Bantuan Orang Tua Asuh. Saat ini, terdapat 
+                                                <b style="box-sizing: border-box;">${numberOfPendingTransactionOtaToIOM}
+                                                </b> pembayaran dari OTA yang perlu diverifikasi dan terdapat 
+                                                <b style="box-sizing: border-box;">${numberOfUnpaidTransactionIOMToMa} 
+                                                </b>
+                                                <span draggable="true" style="box-sizing: border-box;">Mahasiswa Asuh yang perlu dikirim uang bulanannya. </span>
                                               </p>
                                             </div>
                                           </td>
@@ -117,9 +118,23 @@ export function verifikasiPembayaranOtaEmail(
                                             <table border="0" cellpadding="0" cellspacing="0" role="presentation" id="i4p3wm-2" style="box-sizing: border-box; border-collapse: separate; line-height: 100%;">
                                               <tbody id="inven4" style="box-sizing: border-box;">
                                                 <tr id="ig81yl" style="box-sizing: border-box;">
-                                                  <td align="center" bgcolor="#4f46e5" role="presentation" valign="middle" id="ivnb3k-2" style="box-sizing: border-box; border-collapse: collapse; border: none; border-radius: 4px; cursor: auto; mso-padding-alt: 10px 25px; background: #4f46e5;">
+                                                  <td align="center" bgcolor="#003399" role="presentation" valign="middle" id="ivnb3k-2" style="box-sizing: border-box; border-collapse: collapse; border: none; border-radius: 4px; cursor: auto; mso-padding-alt: 10px 25px; background: #003399;">
                                                     <!-- TODO: Ganti link ini dengan link verifikasi yang sesuai -->
-                                                    <a href="${linkToDaftarTagihan}" target="_blank" id="i4mvl2-2" style="box-sizing: border-box; display: inline-block; background: #4f46e5; color: #ffffff; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 4px;">Verifikasi Bukti Pembayaran</a>
+                                                    <a href="${linkToDaftarTagihan}" target="_blank" id="i4mvl2-2" style="box-sizing: border-box; display: inline-block; background: #003399; color: #ffffff; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 4px;">Verifikasi Pembayaran Disini</a>
+                                                  </td>
+                                                </tr>
+                                              </tbody>
+                                            </table>
+                                          </td>
+                                        </tr>
+                                        <tr id="ilpsn7" style="box-sizing: border-box;">
+                                          <td align="center" vertical-align="middle" id="itwonn" style="box-sizing: border-box; border-collapse: collapse; font-size: 0px; padding: 12px 30px; word-break: break-word;">
+                                            <table border="0" cellpadding="0" cellspacing="0" role="presentation" id="ipsfpw" style="box-sizing: border-box; border-collapse: separate; line-height: 100%;">
+                                              <tbody id="i2m1v7" style="box-sizing: border-box;">
+                                                <tr id="i1k3ah" style="box-sizing: border-box;">
+                                                  <td align="center" bgcolor="#003399" role="presentation" valign="middle" id="iqqda2" style="box-sizing: border-box; border-collapse: collapse; border: none; border-radius: 4px; cursor: auto; mso-padding-alt: 10px 25px; background: #003399;">
+                                                    <!-- TODO: Ganti link ini dengan link verifikasi yang sesuai -->
+                                                    <a href="${linkToDaftarTagihan}" target="_blank" id="ikrl0b" style="box-sizing: border-box; display: inline-block; background: #003399; color: #ffffff; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: normal; line-height: 120%; margin: 0; text-decoration: none; text-transform: none; padding: 10px 25px; mso-padding-alt: 0px; border-radius: 4px;">Lihat Mahasiswa yang Belum Dibayar</a>
                                                   </td>
                                                 </tr>
                                               </tbody>
