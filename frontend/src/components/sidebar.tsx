@@ -129,6 +129,12 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
     case "admin":
       return [
         {
+          id: "manejemen-akun",
+          label: "Manajemen Akun",
+          icon: "/icon/Type=people.svg",
+          path: "/manajemen-akun",
+        },
+        {
           id: "verification",
           label: "Verifikasi",
           icon: "/icon/Type=shield.svg",
