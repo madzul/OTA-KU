@@ -20,6 +20,7 @@ interface Transaction {
   due_date: string;
   status: "unpaid" | "pending" | "paid";
   receipt: string;
+  paidFor?: number; // Added the paidFor property
 }
 
 interface ViewReceiptDialogProps {
@@ -114,6 +115,9 @@ export function ViewReceiptDialog({
           </DialogTitle>
           <DialogDescription>
             Bukti pembayaran untuk mahasiswa {transaction.name} ({transaction.nim})
+            {transaction.paidFor && (
+              <span className="ml-1">untuk {transaction.paidFor} bulan</span>
+            )}
           </DialogDescription>
         </DialogHeader>
 

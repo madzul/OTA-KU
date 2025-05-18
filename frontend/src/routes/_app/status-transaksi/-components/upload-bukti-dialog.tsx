@@ -19,6 +19,7 @@ interface UploadBuktiDialogProps {
   onOpenChange: (open: boolean) => void;
   transaction: TransactionOTA | null;
   onSuccess?: () => void;
+  paidFor: number;
 }
 
 export function UploadBuktiDialog({
@@ -26,6 +27,7 @@ export function UploadBuktiDialog({
   onOpenChange,
   transaction,
   onSuccess,
+  paidFor,
 }: UploadBuktiDialogProps) {
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>("");
@@ -33,17 +35,19 @@ export function UploadBuktiDialog({
   const [isUploading, setIsUploading] = useState(false);
   const [localTransaction, setLocalTransaction] =
     useState<TransactionOTA | null>(null);
+  const [selectedPaidFor, setSelectedPaidFor] = useState<number>(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open && transaction) {
       setLocalTransaction(transaction);
+      setSelectedPaidFor(paidFor);
     } else {
       // Reset form when dialog closes
       setFile(null);
       setFileName("");
     }
-  }, [open, transaction]);
+  }, [open, transaction, paidFor]);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -133,8 +137,7 @@ export function UploadBuktiDialog({
       const response = await api.transaction.uploadReceipt({
         formData: {
           id: localTransaction.id,
-          // TODO: Nanti sesuaiin paidFor sama data aslinya yang pake dropdown
-          paidFor: 0,
+          paidFor: selectedPaidFor,
           receipt: file,
         },
       });
@@ -179,44 +182,46 @@ export function UploadBuktiDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div
-          className={`flex flex-col items-center justify-center rounded-md border-2 ${
-            isDragging
-              ? "border-primary bg-primary/5"
-              : "border-muted-foreground/25 hover:border-muted-foreground/50"
-          } border-dashed p-6 transition-all`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          <Input
-            type="file"
-            accept="image/*,.pdf"
-            className="hidden"
-            onChange={handleFileInputChange}
-            ref={fileInputRef}
-          />
+        <div className="space-y-4">
+          <div
+            className={`flex flex-col items-center justify-center rounded-md border-2 ${
+              isDragging
+                ? "border-primary bg-primary/5"
+                : "border-muted-foreground/25 hover:border-muted-foreground/50"
+            } border-dashed p-6 transition-all`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <Input
+              type="file"
+              accept="image/*,.pdf"
+              className="hidden"
+              onChange={handleFileInputChange}
+              ref={fileInputRef}
+            />
 
-          <div className="flex flex-col items-center gap-2 text-center">
-            <FileUp className="text-muted-foreground h-8 w-8" />
-            <p className="text-sm font-medium">
-              {isDragging
-                ? "Geser berkas kesini untuk upload"
-                : fileName || "Klik untuk upload atau drag & drop"}
-            </p>
-            {fileName && (
-              <p className="text-muted-foreground mt-1 text-xs">
-                File terpilih: {fileName}
+            <div className="flex flex-col items-center gap-2 text-center">
+              <FileUp className="text-muted-foreground h-8 w-8" />
+              <p className="text-sm font-medium">
+                {isDragging
+                  ? "Geser berkas kesini untuk upload"
+                  : fileName || "Klik untuk upload atau drag & drop"}
               </p>
-            )}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              Pilih Bukti Pembayaran
-            </Button>
+              {fileName && (
+                <p className="text-muted-foreground mt-1 text-xs">
+                  File terpilih: {fileName}
+                </p>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Pilih Bukti Pembayaran
+              </Button>
+            </div>
           </div>
         </div>
 

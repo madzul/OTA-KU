@@ -1,6 +1,7 @@
 import { z } from "@hono/zod-openapi";
 
 import { NIMSchema, PhoneNumberSchema } from "./atomic.js";
+import { parseSigned } from "hono/utils/cookie";
 
 export const TransactionListOTAQuerySchema = z.object({
   q: z.string().optional().openapi({
@@ -48,6 +49,10 @@ export const TransactionListOTAQueryResponse = z.object({
         rejection_note: z.string().optional().openapi({
           description: "Alasan penolakan verifikasi pembayaran",
           example: "Nominal yang ditransfer tidak sesuai dengan tagihan",
+        }),
+        paid_for: z.number().openapi({
+          description: "Jumlah bulan yang dibayarkan",
+          example: 3,
         }),
       }).openapi("TransactionOTA"),
     ),

@@ -82,11 +82,16 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
         status: transactionTable.transactionStatus,
         receipt: transactionTable.transactionReceipt,
         rejection_note: transactionTable.rejectionNote,
+        paid_for: connectionTable.paidFor,
       })
       .from(transactionTable)
       .innerJoin(
         accountMahasiswaDetailTable,
         eq(transactionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .leftJoin(
+        connectionTable,
+        eq(transactionTable.mahasiswaId, connectionTable.mahasiswaId)
       )
       .where(and(...conditions))
       .limit(LIST_PAGE_SIZE)
@@ -115,6 +120,7 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
             status: transaction.status,
             receipt: transaction.receipt ?? "",
             rejection_note: transaction.rejection_note ?? "",
+            paid_for: transaction.paid_for ?? 0,
           })),
           totalData: counts[0].count,
         },
@@ -345,6 +351,7 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   // Parse using the UploadReceiptSchema
   const zodParseResult = UploadReceiptSchema.parse(data);
   const { id, paidFor, receipt } = zodParseResult;
+  console.log("id", id);
 
   try {
     const receiptUrl = await uploadPdfToCloudinary(receipt);
@@ -356,12 +363,12 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
           transactionReceipt: receiptUrl.secure_url,
           transactionStatus: "pending",
         })
-        .where(eq(transactionTable.id, id));
+        .where(eq(transactionTable.mahasiswaId, id));
 
       await tx
         .update(connectionTable)
-        .set({ paidFor })
-        .where(eq(transactionTable.id, id));
+        .set({ paidFor: paidFor })
+        .where(eq(connectionTable.mahasiswaId, id));
     });
 
     return c.json(
