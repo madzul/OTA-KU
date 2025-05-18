@@ -87,20 +87,11 @@ function MahasiswaAsuhContent() {
       </div>
 
       {/* Search and Filters */}
-      {!isSuccess ? (
-        <div className="rounded-md bg-white">
-          <Skeleton className="h-10 w-full" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-          <SearchInput
-            placeholder="Cari nama atau email"
-            setSearch={setSearch}
-          />
-          <FilterJurusan jurusan={jurusan} setJurusan={setJurusan} />
-          <FilterStatus type="mahasiswa" status={status} setStatus={setStatus} />
-        </div>
-      )}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+        <SearchInput placeholder="Cari nama atau email" setSearch={setSearch} />
+        <FilterJurusan jurusan={jurusan} setJurusan={setJurusan} />
+        <FilterStatus type="mahasiswa" status={status} setStatus={setStatus} />
+      </div>
 
       {/* Table */}
       {!isSuccess ? (

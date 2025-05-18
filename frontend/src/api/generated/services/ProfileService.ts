@@ -304,7 +304,8 @@ export class ProfileService {
        */
       email: string;
       /**
-       * The user's password.
+       * Password minimal 8 karakter, mengandung huruf besar, huruf kecil, angka, dan simbol.
+       * Simbol yang diperbolehkan: ! @ # $ % ^ & * ( ) _ - + = [ ] { } ; ' : " \ | , . < > / ?
        */
       password: string;
       /**
