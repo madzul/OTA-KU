@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import { accountTable, otpTable } from "../db/schema.js";
-import { otpEmail } from "../lib/email/otp.js";
+import { kodeOTPEmail } from "../lib/email/kode-otp.js";
 import { generateOTP } from "../lib/otp.js";
 import { getOtpExpiredDateRoute, sendOtpRoute } from "../routes/otp.route.js";
 import { SendOtpRequestSchema } from "../zod/otp.js";
@@ -71,7 +71,7 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
           from: env.EMAIL_FROM,
           to: email,
           subject: "Token OTP Bantuan Orang Tua Asuh",
-          html: otpEmail(code),
+          html: kodeOTPEmail(email, code),
         })
         .catch((error) => {
           console.error("Error sending email:", error);

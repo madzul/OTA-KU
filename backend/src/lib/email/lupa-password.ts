@@ -1,4 +1,4 @@
-export function forgotPasswordEmail(nama: string, password: string) {
+export function forgotPasswordEmail(email: string, password: string) {
   return `<!doctype html>
 <html
   xmlns="http://www.w3.org/1999/xhtml"
@@ -391,7 +391,7 @@ export function forgotPasswordEmail(nama: string, password: string) {
                                                   color: #003a6e;
                                                 "
                                               >
-                                                Halo <b>${nama}</b>, Berikut
+                                                Halo <b>${email}</b>, Berikut
                                                 adalah password sementara Anda
                                               </div>
                                             </td>
