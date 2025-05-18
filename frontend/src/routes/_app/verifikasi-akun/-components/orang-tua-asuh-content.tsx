@@ -78,19 +78,10 @@ function OrangTuaAsuhContent() {
       </div>
 
       {/* Search and Filters */}
-      {!isSuccess ? (
-        <div className="rounded-md bg-white">
-          <Skeleton className="h-10 w-full" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-          <SearchInput
-            placeholder="Cari nama atau email"
-            setSearch={setSearch}
-          />
-          <FilterStatus type="ota" status={status} setStatus={setStatus} />
-        </div>
-      )}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+        <SearchInput placeholder="Cari nama atau email" setSearch={setSearch} />
+        <FilterStatus type="ota" status={status} setStatus={setStatus} />
+      </div>
 
       {/* Table */}
       {!isSuccess ? (

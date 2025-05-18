@@ -21,6 +21,48 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+const adminRoutes = [
+  {
+    id: "verification",
+    label: "Verifikasi",
+    icon: "/icon/Type=shield.svg",
+    path: "/verifikasi-akun",
+  },
+  {
+    id: "persetujuan-asuh",
+    label: "Persetujuan Asuh",
+    icon: "/icon/Type=user-round-check.svg",
+    path: "/persetujuan-asuh",
+  },
+  {
+    id: "pemasangan-bota",
+    label: "Pemasangan BOTA",
+    icon: "/icon/Type=handshake.svg",
+    path: "/pemasangan-bota",
+  },
+  // TODO: Nanti ganti logonya jangan facebook
+  {
+    id: "connection",
+    label: "Data Hubungan Asuh",
+    icon: "/icon/Type=facebook.svg",
+    path: "/data-hubungan-asuh",
+  },
+  {
+    id: "transaction",
+    label: "Daftar Tagihan",
+    icon: "/icon/Type=transaction.svg",
+    path: "/daftar-tagihan",
+  },
+  {
+    id: "daftar-terminasi",
+    label: "Daftar Terminasi",
+    icon: "/icon/Type=remove-destructive.svg",
+    path: "/daftar-terminasi",
+    bgColorClass: " bg-destructive/10",
+    textColorClass: "text-destructive",
+  },
+];
+
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const session = useContext(SessionContext);
   const location = useLocation();
@@ -126,47 +168,6 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           path: "/orang-tua-asuh-saya",
         },
       ];
-    case "admin":
-      return [
-        {
-          id: "manejemen-akun",
-          label: "Manajemen Akun",
-          icon: "/icon/Type=people.svg",
-          path: "/manajemen-akun",
-        },
-        {
-          id: "verification",
-          label: "Verifikasi",
-          icon: "/icon/Type=shield.svg",
-          path: "/verifikasi-akun",
-        },
-        {
-          id: "persetujuan-asuh",
-          label: "Persetujuan Asuh",
-          icon: "/icon/Type=user-round-check.svg",
-          path: "/persetujuan-asuh",
-        },
-        {
-          id: "pemasangan-bota",
-          label: "Pemasangan BOTA",
-          icon: "/icon/Type=handshake.svg",
-          path: "/pemasangan-bota",
-        },
-        {
-          id: "transaction",
-          label: "Daftar Tagihan",
-          icon: "/icon/Type=transaction.svg",
-          path: "/daftar-tagihan",
-        },
-        {
-          id: "daftar-terminasi",
-          label: "Daftar Terminasi",
-          icon: "/icon/Type=remove-destructive.svg",
-          path: "/daftar-terminasi",
-          bgColorClass: " bg-destructive/10",
-          textColorClass: "text-destructive",
-        },
-      ];
     case "ota":
       return [
         {
@@ -196,6 +197,20 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           textColorClass: "text-destructive",
         },
       ];
+    case "admin":
+      return [
+        {
+          id: "manejemen-akun",
+          label: "Manajemen Akun",
+          icon: "/icon/Type=people.svg",
+          path: "/manajemen-akun",
+        },
+        ...adminRoutes,
+      ];
+    case "bankes":
+      return adminRoutes;
+    case "pengurus":
+      return adminRoutes;
     default:
       return [];
   }

@@ -40,6 +40,19 @@ export const accountColumns: ColumnDef<AllAccountListElement>[] = [
         </p>
       );
     },
+    sortingFn: (rowA, rowB) => {
+      // Get the appropriate name based on account type
+      const getAccountName = (account: AllAccountListElement) => {
+        if (account.type === "mahasiswa") return account.ma_name || "";
+        if (account.type === "ota") return account.ota_name || "";
+        return account.admin_name || "";
+      };
+
+      const nameA = getAccountName(rowA.original);
+      const nameB = getAccountName(rowB.original);
+
+      return nameA.localeCompare(nameB);
+    },
   },
   {
     accessorKey: "email",

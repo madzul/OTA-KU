@@ -8,14 +8,11 @@ import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 
 import { Route } from "..";
-import { accountColumns } from "./columns";
-import CreateAccountDialog from "./create-account-dialog";
+import { connectionColumns } from "./columns";
 import { DataTable } from "./data-table";
-import FilterApplicationStatus from "./filter-application-status";
-import FilterStatus from "./filter-status";
-import FilterType from "./filter-type";
+import FilterConnectionStatus from "./filter-connection-status";
 
-function ManajemenAkunContent() {
+function DataHubunganAsuhContent() {
   const navigate = useNavigate({ from: Route.fullPath });
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -23,61 +20,44 @@ function ManajemenAkunContent() {
   const page = Number.parseInt(searchParams.get("page") ?? "1") || 1;
   const [search, setSearch] = useState<string>("");
   const [value] = useDebounce(search, 500);
-  const [type, setType] = useState<
-    "mahasiswa" | "ota" | "admin" | "bankes" | "pengurus" | null
-  >(null);
-  const [status, setStatus] = useState<"verified" | "unverified" | null>(null);
-  const [applicationStatus, setApplicationStatus] = useState<
-    | "pending"
-    | "accepted"
-    | "rejected"
-    | "unregistered"
-    | "reapply"
-    | "outdated"
-    | null
+  const [connectionStatus, setConnectionStatus] = useState<
+    "pending" | "accepted" | "rejected" | null
   >(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["listAllAccount", page, value, type, status, applicationStatus],
+    queryKey: ["listAllAccount", page, value, connectionStatus],
     queryFn: () =>
-      api.list.listAllAccount({
+      api.connect.listAllConnection({
         page,
         q: value,
-        type: type!,
-        status: status!,
-        applicationStatus: applicationStatus!,
+        connectionStatus: connectionStatus!,
       }),
   });
 
   useEffect(() => {
-    if (status || value || type || applicationStatus) {
+    if (value || connectionStatus) {
       navigate({
         search: () => ({
           page: 1,
         }),
       });
     }
-  }, [navigate, status, value, type, applicationStatus]);
+  }, [navigate, connectionStatus, value]);
 
   return (
     <section className="flex flex-col gap-4">
       {/* Search and Filters */}
       <div className="flex flex-col gap-4">
-        <div className="flex w-full items-center gap-4">
+        <div className="flex w-full flex-col items-center gap-4 sm:flex-row">
           <div className="w-full">
             <SearchInput
               placeholder="Cari nama atau email"
               setSearch={setSearch}
             />
           </div>
-          <CreateAccountDialog />
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-          <FilterType type={type} setType={setType} />
-          <FilterStatus status={status} setStatus={setStatus} />
-          <FilterApplicationStatus
-            status={applicationStatus}
-            setStatus={setApplicationStatus}
+          <FilterConnectionStatus
+            status={connectionStatus}
+            setStatus={setConnectionStatus}
           />
         </div>
       </div>
@@ -88,7 +68,7 @@ function ManajemenAkunContent() {
           <Skeleton className="h-80 w-full" />
         </div>
       ) : (
-        <DataTable columns={accountColumns} data={data?.body.data || []} />
+        <DataTable columns={connectionColumns} data={data?.body.data || []} />
       )}
 
       {/* Pagination */}
@@ -106,4 +86,4 @@ function ManajemenAkunContent() {
   );
 }
 
-export default ManajemenAkunContent;
+export default DataHubunganAsuhContent;
