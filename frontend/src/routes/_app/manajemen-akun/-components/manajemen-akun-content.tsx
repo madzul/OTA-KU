@@ -9,6 +9,7 @@ import { useDebounce } from "use-debounce";
 
 import { Route } from "..";
 import { accountColumns } from "./columns";
+import CreateAccountDialog from "./create-account-dialog";
 import { DataTable } from "./data-table";
 import FilterApplicationStatus from "./filter-application-status";
 import FilterStatus from "./filter-status";
@@ -67,10 +68,15 @@ function ManajemenAkunContent() {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          <SearchInput
-            placeholder="Cari nama atau email"
-            setSearch={setSearch}
-          />
+          <div className="flex w-full items-center gap-4">
+            <div className="w-full">
+              <SearchInput
+                placeholder="Cari nama atau email"
+                setSearch={setSearch}
+              />
+            </div>
+            <CreateAccountDialog />
+          </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
             <FilterType type={type} setType={setType} />
             <FilterStatus status={status} setStatus={setStatus} />

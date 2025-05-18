@@ -1,6 +1,13 @@
 import { z } from "zod";
 
-import { NIMSchema, PDFSchema, ProfilePDFSchema, PhoneNumberSchema } from "./atomic";
+import {
+  EmailSchema,
+  NIMSchema,
+  PDFSchema,
+  PasswordSchema,
+  PhoneNumberSchema,
+  ProfilePDFSchema,
+} from "./atomic";
 
 export const MahasiswaRegistrationFormSchema = z.object({
   name: z
@@ -499,3 +506,30 @@ export const OrangTuaRegistrationSchema = z.object({
       message: "Kriteria terlalu pendek",
     }),
 });
+
+export const CreateBankesPengurusSchema = z
+  .object({
+    name: z
+      .string({
+        invalid_type_error: "Nama harus berupa string",
+        required_error: "Nama harus diisi",
+      })
+      .min(3, {
+        message: "Nama terlalu pendek",
+      })
+      .max(255, {
+        message: "Nama terlalu panjang",
+      }),
+    email: EmailSchema,
+    password: PasswordSchema,
+    confirmPassword: PasswordSchema,
+    type: z.enum(["bankes", "pengurus"], {
+      required_error: "Tipe harus dipilih",
+      invalid_type_error: "Tipe tidak valid",
+    }),
+    phoneNumber: PhoneNumberSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Kata sandi tidak cocok",
+    path: ["confirmPassword"],
+  });
