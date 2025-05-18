@@ -1,22 +1,9 @@
 import { AllAccountListElement } from "@/api/generated";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import type { ColumnDef } from "@tanstack/react-table";
-import {
-  ArrowDownAZ,
-  ArrowUpAZ,
-  Edit,
-  Eye,
-  MoreHorizontal,
-  Trash2,
-  UserCheck,
-  UserX,
-} from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ } from "lucide-react";
+
+import DropdownMenuAccount from "./dropdown-menu-account";
 
 export const accountColumns: ColumnDef<AllAccountListElement>[] = [
   {
@@ -110,7 +97,7 @@ export const accountColumns: ColumnDef<AllAccountListElement>[] = [
               Bantuan Kesejahteraan
             </span>
           ) : (
-            <span className="rounded-full bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-800">
+            <span className="rounded-full bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-800">
               Pengurus
             </span>
           )}
@@ -208,41 +195,7 @@ export const accountColumns: ColumnDef<AllAccountListElement>[] = [
     cell: ({ row }) => {
       const account = row.original;
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem className="cursor-pointer">
-              <Eye className="mr-2 h-4 w-4" />
-              View Details
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer text-red-600">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-            {account.status === "verified" ? (
-              <DropdownMenuItem className="cursor-pointer text-red-600">
-                <UserX className="mr-2 h-4 w-4" />
-                Unverify
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem className="cursor-pointer text-green-600">
-                <UserCheck className="mr-2 h-4 w-4" />
-                Verify
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <DropdownMenuAccount account={account} />;
     },
   },
 ];
