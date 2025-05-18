@@ -550,6 +550,6 @@ export const AllAccountListQueryResponse = z.object({
   message: z.string().openapi({ example: "Daftar MA berhasil diambil" }),
   body: z.object({
     data: z.array(AllAccountListElementSchema.openapi("AllAccountListElement")),
-    totalData: z.number().openapi({ example: 100 }),
+    totalPagination: z.number().openapi({ example: 100 }),
   }),
 });

@@ -27,7 +27,7 @@ function MahasiswaAsuhContent() {
   const [value] = useDebounce(search, 500);
   const [jurusan, setJurusan] = useState<Jurusan | null>(null);
   const [status, setStatus] = useState<
-    "accepted" | "pending" | "rejected" | null
+    "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null
   >(null);
 
   const { data, isSuccess } = useQuery({
@@ -37,7 +37,12 @@ function MahasiswaAsuhContent() {
         page,
         q: value,
         jurusan: jurusan as string,
-        status: status as "accepted" | "pending" | "rejected",
+        status: status as
+          | "accepted"
+          | "pending"
+          | "rejected"
+          | "reapply"
+          | "outdated",
       }),
   });
 
@@ -82,20 +87,11 @@ function MahasiswaAsuhContent() {
       </div>
 
       {/* Search and Filters */}
-      {!isSuccess ? (
-        <div className="rounded-md bg-white">
-          <Skeleton className="h-10 w-full" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-          <SearchInput
-            placeholder="Cari nama atau email"
-            setSearch={setSearch}
-          />
-          <FilterJurusan jurusan={jurusan} setJurusan={setJurusan} />
-          <FilterStatus status={status} setStatus={setStatus} />
-        </div>
-      )}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+        <SearchInput placeholder="Cari nama atau email" setSearch={setSearch} />
+        <FilterJurusan jurusan={jurusan} setJurusan={setJurusan} />
+        <FilterStatus type="mahasiswa" status={status} setStatus={setStatus} />
+      </div>
 
       {/* Table */}
       {!isSuccess ? (

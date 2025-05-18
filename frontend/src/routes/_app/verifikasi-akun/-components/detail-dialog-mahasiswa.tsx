@@ -15,6 +15,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SessionContext } from "@/context/session";
 import { formatValue } from "@/lib/formatter";
@@ -23,7 +24,7 @@ import { NotesVerificationRequestSchema } from "@/lib/zod/admin-verification";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CircleCheck, CircleX } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -39,7 +40,7 @@ function DetailDialogMahasiswa({
   status,
 }: {
   id: string;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "reapply" | "outdated";
 }) {
   const [open, setOpen] = useState(false);
   const session = useContext(SessionContext);
@@ -92,6 +93,16 @@ function DetailDialogMahasiswa({
     changeStatusCallbackMutation.mutate(data);
   }
 
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        bill: data.body.bill ?? 0,
+        notes: data.body.notes ?? "",
+        adminOnlyNotes: data.body.adminOnlyNotes ?? "",
+      });
+    }
+  }, [data, form]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -112,7 +123,6 @@ function DetailDialogMahasiswa({
             Detail Info
           </DialogTitle>
           <DialogDescription className="flex text-start">
-            {/* TODO: handle case applicationStatus === "reapply" or "outdated" */}
             <p
               className={cn(
                 "rounded-full px-4 py-1 text-white",
@@ -122,7 +132,9 @@ function DetailDialogMahasiswa({
                     ? "bg-[#EAB308]"
                     : data?.body.applicationStatus === "rejected"
                       ? "bg-destructive"
-                      : "bg-gray-500",
+                      : data?.body.applicationStatus === "reapply"
+                        ? "bg-blue-500"
+                        : "bg-gray-500",
               )}
             >
               {data?.body.applicationStatus === "accepted"
@@ -131,7 +143,11 @@ function DetailDialogMahasiswa({
                   ? "Tertunda"
                   : data?.body.applicationStatus === "rejected"
                     ? "Tertolak"
-                    : "-"}
+                    : data?.body.applicationStatus === "reapply"
+                      ? "Pengajuan Ulang"
+                      : data?.body.applicationStatus === "outdated"
+                        ? "Kedaluarsa"
+                        : "-"}
             </p>
           </DialogDescription>
         </DialogHeader>
@@ -168,22 +184,30 @@ function DetailDialogMahasiswa({
                     <FormField
                       control={form.control}
                       name={key as keyof NotesVerificationFormValues}
-                      defaultValue={status !== "pending" ? "-" : ""}
+                      defaultValue={
+                        status !== "pending" && status !== "reapply" ? "-" : ""
+                      }
                       render={({ field }) => {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        const { value, ...rest } = field;
                         return (
                           <FormItem className="mr-4">
                             <FormControl>
-                              <Textarea
-                                disabled={status !== "pending"}
-                                placeholder="Masukkan catatan"
-                                value={
-                                  data?.body[key as keyof typeof data.body] ??
-                                  "-"
-                                }
-                                {...rest}
-                              />
+                              {key === "bill" ? (
+                                <Input
+                                  disabled={
+                                    status !== "pending" && status !== "reapply"
+                                  }
+                                  placeholder="Masukkan dana kebutuhan"
+                                  {...field}
+                                />
+                              ) : (
+                                <Textarea
+                                  disabled={
+                                    status !== "pending" && status !== "reapply"
+                                  }
+                                  placeholder="Masukkan catatan"
+                                  {...field}
+                                />
+                              )}
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -205,7 +229,7 @@ function DetailDialogMahasiswa({
             <div
               className={cn(
                 "mt-4 flex gap-4 self-center",
-                status !== "pending" && "hidden",
+                status !== "pending" && status !== "reapply" && "hidden",
               )}
             >
               <div className="flex items-center gap-2">

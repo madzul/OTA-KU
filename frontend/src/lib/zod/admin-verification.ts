@@ -7,6 +7,17 @@ export const NotesVerificationRequestSchema = z.object({
       message: "Status harus berupa accepted atau rejected",
     },
   ),
+  bill: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.coerce
+      .number({
+        invalid_type_error: "Dana kebutuhan harus berupa angka",
+        required_error: "Dana kebutuhan harus diisi",
+      })
+      .min(0, {
+        message: "Dana kebutuhan tidak boleh kurang dari 0",
+      }),
+  ),
   notes: z
     .string({
       invalid_type_error: "Catatan untuk Orang Tua Asuh harus berupa string",

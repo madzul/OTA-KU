@@ -51,7 +51,7 @@ describe("Login", () => {
   test("POST 401 (Wrong Email) /api/auth/login", async () => {
     const params = new URLSearchParams();
     params.append("identifier", "user4@test.com");
-    params.append("password", "testuser123");
+    params.append("password", "Testuser123!");
 
     const res = await app.request(
       createTestRequest("/api/auth/login", {
@@ -69,7 +69,7 @@ describe("Login", () => {
   test("POST 401 (Wrong Password) /api/auth/login", async () => {
     const params = new URLSearchParams();
     params.append("identifier", "user1@test.com");
-    params.append("password", "testuser1234");
+    params.append("password", "Testuser123!4");
 
     const res = await app.request(
       createTestRequest("/api/auth/login", {
@@ -157,7 +157,7 @@ describe("Register", () => {
     params.append("email", testRegisterUsers[0].email);
     params.append("phoneNumber", testRegisterUsers[0].phoneNumber);
     params.append("password", testRegisterUsers[0].password);
-    params.append("confirmPassword", "testuser1234");
+    params.append("confirmPassword", "Testuser123!4");
 
     const res = await app.request(
       createTestRequest("/api/auth/register", {

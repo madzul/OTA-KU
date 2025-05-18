@@ -6,6 +6,10 @@ export function formatRole(role: string): string {
       return "Orang Tua Asuh";
     case "admin":
       return "Admin";
+    case "bankes":
+      return "Bantuan Kesejahteraan";
+    case "pengurus":
+      return "Pengurus";
     default:
       return role;
   }

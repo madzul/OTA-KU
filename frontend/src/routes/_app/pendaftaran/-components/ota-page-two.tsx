@@ -84,7 +84,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
   const form = useForm<OrangTuaRegistrationTwoFormValues>({
     resolver: zodResolver(OrangTuaPageTwoSchema),
     defaultValues: {
-      checked: false,
+      isDetailVisible: "false",
       allowAdminSelection: "false",
     },
   });
@@ -100,7 +100,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
       form.setValue("maxSemester", parsedData.maxSemester || "");
       form.setValue("transferDate", parsedData.transferDate || "");
       form.setValue("criteria", parsedData.criteria || "");
-      form.setValue("checked", parsedData.checked || false);
+      form.setValue("isDetailVisible", parsedData.checked || false);
       form.setValue(
         "allowAdminSelection",
         parsedData.allowAdminSelection || "false",
@@ -122,7 +122,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
         maxSemester: form.getValues("maxSemester") || "",
         transferDate: form.getValues("transferDate") || "",
         criteria: form.getValues("criteria") || "",
-        checked: form.getValues("checked") || false,
+        checked: form.getValues("isDetailVisible") || false,
         allowAdminSelection: form.getValues("allowAdminSelection") || "false",
       };
       localStorage.setItem("pendaftaran-ota", btoa(JSON.stringify(formData)));
@@ -137,6 +137,12 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
     mainForm.setValue("maxSemester", data.maxSemester);
     mainForm.setValue("transferDate", data.transferDate);
     mainForm.setValue("criteria", data.criteria || "");
+    mainForm.setValue("isDetailVisible", data.isDetailVisible || "false");
+    mainForm.setValue(
+      "allowAdminSelection",
+      data.allowAdminSelection || "false",
+    );
+    console.log(data);
     mainForm.handleSubmit(
       async (data) => {
         await orangTuaRegistrationCallbackMutation.mutateAsync(data);
@@ -354,18 +360,22 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
 
             <FormField
               control={form.control}
-              name="checked"
+              name="isDetailVisible"
               render={({ field }) => (
                 <FormItem className="text-primary flex items-center gap-2 text-base">
                   <FormControl>
                     <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
+                      checked={field.value === "true"}
+                      onCheckedChange={(checked) => {
+                        field.onChange(checked ? "true" : "false");
+                      }}
                       className="text-primary"
                     />
                   </FormControl>
                   <span className="ml-2 after:ml-1 after:text-red-500 after:content-['*']">
-                    Saya tidak keberatan untuk berkomunikasi dengan anak asuh
+                    Saya tidak keberatan data saya (nama, email, no. telp,
+                    tanggal transfer, dan tanggal mendaftar) dilihat oleh
+                    mahasiswa asuh
                   </span>
                   <FormMessage />
                 </FormItem>
