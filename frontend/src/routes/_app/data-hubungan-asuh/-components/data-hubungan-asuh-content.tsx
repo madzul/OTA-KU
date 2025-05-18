@@ -25,7 +25,7 @@ function DataHubunganAsuhContent() {
   >(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["listAllAccount", page, value, connectionStatus],
+    queryKey: ["listAllConnection", page, value, connectionStatus],
     queryFn: () =>
       api.connect.listAllConnection({
         page,
