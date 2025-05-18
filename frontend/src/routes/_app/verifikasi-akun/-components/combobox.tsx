@@ -210,8 +210,6 @@ function Combobox({
                           form.setValue("adminOnlyNotes", "-");
                         }
                         form.handleSubmit(onSubmit)();
-                        setOpenAccept(false);
-                        form.reset();
                       }}
                     >
                       Lanjutkan
@@ -293,15 +291,14 @@ function Combobox({
                   <div className="grid grid-cols-2 gap-4">
                     <Button
                       type="submit"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         form.setValue("status", "rejected");
                         if (type === "ota") {
                           form.setValue("notes", "-");
                           form.setValue("adminOnlyNotes", "-");
                         }
                         form.handleSubmit(onSubmit)();
-                        setOpenReject(false);
-                        form.reset();
                       }}
                     >
                       Lanjutkan

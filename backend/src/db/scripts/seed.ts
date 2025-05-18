@@ -15,7 +15,7 @@ export async function seed() {
   try {
     console.log("Starting database seeding...");
 
-    const hashedPassword = await hash("password123", 10);
+    const hashedPassword = await hash("Password123!", 10);
 
     // Generate UUIDs
     const adminId = uuidv4();
