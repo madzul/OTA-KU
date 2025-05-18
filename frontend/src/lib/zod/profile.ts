@@ -490,12 +490,5 @@ export const OrangTuaRegistrationSchema = z.object({
     .max(31, {
       message: "Tanggal transfer tidak valid",
     }),
-  criteria: z
-    .string({
-      invalid_type_error: "Kriteria harus berupa string",
-      required_error: "Kriteria harus diisi",
-    })
-    .min(3, {
-      message: "Kriteria terlalu pendek",
-    }),
+  criteria: z.string().optional(),
 });
