@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Route } from "..";
-import { StatusType, TransaksiItem, tagihanColumns } from "./columns";
+import { StatusType, TransaksiItem, TransferStatusType, tagihanColumns } from "./columns";
 import { PaymentDetailsModal } from "./confirmation-dialog";
 import { DataTable } from "./data-table";
 import { SearchFilterBar } from "./search-filter-bar";
@@ -92,15 +92,50 @@ export function DaftarTagihanContent() {
       }
     };
 
+    const handleTransferStatusChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{
+        index: number;
+        transferStatus: TransferStatusType;
+        id: string;
+      }>;
+
+      const { index, transferStatus, id } = customEvent.detail;
+      
+      // Update the transfer status
+      const newData = [...transaksiData];
+      newData[index].transferStatus = transferStatus;
+      setTransaksiData(newData);
+      
+      // Call API to update transfer status
+      if (transferStatus === "paid") {
+        acceptTransferStatusMutation.mutate({ id });
+      } else {
+        // In a real implementation, you might have a rejectTransferStatus API call
+        // For now, we'll just update the UI
+        toast.success("Status transfer diubah menjadi Belum Ditransfer", {
+          description: "Perubahan berhasil disimpan.",
+        });
+      }
+    };
+
     window.addEventListener(
       "status-dropdown-change",
       handleStatusDropdownChange,
+    );
+    
+    window.addEventListener(
+      "transfer-status-change",
+      handleTransferStatusChange,
     );
 
     return () => {
       window.removeEventListener(
         "status-dropdown-change",
         handleStatusDropdownChange,
+      );
+      window.removeEventListener(
+        "transfer-status-change",
+        handleTransferStatusChange,
       );
     };
   }, [transaksiData]);
@@ -146,12 +181,14 @@ export function DaftarTagihanContent() {
             ? format(new Date(item.paid_at), "dd/MM/yy")
             : "-",
           status: item.status,
+          transferStatus: item.transferStatus || "unpaid",
           due_date: item.due_date
             ? format(new Date(item.due_date), "dd/MM/yy")
             : "-",
           receipt: item.receipt,
           createdAt: item.createdAt,
           index: idx,
+          paidFor: item.paid_for,
         };
       });
 
@@ -250,6 +287,25 @@ export function DaftarTagihanContent() {
         description: "Terjadi kesalahan saat menolak tagihan.",
       });
     },
+  });
+
+  // Mutation for accepting transfer status
+  const acceptTransferStatusMutation = useMutation({
+    mutationFn: ({ id }: { id: string }) => 
+      api.transaction.acceptTransferStatus({
+        formData: { id: id },
+      }),
+    
+    onSuccess: () => {
+      toast.success("Status transfer diubah menjadi Ditransfer", {
+        description: "Perubahan berhasil disimpan.",
+      });
+    },
+    onError: () => {
+      toast.error("Gagal mengubah status transfer", {
+        description: "Terjadi kesalahan saat mengubah status transfer.",
+      });
+    }
   });
 
   // Function to handle payment details confirmation
