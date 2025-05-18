@@ -1,3 +1,5 @@
+// TODO: Perlu disepakatin, perlu ngirim email ke pasangan ga kalo lawan pasangannya nge request terminasi?
+
 export function requestTerminasiEmail(
   nama: string,
   nama_lawan_asuh: string,

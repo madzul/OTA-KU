@@ -20,7 +20,6 @@ export function verifikasiPembayaranOtaEmail(
           <tr id="iv0i5r" style="box-sizing: border-box;">
             <td id="idtom" align="center" style="box-sizing: border-box; border-collapse: collapse; direction: ltr; font-size: 0px; padding: 0px; text-align: center;">
               <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
-              
               <!--[if mso | IE]></td></tr></table><![endif]-->
             </td>
           </tr>
@@ -51,7 +50,7 @@ export function verifikasiPembayaranOtaEmail(
                                       <tbody id="inwhdi" style="box-sizing: border-box;">
                                         <tr id="iy7t16" style="box-sizing: border-box;">
                                           <td align="center" id="i2igb" style="box-sizing: border-box; border-collapse: collapse; font-size: 0px; padding: 10px 25px; word-break: break-word;">
-                                            <div id="is4tk" style="box-sizing: border-box; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 20px; font-weight: 700; line-height: 24px; text-align: center; color: #ffffff;">Notifikasi Pembayaran Sumbangan dari OTA
+                                            <div id="is4tk" style="box-sizing: border-box; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 20px; font-weight: 700; line-height: 24px; text-align: center; color: #ffffff;">Notifikasi Pembayaran Bantuan Orang Tua Asuh
                                             </div>
                                           </td>
                                         </tr>
@@ -87,11 +86,11 @@ export function verifikasiPembayaranOtaEmail(
                                                 </b>,
                                               </p>
                                               <p data-start="166" data-end="238" id="inp5x4" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Email ini dikirim sebagai pengingat rutin untuk memeriksa pembayaran beserta buktinya yang telah masuk dari Orang Tua Asuh dalam program Bantuan Orang Tua Asuh. Saat ini, terdapat 
-                                                <b style="box-sizing: border-box;">${numberOfPendingTransactionOtaToIOM}
+                                                <b id="ikfk7zc" style="box-sizing: border-box;">${numberOfPendingTransactionOtaToIOM}
                                                 </b> pembayaran dari OTA yang perlu diverifikasi dan terdapat 
-                                                <b style="box-sizing: border-box;">${numberOfUnpaidTransactionIOMToMa} 
+                                                <b id="iir7cjh" style="box-sizing: border-box;">${numberOfUnpaidTransactionIOMToMa} 
                                                 </b>
-                                                <span draggable="true" style="box-sizing: border-box;">Mahasiswa Asuh yang perlu dikirim uang bulanannya. </span>
+                                                <span draggable="true" id="ipccqej" style="box-sizing: border-box;">Mahasiswa Asuh yang perlu dikirim uang bulanannya. </span>
                                               </p>
                                             </div>
                                           </td>
