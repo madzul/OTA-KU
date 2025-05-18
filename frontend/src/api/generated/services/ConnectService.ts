@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ConnectionListAllResponse } from '../models/ConnectionListAllResponse';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class ConnectService {
@@ -269,27 +270,8 @@ export class ConnectService {
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        /**
-         * ID mahasiswa asuh
-         */
-        mahasiswa_id: string;
-        name_ma: string;
-        nim_ma: string;
-        /**
-         * ID orang tua asuh
-         */
-        ota_id: string;
-        name_ota: string;
-        number_ota: string;
-        /**
-         * Connection status of a given connection
-         */
-        connection_status: 'accepted' | 'pending' | 'rejected';
-        request_term_ota: boolean;
-        request_term_ma: boolean;
-        paidFor: number;
-      }>;
+      data: Array<ConnectionListAllResponse>;
+      totalPagination: number;
     };
   }> {
     return this.httpRequest.request({

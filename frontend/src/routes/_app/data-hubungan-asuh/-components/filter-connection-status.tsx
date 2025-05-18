@@ -14,57 +14,28 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const mahasiswaStatuses = [
+const statuses = [
   {
     value: "pending",
-    label: "Tertunda",
+    label: "Menunggu Konfirmasi",
   },
   {
     value: "accepted",
-    label: "Terverifikasi",
-  },
-  {
-    value: "rejected",
-    label: "Tertolak",
-  },
-  {
-    value: "reapply",
-    label: "Pengajuan Ulang",
-  },
-  {
-    value: "outdated",
-    label: "Kedaluarsa",
+    label: "Aktif",
   },
 ];
 
-const otaStatuses = [
-  {
-    value: "pending",
-    label: "Tertunda",
-  },
-  {
-    value: "accepted",
-    label: "Terverifikasi",
-  },
-  {
-    value: "rejected",
-    label: "Tertolak",
-  },
-];
-
-interface FilterStatusProps {
-  type: "mahasiswa" | "ota";
-  status: "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null;
-  setStatus: (
-    status: "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null,
-  ) => void;
+interface FilterConnectionStatusProps {
+  status: "accepted" | "pending" | "rejected" | null;
+  setStatus: (status: "accepted" | "pending" | "rejected" | null) => void;
 }
 
-function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
+function FilterConnectionStatus({
+  status,
+  setStatus,
+}: FilterConnectionStatusProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
-
-  const statuses = type === "mahasiswa" ? mahasiswaStatuses : otaStatuses;
 
   useEffect(() => {
     if (status) {
@@ -80,13 +51,13 @@ function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "hover:bg-accent focus-visible:ring-ring data-[state=open]:bg-accent data-[state=open]:text-accent-foreground hover:text-accent-foreground justify-between rounded-md border border-[#BBBAB8] bg-white text-[#BBBAB8] shadow-xs focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+            "hover:bg-accent focus-visible:ring-ring data-[state=open]:bg-accent data-[state=open]:text-accent-foreground hover:text-accent-foreground w-full justify-between rounded-md border border-[#BBBAB8] bg-white text-[#BBBAB8] shadow-xs focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 sm:max-w-[250px]",
             value ? "text-accent-foreground" : "text-[#BBBAB8]",
           )}
         >
           {value
             ? statuses.find((status) => status.value === value)?.label
-            : "Filter Status"}
+            : "Filter Status Hubungan Asuh"}
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -125,4 +96,4 @@ function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
   );
 }
 
-export default FilterStatus;
+export default FilterConnectionStatus;
