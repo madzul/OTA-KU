@@ -501,21 +501,36 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                   <FormField
                     control={form.control}
                     name="gpa"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-primary">
-                          {uploadFieldLabels.gpa}
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Masukkan IPK Anda"
-                            {...field}
-                            disabled={!isEditable}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      const { onChange, ...rest } = field;
+
+                      return (
+                        <FormItem>
+                          <FormLabel className="text-primary">
+                            {uploadFieldLabels.gpa}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Masukkan IPK Anda"
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                // Allow empty input, or a valid decimal with max 2 digits after decimal point
+                                if (
+                                  value === "" ||
+                                  /^\d{0,1}(\.\d{0,2})?$/.test(value)
+                                ) {
+                                  field.onChange(value);
+                                }
+                              }}
+                              {...rest}
+                              disabled={!isEditable}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   <FormField
