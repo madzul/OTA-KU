@@ -3,8 +3,8 @@ import { z } from "zod";
 import {
   EmailSchema,
   NIMSchema,
-  PDFSchema,
   PasswordSchema,
+  PDFSchema,
   PhoneNumberSchema,
   ProfilePDFSchema,
 } from "./atomic";
@@ -394,16 +394,12 @@ export const OrangTuaPageTwoSchema = z.object({
       message: "Tanggal transfer tidak valid",
     }),
   criteria: z.string().optional(),
-  checked: z
-    .boolean({
-      invalid_type_error: "Checked harus berupa boolean",
-      required_error: "Harus diisi",
+  isDetailVisible: z
+    .enum(["true", "false"], {
+      required_error: "Checkbox harus diisi",
+      invalid_type_error: "Checkbox tidak valid",
     })
-    .default(false)
-    .refine((value) => value, {
-      message: "Harus diisi",
-      path: ["checked"],
-    }),
+    .default("false").optional(),
   allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
 
@@ -497,14 +493,14 @@ export const OrangTuaRegistrationSchema = z.object({
     .max(31, {
       message: "Tanggal transfer tidak valid",
     }),
-  criteria: z
-    .string({
-      invalid_type_error: "Kriteria harus berupa string",
-      required_error: "Kriteria harus diisi",
+  criteria: z.string().optional(),
+  isDetailVisible: z
+    .enum(["true", "false"], {
+      required_error: "Checkbox harus diisi",
+      invalid_type_error: "Checkbox tidak valid",
     })
-    .min(3, {
-      message: "Kriteria terlalu pendek",
-    }),
+    .default("false").optional(),
+  allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
 
 export const CreateBankesPengurusSchema = z
