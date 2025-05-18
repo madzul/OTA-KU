@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const mahasiswaStatuses = [
+const statuses = [
   {
     value: "pending",
     label: "Tertunda",
@@ -35,36 +35,39 @@ const mahasiswaStatuses = [
     value: "outdated",
     label: "Kedaluarsa",
   },
-];
-
-const otaStatuses = [
   {
-    value: "pending",
-    label: "Tertunda",
-  },
-  {
-    value: "accepted",
-    label: "Terverifikasi",
-  },
-  {
-    value: "rejected",
-    label: "Tertolak",
+    value: "unregistered",
+    label: "Belum Terdaftar",
   },
 ];
 
-interface FilterStatusProps {
-  type: "mahasiswa" | "ota";
-  status: "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null;
+interface FilterApplicationStatusProps {
+  status:
+    | "accepted"
+    | "pending"
+    | "rejected"
+    | "reapply"
+    | "outdated"
+    | "unregistered"
+    | null;
   setStatus: (
-    status: "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null,
+    status:
+      | "accepted"
+      | "pending"
+      | "rejected"
+      | "reapply"
+      | "outdated"
+      | "unregistered"
+      | null,
   ) => void;
 }
 
-function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
+function FilterApplicationStatus({
+  status,
+  setStatus,
+}: FilterApplicationStatusProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
-
-  const statuses = type === "mahasiswa" ? mahasiswaStatuses : otaStatuses;
 
   useEffect(() => {
     if (status) {
@@ -86,7 +89,7 @@ function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
         >
           {value
             ? statuses.find((status) => status.value === value)?.label
-            : "Filter Status"}
+            : "Filter Status Pendaftaran"}
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -125,4 +128,4 @@ function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
   );
 }
 
-export default FilterStatus;
+export default FilterApplicationStatus;

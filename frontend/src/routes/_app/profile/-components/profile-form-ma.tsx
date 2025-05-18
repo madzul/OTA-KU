@@ -256,11 +256,21 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
   const onSubmit = (values: MahasiswaProfileFormValues) => {
     if (!isEditable) return;
 
+    // Tambahkan validasi untuk transkrip nilai
+    if (!values.transcript || !(values.transcript instanceof File)) {
+      toast.error("Validasi gagal", {
+        description:
+          "Transkrip nilai harus diupload ulang saat mengedit profil",
+      });
+      return;
+    }
+
     const dataToSubmit = { ...values };
 
     // Hapus field file yang tidak diubah (masih berupa string URL)
     uploadFields.forEach((field) => {
       if (
+        field !== "transcript" && // Kecualikan transkrip dari pengecualian
         typeof dataToSubmit[field] === "string" &&
         previouslyUploadedFiles[field]
       ) {
@@ -639,6 +649,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                           ? previouslyUploadedFiles[name]
                           : null;
 
+                        // Tambahkan pesan informasi khusus untuk transkrip
+                        const isTranscript = name === "transcript";
+
                         return (
                           <FormItem
                             className={cn(
@@ -648,6 +661,11 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                           >
                             <FormLabel className="text-primary text-sm">
                               {uploadFieldLabels[name] || name}
+                              {isTranscript && isEditable && (
+                                <span className="ml-1 text-xs text-red-500">
+                                  *wajib diupload ulang
+                                </span>
+                              )}
                             </FormLabel>
                             <FormControl>
                               <div

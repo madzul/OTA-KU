@@ -31,7 +31,7 @@ function DetailDialogOta({
   status,
 }: {
   id: string;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "reapply" | "outdated";
 }) {
   const [open, setOpen] = useState(false);
   const session = useContext(SessionContext);
@@ -104,7 +104,6 @@ function DetailDialogOta({
             Detail Info
           </DialogTitle>
           <DialogDescription className="flex text-start">
-            {/* TODO: handle case applicationStatus === "reapply" or "outdated" */}
             <p
               className={cn(
                 "rounded-full px-4 py-1 text-white",
@@ -114,7 +113,9 @@ function DetailDialogOta({
                     ? "bg-[#EAB308]"
                     : data?.body.applicationStatus === "rejected"
                       ? "bg-destructive"
-                      : "bg-gray-500",
+                      : data?.body.applicationStatus === "reapply"
+                        ? "bg-blue-500"
+                        : "bg-gray-500",
               )}
             >
               {data?.body.applicationStatus === "accepted"
@@ -123,7 +124,11 @@ function DetailDialogOta({
                   ? "Tertunda"
                   : data?.body.applicationStatus === "rejected"
                     ? "Tertolak"
-                    : "-"}
+                    : data?.body.applicationStatus === "reapply"
+                      ? "Pengajuan Ulang"
+                      : data?.body.applicationStatus === "outdated"
+                        ? "Kedaluarsa"
+                        : "-"}
             </p>
           </DialogDescription>
         </DialogHeader>
@@ -149,7 +154,7 @@ function DetailDialogOta({
           <div
             className={cn(
               "mt-4 flex gap-4 self-center",
-              status !== "pending" && "hidden",
+              status !== "pending" && status !== "reapply" && "hidden",
             )}
           >
             <div className="flex items-center gap-2">

@@ -275,23 +275,29 @@ export default function NavBar() {
                     alignOffset={-10}
                     sideOffset={5}
                   >
-                    <MenubarItem
-                      className="text-dark relative hover:cursor-pointer"
-                      asChild
-                    >
-                      <Link
-                        to="/profile"
-                        className="flex w-full items-center justify-between"
-                      >
-                        <span>Akun Saya</span>
-                        {/* Red dot indicator next to "Akun Saya" */}
-                        {profileData?.body.status && (
-                          <div className="ml-2 h-3 w-3 rounded-full bg-red-600"></div>
-                        )}
-                      </Link>
-                    </MenubarItem>
+                    {session.type !== "admin" &&
+                      session.type !== "bankes" &&
+                      session.type !== "pengurus" && (
+                        <>
+                          <MenubarItem
+                            className="text-dark relative hover:cursor-pointer"
+                            asChild
+                          >
+                            <Link
+                              to="/profile"
+                              className="flex w-full items-center justify-between"
+                            >
+                              <span>Akun Saya</span>
+                              {/* Red dot indicator next to "Akun Saya" */}
+                              {profileData?.body.status && (
+                                <div className="ml-2 h-3 w-3 rounded-full bg-red-600"></div>
+                              )}
+                            </Link>
+                          </MenubarItem>
 
-                    <MenubarSeparator />
+                          <MenubarSeparator />
+                        </>
+                      )}
                     <MenubarItem
                       className="text-destructive hover:cursor-pointer"
                       onClick={() => {

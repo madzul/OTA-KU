@@ -27,7 +27,7 @@ function MahasiswaAsuhContent() {
   const [value] = useDebounce(search, 500);
   const [jurusan, setJurusan] = useState<Jurusan | null>(null);
   const [status, setStatus] = useState<
-    "accepted" | "pending" | "rejected" | null
+    "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null
   >(null);
 
   const { data, isSuccess } = useQuery({
@@ -37,7 +37,12 @@ function MahasiswaAsuhContent() {
         page,
         q: value,
         jurusan: jurusan as string,
-        status: status as "accepted" | "pending" | "rejected",
+        status: status as
+          | "accepted"
+          | "pending"
+          | "rejected"
+          | "reapply"
+          | "outdated",
       }),
   });
 
@@ -93,7 +98,7 @@ function MahasiswaAsuhContent() {
             setSearch={setSearch}
           />
           <FilterJurusan jurusan={jurusan} setJurusan={setJurusan} />
-          <FilterStatus status={status} setStatus={setStatus} />
+          <FilterStatus type="mahasiswa" status={status} setStatus={setStatus} />
         </div>
       )}
 

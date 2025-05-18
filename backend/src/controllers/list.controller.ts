@@ -482,50 +482,57 @@ listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
   try {
     const offset = (pageNumber - 1) * LIST_PAGE_DETAIL_SIZE;
 
-    const searchCondition = q
-      ? or(
+    // Build filter conditions array with only non-undefined filters
+    const filterConditions = [];
+
+    // Add search condition if q is provided
+    if (q) {
+      filterConditions.push(
+        or(
           ilike(accountMahasiswaDetailTable.name, `%${q}%`),
           ilike(accountOtaDetailTable.name, `%${q}%`),
           ilike(accountAdminDetailTable.name, `%${q}%`),
           ilike(accountTable.email, `%${q}%`),
-        )
-      : undefined;
-
-    const filterConditions = [
-      status
-        ? eq(
-            accountTable.status,
-            status as "verified" | "unverified",
-          )
-        : undefined,
-      type
-        ? eq(
-            accountTable.type,
-            type as "mahasiswa" | "ota" | "admin" | "bankes" | "pengurus",
-          )
-        : undefined,
-      applicationStatus
-        ? eq(
-            accountTable.applicationStatus,
-            applicationStatus as "pending" | "accepted" | "rejected" | "unregistered" | "reapply" | "outdated",
-          )
-        : undefined,
-    ];
-
-    const countsQuery = db
-      .select({
-        total: sql<number>`sum(case when ${accountTable.applicationStatus} != 'unregistered' then 1 else 0 end)`,
-        accepted: sql<number>`sum(case when ${accountTable.applicationStatus} = 'accepted' then 1 else 0 end)`,
-        pending: sql<number>`sum(case when ${accountTable.applicationStatus} = 'pending' then 1 else 0 end)`,
-        rejected: sql<number>`sum(case when ${accountTable.applicationStatus} = 'rejected' then 1 else 0 end)`,
-      })
-      .from(accountTable)
-      .where(
-        and(
-          searchCondition,
-          ...filterConditions
         ),
       );
+    }
+
+    // Add status filter if provided
+    if (status) {
+      filterConditions.push(
+        eq(accountTable.status, status as "verified" | "unverified"),
+      );
+    }
+
+    // Add type filter if provided
+    if (type) {
+      filterConditions.push(
+        eq(
+          accountTable.type,
+          type as "mahasiswa" | "ota" | "admin" | "bankes" | "pengurus",
+        ),
+      );
+    }
+
+    // Add applicationStatus filter if provided
+    if (applicationStatus) {
+      filterConditions.push(
+        eq(
+          accountTable.applicationStatus,
+          applicationStatus as
+            | "pending"
+            | "accepted"
+            | "rejected"
+            | "unregistered"
+            | "reapply"
+            | "outdated",
+        ),
+      );
+    }
+
+    // Combine conditions with AND
+    const whereCondition =
+      filterConditions.length > 0 ? and(...filterConditions) : undefined;
 
     const countsPaginationQuery = db
       .select({ count: count() })
@@ -542,12 +549,7 @@ listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
         accountAdminDetailTable,
         eq(accountTable.id, accountAdminDetailTable.accountId),
       )
-      .where(
-        and(
-          searchCondition,
-          ...filterConditions
-        ),
-      );
+      .where(whereCondition);
 
     const accountListQuery = db
       .select({
@@ -574,12 +576,14 @@ listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
         gpa: accountMahasiswaDetailTable.gpa,
         kk: accountMahasiswaDetailTable.kk,
         ktm: accountMahasiswaDetailTable.ktm,
-        waliRecommendationLetter: accountMahasiswaDetailTable.waliRecommendationLetter,
+        waliRecommendationLetter:
+          accountMahasiswaDetailTable.waliRecommendationLetter,
         transcript: accountMahasiswaDetailTable.transcript,
         salaryReport: accountMahasiswaDetailTable.salaryReport,
         pbb: accountMahasiswaDetailTable.pbb,
         electricityBill: accountMahasiswaDetailTable.electricityBill,
-        ditmawaRecommendationLetter: accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        ditmawaRecommendationLetter:
+          accountMahasiswaDetailTable.ditmawaRecommendationLetter,
         bill: accountMahasiswaDetailTable.bill,
         notes: accountMahasiswaDetailTable.notes,
         adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
@@ -608,19 +612,13 @@ listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
         accountAdminDetailTable,
         eq(accountTable.id, accountAdminDetailTable.accountId),
       )
-      .where(
-        and(
-          searchCondition,
-          ...filterConditions
-        ),
-      )
+      .where(whereCondition)
       .orderBy(desc(accountTable.createdAt))
       .limit(LIST_PAGE_DETAIL_SIZE)
       .offset(offset);
 
-    const [accountList, counts, countsPagination] = await Promise.all([
+    const [accountList, countsPagination] = await Promise.all([
       accountListQuery,
-      countsQuery,
       countsPaginationQuery,
     ]);
 
@@ -632,25 +630,25 @@ listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
           data: accountList.map((account) => ({
             id: account.id,
             email: account.email,
-            phoneNumber: account.phoneNumber!,
+            phoneNumber: account.phoneNumber || "",
             provider: account.provider,
             status: account.status,
             applicationStatus: account.applicationStatus,
             type: account.type,
-            ma_name: account.ma_name!,
-            ota_name: account.ota_name!,
-            admin_name: account.admin_name!,
-            nim: account.nim!,
-            mahasiswaStatus: account.mahasiswaStatus!,
-            description: account.description!,
-            file: account.file!,
+            ma_name: account.ma_name || "",
+            ota_name: account.ota_name || "",
+            admin_name: account.admin_name || "",
+            nim: account.nim || "",
+            mahasiswaStatus: account.mahasiswaStatus || "inactive",
+            description: account.description || "",
+            file: account.file || "",
             major: account.major || "",
             faculty: account.faculty || "",
             cityOfOrigin: account.cityOfOrigin || "",
             highschoolAlumni: account.highschoolAlumni || "",
-            religion: account.religion!,
-            gender: account.gender!,
-            gpa: account.gpa!,
+            religion: account.religion || "Islam",
+            gender: account.gender || "M",
+            gpa: account.gpa || "",
             kk: account.kk || "",
             ktm: account.ktm || "",
             waliRecommendationLetter: account.waliRecommendationLetter || "",
@@ -658,27 +656,24 @@ listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
             salaryReport: account.salaryReport || "",
             pbb: account.pbb || "",
             electricityBill: account.electricityBill || "",
-            ditmawaRecommendationLetter: account.ditmawaRecommendationLetter || "",
+            ditmawaRecommendationLetter:
+              account.ditmawaRecommendationLetter || "",
             bill: account.bill || 0,
             notes: account.notes || "",
             adminOnlyNotes: account.adminOnlyNotes || "",
             job: account.job || "",
             address: account.address || "",
-            linkage: account.linkage!,
+            linkage: account.linkage || "otm",
             funds: account.funds || 0,
             maxCapacity: account.maxCapacity || 0,
             startDate: account.startDate || "",
             maxSemester: account.maxSemester || 0,
             transferDate: account.transferDate || 0,
             criteria: account.criteria || "",
-            isDetailVisible: account.isDetailVisible!,
-            allowAdminSelection: account.allowAdminSelection!,
+            isDetailVisible: account.isDetailVisible || false,
+            allowAdminSelection: account.allowAdminSelection || false,
           })),
           totalPagination: countsPagination[0].count,
-          totalData: Number(counts[0].total),
-          totalPending: Number(counts[0].pending),
-          totalAccepted: Number(counts[0].accepted),
-          totalRejected: Number(counts[0].rejected),
         },
       },
       200,
@@ -689,7 +684,7 @@ listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: error,
+        error: error instanceof Error ? error.message : String(error),
       },
       500,
     );
