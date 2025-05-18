@@ -28,6 +28,13 @@ export const MahasiwaConnectSchema = z.object({
     }),
 });
 
+export const checkConnectParamsSchema = z.object({
+  id: z.string().uuid().openapi({
+    description: "ID of the mahasiswa to retrieve.",
+    example: "3fc0317f-f143-43bf-aa65-13a7a8eca788",
+  }),
+});
+
 export const OrangTuaSuccessResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({
