@@ -497,6 +497,7 @@ export const OrangTuaRegistrationSchema = z.object({
       required_error: "Checkbox harus diisi",
       invalid_type_error: "Checkbox tidak valid",
     })
-    .default("false").optional(),
-  allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
+    .min(3, {
+      message: "Kriteria terlalu pendek",
+    }),
 });

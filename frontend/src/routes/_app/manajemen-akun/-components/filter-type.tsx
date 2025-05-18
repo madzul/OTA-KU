@@ -14,63 +14,47 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const mahasiswaStatuses = [
+const userTypes = [
   {
-    value: "pending",
-    label: "Tertunda",
+    value: "mahasiswa",
+    label: "Mahasiswa",
   },
   {
-    value: "accepted",
-    label: "Terverifikasi",
+    value: "ota",
+    label: "Orang Tua Asuh",
   },
   {
-    value: "rejected",
-    label: "Tertolak",
+    value: "admin",
+    label: "Admin",
   },
   {
-    value: "reapply",
-    label: "Pengajuan Ulang",
+    value: "bankes",
+    label: "Bantuan Kesejahteraan",
   },
   {
-    value: "outdated",
-    label: "Kedaluarsa",
-  },
-];
-
-const otaStatuses = [
-  {
-    value: "pending",
-    label: "Tertunda",
-  },
-  {
-    value: "accepted",
-    label: "Terverifikasi",
-  },
-  {
-    value: "rejected",
-    label: "Tertolak",
+    value: "pengurus",
+    label: "Pengurus",
   },
 ];
 
-interface FilterStatusProps {
-  type: "mahasiswa" | "ota";
-  status: "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null;
-  setStatus: (
-    status: "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null,
+interface FilterTypeProps {
+  type: "mahasiswa" | "ota" | "admin" | "bankes" | "pengurus" | null;
+  setType: (
+    type: "mahasiswa" | "ota" | "admin" | "bankes" | "pengurus" | null,
   ) => void;
 }
 
-function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
+function FilterType({ type, setType }: FilterTypeProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
-  const statuses = type === "mahasiswa" ? mahasiswaStatuses : otaStatuses;
-
   useEffect(() => {
-    if (status) {
-      setValue(status);
+    if (type) {
+      setValue(type);
+    } else {
+      setValue("");
     }
-  }, [status]);
+  }, [type]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -85,8 +69,8 @@ function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
           )}
         >
           {value
-            ? statuses.find((status) => status.value === value)?.label
-            : "Filter Status"}
+            ? userTypes.find((item) => item.value === value)?.label
+            : "Filter Tipe Akun"}
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -94,25 +78,30 @@ function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
         <Command>
           <CommandList>
             <CommandGroup>
-              {statuses.map((status) => (
+              {userTypes.map((item) => (
                 <CommandItem
-                  key={status.value}
-                  value={status.value}
+                  key={item.value}
+                  value={item.value}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
-                    setStatus(
+                    setType(
                       currentValue === value
                         ? null
-                        : (currentValue as "accepted" | "pending" | "rejected"),
+                        : (currentValue as
+                            | "mahasiswa"
+                            | "ota"
+                            | "admin"
+                            | "bankes"
+                            | "pengurus"),
                     );
                     setOpen(false);
                   }}
                 >
-                  {status.label}
+                  {item.label}
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === status.value ? "opacity-100" : "opacity-0",
+                      value === item.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>
@@ -125,4 +114,4 @@ function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
   );
 }
 
-export default FilterStatus;
+export default FilterType;

@@ -80,6 +80,7 @@ export default function PendaftaranMahasiswa({
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const [dragStates, setDragStates] = useState<Record<string, boolean>>({});
+  const [fileURLs, setFileURLs] = useState<Record<string, string>>({});
 
   const navigate = useNavigate();
   const mahasiswaRegistrationCallbackMutation = useMutation({
@@ -175,6 +176,13 @@ export default function PendaftaranMahasiswa({
         [field]: file.name,
       }));
       form.setValue(field, file);
+
+      // Create object URL for the uploaded file
+      const fileURL = URL.createObjectURL(file);
+      setFileURLs((prev) => ({
+        ...prev,
+        [field]: fileURL,
+      }));
     }
   };
 
@@ -362,7 +370,7 @@ export default function PendaftaranMahasiswa({
               )}
             />
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-x-16 gap-y-16 md:grid-cols-2">
               {uploadFields.map((name) => (
                 <FormField
                   key={name}
@@ -448,16 +456,30 @@ export default function PendaftaranMahasiswa({
                                   : fileNames[name] ||
                                     `Klik untuk upload atau drag & drop`}
                               </p>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                  fileInputRefs.current[name]?.click()
-                                }
-                              >
-                                Pilih {documentDisplayNames[name]}
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() =>
+                                    fileInputRefs.current[name]?.click()
+                                  }
+                                >
+                                  Pilih {documentDisplayNames[name]}
+                                </Button>
+                                {fileURLs[name] && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      window.open(fileURLs[name], "_blank")
+                                    }
+                                  >
+                                    Lihat File
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </FormControl>

@@ -20,6 +20,7 @@ import { Route as AppPersetujuanAsuhIndexImport } from './routes/_app/persetujua
 import { Route as AppPendaftaranIndexImport } from './routes/_app/pendaftaran/index'
 import { Route as AppPemasanganBotaIndexImport } from './routes/_app/pemasangan-bota/index'
 import { Route as AppOrangTuaAsuhSayaIndexImport } from './routes/_app/orang-tua-asuh-saya/index'
+import { Route as AppManajemenAkunIndexImport } from './routes/_app/manajemen-akun/index'
 import { Route as AppMahasiswaAsuhSayaIndexImport } from './routes/_app/mahasiswa-asuh-saya/index'
 import { Route as AppDaftarTerminasiIndexImport } from './routes/_app/daftar-terminasi/index'
 import { Route as AppDaftarTagihanIndexImport } from './routes/_app/daftar-tagihan/index'
@@ -85,6 +86,12 @@ const AppPemasanganBotaIndexRoute = AppPemasanganBotaIndexImport.update({
 const AppOrangTuaAsuhSayaIndexRoute = AppOrangTuaAsuhSayaIndexImport.update({
   id: '/orang-tua-asuh-saya/',
   path: '/orang-tua-asuh-saya/',
+  getParentRoute: () => AppRoute,
+} as any)
+
+const AppManajemenAkunIndexRoute = AppManajemenAkunIndexImport.update({
+  id: '/manajemen-akun/',
+  path: '/manajemen-akun/',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -212,6 +219,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMahasiswaAsuhSayaIndexImport
       parentRoute: typeof AppImport
     }
+    '/_app/manajemen-akun/': {
+      id: '/_app/manajemen-akun/'
+      path: '/manajemen-akun'
+      fullPath: '/manajemen-akun'
+      preLoaderRoute: typeof AppManajemenAkunIndexImport
+      parentRoute: typeof AppImport
+    }
     '/_app/orang-tua-asuh-saya/': {
       id: '/_app/orang-tua-asuh-saya/'
       path: '/orang-tua-asuh-saya'
@@ -328,6 +342,7 @@ interface AppRouteChildren {
   AppDaftarTagihanIndexRoute: typeof AppDaftarTagihanIndexRoute
   AppDaftarTerminasiIndexRoute: typeof AppDaftarTerminasiIndexRoute
   AppMahasiswaAsuhSayaIndexRoute: typeof AppMahasiswaAsuhSayaIndexRoute
+  AppManajemenAkunIndexRoute: typeof AppManajemenAkunIndexRoute
   AppOrangTuaAsuhSayaIndexRoute: typeof AppOrangTuaAsuhSayaIndexRoute
   AppPemasanganBotaIndexRoute: typeof AppPemasanganBotaIndexRoute
   AppPendaftaranIndexRoute: typeof AppPendaftaranIndexRoute
@@ -351,6 +366,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDaftarTagihanIndexRoute: AppDaftarTagihanIndexRoute,
   AppDaftarTerminasiIndexRoute: AppDaftarTerminasiIndexRoute,
   AppMahasiswaAsuhSayaIndexRoute: AppMahasiswaAsuhSayaIndexRoute,
+  AppManajemenAkunIndexRoute: AppManajemenAkunIndexRoute,
   AppOrangTuaAsuhSayaIndexRoute: AppOrangTuaAsuhSayaIndexRoute,
   AppPemasanganBotaIndexRoute: AppPemasanganBotaIndexRoute,
   AppPendaftaranIndexRoute: AppPendaftaranIndexRoute,
@@ -379,6 +395,7 @@ export interface FileRoutesByFullPath {
   '/daftar-tagihan': typeof AppDaftarTagihanIndexRoute
   '/daftar-terminasi': typeof AppDaftarTerminasiIndexRoute
   '/mahasiswa-asuh-saya': typeof AppMahasiswaAsuhSayaIndexRoute
+  '/manajemen-akun': typeof AppManajemenAkunIndexRoute
   '/orang-tua-asuh-saya': typeof AppOrangTuaAsuhSayaIndexRoute
   '/pemasangan-bota': typeof AppPemasanganBotaIndexRoute
   '/pendaftaran': typeof AppPendaftaranIndexRoute
@@ -402,6 +419,7 @@ export interface FileRoutesByTo {
   '/daftar-tagihan': typeof AppDaftarTagihanIndexRoute
   '/daftar-terminasi': typeof AppDaftarTerminasiIndexRoute
   '/mahasiswa-asuh-saya': typeof AppMahasiswaAsuhSayaIndexRoute
+  '/manajemen-akun': typeof AppManajemenAkunIndexRoute
   '/orang-tua-asuh-saya': typeof AppOrangTuaAsuhSayaIndexRoute
   '/pemasangan-bota': typeof AppPemasanganBotaIndexRoute
   '/pendaftaran': typeof AppPendaftaranIndexRoute
@@ -427,6 +445,7 @@ export interface FileRoutesById {
   '/_app/daftar-tagihan/': typeof AppDaftarTagihanIndexRoute
   '/_app/daftar-terminasi/': typeof AppDaftarTerminasiIndexRoute
   '/_app/mahasiswa-asuh-saya/': typeof AppMahasiswaAsuhSayaIndexRoute
+  '/_app/manajemen-akun/': typeof AppManajemenAkunIndexRoute
   '/_app/orang-tua-asuh-saya/': typeof AppOrangTuaAsuhSayaIndexRoute
   '/_app/pemasangan-bota/': typeof AppPemasanganBotaIndexRoute
   '/_app/pendaftaran/': typeof AppPendaftaranIndexRoute
@@ -453,6 +472,7 @@ export interface FileRouteTypes {
     | '/daftar-tagihan'
     | '/daftar-terminasi'
     | '/mahasiswa-asuh-saya'
+    | '/manajemen-akun'
     | '/orang-tua-asuh-saya'
     | '/pemasangan-bota'
     | '/pendaftaran'
@@ -475,6 +495,7 @@ export interface FileRouteTypes {
     | '/daftar-tagihan'
     | '/daftar-terminasi'
     | '/mahasiswa-asuh-saya'
+    | '/manajemen-akun'
     | '/orang-tua-asuh-saya'
     | '/pemasangan-bota'
     | '/pendaftaran'
@@ -498,6 +519,7 @@ export interface FileRouteTypes {
     | '/_app/daftar-tagihan/'
     | '/_app/daftar-terminasi/'
     | '/_app/mahasiswa-asuh-saya/'
+    | '/_app/manajemen-akun/'
     | '/_app/orang-tua-asuh-saya/'
     | '/_app/pemasangan-bota/'
     | '/_app/pendaftaran/'
@@ -545,6 +567,7 @@ export const routeTree = rootRoute
         "/_app/daftar-tagihan/",
         "/_app/daftar-terminasi/",
         "/_app/mahasiswa-asuh-saya/",
+        "/_app/manajemen-akun/",
         "/_app/orang-tua-asuh-saya/",
         "/_app/pemasangan-bota/",
         "/_app/pendaftaran/",
@@ -580,6 +603,10 @@ export const routeTree = rootRoute
     },
     "/_app/mahasiswa-asuh-saya/": {
       "filePath": "_app/mahasiswa-asuh-saya/index.tsx",
+      "parent": "/_app"
+    },
+    "/_app/manajemen-akun/": {
+      "filePath": "_app/manajemen-akun/index.tsx",
       "parent": "/_app"
     },
     "/_app/orang-tua-asuh-saya/": {

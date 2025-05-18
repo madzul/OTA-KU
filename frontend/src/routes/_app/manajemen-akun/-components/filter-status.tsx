@@ -14,61 +14,31 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const mahasiswaStatuses = [
+const statuses = [
   {
-    value: "pending",
-    label: "Tertunda",
+    value: "verified",
+    label: "Verified",
   },
   {
-    value: "accepted",
-    label: "Terverifikasi",
-  },
-  {
-    value: "rejected",
-    label: "Tertolak",
-  },
-  {
-    value: "reapply",
-    label: "Pengajuan Ulang",
-  },
-  {
-    value: "outdated",
-    label: "Kedaluarsa",
-  },
-];
-
-const otaStatuses = [
-  {
-    value: "pending",
-    label: "Tertunda",
-  },
-  {
-    value: "accepted",
-    label: "Terverifikasi",
-  },
-  {
-    value: "rejected",
-    label: "Tertolak",
+    value: "unverified",
+    label: "Unverified",
   },
 ];
 
 interface FilterStatusProps {
-  type: "mahasiswa" | "ota";
-  status: "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null;
-  setStatus: (
-    status: "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null,
-  ) => void;
+  status: "verified" | "unverified" | null;
+  setStatus: (status: "verified" | "unverified" | null) => void;
 }
 
-function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
+function FilterStatus({ status, setStatus }: FilterStatusProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
-
-  const statuses = type === "mahasiswa" ? mahasiswaStatuses : otaStatuses;
 
   useEffect(() => {
     if (status) {
       setValue(status);
+    } else {
+      setValue("");
     }
   }, [status]);
 
@@ -85,8 +55,8 @@ function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
           )}
         >
           {value
-            ? statuses.find((status) => status.value === value)?.label
-            : "Filter Status"}
+            ? statuses.find((item) => item.value === value)?.label
+            : "Filter Status Akun"}
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -94,25 +64,25 @@ function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
         <Command>
           <CommandList>
             <CommandGroup>
-              {statuses.map((status) => (
+              {statuses.map((item) => (
                 <CommandItem
-                  key={status.value}
-                  value={status.value}
+                  key={item.value}
+                  value={item.value}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
                     setStatus(
                       currentValue === value
                         ? null
-                        : (currentValue as "accepted" | "pending" | "rejected"),
+                        : (currentValue as "verified" | "unverified"),
                     );
                     setOpen(false);
                   }}
                 >
-                  {status.label}
+                  {item.label}
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === status.value ? "opacity-100" : "opacity-0",
+                      value === item.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>
