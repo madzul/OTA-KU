@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "@/api/client";
-import { ListTerminateForAdmin } from "@/api/generated";
+import type { ListTerminateForAdmin } from "@/api/generated";
 import { ClientPagination } from "@/components/client-pagination";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,20 +9,30 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import CatatanMahasiswaModal from "./catatan-modal-mahasiswa";
+import CatatanOrangTuaModal from "./catatan-modal-orangtua";
 import TerminasiModal from "./terminasi-modal";
 import TerminasiTable from "./terminasi-table";
 
 export default function TerminasiPage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [modalOption, setModalOption] = useState<"accept" | "reject">("accept");
+
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] =
     useState<ListTerminateForAdmin | null>(null);
+
+  // Modal Statess
+  const [isOtaNotesModalOpen, setIsOtaNotesModalOpen] = useState(false);
+  const [isMaNotesModalOpen, setIsMaNotesModalOpen] = useState(false);
+  const [currentNote, setCurrentNote] = useState("");
+
   const queryClient = useQueryClient();
   const perPage = 8;
 
-  // Debounce search input
+  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
@@ -48,15 +58,37 @@ export default function TerminasiPage() {
 
   const terminasiData = data?.body?.data || [];
 
+  // Terminasi Handler
   const handleTerminasi = (item: ListTerminateForAdmin) => {
+    setModalOption("accept");
     setSelectedItem(item);
     setIsModalOpen(true);
+  };
+
+  const handleBatalTerminasi = (item: ListTerminateForAdmin) => {
+    setModalOption("reject");
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  // Modal Handler
+  const handleViewOtaNotes = (item: ListTerminateForAdmin) => {
+    setSelectedItem(item);
+    // TODO: Ganti jadi notes untuk orangtua
+    setCurrentNote(item.requestTerminationNote);
+    setIsOtaNotesModalOpen(true);
+  };
+
+  const handleViewMaNotes = (item: ListTerminateForAdmin) => {
+    setSelectedItem(item);
+    // TODO: Ganti jadi notes untuk mahasiswa
+    setCurrentNote(item.requestTerminationNote);
+    setIsMaNotesModalOpen(true);
   };
 
   const confirmTerminasi = async () => {
     if (!selectedItem) return;
 
-    // Invalidate and refetch queries to update the UI after termination
     await queryClient.invalidateQueries({ queryKey: ["ListTerminasi"] });
     await refetch();
 
@@ -64,9 +96,18 @@ export default function TerminasiPage() {
     setSelectedItem(null);
   };
 
+  // Close Handler
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedItem(null);
+  };
+
+  const closeOtaNotesModal = () => {
+    setIsOtaNotesModalOpen(false);
+  };
+
+  const closeMaNotesModal = () => {
+    setIsMaNotesModalOpen(false);
   };
 
   if (isLoading && !data) {
@@ -99,7 +140,13 @@ export default function TerminasiPage() {
       </div>
 
       <div className="rounded-lg border bg-white shadow-sm">
-        <TerminasiTable data={terminasiData} onTerminasi={handleTerminasi} />
+        <TerminasiTable
+          data={terminasiData}
+          onTerminasi={handleTerminasi}
+          onBatalTerminasi={handleBatalTerminasi}
+          onViewOtaNotes={handleViewOtaNotes}
+          onViewMaNotes={handleViewMaNotes}
+        />
       </div>
 
       {/* Pagination */}
@@ -114,12 +161,34 @@ export default function TerminasiPage() {
         />
       )}
 
+      {/* Terminasi Modal */}
       {isModalOpen && selectedItem && (
         <TerminasiModal
+          mode={modalOption}
           isOpen={isModalOpen}
           onClose={closeModal}
           onConfirm={confirmTerminasi}
           item={selectedItem}
+        />
+      )}
+
+      {/* OTA Notes Modal */}
+      {isOtaNotesModalOpen && selectedItem && (
+        <CatatanOrangTuaModal
+          isOpen={isOtaNotesModalOpen}
+          onClose={closeOtaNotesModal}
+          item={selectedItem}
+          note={currentNote}
+        />
+      )}
+
+      {/* Mahasiswa Notes Modal */}
+      {isMaNotesModalOpen && selectedItem && (
+        <CatatanMahasiswaModal
+          isOpen={isMaNotesModalOpen}
+          onClose={closeMaNotesModal}
+          item={selectedItem}
+          note={currentNote}
         />
       )}
     </div>

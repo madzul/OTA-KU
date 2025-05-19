@@ -188,6 +188,9 @@ function DetailDialogMahasiswa({
                         status !== "pending" && status !== "reapply" ? "-" : ""
                       }
                       render={({ field }) => {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const { onChange, ...rest } = field;
+
                         return (
                           <FormItem className="mr-4">
                             <FormControl>
@@ -197,7 +200,16 @@ function DetailDialogMahasiswa({
                                     status !== "pending" && status !== "reapply"
                                   }
                                   placeholder="Masukkan dana kebutuhan"
-                                  {...field}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    if (
+                                      value === "" ||
+                                      /^([1-9]\d*|0)?$/.test(value)
+                                    ) {
+                                      field.onChange(value);
+                                    }
+                                  }}
+                                  {...rest}
                                 />
                               ) : (
                                 <Textarea

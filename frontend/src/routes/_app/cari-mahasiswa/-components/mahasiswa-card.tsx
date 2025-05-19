@@ -101,7 +101,6 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
       <p className="text-sm text-gray-600">IPK {mahasiswa.gpa}</p>
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        {/* TODO: page detail belom nampilin schema db detail mahasiswa yang terbaru */}
         <Button variant="outline" asChild>
           <Link
             to="/detail/mahasiswa/$detailId"

@@ -14,6 +14,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 
 interface TerminasiModalProps {
+  mode: "accept" | "reject";
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
@@ -21,6 +22,7 @@ interface TerminasiModalProps {
 }
 
 export default function TerminasiModal({
+  mode,
   isOpen,
   onClose,
   onConfirm,
@@ -48,16 +50,44 @@ export default function TerminasiModal({
     },
   });
 
+  const cancleTerminateConnection = useMutation({
+    mutationFn: (data: {
+      maId: string;
+      otaId: string;
+      requestTerminationNote: string;
+    }) => {
+      return api.terminate.rejectTerminate({
+        formData: {
+          mahasiswaId: data.maId,
+          otaId: data.otaId,
+          requestTerminationNote: data.requestTerminationNote,
+        },
+      });
+    },
+    onSuccess: () => {
+      // Call onConfirm to refresh the data after successful termination
+      onConfirm();
+      onClose();
+    },
+  });
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-destructive text-xl font-semibold">
-            Konfirmasi Terminasi
-          </DialogTitle>
+          {mode === "accept" ? (
+            <DialogTitle className="text-destructive text-xl font-semibold">
+              Konfirmasi Terminasi
+            </DialogTitle>
+          ) : (
+            <DialogTitle className="text-dark text-xl font-semibold">
+              Konfirmasi Tolak Terminasi
+            </DialogTitle>
+          )}
           <DialogDescription className="text-gray-600">
-            Apakah Anda yakin ingin melakukan terminasi hubungan antara OTA dan
-            Mahasiswa berikut?
+            {mode === "accept"
+              ? "Apakah Anda yakin ingin melakukan terminasi hubungan antara OTA dan Mahasiswa berikut?"
+              : "Apakah Anda yakin ingin menolak permintaan terminasi hubungan antara OTA dan Mahasiswa berikut?"}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -83,20 +113,38 @@ export default function TerminasiModal({
           >
             Batal
           </Button>
-          <Button
-            variant="destructive"
-            onClick={() => {
-              terminateConnection.mutate({
-                maId: item.mahasiswaId,
-                otaId: item.otaId,
-                requestTerminationNote: item.requestTerminationNote,
-              });
-            }}
-            className="border border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
-            disabled={terminateConnection.isPending}
-          >
-            {terminateConnection.isPending ? "Memproses..." : "Terminasi"}
-          </Button>
+          {mode === "accept" ? (
+            <Button
+              variant="destructive"
+              onClick={() => {
+                cancleTerminateConnection.mutate({
+                  maId: item.mahasiswaId,
+                  otaId: item.otaId,
+                  requestTerminationNote: item.requestTerminationNote,
+                });
+              }}
+              className="border border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+              disabled={terminateConnection.isPending}
+            >
+              {terminateConnection.isPending ? "Memproses..." : "Terminasi"}
+            </Button>
+          ) : (
+            <Button
+              variant="default"
+              onClick={() => {
+                cancleTerminateConnection.mutate({
+                  maId: item.mahasiswaId,
+                  otaId: item.otaId,
+                  requestTerminationNote: item.requestTerminationNote,
+                });
+              }}
+              disabled={terminateConnection.isPending}
+            >
+              {terminateConnection.isPending
+                ? "Memproses..."
+                : "Tolak Terminasi"}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
