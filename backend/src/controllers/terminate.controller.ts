@@ -114,7 +114,7 @@ terminateProtectedRouter.openapi(listTerminateForAdminRoute, async (c) => {
             eq(connectionTable.requestTerminateMahasiswa, true),
             eq(connectionTable.requestTerminateOta, true),
           ),
-          eq(connectionTable.connectionStatus, "pending"),
+            // eq(connectionTable.connectionStatus, "pending"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
             ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
@@ -129,6 +129,8 @@ terminateProtectedRouter.openapi(listTerminateForAdminRoute, async (c) => {
       terminateListQuery,
       countsQuery,
     ]);
+
+    console.log(terminateList);
 
     return c.json(
       {
@@ -223,7 +225,7 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
         requestTerminationNoteMA: connectionTable.requestTerminationNoteMA,
         requestTerminateMa: connectionTable.requestTerminateMahasiswa,
         requestTerminateOta: connectionTable.requestTerminateOta,
-        createdAt: connectionTable.createdAt
+        createdAt: connectionTable.createdAt,
       })
       .from(connectionTable)
       .innerJoin(
@@ -589,7 +591,7 @@ terminateProtectedRouter.openapi(rejectTerminateRoute, async (c) => {
           requestTerminateOta: false,
           connectionStatus: "accepted",
           requestTerminationNoteMA: null,
-          requestTerminationNoteOTA: null
+          requestTerminationNoteOTA: null,
         })
         .where(
           and(
