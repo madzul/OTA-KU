@@ -288,7 +288,7 @@ export function MahasiswaSelection({
               <Skeleton className="h-10 w-full" />
             </div>
           ) : (
-            <ClientPagination totalPerPage={6} total={data.body.totalData} />
+            <ClientPagination totalPerPage={8} total={data.body.totalData} />
           )}
         </>
       ) : (
