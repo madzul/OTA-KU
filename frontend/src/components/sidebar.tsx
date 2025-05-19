@@ -44,7 +44,7 @@ const adminRoutes = [
   {
     id: "connection",
     label: "Data Hubungan Asuh",
-    icon: "/icon/Type=facebook.svg",
+    icon: "/icon/Type=connection.svg",
     path: "/data-hubungan-asuh",
   },
   {
