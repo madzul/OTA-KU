@@ -270,41 +270,69 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                   <FormField
                     control={form.control}
                     name="funds"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-primary">
-                          Bersedia memberikan dana setiap bulan sebesar (dalam
-                          Rp)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={!isEditingEnabled}
-                            placeholder="Minimal Rp 300.000"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      const { onChange, ...rest } = field;
+
+                      return (
+                        <FormItem>
+                          <FormLabel className="text-primary">
+                            Bersedia memberikan dana setiap bulan sebesar (dalam
+                            Rp)
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              disabled={!isEditingEnabled}
+                              placeholder="Minimal Rp 300.000"
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (
+                                  value === "" ||
+                                  /^([1-9]\d*|0)?$/.test(value)
+                                ) {
+                                  field.onChange(value);
+                                }
+                              }}
+                              {...rest}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
                     name="maxCapacity"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-primary">
-                          Jumlah Anak Asuh Maksimal
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={!isEditingEnabled}
-                            placeholder="Jumlah anak asuh"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      const { onChange, ...rest } = field;
+
+                      return (
+                        <FormItem>
+                          <FormLabel className="text-primary">
+                            Jumlah Anak Asuh Maksimal
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              disabled={!isEditingEnabled}
+                              placeholder="Jumlah anak asuh"
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (
+                                  value === "" ||
+                                  /^([1-9]\d*|0)?$/.test(value)
+                                ) {
+                                  field.onChange(value);
+                                }
+                              }}
+                              {...rest}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}

@@ -5,11 +5,9 @@ export function terminationEmail(
   linkToDaftarTerminasi: string,
 ) {
   return `<body style="box-sizing: border-box; margin: 0;">
-  <table class="table" style="box-sizing: border-box;">
-    <tbody style="box-sizing: border-box;">
-      <tr style="box-sizing: border-box;">
-        <td class="cell" style="box-sizing: border-box;">Hello world!
-        </td>
+  <table class="table" id="ipqvg" style="box-sizing: border-box;">
+    <tbody id="iffa6" style="box-sizing: border-box;">
+      <tr id="i5dtp" style="box-sizing: border-box;">
       </tr>
     </tbody>
   </table>
@@ -27,7 +25,6 @@ export function terminationEmail(
           <tr id="iv0i5r" style="box-sizing: border-box;">
             <td id="idtom" align="center" style="box-sizing: border-box; border-collapse: collapse; direction: ltr; font-size: 0px; padding: 0px; text-align: center;">
               <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
-              
               <!--[if mso | IE]></td></tr></table><![endif]-->
             </td>
           </tr>
@@ -94,12 +91,12 @@ export function terminationEmail(
                                                 </b>,
                                               </p>
                                               <p data-start="166" data-end="238" id="inp5x4" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Email ini dikirim sebagai pengingat rutin untuk memeriksa permintaan pemberhentian masa asuh dari Orang Tua Asuh maupun Mahasiswa Asuh dalam program Bantuan Orang Tua Asuh. Saat ini terdapat 
-                                                <b style="box-sizing: border-box;">${numberOfRequestTerminateOta}
+                                                <b id="ivyul" style="box-sizing: border-box;">${numberOfRequestTerminateOta}
                                                 </b> permintaan dari Orang Tua Asuh dan terdapat 
-                                                <b style="box-sizing: border-box;">${numberOfRequestTerminateMa}
+                                                <b id="ivsyc" style="box-sizing: border-box;">${numberOfRequestTerminateMa}
                                                 </b> permintaan dari Mahasiswa Asuh.
                                               </p>
-                                              <p data-start="452" data-end="485" id="iut4gc-2" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Mohon segera lakukan persetujuan/penolkan untuk permintaan tersebut melalui tautan tombol berikut:
+                                              <p data-start="452" data-end="485" id="iut4gc-2" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">Mohon segera lakukan persetujuan/penolakan untuk permintaan tersebut melalui tautan tombol berikut:
                                               </p>
                                             </div>
                                           </td>

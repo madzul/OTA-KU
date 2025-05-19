@@ -141,12 +141,12 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 };
 
 const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
-  // TODO: handle case applicationStatus === "reapply" or "outdated"
   if (
     (role === "ota" || role === "mahasiswa") &&
     (applicationStatus === "unregistered" ||
       applicationStatus === "pending" ||
-      applicationStatus === "rejected")
+      applicationStatus === "rejected" ||
+      applicationStatus === "outdated")
   ) {
     return [
       {
