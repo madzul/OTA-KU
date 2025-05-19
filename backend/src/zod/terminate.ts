@@ -158,6 +158,8 @@ export const listTerminateForOTAResponse = z.object({
         requestTerminationNoteMA: z.string().openapi({
           example: "Request terminasi hubungan dari MA",
         }),
+        requestTerminateMa: z.boolean().openapi({ example: true }),
+        requestTerminateOta: z.boolean().openapi({ example: false }),
         createdAt: z
           .string()
           .openapi({ example: "2025-05-12 05:38:29.984502" }),

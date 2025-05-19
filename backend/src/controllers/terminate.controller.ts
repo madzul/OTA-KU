@@ -206,10 +206,6 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
       )
       .where(
         and(
-          and(
-            eq(connectionTable.requestTerminateMahasiswa, false),
-            eq(connectionTable.requestTerminateOta, false),
-          ),
           eq(connectionTable.connectionStatus, "accepted"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
@@ -225,7 +221,9 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
         maNIM: accountMahasiswaDetailTable.nim,
         requestTerminationNoteOTA: connectionTable.requestTerminationNoteOTA,
         requestTerminationNoteMA: connectionTable.requestTerminationNoteMA,
-        createdAt: connectionTable.createdAt,
+        requestTerminateMa: connectionTable.requestTerminateMahasiswa,
+        requestTerminateOta: connectionTable.requestTerminateOta,
+        createdAt: connectionTable.createdAt
       })
       .from(connectionTable)
       .innerJoin(
@@ -234,10 +232,6 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
       )
       .where(
         and(
-          and(
-            eq(connectionTable.requestTerminateMahasiswa, false),
-            eq(connectionTable.requestTerminateOta, false),
-          ),
           eq(connectionTable.connectionStatus, "accepted"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
@@ -264,6 +258,8 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
             maNIM: terminate.maNIM,
             requestTerminationNoteOTA: terminate.requestTerminationNoteOTA!,
             requestTerminationNoteMA: terminate.requestTerminationNoteMA!,
+            requestTerminateMa: terminate.requestTerminateMa,
+            requestTerminateOta: terminate.requestTerminateOta,
             createdAt: terminate.createdAt,
           })),
           totalData: counts[0].count,
