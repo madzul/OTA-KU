@@ -603,6 +603,86 @@ terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
         );
     });
 
+    const maData = await db
+      .select({
+        id: accountMahasiswaDetailTable.accountId,
+        name: accountMahasiswaDetailTable.name,
+        email: accountTable.email,
+      })
+      .from(accountMahasiswaDetailTable)
+      .innerJoin(accountTable, eq(accountMahasiswaDetailTable.accountId, accountTable.id))
+      .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
+      .limit(1);
+    
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
+
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : maData[0].email,
+        subject: "Permintaan Pemutusan Bantuan Asuh",
+        html: requestTerminasiEmail(user.name ?? "", maData[0].name ?? "", "ota", "https://wa.me/6285624654990"),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
+
+    const subscription = await db
+      .select()
+      .from(pushSubscriptionTable)
+      .where(eq(pushSubscriptionTable.accountId, user.id))
+      .limit(1);
+
+    if (subscription.length > 0) {
+      const { endpoint, keys } = subscription[0];
+      const { p256dh, auth } = keys as { p256dh: string; auth: string };
+
+      const validatedData = SubscriptionSchema.parse({
+        endpoint,
+        p256dh,
+        auth,
+      });
+
+      const pushSubscription = {
+        endpoint: validatedData.endpoint,
+        keys: {
+          p256dh: validatedData.p256dh,
+          auth: validatedData.auth,
+        },
+      };
+
+      const notificationData = {
+        title: "Permintaan Pemutusan Bantuan Asuh",
+        body: `Permintaan pemutusan bantuan asuh telah diajukan`,
+        icon: "/icon/logo-iom-white.png",
+        actions: [
+          {
+            action: "open_url",
+            title: "Buka Aplikasi",
+            icon: "/icon/logo-iom-white.png",
+          },
+        ],
+      };
+
+      await sendNotification(pushSubscription, notificationData);
+    }
+
     return c.json(
       {
         success: true,
