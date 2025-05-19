@@ -9,7 +9,10 @@ export type ListTerminateForOTA = {
   mahasiswaId: string;
   maName: string;
   maNIM: string;
-  requestTerminationNote: string;
+  requestTerminationNoteOTA: string;
+  requestTerminationNoteMA: string;
+  requestTerminateMa: boolean;
+  requestTerminateOta: boolean;
   createdAt: string;
 };
 

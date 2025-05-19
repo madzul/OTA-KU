@@ -47,7 +47,7 @@ export class ConnectService {
       errors: {
         400: `Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA`,
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun belum terverifikasi.`,
+        403: `Akun unauthorized`,
         500: `Internal server error`,
       },
     });
@@ -92,7 +92,7 @@ export class ConnectService {
       errors: {
         400: `Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via Admin`,
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun belum terverifikasi.`,
+        403: `Akun unauthorized`,
         500: `Internal server error`,
       },
     });
@@ -126,6 +126,7 @@ export class ConnectService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Akun unauthorized`,
         500: `Internal server error`,
       },
     });
@@ -159,6 +160,7 @@ export class ConnectService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Akun unauthorized`,
         500: `Internal server error`,
       },
     });
@@ -203,6 +205,7 @@ export class ConnectService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Akun unauthorized`,
         500: `Internal server error`,
       },
     });
@@ -249,6 +252,7 @@ export class ConnectService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Akun unauthorized`,
         500: `Internal server error`,
       },
     });
@@ -284,6 +288,7 @@ export class ConnectService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Akun unauthorized`,
         500: `Internal server error`,
       },
     });
@@ -294,25 +299,23 @@ export class ConnectService {
    * @throws ApiError
    */
   public isConnected({
-    otaId,
-    mahasiswaId,
+    id,
   }: {
-    otaId: string,
-    mahasiswaId: string,
+    id: string,
   }): CancelablePromise<{
     isConnected: boolean;
     message: string;
   }> {
     return this.httpRequest.request({
       method: 'GET',
-      url: '/api/connect/is-connected',
-      query: {
-        'otaId': otaId,
-        'mahasiswaId': mahasiswaId,
+      url: '/api/connect/is-connected/{id}',
+      path: {
+        'id': id,
       },
       errors: {
         400: `Gagal menemukan hubungan asuh antara MA dan OTA`,
         401: `Bad request: authorization (not logged in) error`,
+        403: `Akun unauthorized`,
         500: `Internal server error`,
       },
     });
@@ -341,6 +344,7 @@ export class ConnectService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Akun unauthorized`,
         500: `Internal server error`,
       },
     });
