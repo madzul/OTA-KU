@@ -144,21 +144,35 @@ function Combobox({
                   <FormField
                     control={form.control}
                     name="bill"
-                    render={({ field }) => (
-                      <FormItem className={cn(type === "ota" && "hidden")}>
-                        <FormLabel>Kebutuhan Dana</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={
-                              status !== "pending" && status !== "reapply"
-                            }
-                            placeholder="Masukkan dana kebutuhan"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    render={({ field }) => {
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      const { onChange, ...rest } = field;
+
+                      return (
+                        <FormItem className={cn(type === "ota" && "hidden")}>
+                          <FormLabel>Kebutuhan Dana</FormLabel>
+                          <FormControl>
+                            <Input
+                              disabled={
+                                status !== "pending" && status !== "reapply"
+                              }
+                              placeholder="Masukkan dana kebutuhan"
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (
+                                  value === "" ||
+                                  /^([1-9]\d*|0)?$/.test(value)
+                                ) {
+                                  field.onChange(value);
+                                }
+                              }}
+                              {...rest}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
 
                   <FormField

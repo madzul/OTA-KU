@@ -1,13 +1,24 @@
 import { eq } from "drizzle-orm";
+import nodemailer from "nodemailer";
 
+import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
-import { accountMahasiswaDetailTable, accountTable } from "../db/schema.js";
+import {
+  accountMahasiswaDetailTable,
+  accountOtaDetailTable,
+  accountTable,
+  pushSubscriptionTable,
+} from "../db/schema.js";
+import { registrasiAcceptedEmail } from "../lib/email/registrasi-accepted.js";
+import { registrasiRejectedEmail } from "../lib/email/registrasi-rejected.js";
+import { sendNotification } from "../lib/web-push.js";
 import {
   applicationStatusRoute,
   getApplicationStatusRoute,
   getReapplicationStatusRoute,
   getVerificationStatusRoute,
 } from "../routes/status.route.js";
+import { SubscriptionSchema } from "../zod/push.js";
 import { ApplicationStatusSchema } from "../zod/status.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
 
@@ -23,7 +34,7 @@ statusProtectedRouter.openapi(applicationStatusRoute, async (c) => {
   const { status, adminOnlyNotes, notes, bill } = zodParseResult;
 
   try {
-    await db.transaction(async (tx) => {
+    const [[user], [detail]] = await db.transaction(async (tx) => {
       await tx
         .update(accountTable)
         .set({
@@ -38,6 +49,8 @@ statusProtectedRouter.openapi(applicationStatusRoute, async (c) => {
 
       const type = user[0]?.type;
 
+      let detail = null;
+
       if (type === "mahasiswa") {
         await tx
           .update(accountMahasiswaDetailTable)
@@ -47,8 +60,100 @@ statusProtectedRouter.openapi(applicationStatusRoute, async (c) => {
             adminOnlyNotes: adminOnlyNotes ?? null,
           })
           .where(eq(accountMahasiswaDetailTable.accountId, id));
+
+        detail = await tx
+          .select({ name: accountMahasiswaDetailTable.name })
+          .from(accountMahasiswaDetailTable)
+          .where(eq(accountMahasiswaDetailTable.accountId, id));
+      } else {
+        detail = await tx
+          .select({ name: accountOtaDetailTable.name })
+          .from(accountOtaDetailTable)
+          .where(eq(accountOtaDetailTable.accountId, id));
+      }
+
+      return [user, detail];
+    });
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
       }
     });
+
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : user.email,
+        subject: "Pendaftaran Bantuan Orang Tua Asuh Telah Diverifikasi",
+        html:
+          status === "accepted"
+            ? registrasiAcceptedEmail(
+                detail.name!,
+                env.VITE_PUBLIC_URL,
+                user.type === "mahasiswa" ? "ma" : "ota",
+              )
+            : registrasiRejectedEmail(
+                detail.name!,
+                "https://wa.me/6285624654990",
+                user.type === "mahasiswa" ? "ma" : "ota",
+              ),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
+
+    const subscription = await db
+      .select()
+      .from(pushSubscriptionTable)
+      .where(eq(pushSubscriptionTable.accountId, user.id))
+      .limit(1);
+
+    if (subscription.length > 0) {
+      const { endpoint, keys } = subscription[0];
+      const { p256dh, auth } = keys as { p256dh: string; auth: string };
+
+      const validatedData = SubscriptionSchema.parse({
+        endpoint,
+        p256dh,
+        auth,
+      });
+
+      const pushSubscription = {
+        endpoint: validatedData.endpoint,
+        keys: {
+          p256dh: validatedData.p256dh,
+          auth: validatedData.auth,
+        },
+      };
+
+      const notificationData = {
+        title: "Pendaftaran Bantuan Orang Tua Asuh Telah Diverifikasi",
+        body: `Pendaftaran Anda telah diverifikasi oleh pengurus`,
+        icon: "/icon/logo-iom-white.png",
+        actions: [
+          {
+            action: "open_url",
+            title: "Buka Aplikasi",
+            icon: "/icon/logo-iom-white.png",
+          },
+        ],
+      };
+
+      await sendNotification(pushSubscription, notificationData);
+    }
 
     return c.json(
       {

@@ -83,9 +83,7 @@ export function registrasiAcceptedEmail(
                                                                    sans-serif; font-size: 13px; line-height: 24px; text-align: left; color: #003a6e;">
                                               <p id="ibcdp" style="box-sizing: border-box; display: block; margin-top: 13px; margin-right: 0px; margin-bottom: 13px; margin-left: 0px;">
                                                 <span id="i1pfjj" style="box-sizing: border-box; text-align: justify;">Halo </span>
-                                                <b id="iv5lg" draggable="true" style="box-sizing: border-box; text-align: justify;">${nama}
-                                                </b>
-                                                <span id="iliszc" style="box-sizing: border-box; text-align: justify;">, Akun ${role == "ota" ? "Orang Tua Asuh" : "Mahasiswa Asuh"} Anda sudah berhasil terverifikasi. Anda sekarang sudah dapat menggunakan website kami.</span>
+                                                <b id="iv5lg" draggable="true" style="box-sizing: border-box; text-align: justify;">${nama}</b><span id="iliszc" style="box-sizing: border-box; text-align: justify;">, Akun ${role == "ota" ? "Orang Tua Asuh" : "Mahasiswa Asuh"} Anda sudah berhasil terverifikasi. Anda sekarang sudah dapat menggunakan website kami.</span>
                                               </p>
                                             </div>
                                           </td>

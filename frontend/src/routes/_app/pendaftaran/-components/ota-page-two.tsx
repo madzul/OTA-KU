@@ -100,7 +100,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
       form.setValue("maxSemester", parsedData.maxSemester || "");
       form.setValue("transferDate", parsedData.transferDate || "");
       form.setValue("criteria", parsedData.criteria || "");
-      form.setValue("isDetailVisible", parsedData.checked || false);
+      form.setValue("isDetailVisible", parsedData.checked || "false");
       form.setValue(
         "allowAdminSelection",
         parsedData.allowAdminSelection || "false",
@@ -122,7 +122,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
         maxSemester: form.getValues("maxSemester") || "",
         transferDate: form.getValues("transferDate") || "",
         criteria: form.getValues("criteria") || "",
-        checked: form.getValues("isDetailVisible") || false,
+        checked: form.getValues("isDetailVisible") || "false",
         allowAdminSelection: form.getValues("allowAdminSelection") || "false",
       };
       localStorage.setItem("pendaftaran-ota", btoa(JSON.stringify(formData)));
@@ -142,7 +142,6 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
       "allowAdminSelection",
       data.allowAdminSelection || "false",
     );
-    console.log(data);
     mainForm.handleSubmit(
       async (data) => {
         await orangTuaRegistrationCallbackMutation.mutateAsync(data);
@@ -179,33 +178,61 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
             <FormField
               control={form.control}
               name="funds"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
-                    Bersedia memberikan dana setiap bulan sebesar (dalam Rp)
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Minimal Rp300.000" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { onChange, ...rest } = field;
+
+                return (
+                  <FormItem>
+                    <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
+                      Bersedia memberikan dana setiap bulan sebesar (dalam Rp)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Minimal Rp300.000"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || /^([1-9]\d*|0)?$/.test(value)) {
+                            field.onChange(value);
+                          }
+                        }}
+                        {...rest}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             <FormField
               control={form.control}
               name="maxCapacity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
-                    Untuk diberikan kepada
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Jumlah anak asuh" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { onChange, ...rest } = field;
+
+                return (
+                  <FormItem>
+                    <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
+                      Untuk diberikan kepada
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Jumlah anak asuh"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || /^([1-9]\d*|0)?$/.test(value)) {
+                            field.onChange(value);
+                          }
+                        }}
+                        {...rest}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             <FormField
@@ -372,10 +399,10 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
                       className="text-primary"
                     />
                   </FormControl>
-                  <span className="ml-2 after:ml-1 after:text-red-500 after:content-['*']">
+                  <span className="ml-2">
                     Saya tidak keberatan data saya (nama, email, no. telp,
                     tanggal transfer, dan tanggal mendaftar) dilihat oleh
-                    mahasiswa asuh
+                    mahasiswa asuh (Opsional)
                   </span>
                   <FormMessage />
                 </FormItem>

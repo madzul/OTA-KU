@@ -25,6 +25,7 @@ const EnvSchema = z.object({
   VAPID_MAILTO: z.string().email(),
   VAPID_PUBLIC_KEY: z.string(),
   VAPID_PRIVATE_KEY: z.string(),
+  TEST_EMAIL: z.string().email(),
 });
 
 const result = EnvSchema.safeParse(process.env);

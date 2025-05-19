@@ -73,8 +73,10 @@ const documentDisplayNames: Record<MahasiswaUploadField, string> = {
 
 export default function PendaftaranMahasiswa({
   session,
+  applicationStatus,
 }: {
   session: UserSchema;
+  applicationStatus: "rejected" | "pending" | "unregistered" | "outdated";
 }) {
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -123,8 +125,9 @@ export default function PendaftaranMahasiswa({
   const form = useForm<MahasiswaRegistrationFormValues>({
     resolver: zodResolver(MahasiswaRegistrationFormSchema),
     defaultValues: {
-      name: session.name ?? "",
-      phoneNumber: session.phoneNumber ?? "",
+      name: applicationStatus !== "outdated" ? (session.name ?? "") : "",
+      phoneNumber:
+        applicationStatus !== "outdated" ? (session.phoneNumber ?? "") : "",
       nim,
       major: jurusan,
       faculty: fakultas,
@@ -224,7 +227,9 @@ export default function PendaftaranMahasiswa({
                     <Input
                       placeholder="Masukkan nama Anda"
                       {...field}
-                      disabled={!!session.name}
+                      disabled={
+                        applicationStatus !== "outdated" && !!session.name
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -244,7 +249,10 @@ export default function PendaftaranMahasiswa({
                     <FormControl>
                       <Input
                         placeholder="Masukkan nomor WA Anda"
-                        disabled={!!session.phoneNumber}
+                        disabled={
+                          applicationStatus !== "outdated" &&
+                          !!session.phoneNumber
+                        }
                         {...field}
                       />
                     </FormControl>
@@ -341,17 +349,35 @@ export default function PendaftaranMahasiswa({
             <FormField
               control={form.control}
               name="gpa"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
-                    IPK
-                  </FormLabel>
-                  <FormControl>
-                    <Input placeholder="Masukkan IPK" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { onChange, ...rest } = field;
+
+                return (
+                  <FormItem>
+                    <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
+                      IPK
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Masukkan IPK"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Allow empty input, or a valid decimal with max 2 digits after decimal point
+                          if (
+                            value === "" ||
+                            /^\d{0,1}(\.\d{0,2})?$/.test(value)
+                          ) {
+                            field.onChange(value);
+                          }
+                        }}
+                        {...rest}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             <FormField

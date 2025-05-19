@@ -36,7 +36,10 @@ export const Route = createFileRoute("/_app/pendaftaran/")({
       throw redirect({ to: "/auth/login" });
     }
 
-    if (applicationStatus.body.status === "accepted") {
+    if (
+      applicationStatus.body.status === "accepted" ||
+      applicationStatus.body.status === "reapply"
+    ) {
       throw redirect({ to: "/profile" });
     }
 
@@ -59,7 +62,6 @@ function RouteComponent() {
     return <Navigate to="/" />;
   }
 
-  // TODO: Handle applicationStatus === "reapply" dan "outdated"
   // TODO: Sesuaiin datanya sesuai apa yang diinginkan IOM nanti
   if (applicationStatus === "pending") {
     return (
@@ -110,7 +112,10 @@ function RouteComponent() {
   }
 
   return session.type === "mahasiswa" ? (
-    <PendaftaranMahasiswa session={session} />
+    <PendaftaranMahasiswa
+      session={session}
+      applicationStatus={applicationStatus}
+    />
   ) : (
     <PendaftaranOrangTua />
   );
