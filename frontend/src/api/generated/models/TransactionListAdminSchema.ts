@@ -21,6 +21,10 @@ export type TransactionListAdminSchema = {
     amount_paid: number;
     paid_at: string;
     due_date: string;
+    /**
+     * Jumlah bulan yang dibayarkan
+     */
+    paid_for: number;
     status: 'unpaid' | 'pending' | 'paid';
     transferStatus: 'unpaid' | 'paid';
     receipt: string;
