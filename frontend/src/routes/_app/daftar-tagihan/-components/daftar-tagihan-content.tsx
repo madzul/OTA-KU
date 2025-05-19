@@ -335,7 +335,6 @@ export function DaftarTagihanContent() {
             ? "unpaid"
             : "pending";
 
-      // TODO: Cek bisa atau ga setelah update db after sprint review 4
       if (apiStatus === "paid") {
         updateTransactionAccMutation.mutate({
           id: item.id,
