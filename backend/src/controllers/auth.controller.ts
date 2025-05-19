@@ -272,36 +272,34 @@ authRouter.openapi(regisRoute, async (c) => {
       return [newUser, code];
     });
 
-    if (env.NODE_ENV === "production") {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        secure: true,
-        port: 465,
-        auth: {
-          user: env.EMAIL,
-          pass: env.EMAIL_PASSWORD,
-        },
-      });
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
 
-      transporter.verify((error, success) => {
-        if (error) {
-          console.error("SMTP Server verification failed:", error);
-        } else {
-          console.log("SMTP Server is ready:", success);
-        }
-      });
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
 
-      await transporter
-        .sendMail({
-          from: env.EMAIL_FROM,
-          to: newUser[0].email,
-          subject: "Token OTP Bantuan Orang Tua Asuh",
-          html: kodeOTPEmail(newUser[0].email, code),
-        })
-        .catch((error) => {
-          console.error("Error sending email:", error);
-        });
-    }
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : newUser[0].email,
+        subject: "Token OTP Bantuan Orang Tua Asuh",
+        html: kodeOTPEmail(newUser[0].email, code),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
 
     const accessToken = await sign(
       {
@@ -726,36 +724,34 @@ authRouter.openapi(forgotPasswordRoute, async (c) => {
       expiredAt: new Date(Date.now() + 1000 * 60 * 15), // 15 minutes
     });
 
-    if (env.NODE_ENV === "production") {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        secure: true,
-        port: 465,
-        auth: {
-          user: env.EMAIL,
-          pass: env.EMAIL_PASSWORD,
-        },
-      });
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
 
-      transporter.verify((error, success) => {
-        if (error) {
-          console.error("SMTP Server verification failed:", error);
-        } else {
-          console.log("SMTP Server is ready:", success);
-        }
-      });
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
 
-      await transporter
-        .sendMail({
-          from: env.EMAIL_FROM,
-          to: foundAccount.email,
-          subject: "Kata Sandi Sementara Bantuan Orang Tua Asuh",
-          html: forgotPasswordEmail(foundAccount.email, password),
-        })
-        .catch((error) => {
-          console.error("Error sending email:", error);
-        });
-    }
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : foundAccount.email,
+        subject: "Kata Sandi Sementara Bantuan Orang Tua Asuh",
+        html: forgotPasswordEmail(foundAccount.email, password),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
 
     return c.json(
       {

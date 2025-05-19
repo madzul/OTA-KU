@@ -46,37 +46,35 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
 
     //REFERENCE: buat notif
     //createTransport block gada yang diubah
-    if (env.NODE_ENV === "production") {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        secure: true,
-        port: 465,
-        auth: {
-          user: env.EMAIL,
-          pass: env.EMAIL_PASSWORD,
-        },
-      });
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
 
-      transporter.verify((error, success) => {
-        if (error) {
-          console.error("SMTP Server verification failed:", error);
-        } else {
-          console.log("SMTP Server is ready:", success);
-        }
-      });
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
 
-      //Ubah subject + html
-      await transporter
-        .sendMail({
-          from: env.EMAIL_FROM,
-          to: email,
-          subject: "Token OTP Bantuan Orang Tua Asuh",
-          html: kodeOTPEmail(email, code),
-        })
-        .catch((error) => {
-          console.error("Error sending email:", error);
-        });
-    }
+    //Ubah subject + html
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : email,
+        subject: "Token OTP Bantuan Orang Tua Asuh",
+        html: kodeOTPEmail(email, code),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
 
     return c.json(
       {
