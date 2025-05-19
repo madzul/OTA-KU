@@ -93,12 +93,12 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
     <Card
       className={`w-full rounded-lg p-6 shadow-sm ${student.requestTerminateOta ? "border-l-4 border-l-amber-500 bg-gray-50" : "bg-white"}`}
     >
-      <div className="flex flex-col gap-3 md:gap-0 md:justify-between md:flex-row md:items-center">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">{student.maName}</h2>
-          <p className="text-xl text-gray-500">{student.maNIM || "13522005"}</p>
+          <p className="text-xl text-gray-500">{`${student.maNIM.slice(0, 5)}XXX`}</p>
           <p className="mt-2 text-gray-500">
-            Berhubungan sejak:{" "}
+            Masa asuh aktif sejak:{" "}
             <span className="font-semibold">
               {new Date(student.createdAt).toLocaleDateString("id-ID", {
                 day: "2-digit",
@@ -109,7 +109,7 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
           </p>
 
           {student.requestTerminateOta && (
-            <div className="mt-4 md:mr-5 rounded-md border border-amber-200 bg-amber-50 p-3">
+            <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 md:mr-5">
               <h3 className="font-semibold text-amber-800">
                 Alasan Terminasi:
               </h3>
@@ -135,7 +135,7 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               alt="Terminate"
               className="h-5 w-5"
             />
-            Terminasi
+            Ajukan Berhenti
           </Button>
         )}
       </div>
