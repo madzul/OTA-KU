@@ -15,7 +15,7 @@ import {
   VerifiedMahasiswaListQueryResponse,
   VerifiedMahasiswaListQuerySchema,
 } from "../zod/list.js";
-import { InternalServerErrorResponse } from "../zod/response.js";
+import { ForbiddenResponse, InternalServerErrorResponse } from "../zod/response.js";
 
 export const listMahasiswaOtaRoute = createRoute({
   operationId: "listMahasiswaOta",
@@ -36,6 +36,14 @@ export const listMahasiswaOtaRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -64,6 +72,14 @@ export const listMahasiswaAdminRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -92,6 +108,14 @@ export const listOrangTuaAdminRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -120,6 +144,14 @@ export const listOtaKuRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -148,6 +180,14 @@ export const listMAActiveRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -176,6 +216,14 @@ export const listMAPendingRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -204,6 +252,14 @@ export const listAvailableOTARoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -232,6 +288,14 @@ export const listAllAccountRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {

@@ -19,7 +19,22 @@ export const detailRouter = createRouter();
 export const detailProtectedRouter = createAuthRouter();
 
 detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
+  const user = c.var.user;
   const { id } = c.req.param();
+
+  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses detail ini",
+        },
+      },
+      403,
+    );
+  }
 
   try {
     const mahasiswaDetail = await db
@@ -110,10 +125,10 @@ detailProtectedRouter.openapi(getMahasiswaSayaDetailRoute, async (c) => {
     return c.json(
       {
         success: false,
-        message: "Unauthorized",
+        message: "Forbidden",
         error: {
-          code: "UNAUTHORIZED",
-          message: "Hanya orang tua asuh yang dapat mengakses detail ini",
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses detail ini",
         },
       },
       403,
@@ -206,7 +221,22 @@ detailProtectedRouter.openapi(getMahasiswaSayaDetailRoute, async (c) => {
 });
 
 detailProtectedRouter.openapi(getOtaDetailRoute, async (c) => {
+  const user = c.var.user;
   const { id } = c.req.param();
+  
+  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses detail ini",
+        },
+      },
+      403,
+    );
+  }
 
   try {
     const otaDetail = await db
@@ -281,10 +311,10 @@ detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
     return c.json(
       {
         success: false,
-        message: "Unauthorized",
+        message: "Forbidden",
         error: {
-          code: "UNAUTHORIZED",
-          message: "Hanya mahasiswa yang dapat mengakses detail ini",
+          code: "Forbidden",
+          message: "Hanya MA yang bisa mengakses detail ini",
         },
       },
       403,

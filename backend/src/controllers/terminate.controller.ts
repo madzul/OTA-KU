@@ -38,12 +38,15 @@ terminateProtectedRouter.openapi(listTerminateForAdminRoute, async (c) => {
     .where(eq(accountTable.id, user.id))
     .limit(1);
 
-  if (userAccount[0].status === "unverified") {
+  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
     return c.json(
       {
         success: false,
-        message: "Akun anda belum diverifikasi.",
-        error: {},
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses detail ini",
+        },
       },
       403,
     );
@@ -171,6 +174,20 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
   const zodParseResult = listTerminateQuerySchema.parse(c.req.query());
   const { q, page } = zodParseResult;
 
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
+
   const userAccount = await db
     .select()
     .from(accountTable)
@@ -289,6 +306,20 @@ terminateProtectedRouter.openapi(terminationStatusMARoute, async (c) => {
     .where(eq(accountTable.id, user.id))
     .limit(1);
 
+  if (user.type !== "mahasiswa") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya MA yang bisa mengakses status terminasi MA",
+        },
+      },
+      403,
+    );
+  }
+
   if (userAccount[0].status === "unverified") {
     return c.json(
       {
@@ -375,6 +406,20 @@ terminateProtectedRouter.openapi(requestTerminateFromMARoute, async (c) => {
     );
   }
 
+  if (user.type !== "mahasiswa") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya MA yang bisa mengajukan request terminasi dari MA",
+        },
+      },
+      403,
+    );
+  }
+
   try {
     await db.transaction(async (tx) => {
       await tx
@@ -437,6 +482,20 @@ terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
         success: false,
         message: "Akun anda belum diverifikasi.",
         error: {},
+      },
+      403,
+    );
+  }
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengajukan request terminasi dari OTA",
+        },
       },
       403,
     );
@@ -509,6 +568,20 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
     );
   }
 
+  if (user.type !== "admin" && user.type !== "bankes") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin atau bankes yang bisa menerima validasi request terminasi",
+        },
+      },
+      403,
+    );
+  }
+
   try {
     await db.transaction(async (tx) => {
       await tx
@@ -575,6 +648,20 @@ terminateProtectedRouter.openapi(rejectTerminateRoute, async (c) => {
         success: false,
         message: "Akun anda belum diverifikasi.",
         error: {},
+      },
+      403,
+    );
+  }
+
+  if (user.type !== "admin" && user.type !== "bankes") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin atau bankes yang bisa menolak validasi request terminasi",
+        },
       },
       403,
     );

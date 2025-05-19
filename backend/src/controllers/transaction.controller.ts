@@ -38,6 +38,20 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
   const zodParseResult = TransactionListOTAQuerySchema.parse(c.req.query());
   const { q, status, page } = zodParseResult;
 
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang dapat mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
+
   // Validate page to be a positive integer
   let pageNumber = Number(page);
   if (isNaN(pageNumber) || pageNumber < 1) {
@@ -141,8 +155,23 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
 });
 
 transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
+  const user = c.var.user;
   const zodParseResult = TransactionListAdminQuerySchema.parse(c.req.query());
   const { month, status, year, page } = zodParseResult;
+
+  if (user.type !== "admin" && user.type !== "pengurus" && user.type !== "bankes") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang dapat mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -260,7 +289,22 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
 });
 
 transactionProtectedRouter.openapi(detailTransactionRoute, async (c) => {
+  const user = c.var.user;
   const { id, page } = DetailTransactionParams.parse(c.req.param());
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang dapat mengakses detail ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -349,15 +393,26 @@ transactionProtectedRouter.openapi(detailTransactionRoute, async (c) => {
 
 transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
   const user = c.var.user;
-
-  // Get the form data
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
 
   // Parse using the UploadReceiptSchema
   const zodParseResult = UploadReceiptSchema.parse(data);
   const { id, paidFor, receipt } = zodParseResult;
-  console.log("id", id);
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang dapat mengakses detail ini",
+        },
+      },
+      403,
+    );
+  }
 
   try {
     const receiptUrl = await uploadFileToCloudinary(receipt);
@@ -406,10 +461,25 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
 });
 
 transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
+  const user = c.var.user;
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
   const zodParseResult = VerifyTransactionAcceptSchema.parse(data);
   const { id, mahasiswaId, otaId } = zodParseResult;
+
+  if (user.type !== "bankes" && user.type !== "admin") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin atau bankes yang dapat menerima validasi transaksi",
+        },
+      },
+      403,
+    );
+  }
 
   try {
     const result = await db.transaction(async (tx) => {
@@ -469,10 +539,25 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
 });
 
 transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
+  const user = c.var.user;
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
   const zodParseResult = VerifyTransactionRejectSchema.parse(data);
   const { id, otaId, mahasiswaId, amountPaid, rejectionNote } = zodParseResult;
+
+  if (user.type !== "bankes" && user.type !== "admin") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin atau bankes yang bisa menolak validasi transaksi",
+        },
+      },
+      403,
+    );
+  }
 
   try {
     await db.transaction(async (tx) => {
@@ -536,10 +621,25 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
 });
 
 transactionProtectedRouter.openapi(acceptTransferStatusRoute, async (c) => {
+  const user = c.var.user;
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
   const zodParseResult = AcceptTransferStatusSchema.parse(data);
   const { id } = zodParseResult;
+
+  if (user.type !== "bankes" && user.type !== "admin") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin atau bankes yang dapat mengubah transfer status",
+        },
+      },
+      403,
+    );
+  }
 
   try {
     await db.transaction(async (tx) => {

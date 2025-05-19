@@ -16,7 +16,7 @@ import {
   OrangTuaUnverifiedResponse,
   verifyConnectionResponse,
 } from "../zod/connect.js";
-import { InternalServerErrorResponse } from "../zod/response.js";
+import { ForbiddenResponse, InternalServerErrorResponse } from "../zod/response.js";
 
 export const connectOtaMahasiswaRoute = createRoute({
   operationId: "connectOtaMahasiswa",
@@ -53,10 +53,10 @@ export const connectOtaMahasiswaRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun unauthorized",
+      description: "Forbidden",
       content: {
         "application/json": {
-          schema: OrangTuaUnverifiedResponse,
+          schema: ForbiddenResponse,
         },
       },
     },
@@ -104,10 +104,10 @@ export const connectOtaMahasiswaByAdminRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun unauthorized",
+      description: "Forbidden",
       content: {
         "application/json": {
-          schema: OrangTuaUnverifiedResponse,
+          schema: ForbiddenResponse,
         },
       },
     },
@@ -147,10 +147,10 @@ export const verifyConnectionAccRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun unauthorized",
+      description: "Forbidden",
       content: {
         "application/json": {
-          schema: OrangTuaUnverifiedResponse,
+          schema: ForbiddenResponse,
         },
       },
     },
@@ -190,10 +190,10 @@ export const verifyConnectionRejectRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun unauthorized",
+      description: "Forbidden",
       content: {
         "application/json": {
-          schema: OrangTuaUnverifiedResponse,
+          schema: ForbiddenResponse,
         },
       },
     },
@@ -226,10 +226,10 @@ export const listPendingConnectionRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun unauthorized",
+      description: "Forbidden",
       content: {
         "application/json": {
-          schema: OrangTuaUnverifiedResponse,
+          schema: ForbiddenResponse,
         },
       },
     },
@@ -262,10 +262,10 @@ export const listPendingTerminationConnectionRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun unauthorized",
+      description: "Forbidden",
       content: {
         "application/json": {
-          schema: OrangTuaUnverifiedResponse,
+          schema: ForbiddenResponse,
         },
       },
     },
@@ -298,10 +298,10 @@ export const listAllConnectionRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun unauthorized",
+      description: "Forbidden",
       content: {
         "application/json": {
-          schema: OrangTuaUnverifiedResponse,
+          schema: ForbiddenResponse,
         },
       },
     },
@@ -342,10 +342,10 @@ export const isConnectedRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun unauthorized",
+      description: "Forbidden",
       content: {
         "application/json": {
-          schema: OrangTuaUnverifiedResponse,
+          schema: ForbiddenResponse,
         },
       },
     },
@@ -376,10 +376,10 @@ export const deleteConnectionRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun unauthorized",
+      description: "Forbidden",
       content: {
         "application/json": {
-          schema: OrangTuaUnverifiedResponse,
+          schema: ForbiddenResponse,
         },
       },
     },
