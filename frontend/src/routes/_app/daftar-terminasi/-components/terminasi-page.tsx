@@ -30,7 +30,7 @@ export default function TerminasiPage() {
   const [currentNote, setCurrentNote] = useState("");
 
   const queryClient = useQueryClient();
-  const perPage = 8;
+  const perPage = 6;
 
   // Debounce search
   useEffect(() => {
