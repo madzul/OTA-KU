@@ -130,7 +130,6 @@ terminateProtectedRouter.openapi(listTerminateForAdminRoute, async (c) => {
       countsQuery,
     ]);
 
-    console.log(terminateList);
 
     return c.json(
       {

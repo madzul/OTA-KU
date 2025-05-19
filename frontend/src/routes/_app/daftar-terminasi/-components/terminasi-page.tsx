@@ -74,15 +74,13 @@ export default function TerminasiPage() {
   // Modal Handler
   const handleViewOtaNotes = (item: ListTerminateForAdmin) => {
     setSelectedItem(item);
-    // TODO: Ganti jadi notes untuk orangtua
-    setCurrentNote(item.requestTerminationNote);
+    setCurrentNote(item.requestTerminationNoteOTA);
     setIsOtaNotesModalOpen(true);
   };
 
   const handleViewMaNotes = (item: ListTerminateForAdmin) => {
     setSelectedItem(item);
-    // TODO: Ganti jadi notes untuk mahasiswa
-    setCurrentNote(item.requestTerminationNote);
+    setCurrentNote(item.requestTerminationNoteMA);
     setIsMaNotesModalOpen(true);
   };
 

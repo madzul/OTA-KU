@@ -18,6 +18,7 @@ export type ListTerminateForAdmin = {
   createdAt: string;
   requestTerminateOTA: boolean;
   requestTerminateMA: boolean;
-  requestTerminationNote: string;
+  requestTerminationNoteOTA: string;
+  requestTerminationNoteMA: string;
 };
 
