@@ -20,7 +20,7 @@ import {
   DeleteAccountParamsSchema,
   DeleteAccountSuccessfulResponseSchema
 } from "../zod/profile.js";
-import { InternalServerErrorResponse } from "../zod/response.js";
+import { ForbiddenResponse, InternalServerErrorResponse } from "../zod/response.js";
 
 export const pendaftaranMahasiswaRoute = createRoute({
   operationId: "pendaftaranMahasiswa",
@@ -133,6 +133,14 @@ export const pembuatanAkunBankesPengurusRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {

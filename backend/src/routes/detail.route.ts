@@ -29,6 +29,14 @@ export const getMahasiswaDetailRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     404: {
       description: "Mahasiswa tidak ditemukan",
       content: {
@@ -103,6 +111,14 @@ export const getOtaDetailRoute = createRoute({
         },
       },
       401: AuthorizationErrorResponse,
+      403: {
+        description: "Forbidden",
+        content: {
+          "application/json": {
+            schema: ForbiddenResponse,
+          },
+        },
+      },
       404: {
         description: "Orang tua asuh tidak ditemukan",
         content: {

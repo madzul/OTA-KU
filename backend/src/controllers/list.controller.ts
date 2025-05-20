@@ -44,8 +44,23 @@ const LIST_PAGE_SIZE = 6;
 const LIST_PAGE_DETAIL_SIZE = 8;
 
 listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
+  const user = c.var.user;
   const zodParseResult = VerifiedMahasiswaListQuerySchema.parse(c.req.query());
   const { q, page, major, faculty, religion, gender } = zodParseResult;
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -158,7 +173,22 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
+  const user = c.var.user;
   const { q, page, jurusan, status } = c.req.query();
+
+  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -338,7 +368,22 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
+  const user = c.var.user;
   const { q, page, status } = c.req.query();
+
+  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -472,7 +517,22 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
+  const user = c.var.user;
   const { q, page, status, type, applicationStatus } = c.req.query();
+
+  if (user.type !== "admin") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -693,8 +753,23 @@ listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
+  const user = c.var.user;
   const { q, page } = c.req.query();
   const maId = c.get("user").id;
+
+  if (user.type !== "mahasiswa") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya MA yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -778,8 +853,23 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
+  const user = c.var.user;
   const { q, page } = c.req.query();
   const otaId = c.get("user").id;
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -894,8 +984,23 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
+  const user = c.var.user;
   const { q, page } = c.req.query();
   const otaId = c.get("user").id;
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -1014,6 +1119,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
+  const user = c.var.user;
   const zodParseResult = OTAListQuerySchema.parse(c.req.query());
   const { q, page } = zodParseResult;
 
@@ -1021,6 +1127,20 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
   let pageNumber = Number(page);
   if (isNaN(pageNumber) || pageNumber < 1) {
     pageNumber = 1;
+  }
+
+  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
   }
 
   try {

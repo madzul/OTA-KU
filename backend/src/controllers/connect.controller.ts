@@ -1,4 +1,6 @@
 import { and, count, eq, ilike, or, sql } from "drizzle-orm";
+import nodemailer from "nodemailer";
+import { env } from "../config/env.config.js";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -6,6 +8,7 @@ import {
   accountOtaDetailTable,
   accountTable,
   connectionTable,
+  pushSubscriptionTable,
   transactionTable,
 } from "../db/schema.js";
 import {
@@ -25,6 +28,10 @@ import {
   connectionListQuerySchema,
 } from "../zod/connect.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
+import { persetujuanAsuhMA } from "../lib/email/persetujuan-asuh.js";
+import { SubscriptionSchema } from "../zod/push.js";
+import { sendNotification } from "../lib/web-push.js";
+import { penjodohanOlehAdminEmail } from "../lib/email/penjodohan-oleh-admin.js";
 
 export const connectRouter = createRouter();
 export const connectProtectedRouter = createAuthRouter();
@@ -258,6 +265,148 @@ connectProtectedRouter.openapi(connectOtaMahasiswaByAdminRoute, async (c) => {
       });
     });
 
+    const otaData = await db
+      .select({
+        id: accountOtaDetailTable.accountId,
+        name: accountOtaDetailTable.name,
+        email: accountTable.email,
+      })
+      .from(accountOtaDetailTable)
+      .innerJoin(accountTable, eq(accountOtaDetailTable.accountId, accountTable.id))
+      .where(eq(accountOtaDetailTable.accountId, otaId))
+      .limit(1);
+
+    const maData = await db
+      .select({
+        id: accountMahasiswaDetailTable.accountId,
+        name: accountMahasiswaDetailTable.name,
+        email: accountTable.email,
+      })
+      .from(accountMahasiswaDetailTable)
+      .innerJoin(accountTable, eq(accountMahasiswaDetailTable.accountId, accountTable.id))
+      .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
+      .limit(1);
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
+
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : maData[0].email,
+        subject: "Penerimaan Hubungan Bantuan Asuh",
+        html: persetujuanAsuhMA(maData[0].name ?? "", otaData[0].name, "ma", "/orang-tua-asuh-saya"),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
+
+    const subscriptionMA = await db
+      .select()
+      .from(pushSubscriptionTable)
+      .where(eq(pushSubscriptionTable.accountId, maData[0].id))
+      .limit(1);
+
+    if (subscriptionMA.length > 0) {
+      const { endpoint, keys } = subscriptionMA[0];
+      const { p256dh, auth } = keys as { p256dh: string; auth: string };
+
+      const validatedData = SubscriptionSchema.parse({
+        endpoint,
+        p256dh,
+        auth,
+      });
+
+      const pushSubscription = {
+        endpoint: validatedData.endpoint,
+        keys: {
+          p256dh: validatedData.p256dh,
+          auth: validatedData.auth,
+        },
+      };
+
+      const notificationData = {
+        title: "Penerimaan Hubungan Bantuan Asuh",
+        body: `"Selamat Anda telah mendapatkan Bantuan Orang Tua Asuh"`,
+        icon: "/icon/logo-iom-white.png",
+        actions: [
+          {
+            action: "open_url",
+            title: "Buka Aplikasi",
+            icon: "/icon/logo-iom-white.png",
+          },
+        ],
+      };
+
+      await sendNotification(pushSubscription, notificationData);
+    }
+
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : otaData[0].email,
+        subject: "Pemilihan Mahasiswa Asuh",
+        html: penjodohanOlehAdminEmail(otaData[0].name, maData[0].name ?? "", `/detail/mahasiswa/${maData[0].id}`)
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
+
+    const subscriptionOTA = await db
+      .select()
+      .from(pushSubscriptionTable)
+      .where(eq(pushSubscriptionTable.accountId, otaData[0].id))
+      .limit(1);
+
+    if (subscriptionOTA.length > 0) {
+      const { endpoint, keys } = subscriptionOTA[0];
+      const { p256dh, auth } = keys as { p256dh: string; auth: string };
+
+      const validatedData = SubscriptionSchema.parse({
+        endpoint,
+        p256dh,
+        auth,
+      });
+
+      const pushSubscription = {
+        endpoint: validatedData.endpoint,
+        keys: {
+          p256dh: validatedData.p256dh,
+          auth: validatedData.auth,
+        },
+      };
+
+      const notificationData = {
+        title: "Penerimaan Hubungan Bantuan Asuh",
+        body: "Mahasiswa Asuh Anda telah disetujui",
+        icon: "/icon/logo-iom-white.png",
+        actions: [
+          {
+            action: "open_url",
+            title: "Buka Aplikasi",
+            icon: "/icon/logo-iom-white.png",
+          },
+        ],
+      };
+
+      await sendNotification(pushSubscription, notificationData);
+    }
+
     return c.json(
       {
         success: true,
@@ -371,13 +520,155 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async (c) => {
       });
     });
 
+    const otaData = await db
+      .select({
+        id: accountOtaDetailTable.accountId,
+        name: accountOtaDetailTable.name,
+        email: accountTable.email,
+      })
+      .from(accountOtaDetailTable)
+      .innerJoin(accountTable, eq(accountOtaDetailTable.accountId, accountTable.id))
+      .where(eq(accountOtaDetailTable.accountId, otaId))
+      .limit(1);
+
+    const maData = await db
+      .select({
+        id: accountMahasiswaDetailTable.accountId,
+        name: accountMahasiswaDetailTable.name,
+        email: accountTable.email,
+      })
+      .from(accountMahasiswaDetailTable)
+      .innerJoin(accountTable, eq(accountMahasiswaDetailTable.accountId, accountTable.id))
+      .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
+      .limit(1);
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
+
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : otaData[0].email,
+        subject: "Penerimaan Hubungan Bantuan Asuh",
+        html: persetujuanAsuhMA(otaData[0].name, maData[0].name ?? "", "ota", `/detail/mahasiswa/${maData[0].id}`),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
+
+    const subscriptionOTA = await db
+      .select()
+      .from(pushSubscriptionTable)
+      .where(eq(pushSubscriptionTable.accountId, otaData[0].id))
+      .limit(1);
+
+    if (subscriptionOTA.length > 0) {
+      const { endpoint, keys } = subscriptionOTA[0];
+      const { p256dh, auth } = keys as { p256dh: string; auth: string };
+
+      const validatedData = SubscriptionSchema.parse({
+        endpoint,
+        p256dh,
+        auth,
+      });
+
+      const pushSubscription = {
+        endpoint: validatedData.endpoint,
+        keys: {
+          p256dh: validatedData.p256dh,
+          auth: validatedData.auth,
+        },
+      };
+
+      const notificationData = {
+        title: "Penerimaan Hubungan Bantuan Asuh",
+        body: "Mahasiswa Asuh Anda telah disetujui",
+        icon: "/icon/logo-iom-white.png",
+        actions: [
+          {
+            action: "open_url",
+            title: "Buka Aplikasi",
+            icon: "/icon/logo-iom-white.png",
+          },
+        ],
+      };
+
+      await sendNotification(pushSubscription, notificationData);
+    }
+
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : maData[0].email,
+        subject: "Penerimaan Hubungan Bantuan Asuh",
+        html: persetujuanAsuhMA(maData[0].name ?? "", otaData[0].name, "ma", "/orang-tua-asuh-saya"),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
+
+    const subscriptionMA = await db
+      .select()
+      .from(pushSubscriptionTable)
+      .where(eq(pushSubscriptionTable.accountId, maData[0].id))
+      .limit(1);
+
+    if (subscriptionMA.length > 0) {
+      const { endpoint, keys } = subscriptionMA[0];
+      const { p256dh, auth } = keys as { p256dh: string; auth: string };
+
+      const validatedData = SubscriptionSchema.parse({
+        endpoint,
+        p256dh,
+        auth,
+      });
+
+      const pushSubscription = {
+        endpoint: validatedData.endpoint,
+        keys: {
+          p256dh: validatedData.p256dh,
+          auth: validatedData.auth,
+        },
+      };
+
+      const notificationData = {
+        title: "Penerimaan Hubungan Bantuan Asuh",
+        body: `"Selamat Anda telah mendapatkan Bantuan Orang Tua Asuh"`,
+        icon: "/icon/logo-iom-white.png",
+        actions: [
+          {
+            action: "open_url",
+            title: "Buka Aplikasi",
+            icon: "/icon/logo-iom-white.png",
+          },
+        ],
+      };
+
+      await sendNotification(pushSubscription, notificationData);
+    }
+
     return c.json(
       {
         success: true,
         message:
           "Berhasil melakukan penerimaan verifikasi connection oleh Admin",
       },
-      200,
+      200
     );
   } catch (error) {
     console.error(error);

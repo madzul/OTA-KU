@@ -2,6 +2,7 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
+  ForbiddenResponse,
   InternalServerErrorResponse,
   NotFoundResponse,
 } from "../zod/response.js";
@@ -42,6 +43,14 @@ export const listTransactionOTARoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -70,6 +79,14 @@ export const listTransactionAdminRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -98,6 +115,14 @@ export const detailTransactionRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     404: {
       description: "Mahasiswa tidak ditemukan",
       content: {
@@ -138,6 +163,14 @@ export const uploadReceiptRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -172,6 +205,14 @@ export const verifyTransactionAccRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -206,6 +247,14 @@ export const verifyTransactionRejectRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -240,6 +289,14 @@ export const acceptTransferStatusRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {

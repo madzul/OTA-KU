@@ -1,4 +1,4 @@
-export function terminasiAcceptedOTAEmail(
+export function terminasiAcceptedMAEmail(
   nama: string,
   nama_ota: string,
 ) {

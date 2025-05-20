@@ -1,4 +1,4 @@
-export function penjodohanOlehAdminEmail(nama: string, jumlahMahasiswa: number, linkToMaSayaPage: string) {
+export function penjodohanOlehAdminEmail(nama: string, namaMahasiswa: string, linkToDetailMaSayaPage: string) {
   return `<body style="box-sizing: border-box; margin: 0; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; text-size-adjust: 100%;">
   <title>
   </title>
@@ -77,11 +77,9 @@ export function penjodohanOlehAdminEmail(nama: string, jumlahMahasiswa: number, 
                                           <td align="left" id="iszxg2b" style="box-sizing: border-box; border-collapse: collapse; font-size: 0px; padding: 10px 0px 10px 0px; word-break: break-word;">
                                             <div id="imcgwbe" style="box-sizing: border-box; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; line-height: 24px; text-align: left; color: #003A6E;">Halo 
                                               <b style="box-sizing: border-box;">${nama}
-                                              </b>, Admin IOM telah memilihkan Mahasiswa Asuh yang akan
-                                              menerima Bantuan dari Anda sebanyak 
-                                              <b style="box-sizing: border-box;">${jumlahMahasiswa}
-                                              </b> mahasiswa. Untuk detail lebih lanjut, silakan kunjungi 
-                                              <a href="${linkToMaSayaPage}" id="i14zx87" style="box-sizing: border-box; color: rgb(207, 84, 158);">website</a> kami.
+                                              </b>, Admin IOM telah memilihkan ${namaMahasiswa} untuk
+                                              menerima bantuan dari Anda. Untuk detail lebih lanjut, silakan kunjungi 
+                                              <a href="${linkToDetailMaSayaPage}" id="i14zx87" style="box-sizing: border-box; color: rgb(207, 84, 158);">website</a> kami.
                                             </div>
                                           </td>
                                         </tr>

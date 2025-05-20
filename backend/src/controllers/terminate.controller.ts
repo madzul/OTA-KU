@@ -1,11 +1,13 @@
 import { and, count, eq, ilike, or } from "drizzle-orm";
-
+import nodemailer from "nodemailer";
+import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
   connectionTable,
+  pushSubscriptionTable,
 } from "../db/schema.js";
 import {
   listTerminateForAdminRoute,
@@ -22,6 +24,10 @@ import {
   verifTerminateRequestSchema,
 } from "../zod/terminate.js";
 import { createAuthRouter } from "./router-factory.js";
+import { requestTerminasiEmail } from "../lib/email/request-terminasi.js";
+import { SubscriptionSchema } from "../zod/push.js";
+import { sendNotification } from "../lib/web-push.js";
+import { terminasiAcceptedMAEmail } from "../lib/email/terminasi-accepted-ma.js";
 
 export const terminateProtectedRouter = createAuthRouter();
 
@@ -38,12 +44,15 @@ terminateProtectedRouter.openapi(listTerminateForAdminRoute, async (c) => {
     .where(eq(accountTable.id, user.id))
     .limit(1);
 
-  if (userAccount[0].status === "unverified") {
+  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
     return c.json(
       {
         success: false,
-        message: "Akun anda belum diverifikasi.",
-        error: {},
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses detail ini",
+        },
       },
       403,
     );
@@ -171,6 +180,20 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
   const zodParseResult = listTerminateQuerySchema.parse(c.req.query());
   const { q, page } = zodParseResult;
 
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
+
   const userAccount = await db
     .select()
     .from(accountTable)
@@ -289,6 +312,20 @@ terminateProtectedRouter.openapi(terminationStatusMARoute, async (c) => {
     .where(eq(accountTable.id, user.id))
     .limit(1);
 
+  if (user.type !== "mahasiswa") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya MA yang bisa mengakses status terminasi MA",
+        },
+      },
+      403,
+    );
+  }
+
   if (userAccount[0].status === "unverified") {
     return c.json(
       {
@@ -375,6 +412,20 @@ terminateProtectedRouter.openapi(requestTerminateFromMARoute, async (c) => {
     );
   }
 
+  if (user.type !== "mahasiswa") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya MA yang bisa mengajukan request terminasi dari MA",
+        },
+      },
+      403,
+    );
+  }
+
   try {
     await db.transaction(async (tx) => {
       await tx
@@ -391,6 +442,85 @@ terminateProtectedRouter.openapi(requestTerminateFromMARoute, async (c) => {
           ),
         );
     });
+
+    const otaData = await db
+    .select({
+      name: accountOtaDetailTable.name,
+      email: accountTable.email,
+    })
+    .from(accountOtaDetailTable)
+    .innerJoin(accountTable, eq(accountOtaDetailTable.accountId, accountTable.id))
+    .where(eq(accountOtaDetailTable.accountId, otaId))
+    .limit(1);
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
+
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : otaData[0].email,
+        subject: "Permintaan Pemutusan Bantuan Asuh",
+        html: requestTerminasiEmail(user.name ?? "", otaData[0].name, "ma", "https://wa.me/6285624654990"),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
+
+    const subscription = await db
+      .select()
+      .from(pushSubscriptionTable)
+      .where(eq(pushSubscriptionTable.accountId, user.id))
+      .limit(1);
+
+    if (subscription.length > 0) {
+      const { endpoint, keys } = subscription[0];
+      const { p256dh, auth } = keys as { p256dh: string; auth: string };
+
+      const validatedData = SubscriptionSchema.parse({
+        endpoint,
+        p256dh,
+        auth,
+      });
+
+      const pushSubscription = {
+        endpoint: validatedData.endpoint,
+        keys: {
+          p256dh: validatedData.p256dh,
+          auth: validatedData.auth,
+        },
+      };
+
+      const notificationData = {
+        title: "Permintaan Pemutusan Bantuan Asuh",
+        body: `Permintaan pemutusan bantuan asuh telah diajukan`,
+        icon: "/icon/logo-iom-white.png",
+        actions: [
+          {
+            action: "open_url",
+            title: "Buka Aplikasi",
+            icon: "/icon/logo-iom-white.png",
+          },
+        ],
+      };
+
+      await sendNotification(pushSubscription, notificationData);
+    }
 
     return c.json(
       {
@@ -442,6 +572,20 @@ terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
     );
   }
 
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengajukan request terminasi dari OTA",
+        },
+      },
+      403,
+    );
+  }
+
   try {
     await db.transaction(async (tx) => {
       await tx
@@ -458,6 +602,86 @@ terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
           ),
         );
     });
+
+    const maData = await db
+      .select({
+        id: accountMahasiswaDetailTable.accountId,
+        name: accountMahasiswaDetailTable.name,
+        email: accountTable.email,
+      })
+      .from(accountMahasiswaDetailTable)
+      .innerJoin(accountTable, eq(accountMahasiswaDetailTable.accountId, accountTable.id))
+      .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
+      .limit(1);
+    
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
+
+    await transporter
+      .sendMail({
+        from: env.EMAIL_FROM,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : maData[0].email,
+        subject: "Permintaan Pemutusan Bantuan Asuh",
+        html: requestTerminasiEmail(user.name ?? "", maData[0].name ?? "", "ota", "https://wa.me/6285624654990"),
+      })
+      .catch((error) => {
+        console.error("Error sending email:", error);
+      });
+
+    const subscription = await db
+      .select()
+      .from(pushSubscriptionTable)
+      .where(eq(pushSubscriptionTable.accountId, user.id))
+      .limit(1);
+
+    if (subscription.length > 0) {
+      const { endpoint, keys } = subscription[0];
+      const { p256dh, auth } = keys as { p256dh: string; auth: string };
+
+      const validatedData = SubscriptionSchema.parse({
+        endpoint,
+        p256dh,
+        auth,
+      });
+
+      const pushSubscription = {
+        endpoint: validatedData.endpoint,
+        keys: {
+          p256dh: validatedData.p256dh,
+          auth: validatedData.auth,
+        },
+      };
+
+      const notificationData = {
+        title: "Permintaan Pemutusan Bantuan Asuh",
+        body: `Permintaan pemutusan bantuan asuh telah diajukan`,
+        icon: "/icon/logo-iom-white.png",
+        actions: [
+          {
+            action: "open_url",
+            title: "Buka Aplikasi",
+            icon: "/icon/logo-iom-white.png",
+          },
+        ],
+      };
+
+      await sendNotification(pushSubscription, notificationData);
+    }
 
     return c.json(
       {
@@ -509,6 +733,53 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
     );
   }
 
+  if (user.type !== "admin" && user.type !== "bankes") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin atau bankes yang bisa menerima validasi request terminasi",
+        },
+      },
+      403,
+    );
+  }
+
+  const connection = await db
+    .select()
+    .from(connectionTable)
+    .where(
+      and(
+        eq(connectionTable.mahasiswaId, mahasiswaId),
+        eq(connectionTable.otaId, otaId)
+      ),
+    )
+    .limit(1);
+
+  const otaData = await db
+    .select({
+      id: accountOtaDetailTable.accountId,
+      name: accountOtaDetailTable.name,
+      email: accountTable.email,
+    })
+    .from(accountOtaDetailTable)
+    .innerJoin(accountTable, eq(accountOtaDetailTable.accountId, accountTable.id))
+    .where(eq(accountOtaDetailTable.accountId, otaId))
+    .limit(1);
+
+  const maData = await db
+    .select({
+      id: accountMahasiswaDetailTable.accountId,
+      name: accountMahasiswaDetailTable.name,
+      email: accountTable.email,
+    })
+    .from(accountMahasiswaDetailTable)
+    .innerJoin(accountTable, eq(accountMahasiswaDetailTable.accountId, accountTable.id))
+    .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
+    .limit(1);
+
   try {
     await db.transaction(async (tx) => {
       await tx
@@ -530,6 +801,130 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
         .set({ mahasiswaStatus: "inactive" })
         .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId));
     });
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
+
+    if (connection[0].requestTerminateMahasiswa === true){      
+      await transporter
+        .sendMail({
+          from: env.EMAIL_FROM,
+          to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : maData[0].email,
+          subject: "Permintaan Pemberhentian Hubungan Asuh Disetujui",
+          html: terminasiAcceptedMAEmail(maData[0].name ?? "", otaData[0].name)
+        })
+        .catch((error) => {
+          console.error("Error sending email:", error);
+        });
+
+      const subscriptionMA = await db
+        .select()
+        .from(pushSubscriptionTable)
+        .where(eq(pushSubscriptionTable.accountId, maData[0].id))
+        .limit(1);
+
+      if (subscriptionMA.length > 0) {
+        const { endpoint, keys } = subscriptionMA[0];
+        const { p256dh, auth } = keys as { p256dh: string; auth: string };
+  
+        const validatedData = SubscriptionSchema.parse({
+          endpoint,
+          p256dh,
+          auth,
+        });
+  
+        const pushSubscription = {
+          endpoint: validatedData.endpoint,
+          keys: {
+            p256dh: validatedData.p256dh,
+            auth: validatedData.auth,
+          },
+        };
+  
+        const notificationData = {
+          title: "Permintaan Pemberhentian Hubungan Asuh Disetujui",
+          body: `Permintaan pemberhentian hubungan asuh dengan OTA ${otaData[0].name} disetujui`,
+          icon: "/icon/logo-iom-white.png",
+          actions: [
+            {
+              action: "open_url",
+              title: "Buka Aplikasi",
+              icon: "/icon/logo-iom-white.png",
+            },
+          ],
+        };
+  
+        await sendNotification(pushSubscription, notificationData);
+      }
+    }
+
+    if (connection[0].requestTerminateOta === true){
+      await transporter
+        .sendMail({
+          from: env.EMAIL_FROM,
+          to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : otaData[0].email,
+          subject: "Permintaan Pemberhentian Hubungan Asuh Disetujui",
+          html: terminasiAcceptedMAEmail(otaData[0].name, maData[0].name ?? ""),
+        })
+        .catch((error) => {
+          console.error("Error sending email:", error);
+        });
+
+      const subscriptionOTA = await db
+        .select()
+        .from(pushSubscriptionTable)
+        .where(eq(pushSubscriptionTable.accountId, otaData[0].id))
+        .limit(1);
+      
+      if (subscriptionOTA.length > 0) {
+        const { endpoint, keys } = subscriptionOTA[0];
+        const { p256dh, auth } = keys as { p256dh: string; auth: string };
+  
+        const validatedData = SubscriptionSchema.parse({
+          endpoint,
+          p256dh,
+          auth,
+        });
+  
+        const pushSubscription = {
+          endpoint: validatedData.endpoint,
+          keys: {
+            p256dh: validatedData.p256dh,
+            auth: validatedData.auth,
+          },
+        };
+  
+        const notificationData = {
+          title: "Permintaan Pemberhentian Hubungan Asuh Disetujui",
+          body: `Permintaan pemberhentian hubungan asuh dengan mahasiswa ${maData[0].name} disetujui`,
+          icon: "/icon/logo-iom-white.png",
+          actions: [
+            {
+              action: "open_url",
+              title: "Buka Aplikasi",
+              icon: "/icon/logo-iom-white.png",
+            },
+          ],
+        };
+  
+        await sendNotification(pushSubscription, notificationData);
+      }
+    }
 
     return c.json(
       {
@@ -575,6 +970,20 @@ terminateProtectedRouter.openapi(rejectTerminateRoute, async (c) => {
         success: false,
         message: "Akun anda belum diverifikasi.",
         error: {},
+      },
+      403,
+    );
+  }
+
+  if (user.type !== "admin" && user.type !== "bankes") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin atau bankes yang bisa menolak validasi request terminasi",
+        },
       },
       403,
     );

@@ -79,6 +79,20 @@ profileProtectedRouter.openapi(pendaftaranMahasiswaRoute, async (c) => {
     );
   }
 
+  if (user.type !== "mahasiswa") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya MA yang bisa mendaftar sebagai mahasiswa asuh",
+        },
+      },
+      403,
+    );
+  }
+
   try {
     const uploads = [
       uploadPdfToCloudinary(file),
@@ -282,6 +296,20 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
     );
   }
 
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mendaftar sebagai orang tua asuh",
+        },
+      },
+      403,
+    );
+  }
+
   try {
     await db.transaction(async (tx) => {
       await tx.insert(accountOtaDetailTable).values({
@@ -365,6 +393,7 @@ profileProtectedRouter.openapi(pendaftaranOrangTuaRoute, async (c) => {
 });
 
 profileProtectedRouter.openapi(pembuatanAkunBankesPengurusRoute, async (c) => {
+  const user = c.var.user
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
 
@@ -373,6 +402,20 @@ profileProtectedRouter.openapi(pembuatanAkunBankesPengurusRoute, async (c) => {
   const { name, email, password, type, phoneNumber } = zodParseResult;
 
   const hashedPassword = await hash(password, 10);
+
+  if (user.type !== "admin") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin yang bisa membuatkan akun bankes dan pengurus",
+        },
+      },
+      403,
+    );
+  }
 
   try {
     const newUser = await db
@@ -456,6 +499,20 @@ profileProtectedRouter.openapi(editProfileOrangTuaRoute, async (c) => {
         success: false,
         message: "Akun anda belum diverifikasi.",
         error: {},
+      },
+      403,
+    );
+  }
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa melakukan perubahan pada profile OTA",
+        },
       },
       403,
     );
@@ -552,6 +609,20 @@ profileProtectedRouter.openapi(editProfileMahasiswaRoute, async (c) => {
         success: false,
         message: "Akun anda belum diverifikasi.",
         error: {},
+      },
+      403,
+    );
+  }
+
+  if (user.type !== "mahasiswa") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya MA yang bisa melakukan perubahan pada profile MA",
+        },
       },
       403,
     );
@@ -719,6 +790,20 @@ profileProtectedRouter.openapi(profileOrangTuaRoute, async (c) => {
     );
   }
 
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses profile OTA",
+        },
+      },
+      403,
+    );
+  }
+
   try {
     const profileDataOTA = await db
       .select({
@@ -813,6 +898,20 @@ profileProtectedRouter.openapi(profileMahasiswaRoute, async (c) => {
         success: false,
         message: "Akun anda belum diverifikasi.",
         error: {},
+      },
+      403,
+    );
+  }
+
+  if (user.type !== "mahasiswa") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya MA yang bisa mengakses profile MA",
+        },
       },
       403,
     );

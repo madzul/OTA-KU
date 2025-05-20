@@ -90,7 +90,7 @@ export function persetujuanAsuhMA(
                                             <div id="igpf5" style="box-sizing: border-box; font-family: Ubuntu, Helvetica, Arial, sans-serif; font-size: 13px; line-height: 24px; text-align: left; color: #003A6E;">
                                               <div id="imuyp" style="box-sizing: border-box; text-align: justify;">
                                                 <span id="irat0i" style="box-sizing: border-box; text-align: left;">Halo <b id="iky1rzw" draggable="true" style="box-sizing: border-box;">${nama}
-                                                  </b>, ${role == "ma" ? "Selamat Anda telah mendapatkan Bantuan Orang Tua Asuh" : "Mahasiswa Asuh Anda telah disetujui."}.<br style="box-sizing: border-box;"><br style="box-sizing: border-box;"><span id="ioy1m2" style="box-sizing: border-box; text-align: center;">Nama ${role == "ma" ? "Orang Tua" : "Mahasiswa"} Asuh Anda</span></span>
+                                                  </b>, ${role == "ma" ? "Selamat Anda telah mendapatkan Bantuan Orang Tua Asuh" : "Mahasiswa Asuh Anda telah disetujui"}.<br style="box-sizing: border-box;"><br style="box-sizing: border-box;"><span id="ioy1m2" style="box-sizing: border-box; text-align: center;">Nama ${role == "ma" ? "Orang Tua" : "Mahasiswa"} Asuh Anda</span></span>
                                               </div>
                                               <div id="ilr8cd" style="box-sizing: border-box; text-align: left;">
                                               </div>
