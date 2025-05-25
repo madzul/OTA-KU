@@ -1,5 +1,6 @@
 import { and, count, eq, ilike, or } from "drizzle-orm";
 import nodemailer from "nodemailer";
+
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
@@ -9,6 +10,9 @@ import {
   connectionTable,
   pushSubscriptionTable,
 } from "../db/schema.js";
+import { requestTerminasiEmail } from "../lib/email/request-terminasi.js";
+import { terminasiAcceptedMAEmail } from "../lib/email/terminasi-accepted-ma.js";
+import { sendNotification } from "../lib/web-push.js";
 import {
   listTerminateForAdminRoute,
   listTerminateForOTARoute,
@@ -18,16 +22,13 @@ import {
   terminationStatusMARoute,
   validateTerminateRoute,
 } from "../routes/terminate.route.js";
+import { SubscriptionSchema } from "../zod/push.js";
 import {
   TerminateRequestSchema,
   listTerminateQuerySchema,
   verifTerminateRequestSchema,
 } from "../zod/terminate.js";
 import { createAuthRouter } from "./router-factory.js";
-import { requestTerminasiEmail } from "../lib/email/request-terminasi.js";
-import { SubscriptionSchema } from "../zod/push.js";
-import { sendNotification } from "../lib/web-push.js";
-import { terminasiAcceptedMAEmail } from "../lib/email/terminasi-accepted-ma.js";
 
 export const terminateProtectedRouter = createAuthRouter();
 
@@ -44,14 +45,19 @@ terminateProtectedRouter.openapi(listTerminateForAdminRoute, async (c) => {
     .where(eq(accountTable.id, user.id))
     .limit(1);
 
-  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+  if (
+    user.type !== "admin" &&
+    user.type !== "bankes" &&
+    user.type !== "pengurus"
+  ) {
     return c.json(
       {
         success: false,
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses detail ini",
+          message:
+            "Hanya admin, bankes, atau pengurus yang bisa mengakses detail ini",
         },
       },
       403,
@@ -123,7 +129,7 @@ terminateProtectedRouter.openapi(listTerminateForAdminRoute, async (c) => {
             eq(connectionTable.requestTerminateMahasiswa, true),
             eq(connectionTable.requestTerminateOta, true),
           ),
-            // eq(connectionTable.connectionStatus, "pending"),
+          // eq(connectionTable.connectionStatus, "pending"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
             ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
@@ -138,7 +144,6 @@ terminateProtectedRouter.openapi(listTerminateForAdminRoute, async (c) => {
       terminateListQuery,
       countsQuery,
     ]);
-
 
     return c.json(
       {
@@ -230,6 +235,7 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
       )
       .where(
         and(
+          eq(connectionTable.otaId, user.id),
           eq(connectionTable.connectionStatus, "accepted"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
@@ -256,6 +262,7 @@ terminateProtectedRouter.openapi(listTerminateForOTARoute, async (c) => {
       )
       .where(
         and(
+          eq(connectionTable.otaId, user.id),
           eq(connectionTable.connectionStatus, "accepted"),
           or(
             ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
@@ -445,14 +452,17 @@ terminateProtectedRouter.openapi(requestTerminateFromMARoute, async (c) => {
     });
 
     const otaData = await db
-    .select({
-      name: accountOtaDetailTable.name,
-      email: accountTable.email,
-    })
-    .from(accountOtaDetailTable)
-    .innerJoin(accountTable, eq(accountOtaDetailTable.accountId, accountTable.id))
-    .where(eq(accountOtaDetailTable.accountId, otaId))
-    .limit(1);
+      .select({
+        name: accountOtaDetailTable.name,
+        email: accountTable.email,
+      })
+      .from(accountOtaDetailTable)
+      .innerJoin(
+        accountTable,
+        eq(accountOtaDetailTable.accountId, accountTable.id),
+      )
+      .where(eq(accountOtaDetailTable.accountId, otaId))
+      .limit(1);
 
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
@@ -477,7 +487,12 @@ terminateProtectedRouter.openapi(requestTerminateFromMARoute, async (c) => {
         from: env.EMAIL_FROM,
         to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : otaData[0].email,
         subject: "Permintaan Pemutusan Bantuan Asuh",
-        html: requestTerminasiEmail(user.name ?? "", otaData[0].name, "ma", "https://wa.me/6285624654990"),
+        html: requestTerminasiEmail(
+          user.name ?? "",
+          otaData[0].name,
+          "ma",
+          "https://wa.me/6285624654990",
+        ),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
@@ -611,10 +626,13 @@ terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
         email: accountTable.email,
       })
       .from(accountMahasiswaDetailTable)
-      .innerJoin(accountTable, eq(accountMahasiswaDetailTable.accountId, accountTable.id))
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+      )
       .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
       .limit(1);
-    
+
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       secure: true,
@@ -638,7 +656,12 @@ terminateProtectedRouter.openapi(requestTerminateFromOTARoute, async (c) => {
         from: env.EMAIL_FROM,
         to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : maData[0].email,
         subject: "Permintaan Pemutusan Bantuan Asuh",
-        html: requestTerminasiEmail(user.name ?? "", maData[0].name ?? "", "ota", "https://wa.me/6285624654990"),
+        html: requestTerminasiEmail(
+          user.name ?? "",
+          maData[0].name ?? "",
+          "ota",
+          "https://wa.me/6285624654990",
+        ),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
@@ -741,7 +764,8 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin atau bankes yang bisa menerima validasi request terminasi",
+          message:
+            "Hanya admin atau bankes yang bisa menerima validasi request terminasi",
         },
       },
       403,
@@ -754,7 +778,7 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
     .where(
       and(
         eq(connectionTable.mahasiswaId, mahasiswaId),
-        eq(connectionTable.otaId, otaId)
+        eq(connectionTable.otaId, otaId),
       ),
     )
     .limit(1);
@@ -766,7 +790,10 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
       email: accountTable.email,
     })
     .from(accountOtaDetailTable)
-    .innerJoin(accountTable, eq(accountOtaDetailTable.accountId, accountTable.id))
+    .innerJoin(
+      accountTable,
+      eq(accountOtaDetailTable.accountId, accountTable.id),
+    )
     .where(eq(accountOtaDetailTable.accountId, otaId))
     .limit(1);
 
@@ -777,7 +804,10 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
       email: accountTable.email,
     })
     .from(accountMahasiswaDetailTable)
-    .innerJoin(accountTable, eq(accountMahasiswaDetailTable.accountId, accountTable.id))
+    .innerJoin(
+      accountTable,
+      eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+    )
     .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
     .limit(1);
 
@@ -821,13 +851,13 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
       }
     });
 
-    if (connection[0].requestTerminateMahasiswa === true){      
+    if (connection[0].requestTerminateMahasiswa === true) {
       await transporter
         .sendMail({
           from: env.EMAIL_FROM,
           to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : maData[0].email,
           subject: "Permintaan Pemberhentian Hubungan Asuh Disetujui",
-          html: terminasiAcceptedMAEmail(maData[0].name ?? "", otaData[0].name)
+          html: terminasiAcceptedMAEmail(maData[0].name ?? "", otaData[0].name),
         })
         .catch((error) => {
           console.error("Error sending email:", error);
@@ -842,13 +872,13 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
       if (subscriptionMA.length > 0) {
         const { endpoint, keys } = subscriptionMA[0];
         const { p256dh, auth } = keys as { p256dh: string; auth: string };
-  
+
         const validatedData = SubscriptionSchema.parse({
           endpoint,
           p256dh,
           auth,
         });
-  
+
         const pushSubscription = {
           endpoint: validatedData.endpoint,
           keys: {
@@ -856,7 +886,7 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
             auth: validatedData.auth,
           },
         };
-  
+
         const notificationData = {
           title: "Permintaan Pemberhentian Hubungan Asuh Disetujui",
           body: `Permintaan pemberhentian hubungan asuh dengan OTA ${otaData[0].name} disetujui`,
@@ -869,12 +899,12 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
             },
           ],
         };
-  
+
         await sendNotification(pushSubscription, notificationData);
       }
     }
 
-    if (connection[0].requestTerminateOta === true){
+    if (connection[0].requestTerminateOta === true) {
       await transporter
         .sendMail({
           from: env.EMAIL_FROM,
@@ -891,17 +921,17 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
         .from(pushSubscriptionTable)
         .where(eq(pushSubscriptionTable.accountId, otaData[0].id))
         .limit(1);
-      
+
       if (subscriptionOTA.length > 0) {
         const { endpoint, keys } = subscriptionOTA[0];
         const { p256dh, auth } = keys as { p256dh: string; auth: string };
-  
+
         const validatedData = SubscriptionSchema.parse({
           endpoint,
           p256dh,
           auth,
         });
-  
+
         const pushSubscription = {
           endpoint: validatedData.endpoint,
           keys: {
@@ -909,7 +939,7 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
             auth: validatedData.auth,
           },
         };
-  
+
         const notificationData = {
           title: "Permintaan Pemberhentian Hubungan Asuh Disetujui",
           body: `Permintaan pemberhentian hubungan asuh dengan mahasiswa ${maData[0].name} disetujui`,
@@ -922,7 +952,7 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
             },
           ],
         };
-  
+
         await sendNotification(pushSubscription, notificationData);
       }
     }
@@ -983,7 +1013,8 @@ terminateProtectedRouter.openapi(rejectTerminateRoute, async (c) => {
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin atau bankes yang bisa menolak validasi request terminasi",
+          message:
+            "Hanya admin atau bankes yang bisa menolak validasi request terminasi",
         },
       },
       403,
