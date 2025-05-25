@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { ForgotPasswordSchema } from "@/lib/zod/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute, redirect } from "@tanstack/react-router";
 import { Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -20,6 +20,13 @@ import { z } from "zod";
 
 export const Route = createFileRoute("/_app/auth/lupa-password/")({
   component: RouteComponent,
+  beforeLoad: async ({ context }) => {
+    const user = context.session;
+
+    if (user) {
+      throw redirect({ to: "/" });
+    }
+  },
 });
 
 type ForgotPasswordFormValues = z.infer<typeof ForgotPasswordSchema>;

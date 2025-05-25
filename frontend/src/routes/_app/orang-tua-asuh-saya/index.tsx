@@ -2,19 +2,52 @@ import { api } from "@/api/client";
 import Metadata from "@/components/metadata";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import DetailCardsOrangTuaAsuh from "./-components/detail-card";
 import { UserX } from "lucide-react";
+
+import DetailCardsOrangTuaAsuh from "./-components/detail-card";
 
 export const Route = createFileRoute("/_app/orang-tua-asuh-saya/")({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
     const user = context.session;
+
     if (!user) {
       throw redirect({ to: "/auth/login" });
     }
+
     if (user.type !== "mahasiswa") {
       throw redirect({ to: "/" });
     }
+
+    const verificationStatus = await api.status
+      .getVerificationStatus({
+        id: user.id,
+      })
+      .catch(() => null);
+
+    if (!verificationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (verificationStatus.body.status !== "verified") {
+      throw redirect({ to: "/auth/otp-verification" });
+    }
+
+    const applicationStatus = await api.status
+      .getApplicationStatus({ id: user.id })
+      .catch(() => null);
+
+    if (!applicationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (
+      applicationStatus.body.status !== "accepted" &&
+      applicationStatus.body.status !== "reapply"
+    ) {
+      throw redirect({ to: "/" });
+    }
+
     return { user };
   },
 });
@@ -37,7 +70,7 @@ function RouteComponent() {
       </h1>
       {!hasOta ? (
         <div className="flex w-full max-w-[300px] flex-col items-center justify-center gap-4">
-          <div className="mb-4 h-24 w-24 flex items-center justify-center overflow-hidden rounded-full bg-gray-100">
+          <div className="mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-gray-100">
             <UserX className="h-12 w-12 text-gray-400" />
           </div>
           <h2 className="text-lg font-bold">Belum ada orang tua asuh</h2>

@@ -1,20 +1,24 @@
 import Metadata from "@/components/metadata";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { OTASelection } from "./-components/ota-selection";
-import { MahasiswaSelection } from "./-components/mahasiswa-selection";
 import { useState } from "react";
+
+import { MahasiswaSelection } from "./-components/mahasiswa-selection";
 import { OTA } from "./-components/ota-popover";
+import { OTASelection } from "./-components/ota-selection";
 
 export const Route = createFileRoute("/_app/pemasangan-bota/")({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
     const user = context.session;
+
     if (!user) {
       throw redirect({ to: "/auth/login" });
     }
-    if (user.type !== "admin") {
+
+    if (user.type === "mahasiswa" || user.type === "ota") {
       throw redirect({ to: "/" });
     }
+
     return { user };
   },
 });

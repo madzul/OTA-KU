@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_app/verifikasi-akun/")({
       throw redirect({ to: "/auth/login" });
     }
 
-    if (user.type !== "admin") {
+    if (user.type === "mahasiswa" || user.type === "ota") {
       throw redirect({ to: "/" });
     }
 

@@ -1,3 +1,4 @@
+import { api } from "@/api/client";
 import Metadata from "@/components/metadata";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
@@ -9,12 +10,41 @@ export const Route = createFileRoute("/_app/status-transaksi/")({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
     const user = context.session;
+
     if (!user) {
       throw redirect({ to: "/auth/login" });
     }
+
     if (user.type !== "ota") {
       throw redirect({ to: "/" });
     }
+
+    const verificationStatus = await api.status
+      .getVerificationStatus({
+        id: user.id,
+      })
+      .catch(() => null);
+
+    if (!verificationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (verificationStatus.body.status !== "verified") {
+      throw redirect({ to: "/auth/otp-verification" });
+    }
+
+    const applicationStatus = await api.status
+      .getApplicationStatus({ id: user.id })
+      .catch(() => null);
+
+    if (!applicationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (applicationStatus.body.status !== "accepted") {
+      throw redirect({ to: "/" });
+    }
+
     return { user };
   },
 });
