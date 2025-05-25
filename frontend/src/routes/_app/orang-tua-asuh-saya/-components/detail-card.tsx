@@ -10,9 +10,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { SessionContext } from "@/context/session";
 import { censorEmail } from "@/lib/formatter";
-import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   AlertCircle,
@@ -34,13 +34,14 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
 }) => {
   const session = useContext(SessionContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const [isRequested, setIsRequested] = useState(false);
 
   const reqTerminateOTA = useMutation({
-    mutationFn: (data: { otaId: string }) => {
+    mutationFn: (data: { otaId: string; note: string }) => {
       return api.terminate.requestTerminateFromMa({
         formData: {
-          // TODO: Nanti tambahin input catatan terminasi
-          requestTerminationNote: "Pengakhiran hubungan asuh",
+          requestTerminationNote: note,
           mahasiswaId: session?.id ? session.id : "",
           otaId: data.otaId,
         },
@@ -48,17 +49,26 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
     },
     onSuccess: () => {
       setIsModalOpen(false);
+      setIsRequested(true);
     },
   });
 
   const handleTerminate = () => {
-    reqTerminateOTA.mutate({ otaId: id });
+    reqTerminateOTA.mutate({ otaId: id, note: note });
   };
 
   const { data: terminationData } = useQuery({
     queryKey: ["terminationData"],
     queryFn: () => api.terminate.terminationStatusMa(),
   });
+
+  React.useEffect(() => {
+    setIsRequested(
+      terminationData?.body.requestTerminateMA === undefined
+        ? false
+        : terminationData.body.requestTerminateMA,
+    );
+  }, [terminationData]);
 
   return (
     <div className="flex w-full max-w-[300px] justify-center">
@@ -120,20 +130,28 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
         <Button
           className="rounded-xl transition-colors hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
           variant={"destructive"}
-          disabled={terminationData?.body.requestTerminateMA}
+          disabled={isRequested}
           onClick={() => setIsModalOpen(true)}
         >
           Akhiri Hubungan Asuh
         </Button>
-        <p
-          className={cn(
-            terminationData?.body.requestTerminateMA
-              ? "text-center text-sm"
-              : "hidden",
-          )}
-        >
-          Menunggu konfirmasi Admin
-        </p>
+
+        {isRequested && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-15 w-15 text-amber-600" />
+              <div>
+                <h3 className="font-semibold text-amber-800">
+                  Menunggu Konfirmasi Admin
+                </h3>
+                <p className="text-sm text-amber-700">
+                  Permintaan terminasi Anda sedang diproses. Kami akan memberi
+                  tahu Anda setelah dikonfirmasi.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Confirmation Modal */}
@@ -141,27 +159,25 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-600">
-              <AlertCircle className="h-5 w-5" />
               Konfirmasi Pengakhiran Hubungan
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-justify">
               Apakah Anda yakin ingin mengakhiri hubungan dengan orang tua asuh{" "}
               <span className="font-bold">{name}</span>?
             </DialogDescription>
           </DialogHeader>
 
-          <p className="text-sm text-gray-500">
-            Tindakan ini akan mengakhiri hubungan Anda dengan orang tua asuh.
-            Setelah pengakhiran hubungan, Anda tidak akan lagi dapat menerima
-            beasiswa dari orang tua asuh.
-          </p>
+          <Textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Masukkan alasan terminasi (wajib)"
+          />
 
           <DialogFooter className="grid grid-cols-2 gap-2 sm:gap-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsModalOpen(false)}
-              className="border-gray-300 hover:bg-gray-50 active:bg-gray-100"
             >
               Batal
             </Button>
@@ -169,9 +185,8 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
               type="button"
               variant="destructive"
               onClick={handleTerminate}
-              className="bg-red-500 hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
             >
-              Ya, Akhiri Hubungan
+              Akhiri Hubungan
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,5 +1,7 @@
+"use client";
+
 import { api } from "@/api/client";
-import { ListTerminateForOTA } from "@/api/generated";
+import type { ListTerminateForOTA } from "@/api/generated";
 import Metadata from "@/components/metadata";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { SessionContext } from "@/context/session";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
@@ -46,6 +49,7 @@ interface StudentCardProps {
 function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
   const session = useContext(SessionContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [note, setNote] = useState("");
 
   const deleteConnection = useMutation({
     mutationFn: (data: { maId: string; requestTerminationNote: string }) => {
@@ -65,29 +69,36 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
       } catch (e: Error | unknown) {
         toast.error(
           `Gagal mengakhiri hubungan dengan ${student.maName}. Silakan coba lagi.`,
-          { description: e instanceof Error ? e.message : String(e) },
+          {
+            description: e instanceof Error ? e.message : String(e),
+          },
         );
       }
     },
+    onError: () => {
+      toast.error(
+        `Gagal mengakhiri hubungan dengan ${student.maName}. Silakan coba lagi.`,
+      );
+    },
   });
 
-  const handleTerminate = () => {
+  const handleTerminate = (note: string) => {
     deleteConnection.mutate({
       maId: student.mahasiswaId,
-      // TODO: Nanti tambahin input catatan terminasi
-      requestTerminationNote:
-        "Saya sudah tidak ingin berhubungan dengan mahasiswa ini.",
+      requestTerminationNote: note,
     });
   };
 
   return (
-    <Card className="w-full rounded-lg bg-white p-6 shadow-sm">
-      <div className="flex items-center justify-between">
+    <Card
+      className={`w-full rounded-lg p-6 shadow-sm ${student.requestTerminateOta ? "border-l-4 border-l-amber-500 bg-gray-50" : "bg-white"}`}
+    >
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">{student.maName}</h2>
-          <p className="text-xl text-gray-500">{student.maNIM || "13522005"}</p>
+          <p className="text-xl text-gray-500">{`${student.maNIM.slice(0, 5)}XXX`}</p>
           <p className="mt-2 text-gray-500">
-            Berhubungan sejak:{" "}
+            Masa asuh aktif sejak:{" "}
             <span className="font-semibold">
               {new Date(student.createdAt).toLocaleDateString("id-ID", {
                 day: "2-digit",
@@ -96,19 +107,37 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               })}
             </span>
           </p>
+
+          {student.requestTerminateOta && (
+            <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3 md:mr-5">
+              <h3 className="font-semibold text-amber-800">
+                Alasan Terminasi:
+              </h3>
+              <p className="mt-1 text-gray-700">
+                {student.requestTerminationNoteOTA}
+              </p>
+            </div>
+          )}
         </div>
-        <Button
-          variant="destructive"
-          className="flex items-center gap-2 rounded-md bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <img
-            src="/icon/Type=remove.svg"
-            alt="Terminate"
-            className="h-5 w-5"
-          />
-          Terminate
-        </Button>
+
+        {student.requestTerminateOta ? (
+          <Button variant="destructive" className="rounded-md" disabled>
+            Menunggu Persetujuan
+          </Button>
+        ) : (
+          <Button
+            variant="destructive"
+            className="flex items-center gap-2 rounded-md bg-red-500 px-4 py-2 text-white transition-colors hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <img
+              src="/icon/Type=remove.svg"
+              alt="Terminate"
+              className="h-5 w-5"
+            />
+            Ajukan Berhenti
+          </Button>
+        )}
       </div>
 
       {/* Confirmation Modal */}
@@ -122,14 +151,15 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               Apakah Anda yakin ingin mengakhiri hubungan dengan mahasiswa asuh{" "}
               <span className="font-bold">{student.maName}</span>?
             </DialogDescription>
+            <DialogDescription>
+              <span></span>
+              <Textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Masukkan alasan terminasi (wajib)"
+              />
+            </DialogDescription>
           </DialogHeader>
-          {/* <div className="py-4">
-            <p className="text-sm text-gray-500">
-              Tindakan ini akan mengakhiri hubungan akademik Anda dengan
-              mahasiswa ini. Setelah terminasi, Anda tidak akan dapat melihat
-              atau berinteraksi dengan mahasiswa ini lagi.
-            </p>
-          </div> */}
           <DialogFooter className="flex justify-end gap-2 sm:justify-end">
             <Button
               type="button"
@@ -142,7 +172,7 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
             <Button
               type="button"
               variant="destructive"
-              onClick={handleTerminate}
+              onClick={() => handleTerminate(note)}
               className="bg-red-500 hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
             >
               {"Ya, Terminasi"}

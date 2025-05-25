@@ -20,5 +20,7 @@ export type MAListElementStatus = {
    * Status mahasiswa
    */
   mahasiswaStatus: 'active' | 'inactive';
+  request_term_ota: boolean;
+  request_term_ma: boolean;
 };
 

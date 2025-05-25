@@ -190,7 +190,7 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
         },
         {
           id: "terminasi-mahasiswa",
-          label: "Terminasi Mahasiswa",
+          label: "Berhenti Mengasuh",
           icon: "/icon/Type=remove-destructive.svg",
           path: "/daftar/terminasi-mahasiswa",
           bgColorClass: " bg-destructive/10",

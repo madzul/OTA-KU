@@ -91,7 +91,7 @@ export default function TerminasiTable({
                 </div>
               </td>
               <td className="px-2 py-3">
-                {item.requestTerminationNote ? (
+                {item.requestTerminationNoteOTA ? (
                   <Button
                     variant={"outline"}
                     onClick={() => onViewOtaNotes(item)}
@@ -103,7 +103,7 @@ export default function TerminasiTable({
                 )}
               </td>
               <td className="px-2 py-3">
-                {item.requestTerminationNote ? (
+                {item.requestTerminationNoteMA ? (
                   <Button
                     variant={"outline"}
                     onClick={() => onViewMaNotes(item)}
@@ -116,7 +116,7 @@ export default function TerminasiTable({
               </td>
               <td className="flex gap-2 px-2 py-4">
                 <Button
-                  className="w-[88px]"
+                  className="w-[88px] rounded-md"
                   variant="destructive"
                   size="sm"
                   onClick={() => onTerminasi(item)}
@@ -124,7 +124,7 @@ export default function TerminasiTable({
                   Terminasi
                 </Button>
                 <Button
-                  className="w-[88px]"
+                  className="w-[88px] rounded-md"
                   variant="default"
                   size="sm"
                   onClick={() => onBatalTerminasi(item)}

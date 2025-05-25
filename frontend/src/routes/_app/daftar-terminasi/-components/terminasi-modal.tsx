@@ -28,18 +28,12 @@ export default function TerminasiModal({
   onConfirm,
   item,
 }: TerminasiModalProps) {
-  // TODO: Cek bisa atau ga setelah update db after sprint review 4
   const terminateConnection = useMutation({
-    mutationFn: (data: {
-      maId: string;
-      otaId: string;
-      requestTerminationNote: string;
-    }) => {
+    mutationFn: (data: { maId: string; otaId: string }) => {
       return api.terminate.validateTerminate({
         formData: {
           mahasiswaId: data.maId,
           otaId: data.otaId,
-          requestTerminationNote: data.requestTerminationNote,
         },
       });
     },
@@ -51,16 +45,11 @@ export default function TerminasiModal({
   });
 
   const cancleTerminateConnection = useMutation({
-    mutationFn: (data: {
-      maId: string;
-      otaId: string;
-      requestTerminationNote: string;
-    }) => {
+    mutationFn: (data: { maId: string; otaId: string }) => {
       return api.terminate.rejectTerminate({
         formData: {
           mahasiswaId: data.maId,
           otaId: data.otaId,
-          requestTerminationNote: data.requestTerminationNote,
         },
       });
     },
@@ -84,10 +73,10 @@ export default function TerminasiModal({
               Konfirmasi Tolak Terminasi
             </DialogTitle>
           )}
-          <DialogDescription className="text-gray-600">
+          <DialogDescription className="text-gray-600 text-justify">
             {mode === "accept"
-              ? "Apakah Anda yakin ingin melakukan terminasi hubungan antara OTA dan Mahasiswa berikut?"
-              : "Apakah Anda yakin ingin menolak permintaan terminasi hubungan antara OTA dan Mahasiswa berikut?"}
+              ? "Apakah Anda yakin ingin melakukan terminasi hubungan asuh antara OTA dan Mahasiswa berikut?"
+              : "Apakah Anda yakin ingin menolak permintaan terminasi hubungan asuh antara OTA dan Mahasiswa berikut?"}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -120,7 +109,6 @@ export default function TerminasiModal({
                 cancleTerminateConnection.mutate({
                   maId: item.mahasiswaId,
                   otaId: item.otaId,
-                  requestTerminationNote: item.requestTerminationNote,
                 });
               }}
               className="border border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
@@ -135,7 +123,6 @@ export default function TerminasiModal({
                 cancleTerminateConnection.mutate({
                   maId: item.mahasiswaId,
                   otaId: item.otaId,
-                  requestTerminationNote: item.requestTerminationNote,
                 });
               }}
               disabled={terminateConnection.isPending}
