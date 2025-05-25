@@ -1,10 +1,8 @@
 import { api } from "@/api/client";
 import Metadata from "@/components/metadata";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
 
-import StatusTransaksiFilter from "./-components/status-transaksi-filter";
-import StatusTransaksiTable from "./-components/status-transaksi-table";
+import TransactionStatusContent from "./-components/transaction-status-content";
 
 export const Route = createFileRoute("/_app/status-transaksi/")({
   component: RouteComponent,
@@ -50,34 +48,13 @@ export const Route = createFileRoute("/_app/status-transaksi/")({
 });
 
 function RouteComponent() {
-  // Get the current date for default filters
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear().toString();
-  const currentMonth = (currentDate.getMonth() + 1).toString(); // 1-12
-
-  // Set initial filters with current date
-  const [filters, setFilters] = useState<{
-    year: string;
-    month: string;
-  }>({
-    year: currentYear,
-    month: currentMonth,
-  });
-
-  const handleFilterChange = (newFilters: { year: string; month: string }) => {
-    console.log("Filters changed:", newFilters);
-    setFilters(newFilters);
-  };
-
   return (
-    <main className="min-h-screen px-6 py-8 md:px-12">
+    <main className="flex min-h-[calc(100vh-70px)] flex-col gap-4 p-2 px-6 py-16 md:px-12 lg:min-h-[calc(100vh-96px)]">
       <Metadata title="Status Transaksi | BOTA" />
-      <h1 className="text-primary mb-6 text-4xl font-bold">Status Transaksi</h1>
-
-      <div className="space-y-6">
-        <StatusTransaksiFilter onFilterChange={handleFilterChange} />
-        <StatusTransaksiTable year={filters.year} month={filters.month} />
-      </div>
+      <h1 className="text-dark text-3xl font-bold md:text-[50px]">
+        Status Transaksi
+      </h1>
+      <TransactionStatusContent />
     </main>
   );
 }

@@ -1,20 +1,15 @@
 import { z } from "@hono/zod-openapi";
 
 import { NIMSchema, PhoneNumberSchema } from "./atomic.js";
-import { parseSigned } from "hono/utils/cookie";
 
 export const TransactionListOTAQuerySchema = z.object({
-  q: z.string().optional().openapi({
-    description: "Query string for searching mahasiswa.",
-    example: "John Doe",
+  year: z.coerce.number().optional().openapi({
+    description: "Year filter",
+    example: 2024,
   }),
-  page: z.coerce.number().optional().openapi({
-    description: "Page number for pagination.",
+  month: z.coerce.number().optional().openapi({
+    description: "Month filter",
     example: 1,
-  }),
-  status: z.enum(["unpaid", "pending", "paid"]).optional().openapi({
-    description: "Status of transaction.",
-    example: "pending",
   }),
 });
 
@@ -25,38 +20,47 @@ export const TransactionListOTAQueryResponse = z.object({
     .openapi({ example: "Daftar transaction untuk OTA berhasil diambil" }),
   body: z.object({
     data: z.array(
-      z.object({
-        id: z.string().uuid().openapi({
-          description: "ID transaksi",
-          example: "123e4567-e89b-12d3-a456-426614174000",
-        }),
-        mahasiswa_id: z.string().uuid().openapi({
-          description: "ID transaksi",
-          example: "123e4567-e89b-12d3-a456-426614174000",
-        }),
-        name: z.string().openapi({ example: "John Doe" }),
-        nim: NIMSchema,
-        bill: z.number().openapi({ example: 300000 }),
-        amount_paid: z.number().openapi({ example: 200000 }),
-        paid_at: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
-        due_date: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
-        status: z
-          .enum(["unpaid", "pending", "paid"])
-          .openapi({ example: "pending" }),
-        receipt: z
-          .string()
-          .openapi({ example: "https://example.com/file.pdf" }),
-        rejection_note: z.string().optional().openapi({
-          description: "Alasan penolakan verifikasi pembayaran",
-          example: "Nominal yang ditransfer tidak sesuai dengan tagihan",
-        }),
-        paid_for: z.number().openapi({
-          description: "Jumlah bulan yang dibayarkan",
-          example: 3,
-        }),
-      }).openapi("TransactionOTA"),
+      z
+        .object({
+          id: z.string().uuid().openapi({
+            description: "ID transaksi",
+            example: "123e4567-e89b-12d3-a456-426614174000",
+          }),
+          mahasiswa_id: z.string().uuid().openapi({
+            description: "ID transaksi",
+            example: "123e4567-e89b-12d3-a456-426614174000",
+          }),
+          name: z.string().openapi({ example: "John Doe" }),
+          nim: NIMSchema,
+          bill: z.number().openapi({ example: 300000 }),
+          amount_paid: z.number().openapi({ example: 200000 }),
+          paid_at: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
+          due_date: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
+          status: z
+            .enum(["unpaid", "pending", "paid"])
+            .openapi({ example: "pending" }),
+          receipt: z
+            .string()
+            .openapi({ example: "https://example.com/file.pdf" }),
+          rejection_note: z.string().optional().openapi({
+            description: "Alasan penolakan verifikasi pembayaran",
+            example: "Nominal yang ditransfer tidak sesuai dengan tagihan",
+          }),
+          paid_for: z.number().openapi({
+            description: "Jumlah bulan yang dibayarkan",
+            example: 3,
+          }),
+        })
+        .openapi("TransactionOTA"),
     ),
-    totalData: z.number().openapi({ example: 100 }),
+    years: z.array(z.number()).openapi({
+      description: "Tahun yang tersedia",
+      example: [2024, 2025],
+    }),
+    totalBill: z.number().openapi({
+      description: "Total tagihan",
+      example: 300000,
+    }),
   }),
 });
 

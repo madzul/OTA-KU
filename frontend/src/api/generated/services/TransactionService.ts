@@ -15,31 +15,36 @@ export class TransactionService {
    * @throws ApiError
    */
   public listTransactionOta({
-    q,
-    page,
-    status,
+    year,
+    month,
   }: {
-    q?: string,
-    page?: number | null,
-    status?: 'unpaid' | 'pending' | 'paid',
+    year?: number | null,
+    month?: number | null,
   }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
       data: Array<TransactionOTA>;
-      totalData: number;
+      /**
+       * Tahun yang tersedia
+       */
+      years: Array<number>;
+      /**
+       * Total tagihan
+       */
+      totalBill: number;
     };
   }> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/api/transaction/orang-tua/transactions',
       query: {
-        'q': q,
-        'page': page,
-        'status': status,
+        'year': year,
+        'month': month,
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -75,6 +80,7 @@ export class TransactionService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -104,6 +110,7 @@ export class TransactionService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         404: `Mahasiswa tidak ditemukan`,
         500: `Internal server error`,
       },
@@ -142,6 +149,7 @@ export class TransactionService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -197,6 +205,7 @@ export class TransactionService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -264,6 +273,7 @@ export class TransactionService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -300,6 +310,7 @@ export class TransactionService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });

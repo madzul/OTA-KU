@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { FileUp, Image, FileText } from "lucide-react";
+import { FileText, FileUp, Image } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -98,7 +98,7 @@ export function UploadBuktiDialog({
 
       setFile(selectedFile);
       setFileName(selectedFile.name);
-      
+
       // Set file type
       if (selectedFile.type === "application/pdf") {
         setFileType("pdf");
@@ -210,9 +210,9 @@ export function UploadBuktiDialog({
             <div className="rounded-md border border-gray-200 p-2">
               <p className="mb-2 text-sm font-medium text-gray-700">Preview:</p>
               <div className="flex justify-center">
-                <img 
+                <img
                   src={filePreview}
-                  alt="Preview bukti pembayaran" 
+                  alt="Preview bukti pembayaran"
                   className="max-h-40 rounded-md object-contain"
                 />
               </div>
@@ -255,7 +255,7 @@ export function UploadBuktiDialog({
               ) : (
                 <FileUp className="text-muted-foreground h-8 w-8" />
               )}
-              
+
               <p className="text-sm font-medium">
                 {isDragging
                   ? "Geser berkas kesini untuk upload"

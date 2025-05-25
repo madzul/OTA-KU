@@ -63,6 +63,7 @@ export class DetailService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         404: `Mahasiswa tidak ditemukan`,
         500: `Internal server error`,
       },
@@ -136,6 +137,7 @@ export class DetailService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         404: `Orang tua asuh tidak ditemukan`,
         500: `Internal server error`,
       },

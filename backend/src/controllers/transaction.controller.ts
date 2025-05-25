@@ -36,7 +36,7 @@ const LIST_PAGE_SIZE = 6;
 transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
   const user = c.var.user;
   const zodParseResult = TransactionListOTAQuerySchema.parse(c.req.query());
-  const { q, status, page } = zodParseResult;
+  const { year, month } = zodParseResult;
 
   if (user.type !== "ota") {
     return c.json(
@@ -52,35 +52,27 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
     );
   }
 
-  // Validate page to be a positive integer
-  let pageNumber = Number(page);
-  if (isNaN(pageNumber) || pageNumber < 1) {
-    pageNumber = 1;
-  }
-
   try {
-    const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
+    const conditions = [eq(transactionTable.otaId, user.id)];
 
-    const conditions = [
-      eq(transactionTable.otaId, user.id),
-      or(
-        ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-        ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-      ),
-    ];
-
-    if (status) {
-      conditions.push(eq(transactionTable.transactionStatus, status));
+    if (year) {
+      conditions.push(
+        sql`EXTRACT(YEAR FROM ${transactionTable.dueDate}) = ${year}`,
+      );
     }
 
-    const countsQuery = db
-      .select({ count: count() })
+    if (month) {
+      conditions.push(
+        sql`EXTRACT(MONTH FROM ${transactionTable.dueDate}) = ${month}`,
+      );
+    }
+
+    const yearsQuery = db
+      .selectDistinct({
+        year: sql<number>`EXTRACT(YEAR FROM ${transactionTable.dueDate})`,
+      })
       .from(transactionTable)
-      .innerJoin(
-        accountMahasiswaDetailTable,
-        eq(transactionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
-      )
-      .where(and(...conditions));
+      .orderBy(sql`EXTRACT(YEAR FROM ${transactionTable.dueDate}) DESC`);
 
     const transactionOTAListQuery = db
       .select({
@@ -105,15 +97,25 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
       )
       .leftJoin(
         connectionTable,
-        eq(transactionTable.mahasiswaId, connectionTable.mahasiswaId)
+        eq(transactionTable.mahasiswaId, connectionTable.mahasiswaId),
       )
-      .where(and(...conditions))
-      .limit(LIST_PAGE_SIZE)
-      .offset(offset);
+      .where(and(...conditions));
 
-    const [transactionOTAList, counts] = await Promise.all([
+    const totalBillQuery = db
+      .select({
+        total: sql<number>`COALESCE(SUM(${transactionTable.bill}), 0)`,
+      })
+      .from(transactionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(transactionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .where(and(...conditions));
+
+    const [transactionOTAList, years, totalBillValue] = await Promise.all([
       transactionOTAListQuery,
-      countsQuery,
+      yearsQuery,
+      totalBillQuery,
     ]);
 
     return c.json(
@@ -136,7 +138,8 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
             rejection_note: transaction.rejection_note ?? "",
             paid_for: transaction.paid_for ?? 0,
           })),
-          totalData: counts[0].count,
+          years: years.map((year) => year.year),
+          totalBill: totalBillValue[0]?.total ?? 0,
         },
       },
       200,
@@ -159,14 +162,19 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
   const zodParseResult = TransactionListAdminQuerySchema.parse(c.req.query());
   const { month, status, year, page } = zodParseResult;
 
-  if (user.type !== "admin" && user.type !== "pengurus" && user.type !== "bankes") {
+  if (
+    user.type !== "admin" &&
+    user.type !== "pengurus" &&
+    user.type !== "bankes"
+  ) {
     return c.json(
       {
         success: false,
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin, bankes, atau pengurus yang dapat mengakses list ini",
+          message:
+            "Hanya admin, bankes, atau pengurus yang dapat mengakses list ini",
         },
       },
       403,
@@ -432,8 +440,8 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
         .where(
           and(
             eq(connectionTable.mahasiswaId, id),
-            eq(connectionTable.otaId, user.id)
-          )
+            eq(connectionTable.otaId, user.id),
+          ),
         );
     });
 
@@ -474,7 +482,8 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin atau bankes yang dapat menerima validasi transaksi",
+          message:
+            "Hanya admin atau bankes yang dapat menerima validasi transaksi",
         },
       },
       403,
@@ -552,7 +561,8 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin atau bankes yang bisa menolak validasi transaksi",
+          message:
+            "Hanya admin atau bankes yang bisa menolak validasi transaksi",
         },
       },
       403,
@@ -634,7 +644,8 @@ transactionProtectedRouter.openapi(acceptTransferStatusRoute, async (c) => {
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin atau bankes yang dapat mengubah transfer status",
+          message:
+            "Hanya admin atau bankes yang dapat mengubah transfer status",
         },
       },
       403,

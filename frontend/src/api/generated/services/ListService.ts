@@ -49,6 +49,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -124,6 +125,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -182,6 +184,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -223,6 +226,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -263,6 +267,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -307,6 +312,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -351,6 +357,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -391,6 +398,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
