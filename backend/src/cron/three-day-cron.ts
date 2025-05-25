@@ -5,8 +5,13 @@ import nodemailer from "nodemailer";
 
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
-import { accountTable } from "../db/schema.js";
+import {
+  accountAdminDetailTable,
+  accountTable,
+  connectionTable,
+} from "../db/schema.js";
 import { registrationEmailToBankesAdmin } from "../lib/email/pendaftaran.js";
+import { terminationEmail } from "../lib/email/termination.js";
 
 export const everyThreeDaysCron = new CronJob(
   "0 0 * * *",
@@ -27,13 +32,17 @@ export const everyThreeDaysCron = new CronJob(
       );
 
       // Task 1: [BE] Notif email & web ada pendaftaran MA/OTA yang masuk dan perlu diverifikasi
-      // Task 2: [BE] Notif terdapat req terminasi dari MA/OTA
-      // Task 3: [BE] Notif reminder untuk verifikasi tagihan
-
       await db.transaction(async (tx) => {
         const adminEmails = await tx
-          .select({ email: accountTable.email })
+          .select({
+            email: accountTable.email,
+            name: accountAdminDetailTable.name,
+          })
           .from(accountTable)
+          .innerJoin(
+            accountAdminDetailTable,
+            eq(accountTable.id, accountAdminDetailTable.accountId),
+          )
           .where(
             or(
               eq(accountTable.type, "admin"),
@@ -108,10 +117,94 @@ export const everyThreeDaysCron = new CronJob(
                   subject:
                     "Pengingat Verifikasi Pendaftaran Mahasiswa dan Orang Tua Asuh",
                   html: registrationEmailToBankesAdmin(
-                    admin.email,
+                    admin.name,
                     pendingApplicationsMA.count.toString(),
                     pendingApplicationsOta.count.toString(),
                     env.VITE_PUBLIC_URL + "/verifikasi-akun",
+                  ),
+                });
+                console.log(`Email sent to ${admin.email}`);
+              } catch (error) {
+                console.error("Error sending email to admin:", error);
+              }
+            }),
+          );
+        }
+      });
+
+      // Task 2: [BE] Notif terdapat req terminasi dari MA/OTA
+      // Task 3: [BE] Notif reminder untuk verifikasi tagihan
+      await db.transaction(async (tx) => {
+        const adminEmails = await tx
+          .select({
+            email: accountTable.email,
+            name: accountAdminDetailTable.name,
+          })
+          .from(accountTable)
+          .innerJoin(
+            accountAdminDetailTable,
+            eq(accountTable.id, accountAdminDetailTable.accountId),
+          )
+          .where(
+            or(
+              eq(accountTable.type, "admin"),
+              eq(accountTable.type, "bankes"),
+              eq(accountTable.type, "pengurus"),
+            ),
+          );
+
+        const pendingTerminationRequestsMAQuery = tx
+          .select({ count: count() })
+          .from(connectionTable)
+          .where(eq(connectionTable.requestTerminateMahasiswa, true));
+
+        const pendingTerminationRequestsOtaQuery = tx
+          .select({ count: count() })
+          .from(connectionTable)
+          .where(eq(connectionTable.requestTerminateOta, true));
+
+        const [
+          [pendingTerminationRequestsMA],
+          [pendingTerminationRequestsOta],
+        ] = await Promise.all([
+          pendingTerminationRequestsMAQuery,
+          pendingTerminationRequestsOtaQuery,
+        ]);
+
+        if (
+          pendingTerminationRequestsMA.count > 0 ||
+          pendingTerminationRequestsOta.count > 0
+        ) {
+          const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            secure: true,
+            port: 465,
+            auth: {
+              user: env.EMAIL,
+              pass: env.EMAIL_PASSWORD,
+            },
+          });
+
+          try {
+            await transporter.verify();
+            console.log("SMTP Server is ready");
+          } catch (error) {
+            console.error("SMTP Server verification failed:", error);
+            return;
+          }
+
+          await Promise.all(
+            adminEmails.map(async (admin) => {
+              try {
+                await transporter.sendMail({
+                  from: env.EMAIL_FROM,
+                  to: admin.email,
+                  subject: "Pengingat Permintaan Terminasi",
+                  html: terminationEmail(
+                    admin.name,
+                    pendingTerminationRequestsMA.count.toString(),
+                    pendingTerminationRequestsOta.count.toString(),
+                    env.VITE_PUBLIC_URL + "/daftar-terminasi",
                   ),
                 });
                 console.log(`Email sent to ${admin.email}`);
