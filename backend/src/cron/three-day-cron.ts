@@ -9,9 +9,11 @@ import {
   accountAdminDetailTable,
   accountTable,
   connectionTable,
+  transactionTable,
 } from "../db/schema.js";
 import { registrationEmailToBankesAdmin } from "../lib/email/pendaftaran.js";
 import { terminationEmail } from "../lib/email/termination.js";
+import { verifikasiPembayaranOtaEmail } from "../lib/email/verifikasi-pembayaran-ota.js";
 
 export const everyThreeDaysCron = new CronJob(
   "0 0 * * *",
@@ -44,11 +46,7 @@ export const everyThreeDaysCron = new CronJob(
             eq(accountTable.id, accountAdminDetailTable.accountId),
           )
           .where(
-            or(
-              eq(accountTable.type, "admin"),
-              eq(accountTable.type, "bankes"),
-              eq(accountTable.type, "pengurus"),
-            ),
+            or(eq(accountTable.type, "admin"), eq(accountTable.type, "bankes")),
           );
 
         const pendingApplicationsMAQuery = tx
@@ -133,7 +131,6 @@ export const everyThreeDaysCron = new CronJob(
       });
 
       // Task 2: [BE] Notif terdapat req terminasi dari MA/OTA
-      // Task 3: [BE] Notif reminder untuk verifikasi tagihan
       await db.transaction(async (tx) => {
         const adminEmails = await tx
           .select({
@@ -146,11 +143,7 @@ export const everyThreeDaysCron = new CronJob(
             eq(accountTable.id, accountAdminDetailTable.accountId),
           )
           .where(
-            or(
-              eq(accountTable.type, "admin"),
-              eq(accountTable.type, "bankes"),
-              eq(accountTable.type, "pengurus"),
-            ),
+            or(eq(accountTable.type, "admin"), eq(accountTable.type, "bankes")),
           );
 
         const pendingTerminationRequestsMAQuery = tx
@@ -205,6 +198,81 @@ export const everyThreeDaysCron = new CronJob(
                     pendingTerminationRequestsMA.count.toString(),
                     pendingTerminationRequestsOta.count.toString(),
                     env.VITE_PUBLIC_URL + "/daftar-terminasi",
+                  ),
+                });
+                console.log(`Email sent to ${admin.email}`);
+              } catch (error) {
+                console.error("Error sending email to admin:", error);
+              }
+            }),
+          );
+        }
+      });
+
+      // Task 3: [BE] Notif reminder untuk verifikasi tagihan
+      await db.transaction(async (tx) => {
+        const adminEmails = await tx
+          .select({
+            email: accountTable.email,
+            name: accountAdminDetailTable.name,
+          })
+          .from(accountTable)
+          .innerJoin(
+            accountAdminDetailTable,
+            eq(accountTable.id, accountAdminDetailTable.accountId),
+          )
+          .where(
+            or(eq(accountTable.type, "admin"), eq(accountTable.type, "bankes")),
+          );
+
+        const pendingTransactionOtaQuery = tx
+          .select({ count: count() })
+          .from(transactionTable)
+          .where(eq(transactionTable.transactionStatus, "pending"));
+
+        const pendingTransactionMaQuery = tx
+          .select({ count: count() })
+          .from(transactionTable)
+          .where(eq(transactionTable.transferStatus, "unpaid"));
+
+        const [[pendingTransactionOta], [pendingTransactionMa]] =
+          await Promise.all([
+            pendingTransactionOtaQuery,
+            pendingTransactionMaQuery,
+          ]);
+
+        if (pendingTransactionOta.count > 0 || pendingTransactionMa.count > 0) {
+          const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            secure: true,
+            port: 465,
+            auth: {
+              user: env.EMAIL,
+              pass: env.EMAIL_PASSWORD,
+            },
+          });
+
+          try {
+            await transporter.verify();
+            console.log("SMTP Server is ready");
+          } catch (error) {
+            console.error("SMTP Server verification failed:", error);
+            return;
+          }
+
+          await Promise.all(
+            adminEmails.map(async (admin) => {
+              try {
+                await transporter.sendMail({
+                  from: env.EMAIL_FROM,
+                  to: admin.email,
+                  subject: "Pengingat Verifikasi Tagihan",
+                  html: verifikasiPembayaranOtaEmail(
+                    admin.name,
+                    pendingTransactionOta.count.toString(),
+                    pendingTransactionMa.count.toString(),
+                    env.VITE_PUBLIC_URL + "/daftar-tagihan-ota",
+                    env.VITE_PUBLIC_URL + "/daftar-tagihan-ma",
                   ),
                 });
                 console.log(`Email sent to ${admin.email}`);
