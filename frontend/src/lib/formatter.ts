@@ -78,7 +78,8 @@ export function formatLinkage(linkage: string): string {
 }
 
 export function formatFunding(funding: number): string {
-  return `Rp ${funding.toLocaleString("id-ID")}`;
+  const formatted = funding.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `Rp ${formatted}`;
 }
 
 export function formatStartDate(date: string): string {
