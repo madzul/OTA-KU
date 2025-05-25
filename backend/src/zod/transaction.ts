@@ -196,17 +196,30 @@ export const DetailTransactionParams = z.object({
 });
 
 export const UploadReceiptSchema = z.object({
-  id: z
+  ids: z
     .string({
       required_error: "ID transaksi harus diisi",
       invalid_type_error: "ID transaksi harus berupa string",
     })
-    .uuid({
-      message: "ID transaksi tidak valid",
+    .transform((val) => {
+      try {
+        const parsed = JSON.parse(val);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        return [val];
+      }
     })
+    .pipe(
+      z.array(
+        z.string().uuid({
+          message: "ID transaksi tidak valid",
+        }),
+      ),
+    )
     .openapi({
       description: "ID transaksi",
-      example: "123e4567-e89b-12d3-a456-426614174000",
+      example:
+        '["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174000"]',
     }),
   receipt: z
     .instanceof(File, { message: "Bukti pembayaran harus diisi" })

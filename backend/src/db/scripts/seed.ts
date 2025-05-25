@@ -1,4 +1,5 @@
 import { hash } from "bcrypt";
+import { addMonths, setDate } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 
 import { db } from "../drizzle.js";
@@ -925,7 +926,7 @@ export async function seed() {
 
       console.log("Mahasiswa details seeded");
 
-      await tx
+      const otaDetails = await tx
         .insert(accountOtaDetailTable)
         .values([
           {
@@ -1154,7 +1155,8 @@ export async function seed() {
             allowAdminSelection: true,
           },
         ])
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .returning();
 
       console.log("OTA details seeded");
 
@@ -1215,15 +1217,25 @@ export async function seed() {
 
       console.log("Connections seeded");
 
+      const nextMonthDateOta1 = setDate(
+        addMonths(new Date(), 1),
+        otaDetails[0].transferDate,
+      );
+
+      const nextMonthDateOta2 = setDate(
+        addMonths(new Date(), 1),
+        otaDetails[1].transferDate,
+      );
+
       await tx.insert(transactionTable).values([
         {
           mahasiswaId: mahasiswa1Id,
           otaId: ota1Id,
           bill: 250000,
-          amountPaid: 250000,
-          paidAt: new Date(),
-          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          transactionStatus: "paid",
+          amountPaid: 0,
+          paidAt: null,
+          dueDate: nextMonthDateOta1,
+          transactionStatus: "unpaid",
           transactionReceipt: null,
         },
         {
@@ -1231,19 +1243,19 @@ export async function seed() {
           otaId: ota1Id,
           bill: 250000,
           amountPaid: 0,
-          paidAt: new Date(),
-          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          transactionStatus: "pending",
+          paidAt: null,
+          dueDate: nextMonthDateOta1,
+          transactionStatus: "unpaid",
           transactionReceipt: null,
         },
         {
           mahasiswaId: mahasiswa8Id,
           otaId: ota2Id,
           bill: 200000,
-          amountPaid: 200000,
-          paidAt: new Date(),
-          dueDate: new Date(),
-          transactionStatus: "paid",
+          amountPaid: 0,
+          paidAt: null,
+          dueDate: nextMonthDateOta2,
+          transactionStatus: "unpaid",
           transactionReceipt: null,
         },
       ]);

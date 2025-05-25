@@ -1,4 +1,4 @@
-import { and, count, eq, gte, ilike, lte, or, sql } from "drizzle-orm";
+import { and, count, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -406,7 +406,7 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
 
   // Parse using the UploadReceiptSchema
   const zodParseResult = UploadReceiptSchema.parse(data);
-  const { id, paidFor, receipt } = zodParseResult;
+  const { ids, paidFor, receipt } = zodParseResult;
 
   if (user.type !== "ota") {
     return c.json(
@@ -432,14 +432,19 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
           transactionReceipt: receiptUrl.secure_url,
           transactionStatus: "pending",
         })
-        .where(eq(transactionTable.mahasiswaId, id));
+        .where(
+          and(
+            inArray(transactionTable.mahasiswaId, ids),
+            eq(transactionTable.otaId, user.id),
+          ),
+        );
 
       await tx
         .update(connectionTable)
         .set({ paidFor })
         .where(
           and(
-            eq(connectionTable.mahasiswaId, id),
+            inArray(connectionTable.mahasiswaId, ids),
             eq(connectionTable.otaId, user.id),
           ),
         );

@@ -128,7 +128,7 @@ export class TransactionService {
       /**
        * ID transaksi
        */
-      id: string;
+      ids: string;
       receipt: Blob;
       /**
        * Pembayaran untuk berapa bulan

@@ -7,7 +7,7 @@ import { DataTable } from "../../data-hubungan-asuh/-components/data-table";
 import { transactionColumns } from "./columns";
 import FilterMonth from "./filter-month";
 import FilterYear from "./filter-year";
-import TransactionForm from "./transaction-form";
+import TransactionCard from "./transaction-card";
 
 function TransactionStatusContent() {
   const [year, setYear] = useState<number | null>(new Date().getFullYear());
@@ -74,7 +74,15 @@ function TransactionStatusContent() {
           <Skeleton className="h-20 w-full" />
         </div>
       ) : (
-        <TransactionForm />
+        Array.isArray(data?.body.data) &&
+        data.body.data.length > 0 && (
+          <TransactionCard
+            data={data.body.data}
+            totalBill={totalBill}
+            year={year ?? 0}
+            month={month ?? 0}
+          />
+        )
       )}
     </section>
   );
