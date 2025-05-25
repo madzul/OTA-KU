@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_app/data-hubungan-asuh/")({
       throw redirect({ to: "/auth/login" });
     }
 
-    if (user.type !== "admin") {
+    if (user.type === "mahasiswa" || user.type === "ota") {
       throw redirect({ to: "/" });
     }
 

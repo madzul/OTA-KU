@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_app/manajemen-akun/")({
       throw redirect({ to: "/auth/login" });
     }
 
-    if (user.type === "mahasiswa" || user.type === "ota") {
+    if (user.type !== "admin") {
       throw redirect({ to: "/" });
     }
 
