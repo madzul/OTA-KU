@@ -26,6 +26,10 @@ services:
       - EMAIL=${EMAIL}
       - EMAIL_FROM=${EMAIL_FROM}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - VAPID_MAILTO=${VAPID_MAILTO}
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+      - TEST_EMAIL=${TEST_EMAIL}
     depends_on:
       - db
     networks:
