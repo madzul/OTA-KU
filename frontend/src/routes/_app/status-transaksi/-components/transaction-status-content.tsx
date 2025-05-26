@@ -45,6 +45,8 @@ function TransactionStatusContent() {
         ]
       : [];
 
+  const notPaidData = tableData.filter((item) => item.status !== "paid");
+
   return (
     <section className="flex flex-col gap-4">
       {/* Filters */}
@@ -74,11 +76,9 @@ function TransactionStatusContent() {
           <Skeleton className="h-20 w-full" />
         </div>
       ) : (
-        Array.isArray(data?.body.data) &&
-        data.body.data.length > 0 && (
+        notPaidData.length > 0 && (
           <TransactionCard
-            data={data.body.data}
-            totalBill={totalBill}
+            data={notPaidData}
             year={year ?? 0}
             month={month ?? 0}
           />

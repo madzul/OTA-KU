@@ -453,6 +453,7 @@ export async function seed() {
             gender: "M",
             religion: "Islam",
             gpa: "3.8",
+            bill: 250000,
           },
           {
             accountId: mahasiswa2Id,
@@ -481,6 +482,7 @@ export async function seed() {
             gender: "F",
             religion: "Kristen Protestan",
             gpa: "3.5",
+            bill: 250000,
           },
           {
             accountId: mahasiswa3Id,
@@ -509,6 +511,7 @@ export async function seed() {
             gender: "M",
             religion: "Islam",
             gpa: "3.9",
+            bill: 400000,
           },
           {
             accountId: mahasiswa4Id,
@@ -590,6 +593,7 @@ export async function seed() {
             gender: "F",
             religion: "Katolik",
             gpa: "3.7",
+            bill: 500000,
           },
           {
             accountId: mahasiswa7Id,
@@ -618,6 +622,7 @@ export async function seed() {
             gender: "M",
             religion: "Islam",
             gpa: "3.6",
+            bill: 200000,
           },
           {
             accountId: mahasiswa8Id,
@@ -646,6 +651,7 @@ export async function seed() {
             gender: "F",
             religion: "Hindu",
             gpa: "3.8",
+            bill: 200000,
           },
           {
             accountId: mahasiswa9Id,
@@ -754,6 +760,7 @@ export async function seed() {
             gender: "M",
             religion: "Buddha",
             gpa: "3.7",
+            bill: 400000,
           },
           {
             accountId: mahasiswa13Id,
@@ -782,6 +789,7 @@ export async function seed() {
             gender: "F",
             religion: "Kristen Protestan",
             gpa: "3.5",
+            bill: 500000,
           },
           {
             accountId: mahasiswa14Id,
@@ -810,6 +818,7 @@ export async function seed() {
             gender: "M",
             religion: "Islam",
             gpa: "3.9",
+            bill: 200000,
           },
           {
             accountId: mahasiswa15Id,
@@ -838,6 +847,7 @@ export async function seed() {
             gender: "F",
             religion: "Islam",
             gpa: "3.4",
+            bill: 300000,
           },
           {
             accountId: mahasiswa16Id,
@@ -892,6 +902,7 @@ export async function seed() {
             gender: "F",
             religion: "Katolik",
             gpa: "3.7",
+            bill: 400000,
           },
           {
             accountId: mahasiswa18Id,
@@ -920,6 +931,7 @@ export async function seed() {
             gender: "M",
             religion: "Islam",
             gpa: "3.95",
+            bill: 500000,
           },
         ])
         .onConflictDoNothing();
@@ -1217,17 +1229,77 @@ export async function seed() {
 
       console.log("Connections seeded");
 
+      const currentDate = new Date();
+
+      const thisMonthDateOta1 = setDate(
+        currentDate,
+        otaDetails[0].transferDate,
+      );
+      const thisMonthDateOta2 = setDate(
+        currentDate,
+        otaDetails[1].transferDate,
+      );
+
       const nextMonthDateOta1 = setDate(
-        addMonths(new Date(), 1),
+        addMonths(currentDate, 1),
         otaDetails[0].transferDate,
       );
 
       const nextMonthDateOta2 = setDate(
-        addMonths(new Date(), 1),
+        addMonths(currentDate, 1),
         otaDetails[1].transferDate,
       );
 
       await tx.insert(transactionTable).values([
+        {
+          mahasiswaId: mahasiswa1Id,
+          otaId: ota1Id,
+          bill: 250000,
+          amountPaid:
+            currentDate.getDate() > otaDetails[0].transferDate ? 250000 : 0,
+          paidAt:
+            currentDate.getDate() > otaDetails[0].transferDate
+              ? currentDate
+              : null,
+          dueDate: thisMonthDateOta1,
+          transactionStatus:
+            currentDate.getDate() > otaDetails[0].transferDate
+              ? "paid"
+              : "unpaid",
+          transactionReceipt: null,
+        },
+        {
+          mahasiswaId: mahasiswa2Id,
+          otaId: ota1Id,
+          bill: 250000,
+          amountPaid:
+            currentDate.getDate() > otaDetails[0].transferDate ? 250000 : 0,
+          paidAt:
+            currentDate.getDate() > otaDetails[0].transferDate
+              ? currentDate
+              : null,
+          dueDate: thisMonthDateOta1,
+          transactionStatus:
+            currentDate.getDate() > otaDetails[0].transferDate
+              ? "paid"
+              : "unpaid",
+        },
+        {
+          mahasiswaId: mahasiswa8Id,
+          otaId: ota2Id,
+          bill: 200000,
+          amountPaid:
+            currentDate.getDate() > otaDetails[1].transferDate ? 200000 : 0,
+          paidAt:
+            currentDate.getDate() > otaDetails[1].transferDate
+              ? currentDate
+              : null,
+          dueDate: thisMonthDateOta2,
+          transactionStatus:
+            currentDate.getDate() > otaDetails[1].transferDate
+              ? "paid"
+              : "unpaid",
+        },
         {
           mahasiswaId: mahasiswa1Id,
           otaId: ota1Id,

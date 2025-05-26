@@ -63,16 +63,8 @@ function FilterYear({ years, year, setYear }: FilterYearProps) {
                   key={year.value}
                   value={year.value.toString()}
                   onSelect={(currentValue) => {
-                    setValue(
-                      currentValue === value?.toString()
-                        ? null
-                        : Number(currentValue),
-                    );
-                    setYear(
-                      currentValue === value?.toString()
-                        ? null
-                        : Number(currentValue),
-                    );
+                    setValue(Number(currentValue));
+                    setYear(Number(currentValue));
                     setOpen(false);
                   }}
                 >

@@ -71,16 +71,8 @@ function FilterMonth({ month, setMonth }: FilterMonthProps) {
                   key={month.value}
                   value={month.value.toString()}
                   onSelect={(currentValue) => {
-                    setValue(
-                      currentValue === value?.toString()
-                        ? null
-                        : Number(currentValue),
-                    );
-                    setMonth(
-                      currentValue === value?.toString()
-                        ? null
-                        : Number(currentValue),
-                    );
+                    setValue(Number(currentValue));
+                    setMonth(Number(currentValue));
                     setOpen(false);
                   }}
                 >
