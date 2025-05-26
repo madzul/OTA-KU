@@ -115,41 +115,47 @@ export const TransactionListAdminQueryResponse = z.object({
   body: z
     .object({
       data: z.array(
-        z.object({
-          id: z
-            .string()
-            .openapi({ example: "123e4567-e89b-12d3-a456-426614174000" }),
-          mahasiswa_id: z
-            .string()
-            .openapi({ example: "123e4567-e89b-12d3-a456-426614174000" }),
-          ota_id: z
-            .string()
-            .openapi({ example: "123e4567-e89b-12d3-a456-426614174000" }),
-          name_ma: z.string().openapi({ example: "John Doe" }),
-          nim_ma: NIMSchema,
-          name_ota: z.string().openapi({ example: "Jane Doe" }),
-          number_ota: PhoneNumberSchema,
-          bill: z.number().openapi({ example: 300000 }),
-          amount_paid: z.number().openapi({ example: 200000 }),
-          paid_at: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
-          due_date: z.string().openapi({ example: "2023-10-01T00:00:00.000Z" }),
-          paid_for: z.number().openapi({
-            description: "Jumlah bulan yang dibayarkan",
-            example: 3,
-          }),
-          status: z
-            .enum(["unpaid", "pending", "paid"])
-            .openapi({ example: "pending" }),
-          transferStatus: z
-            .enum(["unpaid", "paid"])
-            .openapi({ example: "unpaid" }),
-          receipt: z
-            .string()
-            .openapi({ example: "https://example.com/file.pdf" }),
-          createdAt: z
-            .string()
-            .openapi({ example: "2023-10-01T00:00:00.000Z" }),
-        }),
+        z
+          .object({
+            id: z
+              .string()
+              .openapi({ example: "123e4567-e89b-12d3-a456-426614174000" }),
+            mahasiswa_id: z
+              .string()
+              .openapi({ example: "123e4567-e89b-12d3-a456-426614174000" }),
+            ota_id: z
+              .string()
+              .openapi({ example: "123e4567-e89b-12d3-a456-426614174000" }),
+            name_ma: z.string().openapi({ example: "John Doe" }),
+            nim_ma: NIMSchema,
+            name_ota: z.string().openapi({ example: "Jane Doe" }),
+            number_ota: PhoneNumberSchema,
+            bill: z.number().openapi({ example: 300000 }),
+            amount_paid: z.number().openapi({ example: 200000 }),
+            paid_at: z
+              .string()
+              .openapi({ example: "2023-10-01T00:00:00.000Z" }),
+            due_date: z
+              .string()
+              .openapi({ example: "2023-10-01T00:00:00.000Z" }),
+            paid_for: z.number().openapi({
+              description: "Jumlah bulan yang dibayarkan",
+              example: 3,
+            }),
+            status: z
+              .enum(["unpaid", "pending", "paid"])
+              .openapi({ example: "pending" }),
+            transferStatus: z
+              .enum(["unpaid", "paid"])
+              .openapi({ example: "unpaid" }),
+            receipt: z
+              .string()
+              .openapi({ example: "https://example.com/file.pdf" }),
+            createdAt: z
+              .string()
+              .openapi({ example: "2023-10-01T00:00:00.000Z" }),
+          })
+          .openapi("TransactionListAdminData"),
       ),
       totalData: z.number().openapi({ example: 100 }),
     })
