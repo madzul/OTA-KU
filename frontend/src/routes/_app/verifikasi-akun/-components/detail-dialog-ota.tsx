@@ -84,6 +84,8 @@ function DetailDialogOta({
     changeStatusCallbackMutation.mutate(data);
   }
 
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -160,8 +162,12 @@ function DetailDialogOta({
             <div className="flex items-center gap-2">
               <p>Terima</p>
               <CircleCheck
-                className="text-succeed h-6 w-6 hover:cursor-pointer"
+                className={cn(
+                  "text-succeed h-6 w-6",
+                  !isDisabled && "hover:cursor-pointer",
+                )}
                 onClick={() => {
+                  if (isDisabled) return;
                   form.setValue("status", "accepted");
                   form.setValue("notes", "-");
                   form.setValue("adminOnlyNotes", "-");
@@ -171,8 +177,12 @@ function DetailDialogOta({
             </div>
             <div className="flex items-center gap-2">
               <CircleX
-                className="text-destructive h-6 w-6 hover:cursor-pointer"
+                className={cn(
+                  "text-destructive h-6 w-6",
+                  !isDisabled && "hover:cursor-pointer",
+                )}
                 onClick={async () => {
+                  if (isDisabled) return;
                   form.setValue("status", "rejected");
                   form.setValue("notes", "-");
                   form.setValue("adminOnlyNotes", "-");

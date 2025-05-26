@@ -18,12 +18,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { SessionContext } from "@/context/session";
 import { cn } from "@/lib/utils";
 import { NotesVerificationRequestSchema } from "@/lib/zod/admin-verification";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { CircleCheck, CircleX } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -45,6 +46,7 @@ function Combobox({
   status: "pending" | "accepted" | "rejected" | "reapply" | "outdated";
   type: "mahasiswa" | "ota";
 }) {
+  const session = useContext(SessionContext);
   const [openAccept, setOpenAccept] = useState(false);
   const [openReject, setOpenReject] = useState(false);
 
@@ -117,13 +119,20 @@ function Combobox({
     }
   }, [data, form, type]);
 
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
+
   return (
     <div className="flex gap-6">
       {status === "pending" || status === "reapply" ? (
         <>
           <Dialog open={openAccept} onOpenChange={setOpenAccept}>
-            <DialogTrigger>
-              <CircleCheck className="text-succeed h-5 w-5 hover:cursor-pointer" />
+            <DialogTrigger disabled={isDisabled}>
+              <CircleCheck
+                className={cn(
+                  "text-succeed h-5 w-5",
+                  !isDisabled && "hover:cursor-pointer",
+                )}
+              />
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -245,8 +254,13 @@ function Combobox({
           </Dialog>
 
           <Dialog open={openReject} onOpenChange={setOpenReject}>
-            <DialogTrigger>
-              <CircleX className="text-destructive h-5 w-5 hover:cursor-pointer" />
+            <DialogTrigger disabled={isDisabled}>
+              <CircleX
+                className={cn(
+                  "text-destructive h-5 w-5",
+                  !isDisabled && "hover:cursor-pointer",
+                )}
+              />
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>

@@ -103,6 +103,8 @@ function DetailDialogMahasiswa({
     }
   }, [data, form]);
 
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -197,7 +199,9 @@ function DetailDialogMahasiswa({
                               {key === "bill" ? (
                                 <Input
                                   disabled={
-                                    status !== "pending" && status !== "reapply"
+                                    (status !== "pending" &&
+                                      status !== "reapply") ||
+                                    isDisabled
                                   }
                                   placeholder="Masukkan dana kebutuhan"
                                   onChange={(e) => {
@@ -214,7 +218,9 @@ function DetailDialogMahasiswa({
                               ) : (
                                 <Textarea
                                   disabled={
-                                    status !== "pending" && status !== "reapply"
+                                    (status !== "pending" &&
+                                      status !== "reapply") ||
+                                    isDisabled
                                   }
                                   placeholder="Masukkan catatan"
                                   {...field}
@@ -247,8 +253,12 @@ function DetailDialogMahasiswa({
               <div className="flex items-center gap-2">
                 <p>Terima</p>
                 <CircleCheck
-                  className="text-succeed h-6 w-6 hover:cursor-pointer"
+                  className={cn(
+                    "text-succeed h-6 w-6",
+                    !isDisabled && "hover:cursor-pointer",
+                  )}
                   onClick={() => {
+                    if (isDisabled) return;
                     form.setValue("status", "accepted");
                     form.handleSubmit(onSubmit)();
                   }}
@@ -256,8 +266,12 @@ function DetailDialogMahasiswa({
               </div>
               <div className="flex items-center gap-2">
                 <CircleX
-                  className="text-destructive h-6 w-6 hover:cursor-pointer"
+                  className={cn(
+                    "text-destructive h-6 w-6",
+                    !isDisabled && "hover:cursor-pointer",
+                  )}
                   onClick={async () => {
+                    if (isDisabled) return;
                     form.setValue("status", "rejected");
                     form.handleSubmit(onSubmit)();
                   }}
