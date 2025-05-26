@@ -1,21 +1,41 @@
-import { and, count, eq, ilike, isNotNull, lt, or, sql, not } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  ilike,
+  isNotNull,
+  lt,
+  not,
+  or,
+  sql,
+} from "drizzle-orm";
+
 import { db } from "../db/drizzle.js";
 import {
+  accountAdminDetailTable,
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
   connectionTable,
 } from "../db/schema.js";
+import type { Jurusan } from "../lib/nim.js";
 import {
+  listAllAccountRoute,
+  listAvailableOTARoute,
   listMAActiveRoute,
   listMAPendingRoute,
   listMahasiswaAdminRoute,
   listMahasiswaOtaRoute,
   listOrangTuaAdminRoute,
   listOtaKuRoute,
-  listAvailableOTARoute,
 } from "../routes/list.route.js";
+import {
+  OTAListQuerySchema,
+  VerifiedMahasiswaListQuerySchema,
+} from "../zod/list.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
+import { connect } from "http2";
 
 export const listRouter = createRouter();
 export const listProtectedRouter = createAuthRouter();
@@ -24,7 +44,23 @@ const LIST_PAGE_SIZE = 6;
 const LIST_PAGE_DETAIL_SIZE = 8;
 
 listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
-  const { q, page } = c.req.query();
+  const user = c.var.user;
+  const zodParseResult = VerifiedMahasiswaListQuerySchema.parse(c.req.query());
+  const { q, page, major, faculty, religion, gender } = zodParseResult;
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -35,6 +71,35 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
   try {
     const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
 
+    const conditions = [
+      and(
+        eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
+        eq(accountTable.applicationStatus, "accepted"),
+        isNotNull(accountMahasiswaDetailTable.description),
+        isNotNull(accountMahasiswaDetailTable.file),
+        or(
+          ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
+          ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+        ),
+      ),
+    ];
+
+    if (major) {
+      conditions.push(eq(accountMahasiswaDetailTable.major, major));
+    }
+
+    if (faculty) {
+      conditions.push(eq(accountMahasiswaDetailTable.faculty, faculty));
+    }
+
+    if (religion) {
+      conditions.push(eq(accountMahasiswaDetailTable.religion, religion));
+    }
+
+    if (gender) {
+      conditions.push(eq(accountMahasiswaDetailTable.gender, gender));
+    }
+
     const countsQuery = db
       .select({ count: count() })
       .from(accountMahasiswaDetailTable)
@@ -42,32 +107,13 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         accountTable,
         eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
-      .where(
-        and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
-          eq(accountTable.applicationStatus, "accepted"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
-          or(
-            ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-          ),
-        ),
-      );
+      .where(and(...conditions));
 
     const mahasiswaListQuery = db
       .select({
         accountId: accountMahasiswaDetailTable.accountId,
-        email: accountTable.email,
-        type: accountTable.type,
-        phoneNumber: accountTable.phoneNumber,
-        provider: accountTable.provider,
-        applicationStatus: accountTable.applicationStatus,
         name: accountMahasiswaDetailTable.name,
         nim: accountMahasiswaDetailTable.nim,
-        mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
-        description: accountMahasiswaDetailTable.description,
-        file: accountMahasiswaDetailTable.file,
         major: accountMahasiswaDetailTable.major,
         faculty: accountMahasiswaDetailTable.faculty,
         cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
@@ -75,35 +121,14 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         religion: accountMahasiswaDetailTable.religion,
         gender: accountMahasiswaDetailTable.gender,
         gpa: accountMahasiswaDetailTable.gpa,
-        kk: accountMahasiswaDetailTable.kk,
-        ktm: accountMahasiswaDetailTable.ktm,
-        waliRecommendationLetter:
-          accountMahasiswaDetailTable.waliRecommendationLetter,
-        transcript: accountMahasiswaDetailTable.transcript,
-        salaryReport: accountMahasiswaDetailTable.salaryReport,
-        pbb: accountMahasiswaDetailTable.pbb,
-        electricityBill: accountMahasiswaDetailTable.electricityBill,
-        ditmawaRecommendationLetter:
-          accountMahasiswaDetailTable.ditmawaRecommendationLetter,
-        notes: accountMahasiswaDetailTable.notes,
-        adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
       })
       .from(accountMahasiswaDetailTable)
       .innerJoin(
         accountTable,
         eq(accountMahasiswaDetailTable.accountId, accountTable.id),
       )
-      .where(
-        and(
-          eq(accountMahasiswaDetailTable.mahasiswaStatus, "inactive"),
-          isNotNull(accountMahasiswaDetailTable.description),
-          isNotNull(accountMahasiswaDetailTable.file),
-          or(
-            ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-          ),
-        ),
-      )
+      .where(and(...conditions))
+      .orderBy(desc(accountMahasiswaDetailTable.createdAt))
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
 
@@ -119,16 +144,8 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
         body: {
           data: mahasiswaList.map((mahasiswa) => ({
             accountId: mahasiswa.accountId,
-            email: mahasiswa.email,
-            type: mahasiswa.type,
-            phoneNumber: mahasiswa.phoneNumber || "",
-            provider: mahasiswa.provider,
-            applicationStatus: mahasiswa.applicationStatus,
             name: mahasiswa.name!,
             nim: mahasiswa.nim,
-            mahasiswaStatus: mahasiswa.mahasiswaStatus,
-            description: mahasiswa.description || "",
-            file: mahasiswa.file || "",
             major: mahasiswa.major || "",
             faculty: mahasiswa.faculty || "",
             cityOfOrigin: mahasiswa.cityOfOrigin || "",
@@ -136,17 +153,6 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
             religion: mahasiswa.religion!,
             gender: mahasiswa.gender!,
             gpa: mahasiswa.gpa!,
-            kk: mahasiswa.kk || "",
-            ktm: mahasiswa.ktm || "",
-            waliRecommendationLetter: mahasiswa.waliRecommendationLetter || "",
-            transcript: mahasiswa.transcript || "",
-            salaryReport: mahasiswa.salaryReport || "",
-            pbb: mahasiswa.pbb || "",
-            electricityBill: mahasiswa.electricityBill || "",
-            ditmawaRecommendationLetter:
-              mahasiswa.ditmawaRecommendationLetter || "",
-            notes: mahasiswa.notes || "",
-            adminOnlyNotes: mahasiswa.adminOnlyNotes || "",
           })),
           totalData: counts[0].count,
         },
@@ -159,7 +165,7 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -167,7 +173,22 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
+  const user = c.var.user;
   const { q, page, jurusan, status } = c.req.query();
+
+  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -197,6 +218,9 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             status as "pending" | "accepted" | "rejected" | "unregistered",
           )
         : undefined,
+      jurusan
+        ? eq(accountMahasiswaDetailTable.major, jurusan as Jurusan)
+        : undefined,
     ];
 
     const countsQuery = db
@@ -216,9 +240,14 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         accountMahasiswaDetailTable,
         eq(accountTable.id, accountMahasiswaDetailTable.accountId),
       )
-      .where(and(...baseConditions, searchCondition, ...filterConditions))
-      .limit(LIST_PAGE_DETAIL_SIZE)
-      .offset(offset);
+      .where(
+        and(
+          ...baseConditions,
+          searchCondition,
+          ...filterConditions,
+          isNotNull(accountMahasiswaDetailTable.description),
+        ),
+      );
 
     const mahasiswaListQuery = db
       .select({
@@ -251,6 +280,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
         electricityBill: accountMahasiswaDetailTable.electricityBill,
         ditmawaRecommendationLetter:
           accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        bill: accountMahasiswaDetailTable.bill,
         notes: accountMahasiswaDetailTable.notes,
         adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
       })
@@ -267,6 +297,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
           isNotNull(accountMahasiswaDetailTable.description),
         ),
       )
+      .orderBy(desc(accountMahasiswaDetailTable.createdAt))
       .limit(LIST_PAGE_DETAIL_SIZE)
       .offset(offset);
 
@@ -310,6 +341,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
             electricityBill: mahasiswa.electricityBill || "",
             ditmawaRecommendationLetter:
               mahasiswa.ditmawaRecommendationLetter || "",
+            bill: mahasiswa.bill || 0,
             notes: mahasiswa.notes || "",
             adminOnlyNotes: mahasiswa.adminOnlyNotes || "",
           })),
@@ -328,7 +360,7 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -336,7 +368,22 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
+  const user = c.var.user;
   const { q, page, status } = c.req.query();
+
+  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -383,9 +430,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
         accountOtaDetailTable,
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
-      .where(and(...baseConditions, searchCondition, ...filterConditions))
-      .limit(LIST_PAGE_DETAIL_SIZE)
-      .offset(offset);
+      .where(and(...baseConditions, searchCondition, ...filterConditions));
 
     const orangTuaListQuery = db
       .select({
@@ -405,6 +450,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
         maxSemester: accountOtaDetailTable.maxSemester,
         transferDate: accountOtaDetailTable.transferDate,
         criteria: accountOtaDetailTable.criteria,
+        isDetailVisible: accountOtaDetailTable.isDetailVisible,
         allowAdminSelection: accountOtaDetailTable.allowAdminSelection,
       })
       .from(accountTable)
@@ -413,6 +459,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
       .where(and(...baseConditions, searchCondition, ...filterConditions))
+      .orderBy(desc(accountOtaDetailTable.createdAt))
       .limit(LIST_PAGE_DETAIL_SIZE)
       .offset(offset);
 
@@ -444,6 +491,7 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
             maxSemester: orangTua.maxSemester,
             transferDate: orangTua.transferDate,
             criteria: orangTua.criteria,
+            isDetailVisible: orangTua.isDetailVisible,
             allowAdminSelection: orangTua.allowAdminSelection,
           })),
           totalPagination: countsPagination[0].count,
@@ -461,7 +509,243 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
+      },
+      500,
+    );
+  }
+});
+
+listProtectedRouter.openapi(listAllAccountRoute, async (c) => {
+  const user = c.var.user;
+  const { q, page, status, type, applicationStatus } = c.req.query();
+
+  if (user.type !== "admin") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
+
+  // Validate page to be a positive integer
+  let pageNumber = Number(page);
+  if (isNaN(pageNumber) || pageNumber < 1) {
+    pageNumber = 1;
+  }
+
+  try {
+    const offset = (pageNumber - 1) * LIST_PAGE_DETAIL_SIZE;
+
+    // Build filter conditions array with only non-undefined filters
+    const filterConditions = [];
+
+    // Add search condition if q is provided
+    if (q) {
+      filterConditions.push(
+        or(
+          ilike(accountMahasiswaDetailTable.name, `%${q}%`),
+          ilike(accountOtaDetailTable.name, `%${q}%`),
+          ilike(accountAdminDetailTable.name, `%${q}%`),
+          ilike(accountTable.email, `%${q}%`),
+        ),
+      );
+    }
+
+    // Add status filter if provided
+    if (status) {
+      filterConditions.push(
+        eq(accountTable.status, status as "verified" | "unverified"),
+      );
+    }
+
+    // Add type filter if provided
+    if (type) {
+      filterConditions.push(
+        eq(
+          accountTable.type,
+          type as "mahasiswa" | "ota" | "admin" | "bankes" | "pengurus",
+        ),
+      );
+    }
+
+    // Add applicationStatus filter if provided
+    if (applicationStatus) {
+      filterConditions.push(
+        eq(
+          accountTable.applicationStatus,
+          applicationStatus as
+            | "pending"
+            | "accepted"
+            | "rejected"
+            | "unregistered"
+            | "reapply"
+            | "outdated",
+        ),
+      );
+    }
+
+    // Combine conditions with AND
+    const whereCondition =
+      filterConditions.length > 0 ? and(...filterConditions) : undefined;
+
+    const countsPaginationQuery = db
+      .select({ count: count() })
+      .from(accountTable)
+      .leftJoin(
+        accountMahasiswaDetailTable,
+        eq(accountTable.id, accountMahasiswaDetailTable.accountId),
+      )
+      .leftJoin(
+        accountOtaDetailTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .leftJoin(
+        accountAdminDetailTable,
+        eq(accountTable.id, accountAdminDetailTable.accountId),
+      )
+      .where(whereCondition);
+
+    const accountListQuery = db
+      .select({
+        id: accountTable.id,
+        email: accountTable.email,
+        type: accountTable.type,
+        phoneNumber: accountTable.phoneNumber,
+        provider: accountTable.provider,
+        status: accountTable.status,
+        applicationStatus: accountTable.applicationStatus,
+        ma_name: accountMahasiswaDetailTable.name,
+        ota_name: accountOtaDetailTable.name,
+        admin_name: accountAdminDetailTable.name,
+        nim: accountMahasiswaDetailTable.nim,
+        mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
+        description: accountMahasiswaDetailTable.description,
+        file: accountMahasiswaDetailTable.file,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        religion: accountMahasiswaDetailTable.religion,
+        gender: accountMahasiswaDetailTable.gender,
+        gpa: accountMahasiswaDetailTable.gpa,
+        kk: accountMahasiswaDetailTable.kk,
+        ktm: accountMahasiswaDetailTable.ktm,
+        waliRecommendationLetter:
+          accountMahasiswaDetailTable.waliRecommendationLetter,
+        transcript: accountMahasiswaDetailTable.transcript,
+        salaryReport: accountMahasiswaDetailTable.salaryReport,
+        pbb: accountMahasiswaDetailTable.pbb,
+        electricityBill: accountMahasiswaDetailTable.electricityBill,
+        ditmawaRecommendationLetter:
+          accountMahasiswaDetailTable.ditmawaRecommendationLetter,
+        bill: accountMahasiswaDetailTable.bill,
+        notes: accountMahasiswaDetailTable.notes,
+        adminOnlyNotes: accountMahasiswaDetailTable.adminOnlyNotes,
+        job: accountOtaDetailTable.job,
+        address: accountOtaDetailTable.address,
+        linkage: accountOtaDetailTable.linkage,
+        funds: accountOtaDetailTable.funds,
+        maxCapacity: accountOtaDetailTable.maxCapacity,
+        startDate: accountOtaDetailTable.startDate,
+        maxSemester: accountOtaDetailTable.maxSemester,
+        transferDate: accountOtaDetailTable.transferDate,
+        criteria: accountOtaDetailTable.criteria,
+        isDetailVisible: accountOtaDetailTable.isDetailVisible,
+        allowAdminSelection: accountOtaDetailTable.allowAdminSelection,
+      })
+      .from(accountTable)
+      .leftJoin(
+        accountMahasiswaDetailTable,
+        eq(accountTable.id, accountMahasiswaDetailTable.accountId),
+      )
+      .leftJoin(
+        accountOtaDetailTable,
+        eq(accountTable.id, accountOtaDetailTable.accountId),
+      )
+      .leftJoin(
+        accountAdminDetailTable,
+        eq(accountTable.id, accountAdminDetailTable.accountId),
+      )
+      .where(whereCondition)
+      .orderBy(desc(accountTable.createdAt))
+      .limit(LIST_PAGE_DETAIL_SIZE)
+      .offset(offset);
+
+    const [accountList, countsPagination] = await Promise.all([
+      accountListQuery,
+      countsPaginationQuery,
+    ]);
+
+    return c.json(
+      {
+        success: true,
+        message: "Daftar seluruh akun berhasil diambil",
+        body: {
+          data: accountList.map((account) => ({
+            id: account.id,
+            email: account.email,
+            phoneNumber: account.phoneNumber || "",
+            provider: account.provider,
+            status: account.status,
+            applicationStatus: account.applicationStatus,
+            type: account.type,
+            ma_name: account.ma_name || "",
+            ota_name: account.ota_name || "",
+            admin_name: account.admin_name || "",
+            nim: account.nim || "",
+            mahasiswaStatus: account.mahasiswaStatus || "inactive",
+            description: account.description || "",
+            file: account.file || "",
+            major: account.major || "",
+            faculty: account.faculty || "",
+            cityOfOrigin: account.cityOfOrigin || "",
+            highschoolAlumni: account.highschoolAlumni || "",
+            religion: account.religion || "Islam",
+            gender: account.gender || "M",
+            gpa: account.gpa || "",
+            kk: account.kk || "",
+            ktm: account.ktm || "",
+            waliRecommendationLetter: account.waliRecommendationLetter || "",
+            transcript: account.transcript || "",
+            salaryReport: account.salaryReport || "",
+            pbb: account.pbb || "",
+            electricityBill: account.electricityBill || "",
+            ditmawaRecommendationLetter:
+              account.ditmawaRecommendationLetter || "",
+            bill: account.bill || 0,
+            notes: account.notes || "",
+            adminOnlyNotes: account.adminOnlyNotes || "",
+            job: account.job || "",
+            address: account.address || "",
+            linkage: account.linkage || "otm",
+            funds: account.funds || 0,
+            maxCapacity: account.maxCapacity || 0,
+            startDate: account.startDate || "",
+            maxSemester: account.maxSemester || 0,
+            transferDate: account.transferDate || 0,
+            criteria: account.criteria || "",
+            isDetailVisible: account.isDetailVisible || false,
+            allowAdminSelection: account.allowAdminSelection || false,
+          })),
+          totalPagination: countsPagination[0].count,
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error("Error fetching mahasiswa list:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error instanceof Error ? error.message : String(error),
       },
       500,
     );
@@ -469,8 +753,23 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
+  const user = c.var.user;
   const { q, page } = c.req.query();
   const maId = c.get("user").id;
+
+  if (user.type !== "mahasiswa") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya MA yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -501,7 +800,6 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
         accountId: accountOtaDetailTable.accountId,
         name: accountOtaDetailTable.name,
         phoneNumber: accountTable.phoneNumber,
-        //TO-DO: Ganti jadi nominal per anak nanti di connection sekalian tambahin kondisi where connectionTable.mahasiswa_id = user.id gitu lah
         nominal: accountOtaDetailTable.funds,
       })
       .from(accountOtaDetailTable)
@@ -547,15 +845,31 @@ listProtectedRouter.openapi(listOtaKuRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
   }
 });
+
 listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
+  const user = c.var.user;
   const { q, page } = c.req.query();
   const otaId = c.get("user").id;
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -593,7 +907,16 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
         accountId: accountMahasiswaDetailTable.accountId,
         name: accountMahasiswaDetailTable.name,
         nim: accountMahasiswaDetailTable.nim,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        gender: accountMahasiswaDetailTable.gender,
+        religion: accountMahasiswaDetailTable.religion,
+        gpa: accountMahasiswaDetailTable.gpa,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
+        request_term_ota: connectionTable.requestTerminateOta,
+        request_term_ma: connectionTable.requestTerminateMahasiswa
       })
       .from(connectionTable)
       .innerJoin(
@@ -631,7 +954,16 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
             accountId: mahasiswa.accountId,
             name: mahasiswa.name!,
             nim: mahasiswa.nim,
+            major: mahasiswa.major || "",
+            faculty: mahasiswa.faculty || "",
+            cityOfOrigin: mahasiswa.cityOfOrigin || "",
+            highschoolAlumni: mahasiswa.highschoolAlumni || "",
+            gender: mahasiswa.gender!,
+            religion: mahasiswa.religion!,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
+            gpa: mahasiswa.gpa!,
+            request_term_ota: mahasiswa.request_term_ota,
+            request_term_ma: mahasiswa.request_term_ma
           })),
           totalData: counts[0].count,
         },
@@ -644,7 +976,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -652,8 +984,23 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
+  const user = c.var.user;
   const { q, page } = c.req.query();
   const otaId = c.get("user").id;
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
+  }
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
@@ -693,7 +1040,16 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         accountId: accountMahasiswaDetailTable.accountId,
         name: accountMahasiswaDetailTable.name,
         nim: accountMahasiswaDetailTable.nim,
+        major: accountMahasiswaDetailTable.major,
+        faculty: accountMahasiswaDetailTable.faculty,
+        cityOfOrigin: accountMahasiswaDetailTable.cityOfOrigin,
+        highschoolAlumni: accountMahasiswaDetailTable.highschoolAlumni,
+        gender: accountMahasiswaDetailTable.gender,
+        religion: accountMahasiswaDetailTable.religion,
+        gpa: accountMahasiswaDetailTable.gpa,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
+        request_term_ota: connectionTable.requestTerminateOta,
+        request_term_ma: connectionTable.requestTerminateMahasiswa
       })
       .from(connectionTable)
       .innerJoin(
@@ -733,7 +1089,16 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
             accountId: mahasiswa.accountId,
             name: mahasiswa.name!,
             nim: mahasiswa.nim,
+            major: mahasiswa.major || "",
+            faculty: mahasiswa.faculty || "",
+            cityOfOrigin: mahasiswa.cityOfOrigin || "",
+            highschoolAlumni: mahasiswa.highschoolAlumni || "",
+            gender: mahasiswa.gender!,
+            religion: mahasiswa.religion!,
+            gpa: mahasiswa.gpa!,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
+            request_term_ota: mahasiswa.request_term_ota,
+            request_term_ma: mahasiswa.request_term_ma
           })),
           totalData: counts[0].count,
         },
@@ -746,7 +1111,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -754,12 +1119,28 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
 });
 
 listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
-  const { q, page } = c.req.query();
+  const user = c.var.user;
+  const zodParseResult = OTAListQuerySchema.parse(c.req.query());
+  const { q, page } = zodParseResult;
 
   // Validate page to be a positive integer
   let pageNumber = Number(page);
   if (isNaN(pageNumber) || pageNumber < 1) {
     pageNumber = 1;
+  }
+
+  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
+        },
+      },
+      403,
+    );
   }
 
   try {
@@ -784,6 +1165,7 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .select({
         id: accountOtaDetailTable.accountId,
         name: accountOtaDetailTable.name,
+        number: accountTable.phoneNumber,
         funds: accountOtaDetailTable.funds,
         maxCapacity: accountOtaDetailTable.maxCapacity,
         currentCount: sql<number>`COUNT(${connectionTable.mahasiswaId})`,
@@ -811,6 +1193,7 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .groupBy(
         accountOtaDetailTable.accountId,
         accountOtaDetailTable.name,
+        accountTable.phoneNumber,
         accountOtaDetailTable.funds,
         accountOtaDetailTable.maxCapacity,
         accountOtaDetailTable.criteria,
@@ -825,30 +1208,30 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
       .offset(offset);
 
     const [otaList, counts] = await Promise.all([otaListQuery, countsQuery]);
-  
-      return c.json(
-        {
-          success: true,
-          message: "Daftar OTA yang tersedia berhasil diambil",
-          body: {
-            data: otaList.map((ota) => ({
-              accountId: ota.id,
-              name: ota.name,
-              phoneNumber: "", // Adding empty phoneNumber to match expected type
-              nominal: ota.funds, // Mapping funds to nominal to match expected type
-            })),
-            totalData: counts[0].count,
-          },
+
+    return c.json(
+      {
+        success: true,
+        message: "Daftar OTA yang tersedia berhasil diambil",
+        body: {
+          data: otaList.map((ota) => ({
+            accountId: ota.id,
+            name: ota.name,
+            phoneNumber: ota.number ?? "",
+            nominal: ota.funds,
+          })),
+          totalData: counts[0].count,
         },
-        200,
-      );
+      },
+      200,
+    );
   } catch (error) {
     console.error("Error fetching available OTA list:", error);
     return c.json(
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

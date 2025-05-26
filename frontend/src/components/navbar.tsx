@@ -9,7 +9,7 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar";
 import { SessionContext } from "@/context/session";
-import { useSidebar } from "@/context/sidebar";
+import { useSidebar } from "@/context/sidebar-context";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -28,6 +28,19 @@ export default function NavBar() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   const isLoggedIn = !!session;
+  const isMahasiswa = session?.type === "mahasiswa";
+
+  // Query to check if user needs to renew (mahasiswa within 30 days of due date)
+  const { data: profileData } = useQuery({
+    queryKey: ["getReapplicationStatus", session?.id],
+    queryFn: () => {
+      if (!session?.id || !isMahasiswa) return null;
+      return api.status.getReapplicationStatus({
+        id: session.id,
+      });
+    },
+    enabled: !!session?.id && isMahasiswa,
+  });
 
   const { data, refetch } = useQuery({
     queryKey: ["getPushSubscription", session?.id],
@@ -244,11 +257,17 @@ export default function NavBar() {
               <Menubar className="border-none bg-transparent p-0 shadow-none">
                 <MenubarMenu>
                   <MenubarTrigger className="cursor-pointer border-none bg-transparent p-0 shadow-none outline-none hover:bg-transparent focus:bg-transparent">
-                    <img
-                      src="/icon/Type=profile-icon.svg"
-                      alt="Profile"
-                      className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
-                    />
+                    <div className="relative">
+                      <img
+                        src="/icon/Type=profile-icon.svg"
+                        alt="Profile"
+                        className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
+                      />
+                      {/* Red dot indicator above profile icon */}
+                      {profileData?.body.status && (
+                        <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-600"></div>
+                      )}
+                    </div>
                   </MenubarTrigger>
                   <MenubarContent
                     className="z-[70]"
@@ -256,25 +275,36 @@ export default function NavBar() {
                     alignOffset={-10}
                     sideOffset={5}
                   >
-                    <MenubarItem
-                      className="text-dark"
-                      onClick={() => {
-                        const path = "/profile";
+                    {session.type !== "admin" &&
+                      session.type !== "bankes" &&
+                      session.type !== "pengurus" && (
+                        <>
+                          <MenubarItem
+                            className="text-dark relative hover:cursor-pointer"
+                            asChild
+                          >
+                            <Link
+                              to="/profile"
+                              className="flex w-full items-center justify-between"
+                            >
+                              <span>Akun Saya</span>
+                              {/* Red dot indicator next to "Akun Saya" */}
+                              {profileData?.body.status && (
+                                <div className="ml-2 h-3 w-3 rounded-full bg-red-600"></div>
+                              )}
+                            </Link>
+                          </MenubarItem>
 
-                        navigate({
-                          to: path,
-                          reloadDocument: true,
-                        });
-                      }}
-                    >
-                      Akun Saya
-                    </MenubarItem>
-
-                    <MenubarSeparator />
+                          <MenubarSeparator />
+                        </>
+                      )}
                     <MenubarItem
-                      className="text-destructive"
+                      className="text-destructive hover:cursor-pointer"
                       onClick={() => {
                         api.auth.logout();
+                        localStorage.removeItem("state");
+                        localStorage.removeItem("pendaftaran-ota");
+                        localStorage.removeItem("pendaftaran-mahasiswa");
                         queryClient.invalidateQueries({ queryKey: ["verify"] });
                         navigate({
                           to: "/",

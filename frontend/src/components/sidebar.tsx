@@ -3,7 +3,7 @@ import SidebarContent from "@/components/sidebar-content";
 import SidebarOverlay from "@/components/sidebar-overlay";
 import { SessionContext } from "@/context/session";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useLocation } from "@tanstack/react-router";
 import { useContext, useEffect, useState } from "react";
 
 interface MenuItem {
@@ -11,6 +11,7 @@ interface MenuItem {
   label: string;
   icon: string;
   path: string;
+  iconColorClass?: string;
   textColorClass?: string;
   bgColorClass?: string;
 }
@@ -20,9 +21,55 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+const adminRoutes = [
+  {
+    id: "verification",
+    label: "Verifikasi Akun",
+    icon: "/icon/Type=shield.svg",
+    path: "/verifikasi-akun",
+  },
+  {
+    id: "persetujuan-asuh",
+    label: "Persetujuan Asuh",
+    icon: "/icon/Type=user-round-check.svg",
+    path: "/persetujuan-asuh",
+  },
+  {
+    id: "pemasangan-bota",
+    label: "Pemasangan BOTA",
+    icon: "/icon/Type=handshake.svg",
+    path: "/pemasangan-bota",
+  },
+  {
+    id: "connection",
+    label: "Data Hubungan Asuh",
+    icon: "/icon/Type=connection.svg",
+    path: "/data-hubungan-asuh",
+  },
+  {
+    id: "daftar-transfer-mahasiswa",
+    label: "Daftar Transfer",
+    icon: "/icon/Type=transaction.svg",
+    path: "/daftar-transfer-mahasiswa",
+  },
+  {
+    id: "transaction",
+    label: "Daftar Tagihan",
+    icon: "/icon/Type=receipt.svg",
+    path: "/daftar-tagihan",
+  },
+  {
+    id: "daftar-terminasi",
+    label: "Daftar Terminasi",
+    icon: "/icon/Type=remove-destructive.svg",
+    path: "/daftar-terminasi",
+    bgColorClass: " bg-destructive/10",
+    textColorClass: "text-destructive",
+  },
+];
+
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const session = useContext(SessionContext);
-  const navigate = useNavigate();
   const location = useLocation();
   const [activeItem, setActiveItem] = useState<string>("");
 
@@ -80,15 +127,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
     };
   }, [isOpen, onClose]);
 
-  const handleItemClick = (item: MenuItem) => {
-    setActiveItem(item.id);
-    navigate({ to: item.path });
-
-    if (window.innerWidth < 1024) {
-      onClose();
-    }
-  };
-
   if (!session) {
     return null;
   }
@@ -101,7 +139,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         onClose={onClose}
         menuItems={menuItems}
         activeItem={activeItem}
-        handleItemClick={handleItemClick}
         userData={session}
       />
     </>
@@ -109,12 +146,12 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 };
 
 const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
-  // TODO: handle case applicationStatus === "reapply" or "outdated"
   if (
     (role === "ota" || role === "mahasiswa") &&
     (applicationStatus === "unregistered" ||
       applicationStatus === "pending" ||
-      applicationStatus === "rejected")
+      applicationStatus === "rejected" ||
+      applicationStatus === "outdated")
   ) {
     return [
       {
@@ -135,35 +172,6 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           icon: "/icon/Type=student-list.svg",
           path: "/orang-tua-asuh-saya",
         },
-        {
-          id: "termination",
-          label: "Terminasi",
-          icon: "/icon/Type=remove-student.svg",
-          path: "/termination",
-          textColorClass: "text-destructive",
-          bgColorClass: "bg-destructive/10",
-        },
-      ];
-    case "admin":
-      return [
-        {
-          id: "verification",
-          label: "Verifikasi",
-          icon: "/icon/Type=shield.svg",
-          path: "/verifikasi-akun",
-        },
-        {
-          id: "persetujuan-asuh",
-          label: "Persetujuan Asuh",
-          icon: "/icon/Type=user-round-check.svg",
-          path: "/persetujuan-asuh",
-        },
-        {
-          id: "transaction",
-          label: "Daftar Tagihan",
-          icon: "/icon/Type=transaction.svg",
-          path: "/daftar-tagihan",
-        },
       ];
     case "ota":
       return [
@@ -180,14 +188,34 @@ const getMenuItems = (role: string, applicationStatus?: string): MenuItem[] => {
           path: "/mahasiswa-asuh-saya",
         },
         {
-          id: "termination",
-          label: "Terminasi",
-          icon: "/icon/Type=remove-student.svg",
-          path: "/termination",
+          id: "status-transaksi",
+          label: "Status Transaksi",
+          icon: "/icon/Type=transaction-status.svg",
+          path: "/status-transaksi",
+        },
+        {
+          id: "terminasi-mahasiswa",
+          label: "Berhenti Mengasuh",
+          icon: "/icon/Type=remove-destructive.svg",
+          path: "/daftar/terminasi-mahasiswa",
+          bgColorClass: " bg-destructive/10",
           textColorClass: "text-destructive",
-          bgColorClass: "bg-destructive/10",
         },
       ];
+    case "admin":
+      return [
+        {
+          id: "manejemen-akun",
+          label: "Manajemen Akun",
+          icon: "/icon/Type=people.svg",
+          path: "/manajemen-akun",
+        },
+        ...adminRoutes,
+      ];
+    case "bankes":
+      return adminRoutes;
+    case "pengurus":
+      return adminRoutes;
     default:
       return [];
   }

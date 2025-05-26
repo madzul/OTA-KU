@@ -2,6 +2,9 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
+  AllAccountListElementSchema,
+  AllAccountListQueryResponse,
+  AllAccountListQuerySchema,
   MAListQueryResponse,
   MahasiswaDetailsListQueryResponse,
   MahasiswaDetailsListQuerySchema,
@@ -12,7 +15,7 @@ import {
   VerifiedMahasiswaListQueryResponse,
   VerifiedMahasiswaListQuerySchema,
 } from "../zod/list.js";
-import { InternalServerErrorResponse } from "../zod/response.js";
+import { ForbiddenResponse, InternalServerErrorResponse } from "../zod/response.js";
 
 export const listMahasiswaOtaRoute = createRoute({
   operationId: "listMahasiswaOta",
@@ -33,6 +36,14 @@ export const listMahasiswaOtaRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -61,6 +72,14 @@ export const listMahasiswaAdminRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -89,6 +108,14 @@ export const listOrangTuaAdminRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -117,6 +144,14 @@ export const listOtaKuRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -145,6 +180,14 @@ export const listMAActiveRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -173,6 +216,14 @@ export const listMAPendingRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -201,6 +252,50 @@ export const listAvailableOTARoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const listAllAccountRoute = createRoute({
+  operationId: "listAllAccount",
+  tags: ["List"],
+  method: "get",
+  path: "/admin/all",
+  description: "List detail semua akun yang ada",
+  request: {
+    query: AllAccountListQuerySchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan daftar semua akun yang ada",
+      content: {
+        "application/json": {
+          schema: AllAccountListQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {

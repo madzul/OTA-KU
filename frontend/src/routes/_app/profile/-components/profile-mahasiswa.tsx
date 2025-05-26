@@ -4,9 +4,11 @@ import Metadata from "@/components/metadata";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { UserCog } from "lucide-react";
+import { useState } from "react";
+
 import ProfileCard from "./profile-card";
-import ProfileFormMA from "./profile-form-ma";
 import ChangePasswordForm from "./profile-change-password";
+import ProfileFormMA from "./profile-form-ma";
 
 function ProfileMahasiswa({
   session,
@@ -21,17 +23,36 @@ function ProfileMahasiswa({
     | "reapply"
     | "outdated";
 }) {
+  const [isEditingEnabled, setIsEditingEnabled] = useState(false);
+
   const { data: profileData, isLoading } = useQuery({
     queryKey: ["mahasiswaProfile", session.id],
     queryFn: () => api.profile.profileMahasiswa({ id: session.id }),
     enabled: !!session.id,
   });
 
-  if (applicationStatus === "unregistered") {
+  const { data } = useQuery({
+    queryKey: ["getReapplicationStatus", session?.id],
+    queryFn: () => {
+      if (!session?.id) return null;
+      return api.status.getReapplicationStatus({
+        id: session.id,
+      });
+    },
+    enabled: !!session?.id,
+  });
+
+  if (
+    applicationStatus === "unregistered" ||
+    applicationStatus === "outdated"
+  ) {
     return (
       <main className="flex min-h-[calc(100vh-96px)] flex-col items-center justify-center gap-4 p-2 px-6 py-8 md:px-12">
-        <UserCog className="h-24 w-24 text-primary" />
-        <h2 className="text-2xl font-semibold">Anda belum melakukan pendaftaran</h2>
+        <Metadata title="Profile | BOTA" />
+        <UserCog className="text-primary h-24 w-24" />
+        <h2 className="text-2xl font-semibold">
+          Anda belum melakukan pendaftaran
+        </h2>
       </main>
     );
   }
@@ -49,17 +70,27 @@ function ProfileMahasiswa({
           ) : (
             <ProfileCard
               name={profileData?.body?.name || "Mahasiswa Asuh"}
-              role="Mahasiswa Asuh"
+              role="Mahasiswa"
               email={session.email}
               phone={
                 profileData?.body?.phone_number || session.phoneNumber || "-"
               }
-              joinDate={"Belum tersedia"}
+              joinDate={profileData?.body?.createdAt || "-"}
+              dueNextUpdateAt={profileData?.body?.dueNextUpdateAt}
+              applicationStatus={applicationStatus}
+              onEnableEdit={() => setIsEditingEnabled(true)}
+              isEditingEnabled={isEditingEnabled}
+              status={data?.body.status || false}
+              daysRemaining={data?.body.daysRemaining || 0}
             />
           )}
         </div>
         <div className="space-y-6">
-          <ProfileFormMA session={session} />
+          <ProfileFormMA
+            session={session}
+            isEditable={isEditingEnabled && data?.body.status}
+            setIsEditingEnabled={setIsEditingEnabled}
+          />
           {/* Only show change password form for credentials provider */}
           {session.provider === "credentials" && (
             <ChangePasswordForm userId={session.id} />

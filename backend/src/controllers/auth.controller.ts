@@ -7,13 +7,15 @@ import nodemailer from "nodemailer";
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
+  accountAdminDetailTable,
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
   otpTable,
   temporaryPasswordTable,
 } from "../db/schema.js";
-import { emailHTML, emailHTMLPassword } from "../lib/email-html.js";
+import { kodeOTPEmail } from "../lib/email/kode-otp.js";
+import { forgotPasswordEmail } from "../lib/email/lupa-password.js";
 import {
   getNimFakultasCodeMap,
   getNimFakultasFromNimJurusanMap,
@@ -134,25 +136,38 @@ authRouter.openapi(loginRoute, async (c) => {
 
     let name = null;
 
-    const mahasiswaDetail = await db
-      .select({ name: accountMahasiswaDetailTable.name })
-      .from(accountMahasiswaDetailTable)
-      .where(eq(accountMahasiswaDetailTable.accountId, accountId))
-      .limit(1);
+    if (account[0].type === "mahasiswa") {
+      const mahasiswaDetail = await db
+        .select({ name: accountMahasiswaDetailTable.name })
+        .from(accountMahasiswaDetailTable)
+        .where(eq(accountMahasiswaDetailTable.accountId, accountId))
+        .limit(1);
 
-    const otaDetail = await db
-      .select({ name: accountOtaDetailTable.name })
-      .from(accountOtaDetailTable)
-      .where(eq(accountOtaDetailTable.accountId, accountId))
-      .limit(1);
+      if (mahasiswaDetail && mahasiswaDetail.length > 0) {
+        name = mahasiswaDetail[0].name;
+      }
+    } else if (account[0].type === "ota") {
+      const otaDetail = await db
+        .select({ name: accountOtaDetailTable.name })
+        .from(accountOtaDetailTable)
+        .where(eq(accountOtaDetailTable.accountId, accountId))
+        .limit(1);
 
-    // TODO: Logicnya masih salah
-    if (mahasiswaDetail && mahasiswaDetail.length > 0) {
-      name = mahasiswaDetail[0].name;
-    } else if (otaDetail && otaDetail.length > 0) {
-      name = otaDetail[0].name;
+      if (otaDetail && otaDetail.length > 0) {
+        name = otaDetail[0].name;
+      }
     } else {
-      name = "Admin";
+      const adminDetail = await db
+        .select({
+          name: accountAdminDetailTable.name,
+        })
+        .from(accountAdminDetailTable)
+        .where(eq(accountAdminDetailTable.accountId, accountId))
+        .limit(1);
+
+      if (adminDetail && adminDetail.length > 0) {
+        name = adminDetail[0].name;
+      }
     }
 
     const accessToken = await sign(
@@ -195,7 +210,7 @@ authRouter.openapi(loginRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -278,9 +293,9 @@ authRouter.openapi(regisRoute, async (c) => {
     await transporter
       .sendMail({
         from: env.EMAIL_FROM,
-        to: newUser[0].email,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : newUser[0].email,
         subject: "Token OTP Bantuan Orang Tua Asuh",
-        html: emailHTML(code),
+        html: kodeOTPEmail(newUser[0].email, code),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
@@ -328,7 +343,7 @@ authRouter.openapi(regisRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -512,7 +527,7 @@ authRouter.openapi(oauthRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -661,7 +676,7 @@ authProtectedRouter.openapi(otpRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -730,9 +745,9 @@ authRouter.openapi(forgotPasswordRoute, async (c) => {
     await transporter
       .sendMail({
         from: env.EMAIL_FROM,
-        to: foundAccount.email,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : foundAccount.email,
         subject: "Kata Sandi Sementara Bantuan Orang Tua Asuh",
-        html: emailHTMLPassword(password),
+        html: forgotPasswordEmail(foundAccount.email, password),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
@@ -752,7 +767,7 @@ authRouter.openapi(forgotPasswordRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );

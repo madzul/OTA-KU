@@ -1,4 +1,4 @@
-import { api } from "@/api/client";
+import { api, queryClient } from "@/api/client";
 import { UserSchema } from "@/api/generated";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -18,8 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Fakultas, Jurusan } from "@/lib/nim";
+import {
+  Fakultas,
+  Jurusan,
+  getNimFakultasCodeMap,
+  getNimFakultasFromNimJurusanMap,
+  getNimJurusanCodeMap,
+} from "@/lib/nim";
+import { cn } from "@/lib/utils";
 import { MahasiswaProfileFormSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -80,15 +88,21 @@ const religionOptions = [
 
 // Gender options from enum
 const genderOptions = [
-  { value: "M", label: "Laki-laki" },
+  { value: "M", label: "Laki-Laki" },
   { value: "F", label: "Perempuan" },
 ];
 
 interface ProfileFormProps {
   session: UserSchema;
+  isEditable?: boolean;
+  setIsEditingEnabled: (isEditing: boolean) => void;
 }
 
-const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
+const ProfileFormMA: React.FC<ProfileFormProps> = ({
+  session,
+  setIsEditingEnabled,
+  isEditable = false,
+}) => {
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [previouslyUploadedFiles, setPreviouslyUploadedFiles] = useState<
@@ -193,6 +207,13 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
       toast.success("Profil berhasil diperbarui", {
         description: "Data profil Anda telah disimpan",
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["mahasiswaProfile", session?.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["getReapplicationStatus"],
+      });
     },
     onError: (error) => {
       toast.warning("Gagal memperbarui profil", {
@@ -205,6 +226,8 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
     field: MahasiswaProfileField,
     file: File | null,
   ) => {
+    if (!isEditable) return;
+
     if (file) {
       setFileNames((prev) => ({
         ...prev,
@@ -231,11 +254,23 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
   };
 
   const onSubmit = (values: MahasiswaProfileFormValues) => {
+    if (!isEditable) return;
+
+    // Tambahkan validasi untuk transkrip nilai
+    if (!values.transcript || !(values.transcript instanceof File)) {
+      toast.error("Validasi gagal", {
+        description:
+          "Transkrip nilai harus diupload ulang saat mengedit profil",
+      });
+      return;
+    }
+
     const dataToSubmit = { ...values };
 
     // Hapus field file yang tidak diubah (masih berupa string URL)
     uploadFields.forEach((field) => {
       if (
+        field !== "transcript" && // Kecualikan transkrip dari pengecualian
         typeof dataToSubmit[field] === "string" &&
         previouslyUploadedFiles[field]
       ) {
@@ -248,391 +283,516 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({ session }) => {
     updateProfileMutation.mutate(dataToSubmit);
   };
 
+  const watchedNim = form.watch("nim");
+
+  useEffect(() => {
+    if (watchedNim) {
+      const isValidNim =
+        MahasiswaProfileFormSchema.shape.nim.safeParse(watchedNim).success;
+
+      if (isValidNim) {
+        console.log("NIM valid, setting jurusan and fakultas");
+
+        const jurusanCode = watchedNim.slice(0, 3);
+        const jurusan = getNimJurusanCodeMap()[jurusanCode] || "TPB";
+        const fakultasCode =
+          getNimFakultasFromNimJurusanMap()[jurusanCode] || jurusanCode;
+        const fakultas = getNimFakultasCodeMap()[fakultasCode];
+
+        form.setValue("major", jurusan);
+        form.setValue("faculty", fakultas);
+      }
+    }
+  }, [watchedNim, form]);
+
   return (
     <div className="mx-auto w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Card className="w-full">
-            <p className="text-primary px-4 py-4 text-2xl font-bold">
-              Data Diri
-            </p>
-            <div className="space-y-4 p-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.name}
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Masukkan nama Anda" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phoneNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.phoneNumber}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Masukkan nomor WA Anda"
-                        disabled={!!session?.phoneNumber}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="nim"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.nim}
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Masukkan NIM Anda" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="major"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.major}
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Masukkan jurusan Anda" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="faculty"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.faculty}
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Masukkan fakultas Anda" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Gender field */}
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.gender}
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih jenis kelamin" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {genderOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Religion field */}
-              <FormField
-                control={form.control}
-                name="religion"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.religion}
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih agama" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {religionOptions.map((religion) => (
-                          <SelectItem key={religion} value={religion}>
-                            {religion}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* GPA field */}
-              <FormField
-                control={form.control}
-                name="gpa"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.gpa}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Masukkan IPK Anda"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="cityOfOrigin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.cityOfOrigin}
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Masukkan kota asal Anda" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="highschoolAlumni"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.highschoolAlumni}
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Masukkan asal SMA Anda" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary">
-                      {uploadFieldLabels.description}
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Alasan keperluan bantuan"
-                        rows={4}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </Card>
-
-          <Card className="text-primary w-full">
-            <p className="text-primary px-4 py-4 text-2xl font-bold">
-              Dokumen Pendukung
-            </p>
-            <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
-              {uploadFields.map((name) => (
-                <FormField
-                  key={name}
-                  control={form.control}
-                  name={name}
-                  render={() => {
-                    const handleDragOver = (
-                      e: React.DragEvent<HTMLDivElement>,
-                    ) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setFileNames((prev) => ({
-                        ...prev,
-                        [name]: "Dragging...",
-                      }));
-                    };
-                    const handleDragLeave = (
-                      e: React.DragEvent<HTMLDivElement>,
-                    ) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // Only clear if it was just showing "Dragging..."
-                      if (fileNames[name] === "Dragging...") {
-                        setFileNames((prev) => {
-                          const newNames = { ...prev };
-                          delete newNames[name];
-                          return newNames;
-                        });
-                      }
-                    };
-                    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const file = e.dataTransfer.files?.[0] || null;
-                      handleFileChange(name, file);
-                    };
-
-                    const hasExistingFile = !!previouslyUploadedFiles[name];
-
-                    // Determine display status message
-                    let fileStatus = "";
-                    if (fileNames[name] === "Dragging...") {
-                      fileStatus = "Dragging...";
-                    } else if (fileNames[name]) {
-                      fileStatus = fileNames[name];
-                    } else if (hasExistingFile) {
-                      fileStatus = "File sudah terupload";
-                    } else {
-                      fileStatus = "Klik untuk upload atau drag & drop";
-                    }
-
-                    // URL for previously uploaded file
-                    const fileUrl = hasExistingFile
-                      ? previouslyUploadedFiles[name]
-                      : null;
-
-                    return (
+          <Tabs defaultValue="personalInfo" className="w-full">
+            <TabsList className="w-full bg-[#BBBAB8]">
+              <TabsTrigger
+                value="personalInfo"
+                className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white"
+              >
+                Data Diri
+              </TabsTrigger>
+              <TabsTrigger
+                value="documents"
+                className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white"
+              >
+                Dokumen Pendukung
+              </TabsTrigger>
+            </TabsList>
+            <Card className="w-full">
+              <TabsContent value="personalInfo">
+                <p className="text-primary px-4 py-4 text-2xl font-bold">
+                  Data Diri
+                </p>
+                <div className="space-y-4 p-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-primary text-sm">
-                          {uploadFieldLabels[name] || name}
+                        <FormLabel className="text-primary">
+                          {uploadFieldLabels.name}
                         </FormLabel>
                         <FormControl>
-                          <div
-                            className={`flex flex-col items-center justify-center rounded-md border-2 ${
-                              fileNames[name] === "Dragging..."
-                                ? "border-primary bg-primary/5 border-dashed"
-                                : hasExistingFile
-                                  ? "border-dashed border-green-500/50 bg-green-50/20"
-                                  : "border-muted-foreground/25 hover:border-muted-foreground/50 border-dashed"
-                            } p-6 transition-all`}
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                            onDrop={handleDrop}
-                          >
-                            <Input
-                              type="file"
-                              accept=".pdf"
-                              className="hidden"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0] || null;
-                                handleFileChange(name, file);
-                              }}
-                              ref={(el) => {
-                                fileInputRefs.current[name] = el;
-                              }}
-                            />
-                            <div className="flex flex-col items-center gap-2 text-center">
-                              <FileUp
-                                className={`h-8 w-8 ${hasExistingFile ? "text-green-500" : "text-muted-foreground"}`}
-                              />
-
-                              {/* Display status message without showing the filename for uploaded files */}
-                              <p className="text-sm font-medium">
-                                {hasExistingFile
-                                  ? "File sudah terupload"
-                                  : fileStatus}
-                              </p>
-
-                              <div className="flex gap-2">
-                                {hasExistingFile && (
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                      if (fileUrl)
-                                        window.open(fileUrl, "_blank");
-                                    }}
-                                  >
-                                    Lihat
-                                  </Button>
-                                )}
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() =>
-                                    fileInputRefs.current[name]?.click()
-                                  }
-                                >
-                                  {hasExistingFile ? `Ganti` : `Pilih`}
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
+                          <Input
+                            placeholder="Masukkan nama Anda"
+                            {...field}
+                            disabled={!isEditable}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
-                    );
-                  }}
-                />
-              ))}
-            </div>
-          </Card>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-primary">
+                          {uploadFieldLabels.phoneNumber}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Masukkan nomor WA Anda"
+                            disabled={!isEditable || !!session?.phoneNumber}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="nim"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-primary">
+                          {uploadFieldLabels.nim}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Masukkan NIM Anda"
+                            {...field}
+                            disabled={
+                              !isEditable || session.provider === "azure"
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="major"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-primary">
+                          {uploadFieldLabels.major}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Masukkan jurusan Anda"
+                            {...field}
+                            disabled
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="faculty"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-primary">
+                          {uploadFieldLabels.faculty}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Masukkan fakultas Anda"
+                            {...field}
+                            disabled
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-          <div className="flex justify-end space-x-2 p-4">
-            <Button
-              type="button"
-              className="w-24 xl:w-40"
-              variant="outline"
-              onClick={() => form.reset()}
-            >
-              Batal
-            </Button>
-            <Button
-              type="submit"
-              className="w-24 xl:w-40"
-              disabled={updateProfileMutation.isPending}
-            >
-              {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
-            </Button>
-          </div>
+                  {/* Gender field */}
+                  <FormField
+                    control={form.control}
+                    name="gender"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-primary">
+                          {uploadFieldLabels.gender}
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          value={field.value}
+                          disabled={!isEditable}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih jenis kelamin" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {genderOptions.map((option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Religion field */}
+                  <FormField
+                    control={form.control}
+                    name="religion"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-primary">
+                          {uploadFieldLabels.religion}
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          value={field.value}
+                          disabled={!isEditable}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Pilih agama" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {religionOptions.map((religion) => (
+                              <SelectItem key={religion} value={religion}>
+                                {religion}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* GPA field */}
+                  <FormField
+                    control={form.control}
+                    name="gpa"
+                    render={({ field }) => {
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      const { onChange, ...rest } = field;
+
+                      return (
+                        <FormItem>
+                          <FormLabel className="text-primary">
+                            {uploadFieldLabels.gpa}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Masukkan IPK Anda"
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                // Allow empty input, or a valid decimal with max 2 digits after decimal point
+                                if (
+                                  value === "" ||
+                                  /^\d{0,1}(\.\d{0,2})?$/.test(value)
+                                ) {
+                                  field.onChange(value);
+                                }
+                              }}
+                              {...rest}
+                              disabled={!isEditable}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="cityOfOrigin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-primary">
+                          {uploadFieldLabels.cityOfOrigin}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Masukkan kota asal Anda"
+                            {...field}
+                            disabled={!isEditable}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="highschoolAlumni"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-primary">
+                          {uploadFieldLabels.highschoolAlumni}
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Masukkan asal SMA Anda"
+                            {...field}
+                            disabled={!isEditable}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-primary">
+                          {uploadFieldLabels.description}
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Alasan keperluan bantuan"
+                            rows={4}
+                            {...field}
+                            disabled={!isEditable}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="documents">
+                <p className="text-primary px-4 py-4 text-2xl font-bold">
+                  Dokumen Pendukung
+                </p>
+                <div className="grid grid-cols-1 gap-4 p-4 md:grid-cols-2">
+                  {uploadFields.map((name) => (
+                    <FormField
+                      key={name}
+                      control={form.control}
+                      name={name}
+                      render={() => {
+                        const handleDragOver = (
+                          e: React.DragEvent<HTMLDivElement>,
+                        ) => {
+                          if (!isEditable) return;
+
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setFileNames((prev) => ({
+                            ...prev,
+                            [name]: "Dragging...",
+                          }));
+                        };
+                        const handleDragLeave = (
+                          e: React.DragEvent<HTMLDivElement>,
+                        ) => {
+                          if (!isEditable) return;
+
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Only clear if it was just showing "Dragging..."
+                          if (fileNames[name] === "Dragging...") {
+                            setFileNames((prev) => {
+                              const newNames = { ...prev };
+                              delete newNames[name];
+                              return newNames;
+                            });
+                          }
+                        };
+                        const handleDrop = (
+                          e: React.DragEvent<HTMLDivElement>,
+                        ) => {
+                          if (!isEditable) return;
+
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const file = e.dataTransfer.files?.[0] || null;
+                          handleFileChange(name, file);
+                        };
+
+                        const hasExistingFile = !!previouslyUploadedFiles[name];
+
+                        // Determine display status message
+                        let fileStatus = "";
+                        if (fileNames[name] === "Dragging...") {
+                          fileStatus = "Dragging...";
+                        } else if (fileNames[name]) {
+                          fileStatus = fileNames[name];
+                        } else if (hasExistingFile) {
+                          fileStatus = "File sudah terupload";
+                        } else {
+                          fileStatus = isEditable
+                            ? "Klik untuk upload atau drag & drop"
+                            : "Tidak ada file";
+                        }
+
+                        // URL for previously uploaded file
+                        const fileUrl = hasExistingFile
+                          ? previouslyUploadedFiles[name]
+                          : null;
+
+                        // Tambahkan pesan informasi khusus untuk transkrip
+                        const isTranscript = name === "transcript";
+
+                        return (
+                          <FormItem
+                            className={cn(
+                              name === "ditmawaRecommendationLetter" &&
+                                "col-span-1 md:col-span-2",
+                            )}
+                          >
+                            <FormLabel className="text-primary text-sm">
+                              {uploadFieldLabels[name] || name}
+                              {isTranscript && isEditable && (
+                                <span className="ml-1 text-xs text-red-500">
+                                  *wajib diupload ulang
+                                </span>
+                              )}
+                            </FormLabel>
+                            <FormControl>
+                              <div
+                                className={`flex flex-col items-center justify-center rounded-md border-2 ${
+                                  !isEditable
+                                    ? "cursor-not-allowed border-gray-200 bg-gray-50"
+                                    : fileNames[name] === "Dragging..."
+                                      ? "border-primary bg-primary/5 border-dashed"
+                                      : hasExistingFile
+                                        ? "border-dashed border-green-500/50 bg-green-50/20"
+                                        : "border-muted-foreground/25 hover:border-muted-foreground/50 border-dashed"
+                                } p-6 transition-all`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                              >
+                                <Input
+                                  type="file"
+                                  accept=".pdf"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0] || null;
+                                    handleFileChange(name, file);
+                                  }}
+                                  ref={(el) => {
+                                    fileInputRefs.current[name] = el;
+                                  }}
+                                  disabled={!isEditable}
+                                />
+                                <div className="flex flex-col items-center gap-2 text-center">
+                                  <FileUp
+                                    className={`h-8 w-8 ${
+                                      !isEditable
+                                        ? "text-gray-400"
+                                        : hasExistingFile
+                                          ? "text-green-500"
+                                          : "text-muted-foreground"
+                                    }`}
+                                  />
+
+                                  {/* Display status message without showing the filename for uploaded files */}
+                                  <p className="text-sm font-medium">
+                                    {hasExistingFile
+                                      ? "File sudah terupload"
+                                      : fileStatus}
+                                  </p>
+
+                                  <div className="flex gap-2">
+                                    {hasExistingFile && (
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                          if (fileUrl)
+                                            window.open(fileUrl, "_blank");
+                                        }}
+                                        disabled={!fileUrl}
+                                      >
+                                        Lihat
+                                      </Button>
+                                    )}
+                                    {isEditable && (
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                          fileInputRefs.current[name]?.click()
+                                        }
+                                        disabled={!isEditable}
+                                      >
+                                        {hasExistingFile ? `Ganti` : `Pilih`}
+                                      </Button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  ))}
+                </div>
+              </TabsContent>
+            </Card>
+          </Tabs>
+
+          {/* Show form actions only if editing is enabled */}
+          {isEditable && (
+            <div className="flex justify-end space-x-2 p-4">
+              <Button
+                type="button"
+                className="w-24 xl:w-40"
+                variant="outline"
+                onClick={() => {
+                  setIsEditingEnabled(false);
+                }}
+              >
+                Batal
+              </Button>
+              <Button
+                type="submit"
+                className="w-24 xl:w-40"
+                disabled={updateProfileMutation.isPending}
+              >
+                {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
+              </Button>
+            </div>
+          )}
         </form>
       </Form>
     </div>

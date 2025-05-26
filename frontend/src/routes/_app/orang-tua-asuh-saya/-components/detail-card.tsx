@@ -1,162 +1,196 @@
+import { api } from "@/api/client";
+import { MyOtaDetailResponse } from "@/api/generated";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Mail, Phone, User } from "lucide-react";
-import React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { SessionContext } from "@/context/session";
+import { censorEmail } from "@/lib/formatter";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  AlertCircle,
+  Calendar,
+  CircleDollarSign,
+  Mail,
+  Phone,
+} from "lucide-react";
+import React, { useContext, useState } from "react";
 
-interface DetailCardsOrangTuaAsuhProps {
-  name: string;
-  role: string;
-  email: string;
-  phone: string;
-  joinDate: string;
-  avatarSrc?: string;
-  occupation: string;
-  beneficiary: number;
-  address: string;
-  linkage: string;
-  funds: number;
-  maxCapacity: number;
-  maxSemester: number;
-  transferDate: number;
-  criteria: string;
-}
-
-const DetailCardsOrangTuaAsuh: React.FC<DetailCardsOrangTuaAsuhProps> = ({
+const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
+  id,
   name,
-  role,
   email,
-  phone,
-  joinDate,
-  avatarSrc,
-  occupation,
-  beneficiary,
-  address,
-  linkage,
-  funds,
-  maxCapacity,
-  maxSemester,
+  phoneNumber,
   transferDate,
-  criteria,
+  isDetailVisible,
+  createdAt,
 }) => {
+  const session = useContext(SessionContext);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [note, setNote] = useState("");
+  const [isRequested, setIsRequested] = useState(false);
+
+  const reqTerminateOTA = useMutation({
+    mutationFn: (data: { otaId: string; note: string }) => {
+      return api.terminate.requestTerminateFromMa({
+        formData: {
+          requestTerminationNote: note,
+          mahasiswaId: session?.id ? session.id : "",
+          otaId: data.otaId,
+        },
+      });
+    },
+    onSuccess: () => {
+      setIsModalOpen(false);
+      setIsRequested(true);
+    },
+  });
+
+  const handleTerminate = () => {
+    reqTerminateOTA.mutate({ otaId: id, note: note });
+  };
+
+  const { data: terminationData } = useQuery({
+    queryKey: ["terminationData"],
+    queryFn: () => api.terminate.terminationStatusMa(),
+  });
+
+  React.useEffect(() => {
+    setIsRequested(
+      terminationData?.body.requestTerminateMA === undefined
+        ? false
+        : terminationData.body.requestTerminateMA,
+    );
+  }, [terminationData]);
+
   return (
-    <div className="grid gap-6 md:grid-cols-[300px_1fr]">
-      <Card className="mx-auto w-full md:max-w-sm">
-        <CardHeader className="flex flex-col items-center justify-center pt-6 pb-4">
-          <div className="mb-4 h-24 w-24 overflow-hidden rounded-full">
-            {avatarSrc ? (
-              <img
-                src={avatarSrc}
-                alt={`${name}'s avatar`}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-500">
-                <User className="h-12 w-12 text-gray-400" />
-              </div>
-            )}
-          </div>
-          <div className="text-center">
-            <h2 className="text-lg font-bold xl:text-xl">{name}</h2>
-            <p className="text-muted-foreground mt-4 rounded-xl border-2 px-6 py-1">
-              {role}
-            </p>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-primary space-y-3 text-sm xl:text-base">
-            <div className="flex items-start space-x-3">
-              <Mail className="text-primary h-5 w-5 mt-0.5" />
-              <span className="text-primary break-all">{email}</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <Phone className="text-primary h-5 w-5 mt-0.5" />
-              <span>{phone}</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <Calendar className="text-primary h-5 w-5 mt-0.5" />
-              <span>{joinDate}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      <Tabs defaultValue="personalInfo" className="w-full">
-        <TabsList className="bg-placeholder grid w-full grid-cols-2">
-          <TabsTrigger value="personalInfo" className="text-primary">
-            Data Diri
-          </TabsTrigger>
-          <TabsTrigger value="sponsorshipDetails" className="text-primary">
-            Detail Pendaftaran
-          </TabsTrigger>
-        </TabsList>
-
-        <Card className="text-primary w-full">
-          {/* Personal Info Tab */}
-          <TabsContent value="personalInfo">
-            <div className="space-y-3 p-4">
-              <h3 className="mb-8 text-lg font-bold xl:text-xl">Data Diri</h3>
-              <div className="xl:text-md space-y-2">
-                <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Pekerjaan:</span>
-                  <span>{occupation}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Alamat:</span>
-                  <span>{address}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Tipe Keterkaitan:</span>
-                  <span>
-                    {linkage === "otm" 
-                      ? "OTM" 
-                      : linkage === "alumni" 
-                        ? "Alumni"
-                        : linkage === "dosen"
-                          ? "Dosen"
-                          : linkage === "lainnya"
-                            ? "Lainnya"
-                            : "Tidak Ada"}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Jumlah Mahasiswa Asuh:</span>
-                  <span>{beneficiary}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Kapasitas Maksimal:</span>
-                  <span>{maxCapacity}</span>
-                </div>
+    <div className="flex w-full max-w-[300px] justify-center">
+      <div className="flex w-full flex-col gap-4">
+        <Card className="mx-auto w-full md:max-w-sm">
+          <CardHeader className="flex flex-col items-center justify-center pt-6 pb-4">
+            <div className="mb-4 h-24 w-24 overflow-hidden rounded-full bg-gray-100">
+              <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-gray-400">
+                {name.charAt(0)}
               </div>
             </div>
-          </TabsContent>
-
-          {/* Sponsorship Details Tab */}
-          <TabsContent value="sponsorshipDetails">
-            <div className="space-y-3 p-4">
-              <h3 className="mb-8 text-lg font-bold xl:text-xl">
-                Detail Pendaftaran
-              </h3>
-              <div className="xl:text-md space-y-4">
-                <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Dana Beasiswa:</span>
-                  <span>Rp {funds.toLocaleString('id-ID')}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Maksimum Semester:</span>
-                  <span>{maxSemester} semester</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="font-semibold">Tanggal Transfer:</span>
-                  <span>Setiap tanggal {transferDate}</span>
-                </div>
-                <div className="space-y-2">
-                  <span className="font-semibold">Kriteria:</span>
-                  <p className="mt-1 text-muted-foreground">{criteria}</p>
-                </div>
+            <div className="text-center">
+              <h2 className="text-lg font-bold xl:text-xl">{name}</h2>
+              <p className="text-muted-foreground">Orang Tua Asuh</p>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-primary space-y-3 text-sm xl:text-base">
+              <div className="flex items-start space-x-3">
+                <Mail className="text-muted-foreground h-5 w-5" />
+                <a
+                  href={isDetailVisible ? `mailto:${email}` : "#"}
+                  target={isDetailVisible ? "_blank" : "_self"}
+                  className="text-sm"
+                >
+                  {isDetailVisible ? email : censorEmail(email)}
+                </a>
+              </div>
+              <div className="flex items-start space-x-3">
+                <Phone className="text-muted-foreground h-5 w-5" />
+                <a
+                  href={isDetailVisible ? `https://wa.me/${phoneNumber}` : "#"}
+                  target={isDetailVisible ? "_blank" : "_self"}
+                  className="text-sm"
+                >
+                  +{isDetailVisible ? phoneNumber : "**********"}
+                </a>
+              </div>
+              <div className="flex items-start space-x-3">
+                <CircleDollarSign className="text-muted-foreground min-h-5 min-w-5" />
+                <span className="text-sm">
+                  Bantuan dikirim tanggal {transferDate} untuk setiap bulan
+                </span>
+              </div>
+              <div className="flex items-start space-x-3">
+                <Calendar className="text-muted-foreground h-5 w-5" />
+                <span className="text-sm">
+                  Terdaftar sejak{" "}
+                  {new Date(createdAt).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
               </div>
             </div>
-          </TabsContent>
+          </CardContent>
         </Card>
-      </Tabs>
+        <Button
+          className="rounded-xl transition-colors hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
+          variant={"destructive"}
+          disabled={isRequested}
+          onClick={() => setIsModalOpen(true)}
+        >
+          Akhiri Hubungan Asuh
+        </Button>
+
+        {isRequested && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="h-15 w-15 text-amber-600" />
+              <div>
+                <h3 className="font-semibold text-amber-800">
+                  Menunggu Konfirmasi Admin
+                </h3>
+                <p className="text-sm text-amber-700">
+                  Permintaan terminasi Anda sedang diproses. Kami akan memberi
+                  tahu Anda setelah dikonfirmasi.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Confirmation Modal */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              Konfirmasi Pengakhiran Hubungan
+            </DialogTitle>
+            <DialogDescription className="text-justify">
+              Apakah Anda yakin ingin mengakhiri hubungan dengan orang tua asuh{" "}
+              <span className="font-bold">{name}</span>?
+            </DialogDescription>
+          </DialogHeader>
+
+          <Textarea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Masukkan alasan terminasi (wajib)"
+          />
+
+          <DialogFooter className="grid grid-cols-2 gap-2 sm:gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Batal
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleTerminate}
+            >
+              Akhiri Hubungan
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

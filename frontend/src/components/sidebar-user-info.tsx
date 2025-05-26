@@ -6,19 +6,19 @@ const SidebarUserInfo = ({
   userData: UserSchema | undefined;
 }) => (
   <div className="flex flex-col gap-2">
-    <div className="flex items-center gap-5 transition-all hover:scale-105">
+    <div className="flex items-center gap-5">
       <img
         src="/icon/Type=profile-icon.svg"
         alt="user avatar"
         className="h-8 w-8 rounded-full"
       />
-      <div className="flex flex-col gap-1">
-        <span className="text-dark text-sm font-bold">
-          {userData?.email.split("@")[0]}
+      <div className="flex max-w-[160px] flex-col gap-1">
+        <span className="text-dark line-clamp-2 text-sm font-bold">
+          {userData?.name || userData?.email.split("@")[0]}
         </span>
-        {/* <span className="text-dark line-clamp-1 text-xs font-normal opacity-80">
+        <span className="text-dark line-clamp-2 text-xs font-normal break-words opacity-80">
           {userData?.email}
-        </span> */}
+        </span>
         {userData?.type && (
           <span className="text-xs text-gray-500 italic">
             {getUserRoleLabel(userData.type)}
@@ -26,9 +26,6 @@ const SidebarUserInfo = ({
         )}
       </div>
     </div>
-    <span className="text-dark line-clamp-1 text-xs font-normal opacity-80">
-      {userData?.email}
-    </span>
   </div>
 );
 

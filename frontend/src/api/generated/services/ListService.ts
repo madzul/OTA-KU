@@ -2,6 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AllAccountListElement } from '../models/AllAccountListElement';
+import type { MahasiswaListElement } from '../models/MahasiswaListElement';
+import type { MAListElementStatus } from '../models/MAListElementStatus';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class ListService {
@@ -14,43 +17,22 @@ export class ListService {
   public listMahasiswaOta({
     q,
     page,
+    major,
+    faculty,
+    religion,
+    gender,
   }: {
     q?: string,
     page?: number | null,
+    major?: 'Matematika' | 'Fisika' | 'Astronomi' | 'Mikrobiologi' | 'Kimia' | 'Biologi' | 'Sains dan Teknologi Farmasi' | 'Aktuaria' | 'Rekayasa Hayati' | 'Rekayasa Pertanian' | 'Rekayasa Kehutanan' | 'Farmasi Klinik dan Komunitas' | 'Teknologi Pasca Panen' | 'Teknik Geologi' | 'Teknik Pertambangan' | 'Teknik Perminyakan' | 'Teknik Geofisika' | 'Teknik Metalurgi' | 'Meteorologi' | 'Oseanografi' | 'Teknik Kimia' | 'Teknik Mesin' | 'Teknik Elektro' | 'Teknik Fisika' | 'Teknik Industri' | 'Teknik Informatika' | 'Aeronotika dan Astronotika' | 'Teknik Material' | 'Teknik Pangan' | 'Manajemen Rekayasa Industri' | 'Teknik Bioenergi dan Kemurgi' | 'Teknik Sipil' | 'Teknik Geodesi dan Geomatika' | 'Arsitektur' | 'Teknik Lingkungan' | 'Perencanaan Wilayah dan Kota' | 'Teknik Kelautan' | 'Rekayasa Infrastruktur Lingkungan' | 'Teknik dan Pengelolaan Sumber Daya Air' | 'Seni Rupa' | 'Desain' | 'Kriya' | 'Desain Interior' | 'Desain Komunikasi Visual' | 'Desain Produk' | 'Teknik Tenaga Listrik' | 'Teknik Telekomunikasi' | 'Sistem Teknologi dan Informasi' | 'Teknik Biomedis' | 'Manajemen' | 'Kewirausahaan' | 'TPB',
+    faculty?: 'FMIPA' | 'SITH-S' | 'SF' | 'FITB' | 'FTTM' | 'STEI-R' | 'FTSL' | 'FTI' | 'FSRD' | 'FTMD' | 'STEI-K' | 'SBM' | 'SITH-R' | 'SAPPK',
+    religion?: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu',
+    gender?: 'M' | 'F',
   }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        accountId: string;
-        email: string;
-        type: 'mahasiswa' | 'admin' | 'ota';
-        phoneNumber: string;
-        provider: 'credentials' | 'azure';
-        applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
-        name: string;
-        nim: string;
-        mahasiswaStatus: 'active' | 'inactive';
-        description: string;
-        file: string;
-        major: string;
-        faculty: string;
-        cityOfOrigin: string;
-        highschoolAlumni: string;
-        religion: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu';
-        gender: 'M' | 'F';
-        gpa: string;
-        kk: string;
-        ktm: string;
-        waliRecommendationLetter: string;
-        transcript: string;
-        salaryReport: string;
-        pbb: string;
-        electricityBill: string;
-        ditmawaRecommendationLetter: string;
-        notes: string;
-        adminOnlyNotes: string;
-      }>;
+      data: Array<MahasiswaListElement>;
       totalData: number;
     };
   }> {
@@ -60,9 +42,14 @@ export class ListService {
       query: {
         'q': q,
         'page': page,
+        'major': major,
+        'faculty': faculty,
+        'religion': religion,
+        'gender': gender,
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -81,7 +68,7 @@ export class ListService {
     q?: string,
     page?: number | null,
     jurusan?: string,
-    status?: 'pending' | 'accepted' | 'rejected',
+    status?: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated',
   }): CancelablePromise<{
     success: boolean;
     message: string;
@@ -89,7 +76,7 @@ export class ListService {
       data: Array<{
         id: string;
         email: string;
-        type: 'mahasiswa' | 'admin' | 'ota';
+        type: 'mahasiswa' | 'admin' | 'ota' | 'bankes' | 'pengurus';
         phoneNumber: string;
         provider: 'credentials' | 'azure';
         applicationStatus: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated';
@@ -113,6 +100,10 @@ export class ListService {
         pbb: string;
         electricityBill: string;
         ditmawaRecommendationLetter: string;
+        /**
+         * Total bill of mahasiswa
+         */
+        bill: number;
         notes: string;
         adminOnlyNotes: string;
       }>;
@@ -134,6 +125,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -172,6 +164,7 @@ export class ListService {
         maxSemester: number | null;
         transferDate: number | null;
         criteria: string;
+        isDetailVisible: boolean;
         allowAdminSelection: boolean;
       }>;
       totalPagination: number;
@@ -191,6 +184,49 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * List detail semua akun yang ada
+   * @returns any Berhasil mendapatkan daftar semua akun yang ada
+   * @throws ApiError
+   */
+  public listAllAccount({
+    q,
+    page,
+    status,
+    type,
+    applicationStatus,
+  }: {
+    q?: string,
+    page?: number | null,
+    status?: 'verified' | 'unverified',
+    type?: 'mahasiswa' | 'ota' | 'admin' | 'bankes' | 'pengurus',
+    applicationStatus?: 'pending' | 'accepted' | 'rejected' | 'unregistered' | 'reapply' | 'outdated',
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<AllAccountListElement>;
+      totalPagination: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/list/admin/all',
+      query: {
+        'q': q,
+        'page': page,
+        'status': status,
+        'type': type,
+        'applicationStatus': applicationStatus,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -231,6 +267,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -243,25 +280,22 @@ export class ListService {
   public listMaActive({
     q,
     page,
+    major,
+    faculty,
+    religion,
+    gender,
   }: {
     q?: string,
     page?: number | null,
+    major?: 'Matematika' | 'Fisika' | 'Astronomi' | 'Mikrobiologi' | 'Kimia' | 'Biologi' | 'Sains dan Teknologi Farmasi' | 'Aktuaria' | 'Rekayasa Hayati' | 'Rekayasa Pertanian' | 'Rekayasa Kehutanan' | 'Farmasi Klinik dan Komunitas' | 'Teknologi Pasca Panen' | 'Teknik Geologi' | 'Teknik Pertambangan' | 'Teknik Perminyakan' | 'Teknik Geofisika' | 'Teknik Metalurgi' | 'Meteorologi' | 'Oseanografi' | 'Teknik Kimia' | 'Teknik Mesin' | 'Teknik Elektro' | 'Teknik Fisika' | 'Teknik Industri' | 'Teknik Informatika' | 'Aeronotika dan Astronotika' | 'Teknik Material' | 'Teknik Pangan' | 'Manajemen Rekayasa Industri' | 'Teknik Bioenergi dan Kemurgi' | 'Teknik Sipil' | 'Teknik Geodesi dan Geomatika' | 'Arsitektur' | 'Teknik Lingkungan' | 'Perencanaan Wilayah dan Kota' | 'Teknik Kelautan' | 'Rekayasa Infrastruktur Lingkungan' | 'Teknik dan Pengelolaan Sumber Daya Air' | 'Seni Rupa' | 'Desain' | 'Kriya' | 'Desain Interior' | 'Desain Komunikasi Visual' | 'Desain Produk' | 'Teknik Tenaga Listrik' | 'Teknik Telekomunikasi' | 'Sistem Teknologi dan Informasi' | 'Teknik Biomedis' | 'Manajemen' | 'Kewirausahaan' | 'TPB',
+    faculty?: 'FMIPA' | 'SITH-S' | 'SF' | 'FITB' | 'FTTM' | 'STEI-R' | 'FTSL' | 'FTI' | 'FSRD' | 'FTMD' | 'STEI-K' | 'SBM' | 'SITH-R' | 'SAPPK',
+    religion?: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu',
+    gender?: 'M' | 'F',
   }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        accountId: string;
-        name: string;
-        /**
-         * Nomor Induk Mahasiswa
-         */
-        nim: string;
-        /**
-         * Status mahasiswa
-         */
-        mahasiswaStatus: 'active' | 'inactive';
-      }>;
+      data: Array<MAListElementStatus>;
       totalData: number;
     };
   }> {
@@ -271,9 +305,14 @@ export class ListService {
       query: {
         'q': q,
         'page': page,
+        'major': major,
+        'faculty': faculty,
+        'religion': religion,
+        'gender': gender,
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -286,25 +325,22 @@ export class ListService {
   public listMaPending({
     q,
     page,
+    major,
+    faculty,
+    religion,
+    gender,
   }: {
     q?: string,
     page?: number | null,
+    major?: 'Matematika' | 'Fisika' | 'Astronomi' | 'Mikrobiologi' | 'Kimia' | 'Biologi' | 'Sains dan Teknologi Farmasi' | 'Aktuaria' | 'Rekayasa Hayati' | 'Rekayasa Pertanian' | 'Rekayasa Kehutanan' | 'Farmasi Klinik dan Komunitas' | 'Teknologi Pasca Panen' | 'Teknik Geologi' | 'Teknik Pertambangan' | 'Teknik Perminyakan' | 'Teknik Geofisika' | 'Teknik Metalurgi' | 'Meteorologi' | 'Oseanografi' | 'Teknik Kimia' | 'Teknik Mesin' | 'Teknik Elektro' | 'Teknik Fisika' | 'Teknik Industri' | 'Teknik Informatika' | 'Aeronotika dan Astronotika' | 'Teknik Material' | 'Teknik Pangan' | 'Manajemen Rekayasa Industri' | 'Teknik Bioenergi dan Kemurgi' | 'Teknik Sipil' | 'Teknik Geodesi dan Geomatika' | 'Arsitektur' | 'Teknik Lingkungan' | 'Perencanaan Wilayah dan Kota' | 'Teknik Kelautan' | 'Rekayasa Infrastruktur Lingkungan' | 'Teknik dan Pengelolaan Sumber Daya Air' | 'Seni Rupa' | 'Desain' | 'Kriya' | 'Desain Interior' | 'Desain Komunikasi Visual' | 'Desain Produk' | 'Teknik Tenaga Listrik' | 'Teknik Telekomunikasi' | 'Sistem Teknologi dan Informasi' | 'Teknik Biomedis' | 'Manajemen' | 'Kewirausahaan' | 'TPB',
+    faculty?: 'FMIPA' | 'SITH-S' | 'SF' | 'FITB' | 'FTTM' | 'STEI-R' | 'FTSL' | 'FTI' | 'FSRD' | 'FTMD' | 'STEI-K' | 'SBM' | 'SITH-R' | 'SAPPK',
+    religion?: 'Islam' | 'Kristen Protestan' | 'Katolik' | 'Hindu' | 'Buddha' | 'Konghucu',
+    gender?: 'M' | 'F',
   }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        accountId: string;
-        name: string;
-        /**
-         * Nomor Induk Mahasiswa
-         */
-        nim: string;
-        /**
-         * Status mahasiswa
-         */
-        mahasiswaStatus: 'active' | 'inactive';
-      }>;
+      data: Array<MAListElementStatus>;
       totalData: number;
     };
   }> {
@@ -314,9 +350,14 @@ export class ListService {
       query: {
         'q': q,
         'page': page,
+        'major': major,
+        'faculty': faculty,
+        'religion': religion,
+        'gender': gender,
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -357,6 +398,7 @@ export class ListService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });

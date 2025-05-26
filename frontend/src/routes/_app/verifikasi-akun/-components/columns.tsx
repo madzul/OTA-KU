@@ -102,14 +102,22 @@ export const mahasiswaColumns: ColumnDef<MahasiswaColumn>[] = [
               ? "bg-[#EAB308]"
               : status === "accepted"
                 ? "bg-succeed"
-                : "bg-destructive",
+                : status === "rejected"
+                  ? "bg-destructive"
+                  : status === "reapply"
+                    ? "bg-blue-500"
+                    : "bg-gray-500",
           )}
         >
           {status === "pending"
             ? "Tertunda"
             : status === "accepted"
               ? "Terverifikasi"
-              : "Tertolak"}
+              : status === "rejected"
+                ? "Tertolak"
+                : status === "reapply"
+                  ? "Pengajuan Ulang"
+                  : "Kedaluarsa"}
         </span>
       );
     },
@@ -124,7 +132,9 @@ export const mahasiswaColumns: ColumnDef<MahasiswaColumn>[] = [
       const status = row.getValue("status") as
         | "pending"
         | "accepted"
-        | "rejected";
+        | "rejected"
+        | "reapply"
+        | "outdated";
 
       return (
         <Combobox
@@ -145,7 +155,9 @@ export const mahasiswaColumns: ColumnDef<MahasiswaColumn>[] = [
       const status = row.getValue("status") as
         | "pending"
         | "accepted"
-        | "rejected";
+        | "rejected"
+        | "reapply"
+        | "outdated";
 
       return <DetailDialogMahasiswa id={id} status={status} />;
     },
@@ -250,14 +262,22 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
               ? "bg-[#EAB308]"
               : status === "accepted"
                 ? "bg-succeed"
-                : "bg-destructive",
+                : status === "rejected"
+                  ? "bg-destructive"
+                  : status === "reapply"
+                    ? "bg-blue-500"
+                    : "bg-gray-500",
           )}
         >
           {status === "pending"
             ? "Tertunda"
             : status === "accepted"
               ? "Terverifikasi"
-              : "Tertolak"}
+              : status === "rejected"
+                ? "Tertolak"
+                : status === "reapply"
+                  ? "Pengajuan Ulang"
+                  : "Kedaluarsa"}
         </span>
       );
     },
@@ -268,17 +288,19 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
     cell: ({ row }) => {
       const id = row.getValue("id") as string;
       const name = row.getValue("name") as string;
-      const email = row.getValue("email") as string;
+      const phoneNumber = row.getValue("phoneNumber") as string;
       const status = row.getValue("status") as
         | "pending"
         | "accepted"
-        | "rejected";
+        | "rejected"
+        | "reapply"
+        | "outdated";
 
       return (
         <Combobox
           id={id}
           name={name}
-          email={email}
+          email={phoneNumber}
           status={status}
           type="ota"
         />
@@ -293,7 +315,9 @@ export const orangTuaColumns: ColumnDef<OrangTuaColumn>[] = [
       const status = row.getValue("status") as
         | "pending"
         | "accepted"
-        | "rejected";
+        | "rejected"
+        | "reapply"
+        | "outdated";
 
       return <DetailDialogOta id={id} status={status} />;
     },

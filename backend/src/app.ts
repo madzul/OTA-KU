@@ -29,7 +29,20 @@ app.onError((err, c) => {
   if (err instanceof HTTPException) {
     return err.getResponse();
   }
-  return c.json({ error: err }, 500);
+  
+  console.error("Unexpected Error:", err);
+
+  return c.json(
+    {
+      success: false,
+      error: {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+      },
+    },
+    500
+  );
 });
 
 app.use(
@@ -70,17 +83,8 @@ app.doc("/doc", {
     version: packageJson.version,
     title: packageJson.name,
   },
-  // tags: [
-  //   {
-  //     name: "API Docs",
-  //     description: "Documentation for the numerous existing APIs",
-  //   },
-  // ],
 });
 
 app.use("/swagger", swaggerUI({ url: "/doc" }));
-
-//http://localhost:3000/swagger utk swagger
-//http://localhost:3000/doc utk raw JSON
 
 export default app;

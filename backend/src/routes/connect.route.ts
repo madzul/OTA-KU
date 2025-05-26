@@ -2,22 +2,28 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
+  checkConnectParamsSchema,
+  connectionListAllQueryResponse,
+  connectionListAllQuerySchema,
   connectionListQueryResponse,
   connectionListQuerySchema,
+  connectionListTerminateQueryResponse,
+  DeleteConnectionSuccessfulResponseSchema,
+  isConnectedResponse,
   MahasiwaConnectSchema,
   OrangTuaFailedResponse,
   OrangTuaSuccessResponse,
   OrangTuaUnverifiedResponse,
   verifyConnectionResponse,
 } from "../zod/connect.js";
-import { InternalServerErrorResponse } from "../zod/response.js";
+import { ForbiddenResponse, InternalServerErrorResponse } from "../zod/response.js";
 
 export const connectOtaMahasiswaRoute = createRoute({
   operationId: "connectOtaMahasiswa",
   tags: ["Connect"],
   method: "post",
-  path: "/mahasiswa",
-  description: "Menghubungkan orang tua asuh dengan mahasiswa asuh.",
+  path: "/by-ota",
+  description: "Menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA",
   request: {
     body: {
       content: {
@@ -30,7 +36,7 @@ export const connectOtaMahasiswaRoute = createRoute({
   responses: {
     200: {
       description:
-        "Berhasil menghubungkan orang tua asuh dengan mahasiswa asuh.",
+        "Berhasil menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA",
       content: {
         "application/json": {
           schema: OrangTuaSuccessResponse,
@@ -38,7 +44,7 @@ export const connectOtaMahasiswaRoute = createRoute({
       },
     },
     400: {
-      description: "Gagal menghubungkan orang tua asuh dengan mahasiswa asuh.",
+      description: "Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA",
       content: {
         "application/json": {
           schema: OrangTuaFailedResponse,
@@ -47,10 +53,61 @@ export const connectOtaMahasiswaRoute = createRoute({
     },
     401: AuthorizationErrorResponse,
     403: {
-      description: "Akun belum terverifikasi.",
+      description: "Forbidden",
       content: {
         "application/json": {
-          schema: OrangTuaUnverifiedResponse,
+          schema: ForbiddenResponse,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const connectOtaMahasiswaByAdminRoute = createRoute({
+  operationId: "connectOtaMahasiswaByAdmin",
+  tags: ["Connect"],
+  method: "post",
+  path: "/by-admin",
+  description: "Menghubungkan orang tua asuh dengan mahasiswa asuh via Admin",
+  request: {
+    body: {
+      content: {
+        "multipart/form-data": {
+          schema: MahasiwaConnectSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description:
+        "Berhasil menghubungkan orang tua asuh dengan mahasiswa asuh via Admin",
+      content: {
+        "application/json": {
+          schema: OrangTuaSuccessResponse,
+        },
+      },
+    },
+    400: {
+      description: "Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via Admin",
+      content: {
+        "application/json": {
+          schema: OrangTuaFailedResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
         },
       },
     },
@@ -89,6 +146,14 @@ export const verifyConnectionAccRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -124,6 +189,14 @@ export const verifyConnectionRejectRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -133,18 +206,18 @@ export const verifyConnectionRejectRoute = createRoute({
   }
 })
 
-export const listConnectionRoute = createRoute({
-  operationId: "listConnection",
+export const listPendingConnectionRoute = createRoute({
+  operationId: "listPendingConnection",
   tags: ["Connect"],
-  method: "post",
-  path: "/daftar-connection",
-  description: "List seluruh connection yang ada beserta detailnya",
+  method: "get",
+  path: "/list/pending",
+  description: "List seluruh connection yang pending beserta detailnya",
   request: {
     query: connectionListQuerySchema
   },
   responses: {
     200: {
-      description: "Daftar connection berhasil diambil",
+      description: "Daftar connection pending berhasil diambil",
       content: {
         "application/json": {
           schema: connectionListQueryResponse,
@@ -152,6 +225,14 @@ export const listConnectionRoute = createRoute({
       },
     },
     401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
     500: {
       description: "Internal server error",
       content: {
@@ -160,3 +241,153 @@ export const listConnectionRoute = createRoute({
     },
   },
 })
+
+export const listPendingTerminationConnectionRoute = createRoute({
+  operationId: "listPendingTerminationConnection",
+  tags: ["Connect"],
+  method: "get",
+  path: "/list/pending-terminate",
+  description: "List seluruh connection yang pending terminasi beserta detailnya",
+  request: {
+    query: connectionListQuerySchema
+  },
+  responses: {
+    200: {
+      description: "Daftar connection pending berhasil diambil",
+      content: {
+        "application/json": {
+          schema: connectionListTerminateQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+})
+
+export const listAllConnectionRoute = createRoute({
+  operationId: "listAllConnection",
+  tags: ["Connect"],
+  method: "get",
+  path: "/list/all",
+  description: "List seluruh connection yang ada beserta detailnya",
+  request: {
+    query: connectionListAllQuerySchema
+  },
+  responses: {
+    200: {
+      description: "Daftar semua connection berhasil diambil",
+      content: {
+        "application/json": {
+          schema: connectionListAllQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+})
+
+export const isConnectedRoute = createRoute({
+  operationId: "isConnected",
+  tags: ["Connect"],
+  method: "get",
+  path: "/is-connected/{id}",
+  description: "Memeriksa apakah OTA dan MA tertentu sudah memiliki hubungan asuh",
+  request: {
+    params: checkConnectParamsSchema,
+  },
+  responses: {
+    200: {
+      description: "Ditemukan hubungan asuh antara MA dan OTA",
+      content: {
+        "application/json": {
+          schema: isConnectedResponse,
+        },
+      },
+    },
+    400: {
+      description: "Gagal menemukan hubungan asuh antara MA dan OTA",
+      content: {
+        "application/json": {
+          schema: isConnectedResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+})
+
+export const deleteConnectionRoute = createRoute({
+  operationId: "deleteConnection",
+  tags: ["Connect"],
+  method: "delete",
+  path: "/delete",
+  description: "Delete an account",
+  request: {
+    query: MahasiwaConnectSchema,
+  },
+  responses: {
+    200: {
+      description: "Successfully deleted a connection",
+      content: {
+        "application/json": { schema: DeleteConnectionSuccessfulResponseSchema },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});

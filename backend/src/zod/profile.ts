@@ -5,9 +5,10 @@ import {
   EmailSchema,
   NIMSchema,
   PDFSchema,
+  PasswordSchema,
   PhoneNumberSchema,
+  ProfilePDFSchema,
   cloudinaryUrlSchema,
-  ProfilePDFSchema
 } from "./atomic.js";
 
 // Mahasiswa Registration
@@ -169,7 +170,7 @@ export const MahasiswaRegistrationFormSchema = z.object({
   salaryReport: PDFSchema.openapi({ description: "Slip Gaji Orang Tua" }),
   pbb: PDFSchema.openapi({ description: "Bukti Pembayaran PBB" }),
   electricityBill: PDFSchema.openapi({ description: "Tagihan Listrik" }),
-  ditmawaRecommendationLetter: PDFSchema.openapi({
+  ditmawaRecommendationLetter: PDFSchema.optional().openapi({
     description: "Surat Rekomendasi Ditmawa",
   }),
 });
@@ -241,17 +242,25 @@ export const MahasiswaProfileFormSchema = z.object({
     })
     .min(3, { message: "Deskripsi terlalu pendek" })
     .openapi({ example: "Mahasiswa baru", description: "Deskripsi mahasiswa" }),
-  file: ProfilePDFSchema.openapi({ description: "File Essay Mahasiswa" }).optional(),
+  file: ProfilePDFSchema.openapi({
+    description: "File Essay Mahasiswa",
+  }).optional(),
   kk: ProfilePDFSchema.openapi({ description: "Kartu Keluarga" }).optional(),
-  ktm: ProfilePDFSchema.openapi({ description: "Kartu Tanda Mahasiswa" }).optional(),
+  ktm: ProfilePDFSchema.openapi({
+    description: "Kartu Tanda Mahasiswa",
+  }).optional(),
   waliRecommendationLetter: ProfilePDFSchema.openapi({
     description: "Surat Rekomendasi Wali",
   }).optional(),
-  transcript: ProfilePDFSchema.openapi({ description: "Transkrip Nilai" }).optional(),
+  transcript: ProfilePDFSchema.openapi({
+    description: "Transkrip Nilai",
+  }).optional(),
   salaryReport: ProfilePDFSchema.openapi({
     description: "Slip Gaji Orang Tua",
   }).optional(),
-  pbb: ProfilePDFSchema.openapi({ description: "Bukti Pembayaran PBB" }).optional(),
+  pbb: ProfilePDFSchema.openapi({
+    description: "Bukti Pembayaran PBB",
+  }).optional(),
   electricityBill: ProfilePDFSchema.openapi({
     description: "Tagihan Listrik",
   }).optional(),
@@ -272,7 +281,7 @@ export const MahasiswaRegistrationFailedResponse = z.object({
   error: z.object({}),
 });
 
-export const MahasiswaUnverifiedResponse = z.object({
+export const UnverifiedResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "Akun MA belum terverifikasi" }),
   error: z.object({}),
@@ -398,6 +407,15 @@ export const OrangTuaRegistrationSchema = z.object({
     .string()
     .optional()
     .openapi({ example: "Mahasiswa dari daerah Indonesia Timur" }),
+  isDetailVisible: z
+    .enum(["true", "false"], {
+      required_error: "Checkbox harus diisi",
+      invalid_type_error: "Checkbox tidak valid",
+    })
+    .default("false")
+    .openapi({
+      example: "true",
+    }),
   allowAdminSelection: z
     .enum(["true", "false"], {
       required_error: "Checkbox harus diisi",
@@ -409,6 +427,63 @@ export const OrangTuaRegistrationSchema = z.object({
     }),
 });
 
+export const createBankesPengurusSchema = z.object({
+  name: z
+    .string({
+      invalid_type_error: "Nama harus berupa string",
+      required_error: "Nama harus diisi",
+    })
+    .min(3, {
+      message: "Nama terlalu pendek",
+    })
+    .max(255, {
+      message: "Nama terlalu panjang",
+    })
+    .openapi({ example: "John Doe", description: "Nama dari bankes atau pengurus" }),
+  email: EmailSchema,
+  password: PasswordSchema,
+  type: z.enum(["bankes", "pengurus"]).openapi({
+    example: "bankes",
+    description: "Jenis akun",
+  }),
+  phoneNumber: PhoneNumberSchema
+});
+
+export const createBankesPengurusResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Berhasil membuat akun bankes/pengurus" }),
+  body: z.object({
+    id: z.string().openapi({ description: "ID akun" }), 
+    name: z
+      .string({
+        invalid_type_error: "Nama harus berupa string",
+        required_error: "Nama harus diisi",
+      })
+      .min(3, {
+        message: "Nama terlalu pendek",
+      })
+      .max(255, {
+        message: "Nama terlalu panjang",
+      })
+      .openapi({ example: "John Doe", description: "Nama dari bankes atau pengurus" }),
+    email: EmailSchema,
+    type: z.enum([  "mahasiswa", "ota", "admin", "bankes", "pengurus"]).openapi({
+      example: "bankes",
+      description: "Jenis akun",
+    }),
+    phoneNumber: PhoneNumberSchema,
+    provider: z
+      .enum(["credentials", "azure"])
+      .openapi({ example: "credentials" }),
+    status: z
+      .enum(["verified", "unverified"])
+      .openapi({ example: "verified" }),
+    application_status: z
+      .enum([ "accepted", "rejected", "pending", "unregistered", "reapply", "outdated"])
+      .openapi({ example: "accepted" })
+  })
+})
+
 export const OrangTuaRegistrationSuccessfulResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mendaftar" }),
@@ -418,12 +493,6 @@ export const OrangTuaRegistrationSuccessfulResponse = z.object({
 export const OrangTuaRegistrationFailedResponse = z.object({
   success: z.boolean().openapi({ example: false }),
   message: z.string().openapi({ example: "Gagal mendaftar" }),
-  error: z.object({}),
-});
-
-export const OrangTuaUnverifiedResponse = z.object({
-  success: z.boolean().openapi({ example: false }),
-  message: z.string().openapi({ example: "Akun belum terverifikasi" }),
   error: z.object({}),
 });
 
@@ -456,6 +525,14 @@ export const ProfileOrangTuaResponse = z.object({
       .string()
       .optional()
       .openapi({ example: "Mahasiswa dari daerah Indonesia Timur" }),
+    isDetailVisible: z
+      .boolean({
+        required_error: "Checkbox harus diisi",
+      })
+      .optional()
+      .openapi({
+        example: true,
+      }),
     allowAdminSelection: z
       .boolean({
         required_error: "Checkbox harus diisi",
@@ -467,7 +544,6 @@ export const ProfileOrangTuaResponse = z.object({
   }),
 });
 
-//TODO: add join_date to db
 export const ProfileMahasiswaResponse = z.object({
   success: z.boolean().openapi({ example: true }),
   message: z.string().openapi({ example: "Berhasil mengakses profil MA" }),
@@ -535,6 +611,43 @@ export const ProfileMahasiswaResponse = z.object({
       .string()
       .optional()
       .openapi({ example: "https://res.cloudinary.com/example/ditmawa.pdf" }),
-    // join_date: z.string().openapi({ example: "March 2025" })
+    createdAt: z
+      .string()
+      .optional()
+      .openapi({ example: "2025-01-01T00:00:00.000Z" }),
+    updatedAt: z
+      .string()
+      .optional()
+      .openapi({ example: "2025-01-01T00:00:00.000Z" }),
+    dueNextUpdateAt: z
+      .string()
+      .optional()
+      .openapi({ example: "2025-01-01T00:00:00.000Z" }),
+    applicationStatus: z
+      .enum([
+        "accepted",
+        "rejected",
+        "pending",
+        "unregistered",
+        "reapply",
+        "outdated",
+      ])
+      .openapi({
+        example: "accepted",
+        description: "Status aplikasi mahasiswa",
+      })
   }),
+});
+
+export const DeleteAccountParamsSchema = z.object({
+  id: z.string().openapi({
+    example: "3762d870-158e-4832-804c-f0be220d40c0",
+    description: "Unique account ID",
+  }),
+});
+
+export const DeleteAccountSuccessfulResponseSchema = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({ example: "Berhasil menghapus akun" }),
+  body: DeleteAccountParamsSchema,
 });

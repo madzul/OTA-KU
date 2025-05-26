@@ -1,5 +1,6 @@
 import { api } from "@/api/client";
 import type { UserSchema } from "@/api/generated";
+import Metadata from "@/components/metadata";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,19 +17,19 @@ import {
   getNimFakultasFromNimJurusanMap,
   getNimJurusanCodeMap,
 } from "@/lib/nim";
+import { cn } from "@/lib/utils";
 import { MahasiswaRegistrationFormSchema } from "@/lib/zod/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { FileUp } from "lucide-react";
 import type React from "react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { z } from "zod";
 
 import Combobox from "./combobox";
-import Metadata from "@/components/metadata";
 
 export type MahasiswaRegistrationFormValues = z.infer<
   typeof MahasiswaRegistrationFormSchema
@@ -72,13 +73,16 @@ const documentDisplayNames: Record<MahasiswaUploadField, string> = {
 
 export default function PendaftaranMahasiswa({
   session,
+  applicationStatus,
 }: {
   session: UserSchema;
+  applicationStatus: "rejected" | "pending" | "unregistered" | "outdated";
 }) {
   const [fileNames, setFileNames] = useState<Record<string, string>>({});
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const [dragStates, setDragStates] = useState<Record<string, boolean>>({});
+  const [fileURLs, setFileURLs] = useState<Record<string, string>>({});
 
   const navigate = useNavigate();
   const mahasiswaRegistrationCallbackMutation = useMutation({
@@ -89,6 +93,8 @@ export default function PendaftaranMahasiswa({
       toast.success("Berhasil melakukan pendaftaran", {
         description: "Silakan tunggu hingga admin memverifikasi data",
       });
+
+      localStorage.removeItem("pendaftaran-mahasiswa");
 
       setTimeout(() => {
         navigate({ to: "/profile", reloadDocument: true });
@@ -119,14 +125,49 @@ export default function PendaftaranMahasiswa({
   const form = useForm<MahasiswaRegistrationFormValues>({
     resolver: zodResolver(MahasiswaRegistrationFormSchema),
     defaultValues: {
-      name: session.name ?? "",
-      phoneNumber: session.phoneNumber ?? "",
+      name: applicationStatus !== "outdated" ? (session.name ?? "") : "",
+      phoneNumber:
+        applicationStatus !== "outdated" ? (session.phoneNumber ?? "") : "",
       nim,
       major: jurusan,
       faculty: fakultas,
     },
-    mode: "onSubmit",
   });
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("pendaftaran-mahasiswa");
+    if (storedData) {
+      const decodedData = atob(storedData);
+      const parsedData = JSON.parse(decodedData);
+      form.setValue("name", parsedData.name || "");
+      form.setValue("cityOfOrigin", parsedData.cityOfOrigin || "");
+      form.setValue("highschoolAlumni", parsedData.highschoolAlumni || "");
+      form.setValue("religion", parsedData.religion || "");
+      form.setValue("gender", parsedData.gender || "");
+      form.setValue("gpa", parsedData.gpa || "");
+      form.setValue("description", parsedData.description || "");
+    }
+  }, [form]);
+
+  // Save form data to local storage on interval of 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const formData = {
+        name: form.getValues("name") || "",
+        cityOfOrigin: form.getValues("cityOfOrigin") || "",
+        highschoolAlumni: form.getValues("highschoolAlumni") || "",
+        religion: form.getValues("religion") || "",
+        gender: form.getValues("gender") || "",
+        gpa: form.getValues("gpa") || "",
+        description: form.getValues("description") || "",
+      };
+      localStorage.setItem(
+        "pendaftaran-mahasiswa",
+        btoa(JSON.stringify(formData)),
+      );
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [form]);
 
   const handleFileChange = (
     field: keyof MahasiswaRegistrationFormValues,
@@ -138,6 +179,13 @@ export default function PendaftaranMahasiswa({
         [field]: file.name,
       }));
       form.setValue(field, file);
+
+      // Create object URL for the uploaded file
+      const fileURL = URL.createObjectURL(file);
+      setFileURLs((prev) => ({
+        ...prev,
+        [field]: fileURL,
+      }));
     }
   };
 
@@ -172,14 +220,16 @@ export default function PendaftaranMahasiswa({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Nama Lengkap
                   </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Masukkan nama Anda"
                       {...field}
-                      disabled={!!session.name}
+                      disabled={
+                        applicationStatus !== "outdated" && !!session.name
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -193,13 +243,16 @@ export default function PendaftaranMahasiswa({
               render={({ field }) => {
                 return (
                   <FormItem>
-                    <FormLabel className="text-primary text-sm">
+                    <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                       Nomor HP (Whatsapp)
                     </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Masukkan nomor WA Anda"
-                        disabled={!!session.phoneNumber}
+                        disabled={
+                          applicationStatus !== "outdated" &&
+                          !!session.phoneNumber
+                        }
                         {...field}
                       />
                     </FormControl>
@@ -214,7 +267,9 @@ export default function PendaftaranMahasiswa({
               name="nim"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">NIM</FormLabel>
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
+                    NIM
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} disabled />
                   </FormControl>
@@ -228,7 +283,7 @@ export default function PendaftaranMahasiswa({
               name="major"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Jurusan
                   </FormLabel>
                   <FormControl>
@@ -244,7 +299,7 @@ export default function PendaftaranMahasiswa({
               name="faculty"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Fakultas
                   </FormLabel>
                   <FormControl>
@@ -260,7 +315,7 @@ export default function PendaftaranMahasiswa({
               name="cityOfOrigin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Kota Asal
                   </FormLabel>
                   <FormControl>
@@ -276,7 +331,7 @@ export default function PendaftaranMahasiswa({
               name="highschoolAlumni"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Asal SMA
                   </FormLabel>
                   <FormControl>
@@ -294,15 +349,35 @@ export default function PendaftaranMahasiswa({
             <FormField
               control={form.control}
               name="gpa"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-primary text-sm">IPK</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Masukkan IPK" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { onChange, ...rest } = field;
+
+                return (
+                  <FormItem>
+                    <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
+                      IPK
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Masukkan IPK"
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Allow empty input, or a valid decimal with max 2 digits after decimal point
+                          if (
+                            value === "" ||
+                            /^\d{0,1}(\.\d{0,2})?$/.test(value)
+                          ) {
+                            field.onChange(value);
+                          }
+                        }}
+                        {...rest}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
 
             <FormField
@@ -310,7 +385,7 @@ export default function PendaftaranMahasiswa({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-primary text-sm">
+                  <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                     Alasan keperluan bantuan
                   </FormLabel>
                   <FormControl>
@@ -321,7 +396,7 @@ export default function PendaftaranMahasiswa({
               )}
             />
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-x-16 gap-y-16 md:grid-cols-2">
               {uploadFields.map((name) => (
                 <FormField
                   key={name}
@@ -355,9 +430,22 @@ export default function PendaftaranMahasiswa({
                     };
 
                     return (
-                      <FormItem>
-                        <FormLabel className="text-primary text-sm">
-                          {documentDisplayNames[name]}
+                      <FormItem
+                        className={cn(
+                          name === "ditmawaRecommendationLetter" &&
+                            "col-span-1 md:col-span-2",
+                        )}
+                      >
+                        <FormLabel
+                          className={cn(
+                            "text-primary text-sm",
+                            name !== "ditmawaRecommendationLetter" &&
+                              "after:text-red-500 after:content-['*']",
+                          )}
+                        >
+                          {documentDisplayNames[name]}{" "}
+                          {name === "ditmawaRecommendationLetter" &&
+                            "(Opsional)"}
                         </FormLabel>
                         <FormControl>
                           <div
@@ -394,16 +482,30 @@ export default function PendaftaranMahasiswa({
                                   : fileNames[name] ||
                                     `Klik untuk upload atau drag & drop`}
                               </p>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() =>
-                                  fileInputRefs.current[name]?.click()
-                                }
-                              >
-                                Pilih {documentDisplayNames[name]}
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() =>
+                                    fileInputRefs.current[name]?.click()
+                                  }
+                                >
+                                  Pilih {documentDisplayNames[name]}
+                                </Button>
+                                {fileURLs[name] && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      window.open(fileURLs[name], "_blank")
+                                    }
+                                  >
+                                    Lihat File
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </FormControl>

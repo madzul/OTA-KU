@@ -1,7 +1,8 @@
-import { api, queryClient } from "@/api/client";
+import { api } from "@/api/client";
 import { ClientPagination } from "@/components/client-pagination";
 import { SearchInput } from "@/components/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Jurusan } from "@/lib/nim";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
@@ -12,10 +13,8 @@ import { mahasiswaColumns } from "./columns";
 import CountDataCard from "./count-data-card";
 import { DataTable } from "./data-table";
 import { totalCountMahasiswa } from "./dummy";
+import FilterJurusan from "./filter-jurusan";
 import FilterStatus from "./filter-status";
-
-// TODO: Tentuin jadi pake atau ga
-// import FilterJurusan from "./filter-jurusan";
 
 function MahasiswaAsuhContent() {
   const navigate = useNavigate({ from: Route.fullPath });
@@ -26,13 +25,25 @@ function MahasiswaAsuhContent() {
 
   const [search, setSearch] = useState<string>("");
   const [value] = useDebounce(search, 500);
+  const [jurusan, setJurusan] = useState<Jurusan | null>(null);
   const [status, setStatus] = useState<
-    "accepted" | "pending" | "rejected" | null
+    "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null
   >(null);
 
   const { data, isSuccess } = useQuery({
-    queryKey: ["listMahasiswaAdmin"],
-    queryFn: () => api.list.listMahasiswaAdmin({ page }),
+    queryKey: ["listMahasiswaAdmin", page, value, jurusan, status],
+    queryFn: () =>
+      api.list.listMahasiswaAdmin({
+        page,
+        q: value,
+        jurusan: jurusan as string,
+        status: status as
+          | "accepted"
+          | "pending"
+          | "rejected"
+          | "reapply"
+          | "outdated",
+      }),
   });
 
   const mahasiswaTableData = data?.body.data.map((item) => ({
@@ -44,22 +55,14 @@ function MahasiswaAsuhContent() {
   }));
 
   useEffect(() => {
-    queryClient.fetchQuery({
-      queryKey: ["listMahasiswaAdmin"],
-      queryFn: () =>
-        api.list.listMahasiswaAdmin({
+    if (status || value || jurusan) {
+      navigate({
+        search: () => ({
           page: 1,
-          q: value,
-          status: status as "accepted" | "pending" | "rejected",
         }),
-    });
-
-    navigate({
-      search: () => ({
-        page: 1,
-      }),
-    });
-  }, [navigate, status, value]);
+      });
+    }
+  }, [navigate, status, value, jurusan]);
 
   return (
     <section className="flex flex-col gap-4">
@@ -84,20 +87,11 @@ function MahasiswaAsuhContent() {
       </div>
 
       {/* Search and Filters */}
-      {!isSuccess ? (
-        <div className="rounded-md bg-white">
-          <Skeleton className="h-10 w-full" />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-          <SearchInput
-            placeholder="Cari nama atau email"
-            setSearch={setSearch}
-          />
-          {/* <FilterJurusan /> */}
-          <FilterStatus setStatus={setStatus} />
-        </div>
-      )}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+        <SearchInput placeholder="Cari nama atau email" setSearch={setSearch} />
+        <FilterJurusan jurusan={jurusan} setJurusan={setJurusan} />
+        <FilterStatus type="mahasiswa" status={status} setStatus={setStatus} />
+      </div>
 
       {/* Table */}
       {!isSuccess ? (
@@ -114,7 +108,7 @@ function MahasiswaAsuhContent() {
           <Skeleton className="h-10 w-full" />
         </div>
       ) : (
-        <ClientPagination totalPerPage={8} total={data.body.totalData} />
+        <ClientPagination totalPerPage={8} total={data.body.totalPagination} />
       )}
     </section>
   );

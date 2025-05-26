@@ -88,7 +88,7 @@ import {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  Tidak ada data yang ditemukan.
                 </TableCell>
               </TableRow>
             )}

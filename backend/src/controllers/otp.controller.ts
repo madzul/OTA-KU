@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import { accountTable, otpTable } from "../db/schema.js";
-import { emailHTML } from "../lib/email-html.js";
+import { kodeOTPEmail } from "../lib/email/kode-otp.js";
 import { generateOTP } from "../lib/otp.js";
 import { getOtpExpiredDateRoute, sendOtpRoute } from "../routes/otp.route.js";
 import { SendOtpRequestSchema } from "../zod/otp.js";
@@ -44,6 +44,8 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
       .set({ code, expiredAt: new Date(Date.now() + 1000 * 60 * 15) })
       .where(eq(otpTable.accountId, user[0].account.id));
 
+    //REFERENCE: buat notif
+    //createTransport block gada yang diubah
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       secure: true,
@@ -62,12 +64,13 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
       }
     });
 
+    //Ubah subject + html
     await transporter
       .sendMail({
         from: env.EMAIL_FROM,
-        to: email,
+        to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : email,
         subject: "Token OTP Bantuan Orang Tua Asuh",
-        html: emailHTML(code),
+        html: kodeOTPEmail(email, code),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
@@ -86,7 +89,7 @@ otpProtectedRouter.openapi(sendOtpRoute, async (c) => {
       {
         success: false,
         message: "Internal server error",
-        error: {},
+        error: error,
       },
       500,
     );
@@ -129,7 +132,7 @@ otpProtectedRouter.openapi(getOtpExpiredDateRoute, async (c) => {
       {
         success: false,
         message: "Failed to retrieve OTP expired date",
-        error: {},
+        error: error,
       },
       500,
     );

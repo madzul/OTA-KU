@@ -1,6 +1,13 @@
 import { z } from "zod";
 
-import { NIMSchema, PDFSchema, ProfilePDFSchema, PhoneNumberSchema } from "./atomic";
+import {
+  EmailSchema,
+  NIMSchema,
+  PasswordSchema,
+  PDFSchema,
+  PhoneNumberSchema,
+  ProfilePDFSchema,
+} from "./atomic";
 
 export const MahasiswaRegistrationFormSchema = z.object({
   name: z
@@ -143,7 +150,7 @@ export const MahasiswaRegistrationFormSchema = z.object({
   salaryReport: PDFSchema,
   pbb: PDFSchema,
   electricityBill: PDFSchema,
-  ditmawaRecommendationLetter: PDFSchema,
+  ditmawaRecommendationLetter: PDFSchema.optional(),
 });
 
 export const MahasiswaProfileFormSchema = z.object({
@@ -387,16 +394,12 @@ export const OrangTuaPageTwoSchema = z.object({
       message: "Tanggal transfer tidak valid",
     }),
   criteria: z.string().optional(),
-  checked: z
-    .boolean({
-      invalid_type_error: "Checked harus berupa boolean",
-      required_error: "Harus diisi",
+  isDetailVisible: z
+    .enum(["true", "false"], {
+      required_error: "Checkbox harus diisi",
+      invalid_type_error: "Checkbox tidak valid",
     })
-    .default(false)
-    .refine((value) => value, {
-      message: "Harus diisi",
-      path: ["checked"],
-    }),
+    .default("false").optional(),
   allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
 
@@ -490,12 +493,39 @@ export const OrangTuaRegistrationSchema = z.object({
     .max(31, {
       message: "Tanggal transfer tidak valid",
     }),
-  criteria: z
-    .string({
-      invalid_type_error: "Kriteria harus berupa string",
-      required_error: "Kriteria harus diisi",
+  criteria: z.string().optional(),
+  isDetailVisible: z
+    .enum(["true", "false"], {
+      required_error: "Checkbox harus diisi",
+      invalid_type_error: "Checkbox tidak valid",
     })
-    .min(3, {
-      message: "Kriteria terlalu pendek",
-    }),
+    .default("false").optional(),
+  allowAdminSelection: z.enum(["true", "false"]).default("false").optional(),
 });
+
+export const CreateBankesPengurusSchema = z
+  .object({
+    name: z
+      .string({
+        invalid_type_error: "Nama harus berupa string",
+        required_error: "Nama harus diisi",
+      })
+      .min(3, {
+        message: "Nama terlalu pendek",
+      })
+      .max(255, {
+        message: "Nama terlalu panjang",
+      }),
+    email: EmailSchema,
+    password: PasswordSchema,
+    confirmPassword: PasswordSchema,
+    type: z.enum(["bankes", "pengurus"], {
+      required_error: "Tipe harus dipilih",
+      invalid_type_error: "Tipe tidak valid",
+    }),
+    phoneNumber: PhoneNumberSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Kata sandi tidak cocok",
+    path: ["confirmPassword"],
+  });

@@ -54,7 +54,26 @@ export const PasswordSchema = z
   })
   .min(8, {
     message: "Password minimal 8 karakter",
-  });
+  })
+  .max(128, {
+    message: "Password terlalu panjang (maksimal 128 karakter)",
+  })
+  .regex(/^(?=.*[a-z])/, {
+    message: "Password harus mengandung huruf kecil",
+  })
+  .regex(/^(?=.*[A-Z])/, {
+    message: "Password harus mengandung huruf besar",
+  })
+  .regex(/^(?=.*\d)/, {
+    message: "Password harus mengandung angka",
+  })
+  .regex(
+    /^(?=.*[!@#$%^&*()_\-+=[\]{};':"\\|,.<>/?])/,
+    {
+      message:
+        "Password harus mengandung simbol.\nSimbol yang diperbolehkan: ! @ # $ % ^ & * ( ) _ - + = [ ] { } ; ' : \" \\ | , . < > / ?",
+    }
+  );
 
 export const TokenSchema = z.string();
 

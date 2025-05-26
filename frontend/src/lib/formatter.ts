@@ -6,6 +6,10 @@ export function formatRole(role: string): string {
       return "Orang Tua Asuh";
     case "admin":
       return "Admin";
+    case "bankes":
+      return "Bantuan Kesejahteraan";
+    case "pengurus":
+      return "Pengurus";
     default:
       return role;
   }
@@ -74,7 +78,8 @@ export function formatLinkage(linkage: string): string {
 }
 
 export function formatFunding(funding: number): string {
-  return `Rp ${funding.toLocaleString("id-ID")}`;
+  const formatted = funding.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `Rp ${formatted}`;
 }
 
 export function formatStartDate(date: string): string {
@@ -136,4 +141,13 @@ export function formatValue(
     default:
       return String(val);
   }
+}
+
+export function censorEmail(email: string): string {
+  const [localPart, domain] = email.split("@");
+  const censoredLocalPart =
+    localPart.length > 2
+      ? localPart.slice(0, 2) + "*".repeat(localPart.length - 2)
+      : localPart;
+  return `${censoredLocalPart}@${domain}`;
 }

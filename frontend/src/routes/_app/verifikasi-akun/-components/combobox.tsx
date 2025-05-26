@@ -16,13 +16,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { SessionContext } from "@/context/session";
 import { cn } from "@/lib/utils";
 import { NotesVerificationRequestSchema } from "@/lib/zod/admin-verification";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { CircleCheck, CircleX } from "lucide-react";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -41,14 +43,18 @@ function Combobox({
   id: string;
   name: string;
   email: string;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "reapply" | "outdated";
   type: "mahasiswa" | "ota";
 }) {
+  const session = useContext(SessionContext);
   const [openAccept, setOpenAccept] = useState(false);
   const [openReject, setOpenReject] = useState(false);
 
   const form = useForm<NotesVerificationFormValues>({
     resolver: zodResolver(NotesVerificationRequestSchema),
+    defaultValues: {
+      bill: 0,
+    },
   });
 
   const applicationStatusCallbackMutation = useMutation({
@@ -90,17 +96,43 @@ function Combobox({
     },
   });
 
+  const { data } = useQuery({
+    queryKey: ["detailMahasiswa", id],
+    queryFn: () => {
+      if (type === "ota") return null;
+      return api.detail.getMahasiswaDetail({ id });
+    },
+    enabled: false,
+  });
+
   async function onSubmit(data: NotesVerificationFormValues) {
     applicationStatusCallbackMutation.mutate(data);
   }
 
+  useEffect(() => {
+    if (type === "mahasiswa" && data) {
+      form.reset({
+        bill: data.body.bill ?? 0,
+        notes: data.body.notes ?? "",
+        adminOnlyNotes: data.body.adminOnlyNotes ?? "",
+      });
+    }
+  }, [data, form, type]);
+
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
+
   return (
     <div className="flex gap-6">
-      {status === "pending" ? (
+      {status === "pending" || status === "reapply" ? (
         <>
           <Dialog open={openAccept} onOpenChange={setOpenAccept}>
-            <DialogTrigger>
-              <CircleCheck className="text-succeed h-5 w-5 hover:cursor-pointer" />
+            <DialogTrigger disabled={isDisabled}>
+              <CircleCheck
+                className={cn(
+                  "text-succeed h-5 w-5",
+                  !isDisabled && "hover:cursor-pointer",
+                )}
+              />
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -120,13 +152,49 @@ function Combobox({
                 >
                   <FormField
                     control={form.control}
+                    name="bill"
+                    render={({ field }) => {
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      const { onChange, ...rest } = field;
+
+                      return (
+                        <FormItem className={cn(type === "ota" && "hidden")}>
+                          <FormLabel>Kebutuhan Dana</FormLabel>
+                          <FormControl>
+                            <Input
+                              disabled={
+                                status !== "pending" && status !== "reapply"
+                              }
+                              placeholder="Masukkan dana kebutuhan"
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (
+                                  value === "" ||
+                                  /^([1-9]\d*|0)?$/.test(value)
+                                ) {
+                                  field.onChange(value);
+                                }
+                              }}
+                              {...rest}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+
+                  <FormField
+                    control={form.control}
                     name="notes"
                     render={({ field }) => (
                       <FormItem className={cn(type === "ota" && "hidden")}>
                         <FormLabel>Catatan Mahasiswa</FormLabel>
                         <FormControl>
                           <Textarea
-                            disabled={status !== "pending"}
+                            disabled={
+                              status !== "pending" && status !== "reapply"
+                            }
                             placeholder="Masukkan catatan"
                             {...field}
                           />
@@ -144,7 +212,9 @@ function Combobox({
                         <FormLabel>Catatan Admin</FormLabel>
                         <FormControl>
                           <Textarea
-                            disabled={status !== "pending"}
+                            disabled={
+                              status !== "pending" && status !== "reapply"
+                            }
                             placeholder="Masukkan catatan"
                             {...field}
                           />
@@ -156,28 +226,26 @@ function Combobox({
 
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      className="bg-succeed hover:bg-succeed"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         form.setValue("status", "accepted");
                         if (type === "ota") {
                           form.setValue("notes", "-");
                           form.setValue("adminOnlyNotes", "-");
                         }
                         form.handleSubmit(onSubmit)();
-                        setOpenAccept(false);
-                        form.reset();
                       }}
                     >
-                      Ya
+                      Lanjutkan
                     </Button>
                     <Button
-                      className="bg-destructive hover:bg-destructive"
+                      variant="outline"
                       onClick={() => {
                         setOpenAccept(false);
                         form.reset();
                       }}
                     >
-                      Tidak
+                      Batal
                     </Button>
                   </div>
                 </form>
@@ -186,8 +254,13 @@ function Combobox({
           </Dialog>
 
           <Dialog open={openReject} onOpenChange={setOpenReject}>
-            <DialogTrigger>
-              <CircleX className="text-destructive h-5 w-5 hover:cursor-pointer" />
+            <DialogTrigger disabled={isDisabled}>
+              <CircleX
+                className={cn(
+                  "text-destructive h-5 w-5",
+                  !isDisabled && "hover:cursor-pointer",
+                )}
+              />
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -212,7 +285,9 @@ function Combobox({
                         <FormLabel>Catatan Mahasiswa</FormLabel>
                         <FormControl>
                           <Textarea
-                            disabled={status !== "pending"}
+                            disabled={
+                              status !== "pending" && status !== "reapply"
+                            }
                             placeholder="Masukkan catatan"
                             {...field}
                           />
@@ -230,7 +305,9 @@ function Combobox({
                         <FormLabel>Catatan Admin</FormLabel>
                         <FormControl>
                           <Textarea
-                            disabled={status !== "pending"}
+                            disabled={
+                              status !== "pending" && status !== "reapply"
+                            }
                             placeholder="Masukkan catatan"
                             {...field}
                           />
@@ -242,30 +319,28 @@ function Combobox({
 
                   <div className="grid grid-cols-2 gap-4">
                     <Button
-                      className="bg-succeed hover:bg-succeed"
                       type="submit"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         form.setValue("status", "rejected");
                         if (type === "ota") {
                           form.setValue("notes", "-");
                           form.setValue("adminOnlyNotes", "-");
                         }
                         form.handleSubmit(onSubmit)();
-                        setOpenReject(false);
-                        form.reset();
                       }}
                     >
-                      Ya
+                      Lanjutkan
                     </Button>
                     <Button
-                      className="bg-destructive hover:bg-destructive"
+                      variant="outline"
                       type="button"
                       onClick={() => {
                         setOpenReject(false);
                         form.reset();
                       }}
                     >
-                      Tidak
+                      Batal
                     </Button>
                   </div>
                 </form>

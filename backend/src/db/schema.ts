@@ -17,6 +17,8 @@ export const accountTypeEnum = pgEnum("account_type", [
   "mahasiswa",
   "ota",
   "admin",
+  "bankes",
+  "pengurus"
 ]);
 
 export const linkageEnum = pgEnum("linkage", [
@@ -143,6 +145,8 @@ export const transactionStatusEnum = pgEnum("transaction_status", [
   "unpaid",
 ]);
 
+export const transferStatus = pgEnum("transfer_status", ["paid", "unpaid"]);
+
 export const accountTable = pgTable("account", {
   id: uuid("id").defaultRandom().primaryKey().unique().notNull(),
   email: varchar({ length: 255 }).unique().notNull(),
@@ -166,7 +170,6 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
     .references(() => accountTable.id, {
       onDelete: "cascade",
     }),
-  // Personal Information (form input)
   name: varchar({ length: 255 }),
   nim: varchar({ length: 8 }).unique().notNull(),
   major: jurusanEnum("major"),
@@ -177,8 +180,6 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
   gender: genderEnum("gender"),
   gpa: decimal("gpa", { precision: 3, scale: 2 }),
   description: text("description"),
-  // Files (links)
-  // Field file di bawah ini maksudnya file essay
   file: text("file"),
   kk: text("kk"),
   ktm: text("ktm"),
@@ -188,7 +189,7 @@ export const accountMahasiswaDetailTable = pgTable("account_mahasiswa_detail", {
   pbb: text("pbb"),
   electricityBill: text("electricity_bill"),
   ditmawaRecommendationLetter: text("ditmawa_recommendation_letter"),
-  // Notes from interview given by admin
+  bill: integer("bill").notNull().default(0),
   notes: text("notes"),
   adminOnlyNotes: text("admin_only_notes"),
   mahasiswaStatus: mahasiswaStatusEnum("mahasiswa_status")
@@ -216,11 +217,22 @@ export const accountOtaDetailTable = pgTable("account_ota_detail", {
   maxSemester: integer("max_semester").notNull(),
   transferDate: integer("transfer_date").notNull(),
   criteria: text("criteria").notNull(),
+  isDetailVisible: boolean("is_detail_visible").default(false).notNull(),
   allowAdminSelection: boolean("allow_admin_selection")
     .default(false)
     .notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const accountAdminDetailTable = pgTable("account_admin_detail", {
+  accountId: uuid("account_id")
+    .primaryKey()
+    .notNull()
+    .references(() => accountTable.id, {
+      onDelete: "cascade",
+    }),
+  name: varchar({ length: 255 }).notNull(),
 });
 
 export const connectionTable = pgTable(
@@ -245,39 +257,41 @@ export const connectionTable = pgTable(
     requestTerminateMahasiswa: boolean("request_terminate_mahasiswa")
       .default(false)
       .notNull(),
+    requestTerminationNoteOTA: text("request_termination_note_ota"),
+    requestTerminationNoteMA: text("request_termination_note_ma"),
+    paidFor: integer("paid_for").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
 );
 
-//TODO: Pastiin pair mahasiswaId, otaId di sini bukan cuma valid di account, tapi juga primary key yang valid di connectionTable. Harus ada connection dulu baru transaction soalnya
-export const transactionTable = pgTable(
-  "transaction",
-  {
-    mahasiswaId: uuid("mahasiswa_id")
-      .notNull()
-      .references(() => accountMahasiswaDetailTable.accountId, {
-        onDelete: "cascade",
-      }),
-    otaId: uuid("ota_id")
-      .notNull()
-      .references(() => accountOtaDetailTable.accountId, {
-        onDelete: "cascade",
-      }),
-    bill: integer("bill").notNull(),
-    amountPaid: integer("amount_paid").notNull(),
-    paidAt: timestamp("paid_at").notNull(),
-    dueDate: timestamp("due_date").notNull(),
-    transactionStatus: transactionStatusEnum("transaction_status")
-      .notNull()
-      .default("unpaid"),
-    transactionReceipt: text("transaction_receipt"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
-  },
-  (table) => [primaryKey({ columns: [table.mahasiswaId, table.otaId] })],
-);
+export const transactionTable = pgTable("transaction", {
+  id: uuid("id").defaultRandom().primaryKey().notNull(),
+  mahasiswaId: uuid("mahasiswa_id")
+    .notNull()
+    .references(() => accountMahasiswaDetailTable.accountId, {
+      onDelete: "cascade",
+    }),
+  otaId: uuid("ota_id")
+    .notNull()
+    .references(() => accountOtaDetailTable.accountId, {
+      onDelete: "cascade",
+    }),
+  bill: integer("bill").notNull(),
+  amountPaid: integer("amount_paid").notNull().default(0),
+  paidAt: timestamp("paid_at"),
+  dueDate: timestamp("due_date").notNull(),
+  transactionStatus: transactionStatusEnum("transaction_status")
+    .notNull()
+    .default("unpaid"),
+  transferStatus: transferStatus("transfer_status").notNull().default("unpaid"),
+  transactionReceipt: text("transaction_receipt"),
+  paidFor: integer("paid_for").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  rejectionNote: text("verif_note"),
+});
 
 export const otpTable = pgTable(
   "otp",
@@ -333,6 +347,10 @@ export const accountRelations = relations(accountTable, ({ one, many }) => ({
     fields: [accountTable.id],
     references: [accountOtaDetailTable.accountId],
   }),
+  accountAdminDetail: one(accountAdminDetailTable, {
+    fields: [accountTable.id],
+    references: [accountAdminDetailTable.accountId],
+  }),
   otps: many(otpTable),
   temporaryPasswords: many(temporaryPasswordTable),
   pushSubscriptions: many(pushSubscriptionTable),
@@ -359,6 +377,16 @@ export const accountOtaDetailRelations = relations(
     }),
     connection: many(connectionTable),
     transaction: many(transactionTable),
+  }),
+);
+
+export const accountAdminDetailRelations = relations(
+  accountAdminDetailTable,
+  ({ one }) => ({
+    account: one(accountTable, {
+      fields: [accountAdminDetailTable.accountId],
+      references: [accountTable.id],
+    }),
   }),
 );
 

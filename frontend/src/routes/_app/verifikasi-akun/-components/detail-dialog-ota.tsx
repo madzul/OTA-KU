@@ -31,7 +31,7 @@ function DetailDialogOta({
   status,
 }: {
   id: string;
-  status: "pending" | "accepted" | "rejected";
+  status: "pending" | "accepted" | "rejected" | "reapply" | "outdated";
 }) {
   const [open, setOpen] = useState(false);
   const session = useContext(SessionContext);
@@ -84,6 +84,8 @@ function DetailDialogOta({
     changeStatusCallbackMutation.mutate(data);
   }
 
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -104,7 +106,6 @@ function DetailDialogOta({
             Detail Info
           </DialogTitle>
           <DialogDescription className="flex text-start">
-            {/* TODO: handle case applicationStatus === "reapply" or "outdated" */}
             <p
               className={cn(
                 "rounded-full px-4 py-1 text-white",
@@ -114,7 +115,9 @@ function DetailDialogOta({
                     ? "bg-[#EAB308]"
                     : data?.body.applicationStatus === "rejected"
                       ? "bg-destructive"
-                      : "bg-gray-500",
+                      : data?.body.applicationStatus === "reapply"
+                        ? "bg-blue-500"
+                        : "bg-gray-500",
               )}
             >
               {data?.body.applicationStatus === "accepted"
@@ -123,7 +126,11 @@ function DetailDialogOta({
                   ? "Tertunda"
                   : data?.body.applicationStatus === "rejected"
                     ? "Tertolak"
-                    : "-"}
+                    : data?.body.applicationStatus === "reapply"
+                      ? "Pengajuan Ulang"
+                      : data?.body.applicationStatus === "outdated"
+                        ? "Kedaluarsa"
+                        : "-"}
             </p>
           </DialogDescription>
         </DialogHeader>
@@ -149,14 +156,18 @@ function DetailDialogOta({
           <div
             className={cn(
               "mt-4 flex gap-4 self-center",
-              status !== "pending" && "hidden",
+              status !== "pending" && status !== "reapply" && "hidden",
             )}
           >
             <div className="flex items-center gap-2">
               <p>Terima</p>
               <CircleCheck
-                className="text-succeed h-6 w-6 hover:cursor-pointer"
+                className={cn(
+                  "text-succeed h-6 w-6",
+                  !isDisabled && "hover:cursor-pointer",
+                )}
                 onClick={() => {
+                  if (isDisabled) return;
                   form.setValue("status", "accepted");
                   form.setValue("notes", "-");
                   form.setValue("adminOnlyNotes", "-");
@@ -166,8 +177,12 @@ function DetailDialogOta({
             </div>
             <div className="flex items-center gap-2">
               <CircleX
-                className="text-destructive h-6 w-6 hover:cursor-pointer"
+                className={cn(
+                  "text-destructive h-6 w-6",
+                  !isDisabled && "hover:cursor-pointer",
+                )}
                 onClick={async () => {
+                  if (isDisabled) return;
                   form.setValue("status", "rejected");
                   form.setValue("notes", "-");
                   form.setValue("adminOnlyNotes", "-");

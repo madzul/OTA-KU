@@ -7,9 +7,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CircleCheck, CircleX } from "lucide-react";
-import { useState } from "react";
+import { SessionContext } from "@/context/session";
+import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
+import { CircleCheck, CircleX } from "lucide-react";
+import { useContext, useState } from "react";
 import { toast } from "sonner";
 
 function ConfirmationDialog({
@@ -26,6 +28,7 @@ function ConfirmationDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState<"accept" | "reject" | null>(null);
+  const session = useContext(SessionContext);
 
   const connectionStatusCallbackMutation = useMutation({
     mutationFn: async () => {
@@ -40,7 +43,7 @@ function ConfirmationDialog({
       toast.success(
         action === "accept"
           ? "Berhasil menerima koneksi"
-          : "Berhasil menolak koneksi"
+          : "Berhasil menolak koneksi",
       );
       queryClient.invalidateQueries({
         queryKey: ["listConnection"],
@@ -53,7 +56,7 @@ function ConfirmationDialog({
       toast.warning(
         action === "accept"
           ? "Gagal menerima koneksi"
-          : "Gagal menolak koneksi"
+          : "Gagal menolak koneksi",
       );
     },
     onMutate: () => {
@@ -61,7 +64,7 @@ function ConfirmationDialog({
         action === "accept"
           ? "Sedang memproses penerimaan koneksi..."
           : "Sedang memproses penolakan koneksi...",
-        { duration: Infinity }
+        { duration: Infinity },
       );
       return loading;
     },
@@ -71,21 +74,29 @@ function ConfirmationDialog({
     connectionStatusCallbackMutation.mutate();
   };
 
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
+
   return (
     <div className="flex gap-2">
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
+        <DialogTrigger disabled={isDisabled}>
           <CircleCheck
-            className="text-succeed h-6 w-6 cursor-pointer"
+            className={cn(
+              "text-succeed h-6 w-6",
+              !isDisabled && "cursor-pointer",
+            )}
             onClick={() => {
               setAction("accept");
               setOpen(true);
             }}
           />
         </DialogTrigger>
-        <DialogTrigger asChild>
+        <DialogTrigger disabled={isDisabled}>
           <CircleX
-            className="text-destructive h-6 w-6 cursor-pointer"
+            className={cn(
+              "text-destructive h-6 w-6",
+              !isDisabled && "cursor-pointer",
+            )}
             onClick={() => {
               setAction("reject");
               setOpen(true);

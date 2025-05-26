@@ -14,7 +14,30 @@ import { cn } from "@/lib/utils";
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const statuses = [
+const mahasiswaStatuses = [
+  {
+    value: "pending",
+    label: "Tertunda",
+  },
+  {
+    value: "accepted",
+    label: "Terverifikasi",
+  },
+  {
+    value: "rejected",
+    label: "Tertolak",
+  },
+  {
+    value: "reapply",
+    label: "Pengajuan Ulang",
+  },
+  {
+    value: "outdated",
+    label: "Kedaluarsa",
+  },
+];
+
+const otaStatuses = [
   {
     value: "pending",
     label: "Tertunda",
@@ -30,18 +53,24 @@ const statuses = [
 ];
 
 interface FilterStatusProps {
-  setStatus: (status: "accepted" | "pending" | "rejected" | null) => void;
+  type: "mahasiswa" | "ota";
+  status: "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null;
+  setStatus: (
+    status: "accepted" | "pending" | "rejected" | "reapply" | "outdated" | null,
+  ) => void;
 }
 
-function FilterStatus({ setStatus }: FilterStatusProps) {
+function FilterStatus({ type, status, setStatus }: FilterStatusProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
+  const statuses = type === "mahasiswa" ? mahasiswaStatuses : otaStatuses;
+
   useEffect(() => {
-    if (value === "") {
-      setStatus(null);
+    if (status) {
+      setValue(status);
     }
-  }, [setStatus, value]);
+  }, [status]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -72,7 +101,9 @@ function FilterStatus({ setStatus }: FilterStatusProps) {
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
                     setStatus(
-                      status.value as "accepted" | "pending" | "rejected",
+                      currentValue === value
+                        ? null
+                        : (currentValue as "accepted" | "pending" | "rejected"),
                     );
                     setOpen(false);
                   }}

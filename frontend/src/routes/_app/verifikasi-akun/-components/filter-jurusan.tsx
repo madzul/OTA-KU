@@ -12,36 +12,27 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Jurusan } from "@/lib/nim";
 import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { useState } from "react";
+import { Check, ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
+import { majors } from "./constant";
 
-function FilterJurusan() {
+interface FilterJurusanProps {
+  jurusan: Jurusan | null;
+  setJurusan: (jurusan: Jurusan | null) => void;
+}
+
+function FilterJurusan({ jurusan, setJurusan }: FilterJurusanProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
+
+  useEffect(() => {
+    if (jurusan) {
+      setValue(jurusan);
+    }
+  }, [jurusan]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -50,34 +41,40 @@ function FilterJurusan() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className={cn(
+            "hover:bg-accent focus-visible:ring-ring data-[state=open]:bg-accent data-[state=open]:text-accent-foreground hover:text-accent-foreground justify-between rounded-md border border-[#BBBAB8] bg-white text-[#BBBAB8] shadow-xs focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+            value ? "text-accent-foreground" : "text-[#BBBAB8]",
+          )}
         >
           {value
-            ? frameworks.find((framework) => framework.value === value)?.label
-            : "Select framework..."}
-          <ChevronsUpDown className="opacity-50" />
+            ? majors.find((major) => major.value === value)?.label
+            : "Filter Jurusan"}
+          <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." />
+          <CommandInput placeholder="Cari jurusan..." />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>Jurusan tidak ditemukan</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {majors.map((major) => (
                 <CommandItem
-                  key={framework.value}
-                  value={framework.value}
+                  key={major.value}
+                  value={major.value}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
+                    setJurusan(
+                      currentValue === value ? null : (currentValue as Jurusan),
+                    );
                     setOpen(false);
                   }}
                 >
-                  {framework.label}
+                  {major.label}
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === framework.value ? "opacity-100" : "opacity-0",
+                      value === major.value ? "opacity-100" : "opacity-0",
                     )}
                   />
                 </CommandItem>

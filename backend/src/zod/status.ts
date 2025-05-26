@@ -19,6 +19,15 @@ export const ApplicationStatusSchema = z.object({
       description: "Status aplikasi",
       example: "accepted",
     }),
+  bill: z.coerce
+    .number({
+      invalid_type_error: "Tagihan harus berupa angka",
+      required_error: "Tagihan harus diisi",
+    })
+    .min(0, {
+      message: "Tagihan tidak boleh kurang dari 0",
+    })
+    .optional(),
   notes: z
     .string({
       invalid_type_error: "Catatan untuk Orang Tua Asuh harus berupa string",
@@ -102,6 +111,24 @@ export const GetVerificationStatusSuccessResponse = z.object({
     status: z.enum(["verified", "unverified"]).openapi({
       description: "Status verifikasi",
       example: "verified",
+    }),
+  }),
+});
+
+// Get Reapplication Status
+export const GetReapplicationStatusSuccessResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z.string().openapi({
+    example: "Berhasil mengambil status pendaftaran ulang",
+  }),
+  body: z.object({
+    status: z.boolean().openapi({
+      description: "Status pendaftaran ulang",
+      example: true,
+    }),
+    daysRemaining: z.number().openapi({
+      description: "Sisa hari hingga batas pendaftaran ulang",
+      example: 10,
     }),
   }),
 });

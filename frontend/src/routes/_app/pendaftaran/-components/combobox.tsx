@@ -42,7 +42,7 @@ function Combobox({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-primary text-sm">
+          <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
             {name === "religion" ? "Agama" : "Jenis Kelamin"}
           </FormLabel>
           <Popover open={open} onOpenChange={setOpen}>

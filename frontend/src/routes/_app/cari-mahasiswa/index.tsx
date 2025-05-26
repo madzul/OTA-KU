@@ -1,9 +1,9 @@
+import { api } from "@/api/client";
 import Metadata from "@/components/metadata";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-import DaftarMahasiswa from "./-components.tsx/DaftarMahasiswa";
+import DaftarMahasiswa from "./-components/DaftarMahasiswa";
 
-// TODO: add state checker for all routes, also add toast messages if user can't access the route
 export const Route = createFileRoute("/_app/cari-mahasiswa/")({
   component: RouteComponent,
   beforeLoad: async ({ context }) => {
@@ -14,6 +14,32 @@ export const Route = createFileRoute("/_app/cari-mahasiswa/")({
     }
 
     if (user.type !== "ota") {
+      throw redirect({ to: "/" });
+    }
+
+    const verificationStatus = await api.status
+      .getVerificationStatus({
+        id: user.id,
+      })
+      .catch(() => null);
+
+    if (!verificationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (verificationStatus.body.status !== "verified") {
+      throw redirect({ to: "/auth/otp-verification" });
+    }
+
+    const applicationStatus = await api.status
+      .getApplicationStatus({ id: user.id })
+      .catch(() => null);
+
+    if (!applicationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (applicationStatus.body.status !== "accepted") {
       throw redirect({ to: "/" });
     }
 

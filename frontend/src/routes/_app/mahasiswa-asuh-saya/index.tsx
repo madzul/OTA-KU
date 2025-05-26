@@ -1,62 +1,21 @@
 import { api } from "@/api/client";
+import { ClientPagination } from "@/components/client-pagination";
 import Metadata from "@/components/metadata";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { Search, User } from "lucide-react";
+import {
+  createFileRoute,
+  redirect,
+  useLocation,
+  useNavigate,
+} from "@tanstack/react-router";
+import { Search } from "lucide-react";
 import { useState } from "react";
 import { useDebounce } from "use-debounce";
 
-interface StudentCardProps {
-  student: {
-    name: string;
-    // batch: string;
-    // faculty: string;
-    // department: string;
-  };
-}
-
-function StudentCard({ student }: StudentCardProps) {
-  return (
-    <Card className="border-primary min-w-[288px] gap-2 overflow-hidden rounded-lg border p-0 pb-3">
-      <CardHeader className="bg-[#003087] p-4 text-white">
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-white p-1">
-            <User className="h-6 w-6 text-[#003087]" />
-          </div>
-          <div>
-            <h3 className="font-semibold">{student.name}</h3>
-            {/* <p className="text-sm">{student.batch}</p> */}
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="">
-        <div className="mt-4 flex flex-row gap-5">
-          <div>
-            {/* <p className="text-muted-foreground text-sm">Fakultas</p> */}
-            {/* <p>{student.faculty}</p> */}
-          </div>
-          <div>
-            {/* <p className="text-muted-foreground text-sm">Jurusan</p> */}
-            {/* <p>{student.department}</p> */}
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-center">
-        <Button variant={"default"}>Lihat Profil</Button>
-      </CardFooter>
-    </Card>
-  );
-}
+import MahasiswaCard from "./-components/mahasiswa-card";
 
 export const Route = createFileRoute("/_app/mahasiswa-asuh-saya/")({
   component: RouteComponent,
@@ -71,20 +30,52 @@ export const Route = createFileRoute("/_app/mahasiswa-asuh-saya/")({
       throw redirect({ to: "/" });
     }
 
+    const verificationStatus = await api.status
+      .getVerificationStatus({
+        id: user.id,
+      })
+      .catch(() => null);
+
+    if (!verificationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (verificationStatus.body.status !== "verified") {
+      throw redirect({ to: "/auth/otp-verification" });
+    }
+
+    const applicationStatus = await api.status
+      .getApplicationStatus({ id: user.id })
+      .catch(() => null);
+
+    if (!applicationStatus) {
+      throw redirect({ to: "/auth/login" });
+    }
+
+    if (applicationStatus.body.status !== "accepted") {
+      throw redirect({ to: "/" });
+    }
+
     return { user };
   },
 });
 
 function RouteComponent() {
+  const navigate = useNavigate({ from: Route.fullPath });
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
+
+  const page = parseInt(searchParams.get("page") ?? "1") || 1;
 
   const { data: activeStudentsData, isSuccess: isActiveSuccess } = useQuery({
     queryKey: ["listMaActive", debouncedSearchQuery],
     queryFn: () =>
       api.list.listMaActive({
         q: debouncedSearchQuery,
-        page: 1,
+        page,
       }),
   });
 
@@ -93,20 +84,9 @@ function RouteComponent() {
     queryFn: () =>
       api.list.listMaPending({
         q: debouncedSearchQuery,
-        page: 1,
+        page,
       }),
   });
-
-  // TODO: Boros
-  const activeStudents =
-    activeStudentsData?.body.data.map((student) => ({
-      name: student.name,
-    })) ?? [];
-
-  const pendingStudents =
-    pendingStudentsData?.body.data.map((student) => ({
-      name: student.name,
-    })) ?? [];
 
   return (
     <main className="flex min-h-[calc(100vh-70px)] flex-col p-2 px-6 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
@@ -120,19 +100,25 @@ function RouteComponent() {
           <TabsTrigger
             value="aktif"
             className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white"
+            onClick={() => {
+              navigate({ search: () => ({ page: 1 }) });
+            }}
           >
             Aktif
           </TabsTrigger>
           <TabsTrigger
             value="menunggu"
             className="data-[state=active]:text-dark text-base font-bold text-white data-[state=active]:bg-white"
+            onClick={() => {
+              navigate({ search: () => ({ page: 1 }) });
+            }}
           >
             Menunggu
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="aktif">
-          <div className="relative mb-6">
+        <TabsContent value="aktif" className="flex flex-col gap-6">
+          <div className="relative">
             <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               placeholder="Cari nama"
@@ -144,10 +130,10 @@ function RouteComponent() {
 
           {!isActiveSuccess ? (
             <Skeleton className="h-80 w-full" />
-          ) : (activeStudents ?? []).length > 0 ? (
+          ) : activeStudentsData.body.data.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {activeStudents.map((student, index) => (
-                <StudentCard key={index} student={student} />
+              {activeStudentsData.body.data.map((student, index) => (
+                <MahasiswaCard key={index} mahasiswa={student} />
               ))}
             </div>
           ) : (
@@ -155,10 +141,15 @@ function RouteComponent() {
               Tidak ada mahasiswa yang sedang diasuh
             </div>
           )}
+
+          <ClientPagination
+            total={activeStudentsData?.body.totalData ?? 0}
+            totalPerPage={6}
+          />
         </TabsContent>
 
-        <TabsContent value="menunggu">
-          <div className="relative mb-6">
+        <TabsContent value="menunggu" className="flex flex-col gap-6">
+          <div className="relative">
             <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               placeholder="Cari nama"
@@ -170,10 +161,10 @@ function RouteComponent() {
 
           {!isPendingSuccess ? (
             <Skeleton className="h-80 w-full" />
-          ) : pendingStudents.length > 0 ? (
+          ) : pendingStudentsData.body.data.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {pendingStudents.map((student, index) => (
-                <StudentCard key={index} student={student} />
+              {pendingStudentsData.body.data.map((student, index) => (
+                <MahasiswaCard key={index} mahasiswa={student} />
               ))}
             </div>
           ) : (
@@ -181,6 +172,11 @@ function RouteComponent() {
               Tidak ada mahasiswa yang sedang menunggu untuk diasuh
             </div>
           )}
+
+          <ClientPagination
+            total={pendingStudentsData?.body.totalData ?? 0}
+            totalPerPage={6}
+          />
         </TabsContent>
       </Tabs>
     </main>
