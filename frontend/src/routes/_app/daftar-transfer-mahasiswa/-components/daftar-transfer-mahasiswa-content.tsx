@@ -8,14 +8,19 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Route } from "..";
-import { StatusType, TransaksiItem, TransferStatusType, tagihanColumns } from "./columns";
+import {
+  StatusType,
+  TransaksiItem,
+  TransferStatusType,
+  tagihanColumns,
+} from "./columns";
 import { PaymentDetailsModal } from "./confirmation-dialog";
 import { DataTable } from "./data-table";
 import { SearchFilterBar } from "./search-filter-bar";
 
 const ITEMS_PER_PAGE = 8;
 
-export function DaftarTagihanContent() {
+export function DaftarTransferMahasiswaContent() {
   const navigate = useNavigate({ from: Route.fullPath });
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -100,12 +105,12 @@ export function DaftarTagihanContent() {
       }>;
 
       const { index, transferStatus, id } = customEvent.detail;
-      
+
       // Update the transfer status
       const newData = [...transaksiData];
       newData[index].transferStatus = transferStatus;
       setTransaksiData(newData);
-      
+
       // Call API to update transfer status
       if (transferStatus === "paid") {
         acceptTransferStatusMutation.mutate({ id });
@@ -122,7 +127,7 @@ export function DaftarTagihanContent() {
       "status-dropdown-change",
       handleStatusDropdownChange,
     );
-    
+
     window.addEventListener(
       "transfer-status-change",
       handleTransferStatusChange,
@@ -291,11 +296,11 @@ export function DaftarTagihanContent() {
 
   // Mutation for accepting transfer status
   const acceptTransferStatusMutation = useMutation({
-    mutationFn: ({ id }: { id: string }) => 
+    mutationFn: ({ id }: { id: string }) =>
       api.transaction.acceptTransferStatus({
         formData: { id: id },
       }),
-    
+
     onSuccess: () => {
       toast.success("Status transfer diubah menjadi Ditransfer", {
         description: "Perubahan berhasil disimpan.",
@@ -305,7 +310,7 @@ export function DaftarTagihanContent() {
       toast.error("Gagal mengubah status transfer", {
         description: "Terjadi kesalahan saat mengubah status transfer.",
       });
-    }
+    },
   });
 
   // Function to handle payment details confirmation
@@ -393,11 +398,9 @@ export function DaftarTagihanContent() {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h1 className="text-dark text-3xl font-bold md:text-[50px]">
-            Daftar Tagihan Bantuan OTA
+            Daftar Transfer Mahasiswa
           </h1>
-          <p className="text-blue-900">
-            Kelola tagihan dan pembayaran bantuan Orang Tua Asuh
-          </p>
+          <p className="text-blue-900">Kelola transfer bantuan ke mahasiswa</p>
         </div>
       </div>
 

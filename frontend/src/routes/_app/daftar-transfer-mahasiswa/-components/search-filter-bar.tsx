@@ -55,7 +55,7 @@ export function SearchFilterBar({
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-6">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-5 md:gap-6">
       <div className="md:col-span-2">
         <SearchInput
           placeholder="Cari nama orang tua atau mahasiswa"

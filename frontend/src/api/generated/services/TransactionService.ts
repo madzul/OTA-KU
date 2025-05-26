@@ -166,7 +166,7 @@ export class TransactionService {
       /**
        * ID transaksi
        */
-      id: string;
+      ids: string;
       /**
        * ID orang tua asuh
        */
@@ -183,7 +183,7 @@ export class TransactionService {
       /**
        * ID transaksi
        */
-      id: string;
+      ids: string;
       /**
        * ID mahasiswa asuh
        */

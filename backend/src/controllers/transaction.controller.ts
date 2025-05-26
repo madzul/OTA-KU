@@ -1,3 +1,4 @@
+import { addMonths, setDate } from "date-fns";
 import { and, count, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
 
 import { db } from "../db/drizzle.js";
@@ -480,7 +481,7 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
   const zodParseResult = VerifyTransactionAcceptSchema.parse(data);
-  const { id, mahasiswaId, otaId } = zodParseResult;
+  const { ids, mahasiswaId, otaId } = zodParseResult;
 
   if (user.type !== "bankes" && user.type !== "admin") {
     return c.json(
@@ -500,22 +501,25 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
   try {
     const result = await db.transaction(async (tx) => {
       // Get the updated bill (amount paid)
-      const billRow = await tx
-        .select({ bill: transactionTable.bill })
+      const updatedRows = await tx
+        .select()
         .from(transactionTable)
-        .where(eq(transactionTable.id, id))
-        .limit(1);
+        .where(inArray(transactionTable.id, ids));
 
-      await tx
-        .update(transactionTable)
-        .set({
-          transactionStatus: "paid",
-          transactionReceipt: "",
-          amountPaid: billRow[0]?.bill ?? 0,
-        })
-        .where(eq(transactionTable.id, id));
+      await Promise.all(
+        updatedRows.map(async (updatedRow) => {
+          return tx
+            .update(transactionTable)
+            .set({
+              transactionStatus: "paid",
+              transactionReceipt: "",
+              amountPaid: updatedRow.bill,
+            })
+            .where(eq(transactionTable.id, updatedRow.id));
+        }),
+      );
 
-      await tx
+      const connectionRows = await tx
         .update(connectionTable)
         .set({ paidFor: sql`${connectionTable.paidFor} - 1` })
         .where(
@@ -523,9 +527,46 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
             eq(connectionTable.mahasiswaId, mahasiswaId),
             eq(connectionTable.otaId, otaId),
           ),
-        );
+        )
+        .returning();
 
-      return billRow[0]?.bill ?? 0;
+      // Process all connection rows and create batch insert data
+      const allTransactionsToInsert = [];
+
+      for (const row of connectionRows) {
+        if (row.paidFor >= 1) {
+          // Find the corresponding updated transaction for this mahasiswa and ota
+          const correspondingTransaction = updatedRows.find(
+            (updatedRow) =>
+              updatedRow.mahasiswaId === row.mahasiswaId &&
+              updatedRow.otaId === row.otaId,
+          );
+
+          if (correspondingTransaction) {
+            for (let i = 1; i <= row.paidFor; i++) {
+              allTransactionsToInsert.push({
+                mahasiswaId: row.mahasiswaId,
+                otaId: row.otaId,
+                bill: correspondingTransaction.bill,
+                amountPaid: correspondingTransaction.bill,
+                dueDate: setDate(
+                  addMonths(correspondingTransaction.dueDate, i),
+                  1,
+                ),
+                transactionStatus: "paid" as const,
+                transactionReceipt: "",
+              });
+            }
+          }
+        }
+      }
+
+      // Single batch insert for all transactions
+      if (allTransactionsToInsert.length > 0) {
+        await tx.insert(transactionTable).values(allTransactionsToInsert);
+      }
+
+      return updatedRows.reduce((total, row) => total + (row.bill ?? 0), 0);
     });
 
     return c.json(
@@ -533,7 +574,7 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
         success: true,
         message: "Berhasil melakukan penerimaan verifikasi pembayaran",
         body: {
-          id: id,
+          ids: ids,
           mahasiswaId: mahasiswaId,
           otaId: otaId,
           amountPaid: result,
@@ -606,6 +647,16 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
           and(
             eq(connectionTable.mahasiswaId, mahasiswaId),
             eq(connectionTable.otaId, otaId),
+          ),
+        );
+
+      await tx
+        .update(transactionTable)
+        .set({ paidFor: 0 })
+        .where(
+          and(
+            eq(transactionTable.mahasiswaId, mahasiswaId),
+            eq(transactionTable.otaId, otaId),
           ),
         );
     });
