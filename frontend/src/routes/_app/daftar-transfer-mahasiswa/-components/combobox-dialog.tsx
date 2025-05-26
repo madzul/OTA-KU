@@ -18,11 +18,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { SessionContext } from "@/context/session";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { Row } from "@tanstack/react-table";
 import { Check, ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface ComboboxDialogProps {
@@ -41,6 +42,7 @@ const transferStatus = [
 ];
 
 function ComboboxDialog({ row }: ComboboxDialogProps) {
+  const session = useContext(SessionContext);
   const [open, setOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [value, setValue] = useState(row.original.transferStatus);
@@ -73,6 +75,8 @@ function ComboboxDialog({ row }: ComboboxDialogProps) {
     }
   }, [isDialogOpen, row.original.transferStatus]);
 
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -90,7 +94,8 @@ function ComboboxDialog({ row }: ComboboxDialogProps) {
           )}
           disabled={
             row.original.transferStatus === "paid" ||
-            row.original.status !== "paid"
+            row.original.status !== "paid" ||
+            isDisabled
           }
         >
           {value
