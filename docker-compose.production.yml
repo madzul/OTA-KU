@@ -44,11 +44,15 @@ services:
       args:
         - VITE_API_URL=${VITE_API_URL}
         - VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID}
+        - VITE_APP_URL=${VITE_APP_URL}
+        - VITE_VAPID_PUBLIC_KEY=${VITE_VAPID_PUBLIC_KEY}
     ports:
       - "${FRONTEND_PORT:-5173}:3000"
     environment:
       - VITE_API_URL=${VITE_API_URL}
       - VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID}
+      - VITE_APP_URL=${VITE_APP_URL}
+      - VITE_VAPID_PUBLIC_KEY=${VITE_VAPID_PUBLIC_KEY}
     depends_on:
       - backend
     networks:
