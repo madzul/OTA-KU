@@ -39,8 +39,8 @@ export function DataTable<TData, TValue>({
   });
 
   useEffect(() => {
-    table.getColumn("mahasiswaId")?.toggleVisibility(false);
-    table.getColumn("otaId")?.toggleVisibility(false);
+    table.getColumn("mahasiswa_id")?.toggleVisibility(false);
+    table.getColumn("ota_id")?.toggleVisibility(false);
   }, [table]);
 
   return (

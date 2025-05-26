@@ -23,6 +23,7 @@ export type { NotificationAction } from './models/NotificationAction';
 export type { NotificationDataSchema } from './models/NotificationDataSchema';
 export type { SendOtpRequestSchema } from './models/SendOtpRequestSchema';
 export type { TransactionDetailSchema } from './models/TransactionDetailSchema';
+export type { TransactionListAdminData } from './models/TransactionListAdminData';
 export type { TransactionListAdminSchema } from './models/TransactionListAdminSchema';
 export type { TransactionOTA } from './models/TransactionOTA';
 export type { UserLoginRequestSchema } from './models/UserLoginRequestSchema';
