@@ -15,6 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { SessionContext } from "@/context/session";
 import { formatFunding } from "@/lib/formatter";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
@@ -27,7 +28,7 @@ import {
   DollarSign,
   FileText,
 } from "lucide-react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { toast } from "sonner";
 
 import { TransactionStatus } from "./collapsible-data-table";
@@ -84,6 +85,7 @@ interface DaftarTagihanFormProps {
 }
 
 function DaftarTagihanForm({ row }: DaftarTagihanFormProps) {
+  const session = useContext(SessionContext);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<"paid" | "unpaid" | null>(null);
   const [amountPaid, setAmountPaid] = useState<string>();
@@ -162,6 +164,8 @@ function DaftarTagihanForm({ row }: DaftarTagihanFormProps) {
   const pendingIds = row.original.transactions
     .filter((transaction) => transaction.transactionStatus === "pending")
     .map((transaction) => transaction.id);
+
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
 
   return (
     <div className="bg-gray-50 px-6 py-4">
@@ -288,6 +292,7 @@ function DaftarTagihanForm({ row }: DaftarTagihanFormProps) {
                             ? "border-red-300 bg-red-50 text-red-600"
                             : "",
                       )}
+                      disabled={isDisabled}
                     >
                       {value
                         ? transactionStatus.find(
@@ -343,6 +348,7 @@ function DaftarTagihanForm({ row }: DaftarTagihanFormProps) {
                           setAmountPaid(value);
                         }
                       }}
+                      disabled={isDisabled}
                     />
                   </div>
 
@@ -354,6 +360,7 @@ function DaftarTagihanForm({ row }: DaftarTagihanFormProps) {
                       placeholder="Masukkan Catatan Penolakan"
                       value={rejectionNote}
                       onChange={(e) => setRejectionNote(e.target.value)}
+                      disabled={isDisabled}
                     />
                   </div>
                 </div>
@@ -362,7 +369,7 @@ function DaftarTagihanForm({ row }: DaftarTagihanFormProps) {
               <Button
                 variant="outline"
                 className="rounded-md"
-                disabled={value === null}
+                disabled={value === null || isDisabled}
                 onClick={() => {
                   return value === "paid"
                     ? verifyTransactionAccCallbackMutation.mutate({
