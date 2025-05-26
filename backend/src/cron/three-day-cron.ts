@@ -271,8 +271,8 @@ export const everyThreeDaysCron = new CronJob(
                     admin.name,
                     pendingTransactionOta.count.toString(),
                     pendingTransactionMa.count.toString(),
-                    env.VITE_PUBLIC_URL + "/daftar-tagihan-ota",
-                    env.VITE_PUBLIC_URL + "/daftar-tagihan-ma",
+                    env.VITE_PUBLIC_URL + "/daftar-tagihan",
+                    env.VITE_PUBLIC_URL + "/daftar-transfer-mahasiswa",
                   ),
                 });
                 console.log(`Email sent to ${admin.email}`);
