@@ -47,7 +47,7 @@ export class ConnectService {
       errors: {
         400: `Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA`,
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun unauthorized`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -92,7 +92,7 @@ export class ConnectService {
       errors: {
         400: `Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via Admin`,
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun unauthorized`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -126,7 +126,7 @@ export class ConnectService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun unauthorized`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -160,7 +160,7 @@ export class ConnectService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun unauthorized`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -205,7 +205,7 @@ export class ConnectService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun unauthorized`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -252,7 +252,7 @@ export class ConnectService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun unauthorized`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -288,7 +288,7 @@ export class ConnectService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun unauthorized`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -315,7 +315,7 @@ export class ConnectService {
       errors: {
         400: `Gagal menemukan hubungan asuh antara MA dan OTA`,
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun unauthorized`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -344,7 +344,7 @@ export class ConnectService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
-        403: `Akun unauthorized`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });

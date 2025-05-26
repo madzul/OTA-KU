@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { TransactionDetailSchema } from '../models/TransactionDetailSchema';
 import type { TransactionListAdminSchema } from '../models/TransactionListAdminSchema';
+import type { TransactionListVerificationAdminData } from '../models/TransactionListVerificationAdminData';
 import type { TransactionOTA } from '../models/TransactionOTA';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
@@ -15,31 +16,36 @@ export class TransactionService {
    * @throws ApiError
    */
   public listTransactionOta({
-    q,
-    page,
-    status,
+    year,
+    month,
   }: {
-    q?: string,
-    page?: number | null,
-    status?: 'unpaid' | 'pending' | 'paid',
+    year?: number | null,
+    month?: number | null,
   }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
       data: Array<TransactionOTA>;
-      totalData: number;
+      /**
+       * Tahun yang tersedia
+       */
+      years: Array<number>;
+      /**
+       * Total tagihan
+       */
+      totalBill: number;
     };
   }> {
     return this.httpRequest.request({
       method: 'GET',
       url: '/api/transaction/orang-tua/transactions',
       query: {
-        'q': q,
-        'page': page,
-        'status': status,
+        'year': year,
+        'month': month,
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -75,6 +81,50 @@ export class TransactionService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Daftar seluruh tagihan yang belum diverifikasi
+   * @returns any Berhasil mendapatkan daftar tagihan yang belum diverifikasi.
+   * @throws ApiError
+   */
+  public listTransactionVerificationAdmin({
+    q,
+    page,
+    year,
+    month,
+  }: {
+    q?: string,
+    page?: number | null,
+    year?: number | null,
+    month?: number | null,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<TransactionListVerificationAdminData>;
+      /**
+       * Tahun yang tersedia
+       */
+      years: Array<number>;
+      totalData: number;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/transaction/admin/transactions/verification',
+      query: {
+        'q': q,
+        'page': page,
+        'year': year,
+        'month': month,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -104,6 +154,7 @@ export class TransactionService {
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         404: `Mahasiswa tidak ditemukan`,
         500: `Internal server error`,
       },
@@ -121,7 +172,7 @@ export class TransactionService {
       /**
        * ID transaksi
        */
-      id: string;
+      ids: string;
       receipt: Blob;
       /**
        * Pembayaran untuk berapa bulan
@@ -142,6 +193,7 @@ export class TransactionService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -158,15 +210,11 @@ export class TransactionService {
       /**
        * ID transaksi
        */
-      id: string;
+      ids: string;
       /**
        * ID orang tua asuh
        */
       otaId: string;
-      /**
-       * ID mahasiswa asuh
-       */
-      mahasiswaId: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -175,11 +223,7 @@ export class TransactionService {
       /**
        * ID transaksi
        */
-      id: string;
-      /**
-       * ID mahasiswa asuh
-       */
-      mahasiswaId: string;
+      ids: string;
       /**
        * ID orang tua asuh
        */
@@ -197,6 +241,7 @@ export class TransactionService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -213,15 +258,11 @@ export class TransactionService {
       /**
        * ID transaksi
        */
-      id: string;
+      ids: string;
       /**
        * ID orang tua asuh
        */
       otaId: string;
-      /**
-       * ID mahasiswa asuh
-       */
-      mahasiswaId: string;
       /**
        * Notes untuk menjelaskan alasan penolakan verifikasi transaction
        */
@@ -238,11 +279,7 @@ export class TransactionService {
       /**
        * ID transaksi
        */
-      id: string;
-      /**
-       * ID mahasiswa asuh
-       */
-      mahasiswaId: string;
+      ids: string;
       /**
        * ID orang tua asuh
        */
@@ -264,6 +301,7 @@ export class TransactionService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });
@@ -300,6 +338,7 @@ export class TransactionService {
       mediaType: 'multipart/form-data',
       errors: {
         401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
         500: `Internal server error`,
       },
     });

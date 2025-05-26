@@ -1,5 +1,4 @@
 version: '3'
-
 services:
   backend:
     build:
@@ -27,7 +26,6 @@ services:
       - EMAIL=${EMAIL}
       - EMAIL_FROM=${EMAIL_FROM}
       - EMAIL_PASSWORD=${EMAIL_PASSWORD}
-
     depends_on:
       - db
     networks:
@@ -39,7 +37,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
   frontend:
     build:
       context: ./frontend
@@ -63,9 +60,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 20s
-
   db:
     image: postgres:14-alpine
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -84,11 +82,9 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
-
 volumes:
   pgdata:
     driver: local
-
 networks:
   app-network:
     driver: bridge

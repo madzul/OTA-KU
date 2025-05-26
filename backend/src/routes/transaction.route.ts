@@ -15,6 +15,8 @@ import {
   TransactionListAdminQuerySchema,
   TransactionListOTAQueryResponse,
   TransactionListOTAQuerySchema,
+  TransactionListVerificationAdminQueryResponse,
+  TransactionListVerificationAdminQuerySchema,
   UploadReceiptResponse,
   UploadReceiptSchema,
   VerifyTransactionAccResponse,
@@ -75,6 +77,43 @@ export const listTransactionAdminRoute = createRoute({
       content: {
         "application/json": {
           schema: TransactionListAdminQueryResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
+export const listTransactionVerificationAdminRoute = createRoute({
+  operationId: "listTransactionVerificationAdmin",
+  tags: ["Transaction"],
+  method: "get",
+  path: "/admin/transactions/verification",
+  description: "Daftar seluruh tagihan yang belum diverifikasi",
+  request: {
+    query: TransactionListVerificationAdminQuerySchema,
+  },
+  responses: {
+    200: {
+      description:
+        "Berhasil mendapatkan daftar tagihan yang belum diverifikasi.",
+      content: {
+        "application/json": {
+          schema: TransactionListVerificationAdminQueryResponse,
         },
       },
     },

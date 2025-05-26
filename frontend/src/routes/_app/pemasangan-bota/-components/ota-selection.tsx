@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, CircleCheck } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/client";
-import { OTAPopover, OTA } from "./ota-popover";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronDown, ChevronUp, CircleCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+
 import DetailDialogOta from "./detail-dialog-ota";
-import { toast } from "sonner";
+import { OTA, OTAPopover } from "./ota-popover";
 
 export function OTASelection({
   onSelectOTA,
@@ -21,18 +21,14 @@ export function OTASelection({
     queryFn: () => api.list.listAvailableOta({ page: 1 }),
   });
 
-  let hasAvailableOTAs = false;
-
-  if (availableOTAs === undefined) {
-    console.log("Error: availableOTAs is undefined");
-    toast.warning("Terjadi kesalahan saat memuat data OTA.");
-  } else {
-    hasAvailableOTAs = availableOTAs.body.data.length > 0;
-  }
+  const hasAvailableOTAs =
+    Array.isArray(availableOTAs?.body.data) &&
+    availableOTAs?.body.data.length > 0;
 
   const { data: otaDetails, refetch: fetchOTADetails } = useQuery({
     queryKey: ["otaDetails", selectedOTA?.accountId],
-    queryFn: () => api.detail.getOtaDetail({ id: selectedOTA?.accountId || "" }),
+    queryFn: () =>
+      api.detail.getOtaDetail({ id: selectedOTA?.accountId || "" }),
     enabled: false, // Disable automatic fetching
   });
 
@@ -61,11 +57,11 @@ export function OTASelection({
       {/* State 1: No OTA selected */}
       {!selectedOTA && hasAvailableOTAs && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <div className="flex gap-1 w-full items-center justify-between">
-            <h3 className="min-w-[200px] w-full max-w-[900px] font-bold text-lg text-dark">
+          <div className="flex w-full items-center justify-between gap-1">
+            <h3 className="text-dark w-full max-w-[900px] min-w-[200px] text-lg font-bold">
               Pilih OTA yang akan dipasangkan dengan mahasiswa asuh
             </h3>
-            <div className="max-w-[200px] w-full">
+            <div className="w-full max-w-[200px]">
               <OTAPopover
                 isComboboxOpen={isComboboxOpen}
                 setIsComboboxOpen={setIsComboboxOpen}
@@ -83,13 +79,17 @@ export function OTASelection({
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Informasi Orang Tua Asuh</p>
-              <h3 className="min-w-[200px] w-full max-w-[600px] font-bold text-[18px] text-dark">{selectedOTA.name}</h3>
+              <p className="text-muted-foreground text-sm">
+                Informasi Orang Tua Asuh
+              </p>
+              <h3 className="text-dark w-full max-w-[600px] min-w-[200px] text-[18px] font-bold">
+                {selectedOTA.name}
+              </h3>
             </div>
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full border-dark"
+              className="border-dark rounded-full"
               onClick={toggleExpanded}
             >
               <ChevronDown className="text-dark" />
@@ -103,13 +103,17 @@ export function OTASelection({
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Informasi Orang Tua Asuh</p>
-              <h3 className="min-w-[200px] w-full max-w-[600px] font-bold text-[18px] text-dark">{selectedOTA.name}</h3>
+              <p className="text-muted-foreground text-sm">
+                Informasi Orang Tua Asuh
+              </p>
+              <h3 className="text-dark w-full max-w-[600px] min-w-[200px] text-[18px] font-bold">
+                {selectedOTA.name}
+              </h3>
             </div>
             <Button
               variant="outline"
               size="icon"
-              className="rounded-full border-dark"
+              className="border-dark rounded-full"
               onClick={toggleExpanded}
             >
               <ChevronUp className="text-dark" />
@@ -118,14 +122,18 @@ export function OTASelection({
 
           <div className="mb-4 space-y-2">
             <div>
-              <p className="text-sm text-muted-foreground">Kesanggupan sumbangan:</p>
-              <p className="font-bold text-dark">
+              <p className="text-muted-foreground text-sm">
+                Kesanggupan sumbangan:
+              </p>
+              <p className="text-dark font-bold">
                 {otaDetails?.body.funds || "-"}
               </p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Max. mahasiswa asuh:</p>
-              <p className="font-bold text-dark">
+              <p className="text-muted-foreground text-sm">
+                Max. mahasiswa asuh:
+              </p>
+              <p className="text-dark font-bold">
                 {otaDetails?.body.maxCapacity || "-"}
               </p>
             </div>
@@ -137,10 +145,12 @@ export function OTASelection({
               </p>
             </div> */}
             <div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Kriteria calon mahasiswa asuh:
               </p>
-              <p className="text-dark line-clamp-2">{otaDetails?.body.criteria || "-"}</p>
+              <p className="text-dark line-clamp-2">
+                {otaDetails?.body.criteria || "-"}
+              </p>
             </div>
           </div>
 
@@ -161,10 +171,10 @@ export function OTASelection({
       {!hasAvailableOTAs && (
         <div className="rounded-lg border bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <h3 className="min-w-[200px] w-full max-w-[900px] font-bold text-[18px] text-dark">
+            <h3 className="text-dark w-full max-w-[900px] min-w-[200px] text-[18px] font-bold">
               Tidak ada OTA yang perlu dipasangkan dengan mahasiswa asuh
             </h3>
-            <CircleCheck className="h-6 w-6 text-succeed" />
+            <CircleCheck className="text-succeed h-6 w-6" />
           </div>
         </div>
       )}

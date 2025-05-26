@@ -1,4 +1,5 @@
 import { hash } from "bcrypt";
+import { addMonths, setDate } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 
 import { db } from "../drizzle.js";
@@ -452,6 +453,7 @@ export async function seed() {
             gender: "M",
             religion: "Islam",
             gpa: "3.8",
+            bill: 250000,
           },
           {
             accountId: mahasiswa2Id,
@@ -480,6 +482,7 @@ export async function seed() {
             gender: "F",
             religion: "Kristen Protestan",
             gpa: "3.5",
+            bill: 250000,
           },
           {
             accountId: mahasiswa3Id,
@@ -508,6 +511,7 @@ export async function seed() {
             gender: "M",
             religion: "Islam",
             gpa: "3.9",
+            bill: 400000,
           },
           {
             accountId: mahasiswa4Id,
@@ -589,6 +593,7 @@ export async function seed() {
             gender: "F",
             religion: "Katolik",
             gpa: "3.7",
+            bill: 500000,
           },
           {
             accountId: mahasiswa7Id,
@@ -617,6 +622,7 @@ export async function seed() {
             gender: "M",
             religion: "Islam",
             gpa: "3.6",
+            bill: 200000,
           },
           {
             accountId: mahasiswa8Id,
@@ -645,6 +651,7 @@ export async function seed() {
             gender: "F",
             religion: "Hindu",
             gpa: "3.8",
+            bill: 200000,
           },
           {
             accountId: mahasiswa9Id,
@@ -753,6 +760,7 @@ export async function seed() {
             gender: "M",
             religion: "Buddha",
             gpa: "3.7",
+            bill: 400000,
           },
           {
             accountId: mahasiswa13Id,
@@ -781,6 +789,7 @@ export async function seed() {
             gender: "F",
             religion: "Kristen Protestan",
             gpa: "3.5",
+            bill: 500000,
           },
           {
             accountId: mahasiswa14Id,
@@ -809,6 +818,7 @@ export async function seed() {
             gender: "M",
             religion: "Islam",
             gpa: "3.9",
+            bill: 200000,
           },
           {
             accountId: mahasiswa15Id,
@@ -837,6 +847,7 @@ export async function seed() {
             gender: "F",
             religion: "Islam",
             gpa: "3.4",
+            bill: 300000,
           },
           {
             accountId: mahasiswa16Id,
@@ -891,6 +902,7 @@ export async function seed() {
             gender: "F",
             religion: "Katolik",
             gpa: "3.7",
+            bill: 400000,
           },
           {
             accountId: mahasiswa18Id,
@@ -919,13 +931,14 @@ export async function seed() {
             gender: "M",
             religion: "Islam",
             gpa: "3.95",
+            bill: 500000,
           },
         ])
         .onConflictDoNothing();
 
       console.log("Mahasiswa details seeded");
 
-      await tx
+      const otaDetails = await tx
         .insert(accountOtaDetailTable)
         .values([
           {
@@ -1154,7 +1167,8 @@ export async function seed() {
             allowAdminSelection: true,
           },
         ])
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .returning();
 
       console.log("OTA details seeded");
 
@@ -1215,15 +1229,85 @@ export async function seed() {
 
       console.log("Connections seeded");
 
+      const currentDate = new Date();
+
+      const thisMonthDateOta1 = setDate(
+        currentDate,
+        otaDetails[0].transferDate,
+      );
+      const thisMonthDateOta2 = setDate(
+        currentDate,
+        otaDetails[1].transferDate,
+      );
+
+      const nextMonthDateOta1 = setDate(
+        addMonths(currentDate, 1),
+        otaDetails[0].transferDate,
+      );
+
+      const nextMonthDateOta2 = setDate(
+        addMonths(currentDate, 1),
+        otaDetails[1].transferDate,
+      );
+
       await tx.insert(transactionTable).values([
         {
           mahasiswaId: mahasiswa1Id,
           otaId: ota1Id,
           bill: 250000,
-          amountPaid: 250000,
-          paidAt: new Date(),
-          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          transactionStatus: "paid",
+          amountPaid:
+            currentDate.getDate() > otaDetails[0].transferDate ? 250000 : 0,
+          paidAt:
+            currentDate.getDate() > otaDetails[0].transferDate
+              ? currentDate
+              : null,
+          dueDate: thisMonthDateOta1,
+          transactionStatus:
+            currentDate.getDate() > otaDetails[0].transferDate
+              ? "paid"
+              : "unpaid",
+          transactionReceipt: null,
+        },
+        {
+          mahasiswaId: mahasiswa2Id,
+          otaId: ota1Id,
+          bill: 250000,
+          amountPaid:
+            currentDate.getDate() > otaDetails[0].transferDate ? 250000 : 0,
+          paidAt:
+            currentDate.getDate() > otaDetails[0].transferDate
+              ? currentDate
+              : null,
+          dueDate: thisMonthDateOta1,
+          transactionStatus:
+            currentDate.getDate() > otaDetails[0].transferDate
+              ? "paid"
+              : "unpaid",
+        },
+        {
+          mahasiswaId: mahasiswa8Id,
+          otaId: ota2Id,
+          bill: 200000,
+          amountPaid:
+            currentDate.getDate() > otaDetails[1].transferDate ? 200000 : 0,
+          paidAt:
+            currentDate.getDate() > otaDetails[1].transferDate
+              ? currentDate
+              : null,
+          dueDate: thisMonthDateOta2,
+          transactionStatus:
+            currentDate.getDate() > otaDetails[1].transferDate
+              ? "paid"
+              : "unpaid",
+        },
+        {
+          mahasiswaId: mahasiswa1Id,
+          otaId: ota1Id,
+          bill: 250000,
+          amountPaid: 0,
+          paidAt: null,
+          dueDate: nextMonthDateOta1,
+          transactionStatus: "unpaid",
           transactionReceipt: null,
         },
         {
@@ -1231,19 +1315,19 @@ export async function seed() {
           otaId: ota1Id,
           bill: 250000,
           amountPaid: 0,
-          paidAt: new Date(),
-          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          transactionStatus: "pending",
+          paidAt: null,
+          dueDate: nextMonthDateOta1,
+          transactionStatus: "unpaid",
           transactionReceipt: null,
         },
         {
           mahasiswaId: mahasiswa8Id,
           otaId: ota2Id,
           bill: 200000,
-          amountPaid: 200000,
-          paidAt: new Date(),
-          dueDate: new Date(),
-          transactionStatus: "paid",
+          amountPaid: 0,
+          paidAt: null,
+          dueDate: nextMonthDateOta2,
+          transactionStatus: "unpaid",
           transactionReceipt: null,
         },
       ]);

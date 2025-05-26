@@ -15,7 +15,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useEffect, useState } from "react";
+import { SessionContext } from "@/context/session";
+import { useContext, useEffect, useState } from "react";
 
 // OTA type definition
 export type OTA = {
@@ -37,6 +38,7 @@ export function OTAPopover({
   buttonVariant: "default" | "outline";
   buttonText: string;
 }) {
+  const session = useContext(SessionContext);
   const [otas, setOtas] = useState<OTA[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -69,10 +71,16 @@ export function OTAPopover({
   //   console.log("Current OTAs:", otas);
   // }, [otas]);
 
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
+
   return (
     <Popover open={isComboboxOpen} onOpenChange={setIsComboboxOpen}>
       <PopoverTrigger asChild>
-        <Button variant={buttonVariant} className="min-w-[90px] grow w-full">
+        <Button
+          variant={buttonVariant}
+          className="w-full min-w-[90px] grow"
+          disabled={isDisabled}
+        >
           {buttonText}
         </Button>
       </PopoverTrigger>
@@ -96,10 +104,12 @@ export function OTAPopover({
                       className="cursor-pointer"
                     >
                       <div className="flex flex-col py-1">
-                        <span className="font-medium text-dark">
+                        <span className="text-dark font-medium">
                           {ota.name}
                         </span>
-                        <span className="text-muted-foreground">{ota.phoneNumber}</span>
+                        <span className="text-muted-foreground">
+                          {ota.phoneNumber}
+                        </span>
                       </div>
                     </CommandItem>
                   ))}

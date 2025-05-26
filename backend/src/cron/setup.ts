@@ -1,3 +1,4 @@
+import { env } from "../config/env.config.js";
 import {
   dailyReminder7DaysCron,
   dailyReminder14DaysCron,
@@ -8,11 +9,12 @@ import { monthlyCron } from "./monthly-cron.js";
 import { everyThreeDaysCron } from "./three-day-cron.js";
 
 export function setupCronJobs() {
-  // TODO: Nanti cuma start cron di environment production
-  dailyReminderCron.start();
-  dailyReminder7DaysCron.start();
-  dailyReminder14DaysCron.start();
-  dailyReminder30DaysCron.start();
-  everyThreeDaysCron.start();
-  monthlyCron.start();
+  if (env.NODE_ENV === "production") {
+    dailyReminderCron.start();
+    dailyReminder7DaysCron.start();
+    dailyReminder14DaysCron.start();
+    dailyReminder30DaysCron.start();
+    everyThreeDaysCron.start();
+    monthlyCron.start();
+  }
 }

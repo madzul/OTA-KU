@@ -287,6 +287,7 @@ export const transactionTable = pgTable("transaction", {
     .default("unpaid"),
   transferStatus: transferStatus("transfer_status").notNull().default("unpaid"),
   transactionReceipt: text("transaction_receipt"),
+  paidFor: integer("paid_for").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
   rejectionNote: text("verif_note"),

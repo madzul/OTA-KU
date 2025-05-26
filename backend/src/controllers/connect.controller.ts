@@ -1,7 +1,8 @@
+import { addMonths, setDate } from "date-fns";
 import { and, count, eq, ilike, or, sql } from "drizzle-orm";
 import nodemailer from "nodemailer";
-import { env } from "../config/env.config.js";
 
+import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
@@ -11,6 +12,9 @@ import {
   pushSubscriptionTable,
   transactionTable,
 } from "../db/schema.js";
+import { penjodohanOlehAdminEmail } from "../lib/email/penjodohan-oleh-admin.js";
+import { persetujuanAsuhMA } from "../lib/email/persetujuan-asuh.js";
+import { sendNotification } from "../lib/web-push.js";
 import {
   connectOtaMahasiswaByAdminRoute,
   connectOtaMahasiswaRoute,
@@ -27,11 +31,8 @@ import {
   connectionListAllQuerySchema,
   connectionListQuerySchema,
 } from "../zod/connect.js";
-import { createAuthRouter, createRouter } from "./router-factory.js";
-import { persetujuanAsuhMA } from "../lib/email/persetujuan-asuh.js";
 import { SubscriptionSchema } from "../zod/push.js";
-import { sendNotification } from "../lib/web-push.js";
-import { penjodohanOlehAdminEmail } from "../lib/email/penjodohan-oleh-admin.js";
+import { createAuthRouter, createRouter } from "./router-factory.js";
 
 export const connectRouter = createRouter();
 export const connectProtectedRouter = createAuthRouter();
@@ -236,25 +237,7 @@ connectProtectedRouter.openapi(connectOtaMahasiswaByAdminRoute, async (c) => {
 
       const transfer_date = transferDateResult[0]?.transferDate;
 
-      // Calculate due_date
-      const now = new Date();
-      const todayDay = now.getDate();
-      const currentMonth = now.getMonth(); // 0-indexed
-      const currentYear = now.getFullYear();
-
-      const dueMonth =
-        todayDay < transfer_date ? currentMonth : currentMonth + 1;
-      const dueYear = dueMonth > 11 ? currentYear + 1 : currentYear;
-      const normalizedMonth = dueMonth % 12;
-
-      const dueDate = new Date(
-        dueYear,
-        normalizedMonth,
-        transfer_date,
-        23,
-        59,
-        59,
-      );
+      const dueDate = setDate(addMonths(new Date(), 1), transfer_date);
 
       await tx.insert(transactionTable).values({
         transferStatus: "unpaid",
@@ -272,7 +255,10 @@ connectProtectedRouter.openapi(connectOtaMahasiswaByAdminRoute, async (c) => {
         email: accountTable.email,
       })
       .from(accountOtaDetailTable)
-      .innerJoin(accountTable, eq(accountOtaDetailTable.accountId, accountTable.id))
+      .innerJoin(
+        accountTable,
+        eq(accountOtaDetailTable.accountId, accountTable.id),
+      )
       .where(eq(accountOtaDetailTable.accountId, otaId))
       .limit(1);
 
@@ -283,7 +269,10 @@ connectProtectedRouter.openapi(connectOtaMahasiswaByAdminRoute, async (c) => {
         email: accountTable.email,
       })
       .from(accountMahasiswaDetailTable)
-      .innerJoin(accountTable, eq(accountMahasiswaDetailTable.accountId, accountTable.id))
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+      )
       .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
       .limit(1);
 
@@ -310,7 +299,12 @@ connectProtectedRouter.openapi(connectOtaMahasiswaByAdminRoute, async (c) => {
         from: env.EMAIL_FROM,
         to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : maData[0].email,
         subject: "Penerimaan Hubungan Bantuan Asuh",
-        html: persetujuanAsuhMA(maData[0].name ?? "", otaData[0].name, "ma", "/orang-tua-asuh-saya"),
+        html: persetujuanAsuhMA(
+          maData[0].name ?? "",
+          otaData[0].name,
+          "ma",
+          "/orang-tua-asuh-saya",
+        ),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
@@ -361,7 +355,11 @@ connectProtectedRouter.openapi(connectOtaMahasiswaByAdminRoute, async (c) => {
         from: env.EMAIL_FROM,
         to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : otaData[0].email,
         subject: "Pemilihan Mahasiswa Asuh",
-        html: penjodohanOlehAdminEmail(otaData[0].name, maData[0].name ?? "", `/detail/mahasiswa/${maData[0].id}`)
+        html: penjodohanOlehAdminEmail(
+          otaData[0].name,
+          maData[0].name ?? "",
+          `/detail/mahasiswa/${maData[0].id}`,
+        ),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
@@ -491,25 +489,7 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async (c) => {
 
       const transfer_date = transferDateResult[0]?.transferDate;
 
-      // Calculate due_date
-      const now = new Date();
-      const todayDay = now.getDate();
-      const currentMonth = now.getMonth(); // 0-indexed
-      const currentYear = now.getFullYear();
-
-      const dueMonth =
-        todayDay < transfer_date ? currentMonth : currentMonth + 1;
-      const dueYear = dueMonth > 11 ? currentYear + 1 : currentYear;
-      const normalizedMonth = dueMonth % 12;
-
-      const dueDate = new Date(
-        dueYear,
-        normalizedMonth,
-        transfer_date,
-        23,
-        59,
-        59,
-      );
+      const dueDate = setDate(addMonths(new Date(), 1), transfer_date);
 
       await tx.insert(transactionTable).values({
         transferStatus: "unpaid",
@@ -527,7 +507,10 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async (c) => {
         email: accountTable.email,
       })
       .from(accountOtaDetailTable)
-      .innerJoin(accountTable, eq(accountOtaDetailTable.accountId, accountTable.id))
+      .innerJoin(
+        accountTable,
+        eq(accountOtaDetailTable.accountId, accountTable.id),
+      )
       .where(eq(accountOtaDetailTable.accountId, otaId))
       .limit(1);
 
@@ -538,7 +521,10 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async (c) => {
         email: accountTable.email,
       })
       .from(accountMahasiswaDetailTable)
-      .innerJoin(accountTable, eq(accountMahasiswaDetailTable.accountId, accountTable.id))
+      .innerJoin(
+        accountTable,
+        eq(accountMahasiswaDetailTable.accountId, accountTable.id),
+      )
       .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
       .limit(1);
 
@@ -565,7 +551,12 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async (c) => {
         from: env.EMAIL_FROM,
         to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : otaData[0].email,
         subject: "Penerimaan Hubungan Bantuan Asuh",
-        html: persetujuanAsuhMA(otaData[0].name, maData[0].name ?? "", "ota", `/detail/mahasiswa/${maData[0].id}`),
+        html: persetujuanAsuhMA(
+          otaData[0].name,
+          maData[0].name ?? "",
+          "ota",
+          `/detail/mahasiswa/${maData[0].id}`,
+        ),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
@@ -616,7 +607,12 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async (c) => {
         from: env.EMAIL_FROM,
         to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : maData[0].email,
         subject: "Penerimaan Hubungan Bantuan Asuh",
-        html: persetujuanAsuhMA(maData[0].name ?? "", otaData[0].name, "ma", "/orang-tua-asuh-saya"),
+        html: persetujuanAsuhMA(
+          maData[0].name ?? "",
+          otaData[0].name,
+          "ma",
+          "/orang-tua-asuh-saya",
+        ),
       })
       .catch((error) => {
         console.error("Error sending email:", error);
@@ -668,7 +664,7 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async (c) => {
         message:
           "Berhasil melakukan penerimaan verifikasi connection oleh Admin",
       },
-      200
+      200,
     );
   } catch (error) {
     console.error(error);
@@ -754,14 +750,19 @@ connectProtectedRouter.openapi(listPendingConnectionRoute, async (c) => {
     pageNumber = 1;
   }
 
-  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+  if (
+    user.type !== "admin" &&
+    user.type !== "bankes" &&
+    user.type !== "pengurus"
+  ) {
     return c.json(
       {
         success: false,
         message: "Unauthorized",
         error: {
           code: "UNAUTHORIZED",
-          message: "Hanya admin, bankes, atau pengurus yang dapat mengakses detail ini",
+          message:
+            "Hanya admin, bankes, atau pengurus yang dapat mengakses detail ini",
         },
       },
       403,
@@ -869,141 +870,149 @@ connectProtectedRouter.openapi(listPendingConnectionRoute, async (c) => {
   }
 });
 
-connectProtectedRouter.openapi(listPendingTerminationConnectionRoute, async (c) => {
-  const user = c.var.user;
-  const zodParseResult = connectionListQuerySchema.parse(c.req.param());
-  const { q, page } = zodParseResult;
+connectProtectedRouter.openapi(
+  listPendingTerminationConnectionRoute,
+  async (c) => {
+    const user = c.var.user;
+    const zodParseResult = connectionListQuerySchema.parse(c.req.param());
+    const { q, page } = zodParseResult;
 
-  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
-    return c.json(
-      {
-        success: false,
-        message: "Unauthorized",
-        error: {
-          code: "UNAUTHORIZED",
-          message: "Hanya admin, bankes, atau pengurus yang dapat mengakses detail ini",
+    if (
+      user.type !== "admin" &&
+      user.type !== "bankes" &&
+      user.type !== "pengurus"
+    ) {
+      return c.json(
+        {
+          success: false,
+          message: "Unauthorized",
+          error: {
+            code: "UNAUTHORIZED",
+            message:
+              "Hanya admin, bankes, atau pengurus yang dapat mengakses detail ini",
+          },
         },
-      },
-      403,
-    );
-  }
-
-  // Validate page to be a positive integer
-  let pageNumber = Number(page);
-  if (isNaN(pageNumber) || pageNumber < 1) {
-    pageNumber = 1;
-  }
-
-  try {
-    const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
-
-    const countsQuery = db
-      .select({ count: count() })
-      .from(connectionTable)
-      .innerJoin(
-        accountMahasiswaDetailTable,
-        eq(
-          connectionTable.mahasiswaId,
-          accountMahasiswaDetailTable.accountId,
-        ),
-      )
-      .innerJoin(
-        accountOtaDetailTable,
-        eq(connectionTable.otaId, accountOtaDetailTable.accountId),
-      )
-      .where(
-        and(
-          eq(connectionTable.connectionStatus, "pending"),
-          or(
-            ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-            ilike(accountOtaDetailTable.name, `%${q || ""}%`),
-          ),
-          or(
-            eq(connectionTable.requestTerminateMahasiswa, true),
-            eq(connectionTable.requestTerminateOta, true),
-          ),
-        ),
+        403,
       );
+    }
 
-    const connectionListQuery = db
-      .select({
-        mahasiswa_id: connectionTable.mahasiswaId,
-        name_ma: accountMahasiswaDetailTable.name,
-        nim_ma: accountMahasiswaDetailTable.nim,
-        ota_id: connectionTable.otaId,
-        name_ota: accountOtaDetailTable.name,
-        number_ota: accountTable.phoneNumber,
-        request_term_ota: connectionTable.requestTerminateOta,
-        request_term_ma: connectionTable.requestTerminateMahasiswa,
-      })
-      .from(connectionTable)
-      .innerJoin(
-        accountMahasiswaDetailTable,
-        eq(
-          connectionTable.mahasiswaId,
-          accountMahasiswaDetailTable.accountId,
-        ),
-      )
-      .innerJoin(
-        accountOtaDetailTable,
-        eq(connectionTable.otaId, accountOtaDetailTable.accountId),
-      )
-      .innerJoin(accountTable, eq(connectionTable.otaId, accountTable.id))
-      .where(
-        and(
-          eq(connectionTable.connectionStatus, "pending"),
-          or(
-            ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
-            ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
-            ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+    // Validate page to be a positive integer
+    let pageNumber = Number(page);
+    if (isNaN(pageNumber) || pageNumber < 1) {
+      pageNumber = 1;
+    }
+
+    try {
+      const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
+
+      const countsQuery = db
+        .select({ count: count() })
+        .from(connectionTable)
+        .innerJoin(
+          accountMahasiswaDetailTable,
+          eq(
+            connectionTable.mahasiswaId,
+            accountMahasiswaDetailTable.accountId,
           ),
-          or(
-            eq(connectionTable.requestTerminateMahasiswa, true),
-            eq(connectionTable.requestTerminateOta, true),
+        )
+        .innerJoin(
+          accountOtaDetailTable,
+          eq(connectionTable.otaId, accountOtaDetailTable.accountId),
+        )
+        .where(
+          and(
+            eq(connectionTable.connectionStatus, "pending"),
+            or(
+              ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
+              ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+              ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+            ),
+            or(
+              eq(connectionTable.requestTerminateMahasiswa, true),
+              eq(connectionTable.requestTerminateOta, true),
+            ),
           ),
-        ),
-      )
-      .limit(LIST_PAGE_SIZE)
-      .offset(offset);
+        );
 
-    const [connectionList, counts] = await Promise.all([
-      connectionListQuery,
-      countsQuery,
-    ]);
+      const connectionListQuery = db
+        .select({
+          mahasiswa_id: connectionTable.mahasiswaId,
+          name_ma: accountMahasiswaDetailTable.name,
+          nim_ma: accountMahasiswaDetailTable.nim,
+          ota_id: connectionTable.otaId,
+          name_ota: accountOtaDetailTable.name,
+          number_ota: accountTable.phoneNumber,
+          request_term_ota: connectionTable.requestTerminateOta,
+          request_term_ma: connectionTable.requestTerminateMahasiswa,
+        })
+        .from(connectionTable)
+        .innerJoin(
+          accountMahasiswaDetailTable,
+          eq(
+            connectionTable.mahasiswaId,
+            accountMahasiswaDetailTable.accountId,
+          ),
+        )
+        .innerJoin(
+          accountOtaDetailTable,
+          eq(connectionTable.otaId, accountOtaDetailTable.accountId),
+        )
+        .innerJoin(accountTable, eq(connectionTable.otaId, accountTable.id))
+        .where(
+          and(
+            eq(connectionTable.connectionStatus, "pending"),
+            or(
+              ilike(accountMahasiswaDetailTable.name, `%${q || ""}%`),
+              ilike(accountMahasiswaDetailTable.nim, `%${q || ""}%`),
+              ilike(accountOtaDetailTable.name, `%${q || ""}%`),
+            ),
+            or(
+              eq(connectionTable.requestTerminateMahasiswa, true),
+              eq(connectionTable.requestTerminateOta, true),
+            ),
+          ),
+        )
+        .limit(LIST_PAGE_SIZE)
+        .offset(offset);
 
-    return c.json(
-      {
-        success: true,
-        message: "Daftar connection pending berhasil diambil",
-        body: {
-          data: connectionList.map((connection) => ({
-            mahasiswa_id: connection.mahasiswa_id,
-            name_ma: connection.name_ma ?? "",
-            nim_ma: connection.nim_ma,
-            ota_id: connection.ota_id,
-            name_ota: connection.name_ota,
-            number_ota: connection.number_ota ?? "",
-            request_term_ota: connection.request_term_ota,
-            request_term_ma: connection.request_term_ma,
-          })),
-          totalData: counts[0].count,
+      const [connectionList, counts] = await Promise.all([
+        connectionListQuery,
+        countsQuery,
+      ]);
+
+      return c.json(
+        {
+          success: true,
+          message: "Daftar connection pending berhasil diambil",
+          body: {
+            data: connectionList.map((connection) => ({
+              mahasiswa_id: connection.mahasiswa_id,
+              name_ma: connection.name_ma ?? "",
+              nim_ma: connection.nim_ma,
+              ota_id: connection.ota_id,
+              name_ota: connection.name_ota,
+              number_ota: connection.number_ota ?? "",
+              request_term_ota: connection.request_term_ota,
+              request_term_ma: connection.request_term_ma,
+            })),
+            totalData: counts[0].count,
+          },
         },
-      },
-      200,
-    );
-  } catch (error) {
-    console.error("Error fetching connection list:", error);
-    return c.json(
-      {
-        success: false,
-        message: "Internal server error",
-        error: error,
-      },
-      500,
-    );
-  }
-});
+        200,
+      );
+    } catch (error) {
+      console.error("Error fetching connection list:", error);
+      return c.json(
+        {
+          success: false,
+          message: "Internal server error",
+          error: error,
+        },
+        500,
+      );
+    }
+  },
+);
 
 connectProtectedRouter.openapi(listAllConnectionRoute, async (c) => {
   const user = c.var.user;
@@ -1016,14 +1025,19 @@ connectProtectedRouter.openapi(listAllConnectionRoute, async (c) => {
     pageNumber = 1;
   }
 
-  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+  if (
+    user.type !== "admin" &&
+    user.type !== "bankes" &&
+    user.type !== "pengurus"
+  ) {
     return c.json(
       {
         success: false,
         message: "Unauthorized",
         error: {
           code: "UNAUTHORIZED",
-          message: "Hanya admin, bankes, atau pengurus yang dapat mengakses detail ini",
+          message:
+            "Hanya admin, bankes, atau pengurus yang dapat mengakses detail ini",
         },
       },
       403,

@@ -24,7 +24,7 @@ interface SidebarProps {
 const adminRoutes = [
   {
     id: "verification",
-    label: "Verifikasi",
+    label: "Verifikasi Akun",
     icon: "/icon/Type=shield.svg",
     path: "/verifikasi-akun",
   },
@@ -40,7 +40,6 @@ const adminRoutes = [
     icon: "/icon/Type=handshake.svg",
     path: "/pemasangan-bota",
   },
-  // TODO: Nanti ganti logonya jangan facebook
   {
     id: "connection",
     label: "Data Hubungan Asuh",
@@ -48,9 +47,15 @@ const adminRoutes = [
     path: "/data-hubungan-asuh",
   },
   {
+    id: "daftar-transfer-mahasiswa",
+    label: "Daftar Transfer",
+    icon: "/icon/Type=transaction.svg",
+    path: "/daftar-transfer-mahasiswa",
+  },
+  {
     id: "transaction",
     label: "Daftar Tagihan",
-    icon: "/icon/Type=transaction.svg",
+    icon: "/icon/Type=receipt.svg",
     path: "/daftar-tagihan",
   },
   {

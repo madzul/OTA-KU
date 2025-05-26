@@ -601,7 +601,11 @@ export const dailyReminderCron = new CronJob(
           updatedAt: accountMahasiswaDetailTable.updatedAt,
           dueNextUpdateAt: accountMahasiswaDetailTable.dueNextUpdateAt,
         })
-        .from(accountMahasiswaDetailTable)
+        .from(accountTable)
+        .innerJoin(
+          accountMahasiswaDetailTable,
+          eq(accountTable.id, accountMahasiswaDetailTable.accountId),
+        )
         .where(lt(accountMahasiswaDetailTable.dueNextUpdateAt, now));
 
       console.log("Mahasiswa accounts outdated:", outdatedMahasiswa.length);

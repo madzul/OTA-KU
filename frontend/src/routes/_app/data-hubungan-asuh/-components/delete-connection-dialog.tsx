@@ -8,10 +8,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { SessionContext } from "@/context/session";
+import { cn } from "@/lib/utils";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation } from "@tanstack/react-query";
 import { Trash } from "lucide-react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { toast } from "sonner";
 
 function DeleteConnectionDialog({
@@ -19,6 +21,7 @@ function DeleteConnectionDialog({
 }: {
   connection: ConnectionListAllResponse;
 }) {
+  const session = useContext(SessionContext);
   const [open, setOpen] = useState(false);
 
   const deleteConnectionCallbackMutation = useMutation({
@@ -54,10 +57,17 @@ function DeleteConnectionDialog({
     },
   });
 
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Trash className="text-destructive h-5 w-5 hover:cursor-pointer" />
+      <DialogTrigger disabled={isDisabled}>
+        <Trash
+          className={cn(
+            "text-destructive h-5 w-5",
+            !isDisabled && "hover:cursor-pointer",
+          )}
+        />
       </DialogTrigger>
       <DialogContent className="flex max-h-8/12 flex-col sm:max-w-2xl">
         <DialogHeader>

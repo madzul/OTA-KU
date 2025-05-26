@@ -2,8 +2,10 @@
 
 import type { ListTerminateForAdmin } from "@/api/generated";
 import { Button } from "@/components/ui/button";
+import { SessionContext } from "@/context/session";
 import { format, parseISO } from "date-fns";
 import { id } from "date-fns/locale";
+import { useContext } from "react";
 
 interface TerminasiTableProps {
   data: ListTerminateForAdmin[];
@@ -20,6 +22,8 @@ export default function TerminasiTable({
   onViewOtaNotes,
   onViewMaNotes,
 }: TerminasiTableProps) {
+  const session = useContext(SessionContext);
+
   // Format tanggal dari string ISO ke format yang lebih mudah dibaca
   const formatDate = (dateString: string) => {
     try {
@@ -37,6 +41,8 @@ export default function TerminasiTable({
       </div>
     );
   }
+
+  const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
 
   return (
     <div className="w-full overflow-x-auto px-4">
@@ -120,6 +126,7 @@ export default function TerminasiTable({
                   variant="destructive"
                   size="sm"
                   onClick={() => onTerminasi(item)}
+                  disabled={isDisabled}
                 >
                   Terminasi
                 </Button>
@@ -128,6 +135,7 @@ export default function TerminasiTable({
                   variant="default"
                   size="sm"
                   onClick={() => onBatalTerminasi(item)}
+                  disabled={isDisabled}
                 >
                   Tolak
                 </Button>
