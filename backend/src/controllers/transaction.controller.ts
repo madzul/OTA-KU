@@ -330,6 +330,10 @@ transactionProtectedRouter.openapi(
 
       const conditions = [];
 
+      if (q) {
+        conditions.push(ilike(accountOtaDetailTable.name, `%${q}%`));
+      }
+
       if (year) {
         conditions.push(
           sql`EXTRACT(YEAR FROM ${transactionTable.dueDate}) = ${year}`,
@@ -341,8 +345,78 @@ transactionProtectedRouter.openapi(
           sql`EXTRACT(MONTH FROM ${transactionTable.dueDate}) = ${month}`,
         );
       }
+
+      const countsQuery = db
+        .select({ count: count() })
+        .from(transactionTable)
+        .innerJoin(
+          accountOtaDetailTable,
+          eq(transactionTable.otaId, accountOtaDetailTable.accountId),
+        )
+        .innerJoin(accountTable, eq(transactionTable.otaId, accountTable.id))
+        .where(and(...conditions));
+
+      // Group transactions by OTA to get aggregate data
+      const transactionVerificationAdminListQuery = db
+        .select({
+          ota_id: transactionTable.otaId,
+          name_ota: accountOtaDetailTable.name,
+          number_ota: accountTable.phoneNumber,
+          paidAt: transactionTable.paidAt,
+          dueDate: transactionTable.dueDate,
+          totalBill: sql<number>`SUM(${transactionTable.bill})`,
+          receipt: transactionTable.transactionReceipt,
+          rejectionNote: transactionTable.rejectionNote,
+          transactionStatus: transactionTable.transactionStatus,
+        })
+        .from(transactionTable)
+        .innerJoin(
+          accountOtaDetailTable,
+          eq(transactionTable.otaId, accountOtaDetailTable.accountId),
+        )
+        .innerJoin(accountTable, eq(transactionTable.otaId, accountTable.id))
+        .where(and(...conditions))
+        .groupBy(
+          transactionTable.otaId,
+          accountOtaDetailTable.name,
+          accountTable.phoneNumber,
+          transactionTable.paidAt,
+          transactionTable.dueDate,
+          transactionTable.transactionReceipt,
+          transactionTable.rejectionNote,
+          transactionTable.transactionStatus,
+        )
+        .limit(LIST_PAGE_SIZE)
+        .offset(offset);
+
+      const [transactionVerificationAdminList, counts] = await Promise.all([
+        transactionVerificationAdminListQuery,
+        countsQuery,
+      ]);
+
+      return c.json(
+        {
+          success: true,
+          message: "Daftar transaction untuk verifikasi Admin berhasil diambil",
+          body: {
+            data: transactionVerificationAdminList.map((transaction) => ({
+              ota_id: transaction.ota_id,
+              name_ota: transaction.name_ota,
+              number_ota: transaction.number_ota ?? "",
+              paidAt: transaction.paidAt?.toISOString() ?? "",
+              dueDate: transaction.dueDate.toISOString(),
+              totalBill: transaction.totalBill,
+              receipt: transaction.receipt ?? "",
+              rejectionNote: transaction.rejectionNote ?? "",
+              transactionStatus: transaction.transactionStatus,
+            })),
+            totalData: counts[0]?.count ?? 0,
+          },
+        },
+        200,
+      );
     } catch (error) {
-      console.error("Error fetching mahasiswa list:", error);
+      console.error("Error fetching transaction verification list:", error);
       return c.json(
         {
           success: false,

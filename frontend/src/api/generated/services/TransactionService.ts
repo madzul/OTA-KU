@@ -19,7 +19,7 @@ export class TransactionService {
     month,
   }: {
     year?: number | null,
-    month?: number | null,
+    month?: number,
   }): CancelablePromise<{
     success: boolean;
     message: string;
@@ -77,6 +77,63 @@ export class TransactionService {
         'year': year,
         'page': page,
         'status': status,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
+   * Daftar seluruh tagihan yang belum diverifikasi
+   * @returns any Berhasil mendapatkan daftar tagihan yang belum diverifikasi.
+   * @throws ApiError
+   */
+  public listTransactionVerificationAdmin({
+    q,
+    page,
+    year,
+    month,
+  }: {
+    q?: string,
+    page?: number | null,
+    year?: number | null,
+    month?: number,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: {
+      data: Array<{
+        /**
+         * ID orang tua asuh
+         */
+        ota_id: string;
+        name_ota: string;
+        /**
+         * Nomor telepon pengguna yang dimulai dengan 62.
+         */
+        number_ota: string;
+        paidAt: string;
+        dueDate: string;
+        totalBill: number;
+        receipt: string;
+        /**
+         * Alasan penolakan verifikasi pembayaran
+         */
+        rejectionNote: string;
+        transactionStatus: 'unpaid' | 'pending' | 'paid';
+      }>;
+    };
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/transaction/admin/transactions/verification',
+      query: {
+        'q': q,
+        'page': page,
+        'year': year,
+        'month': month,
       },
       errors: {
         401: `Bad request: authorization (not logged in) error`,
