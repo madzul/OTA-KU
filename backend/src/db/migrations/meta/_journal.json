@@ -288,6 +288,13 @@
       "when": 1747560287548,
       "tag": "0040_natural_cloak",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1748226950232,
+      "tag": "0041_shiny_giant_girl",
+      "breakpoints": true
     }
   ]
 }

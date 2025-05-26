@@ -88,16 +88,12 @@ transactionProtectedRouter.openapi(listTransactionOTARoute, async (c) => {
         status: transactionTable.transactionStatus,
         receipt: transactionTable.transactionReceipt,
         rejection_note: transactionTable.rejectionNote,
-        paid_for: connectionTable.paidFor,
+        paid_for: transactionTable.paidFor,
       })
       .from(transactionTable)
       .innerJoin(
         accountMahasiswaDetailTable,
         eq(transactionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
-      )
-      .leftJoin(
-        connectionTable,
-        eq(transactionTable.mahasiswaId, connectionTable.mahasiswaId),
       )
       .where(and(...conditions));
 
@@ -230,7 +226,7 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
         transferStatus: transactionTable.transferStatus,
         receipt: transactionTable.transactionReceipt,
         createdAt: transactionTable.createdAt,
-        paid_for: connectionTable.paidFor,
+        paid_for: transactionTable.paidFor,
       })
       .from(transactionTable)
       .innerJoin(
@@ -242,10 +238,6 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
         eq(transactionTable.otaId, accountOtaDetailTable.accountId),
       )
       .innerJoin(accountTable, eq(transactionTable.otaId, accountTable.id))
-      .leftJoin(
-        connectionTable,
-        eq(transactionTable.mahasiswaId, connectionTable.mahasiswaId),
-      )
       .where(and(...conditions))
       .limit(LIST_PAGE_SIZE)
       .offset(offset);
@@ -446,6 +438,16 @@ transactionProtectedRouter.openapi(uploadReceiptRoute, async (c) => {
           and(
             inArray(connectionTable.mahasiswaId, ids),
             eq(connectionTable.otaId, user.id),
+          ),
+        );
+
+      await tx
+        .update(transactionTable)
+        .set({ paidFor })
+        .where(
+          and(
+            inArray(transactionTable.mahasiswaId, ids),
+            eq(transactionTable.otaId, user.id),
           ),
         );
     });
