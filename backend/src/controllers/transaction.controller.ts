@@ -346,25 +346,26 @@ transactionProtectedRouter.openapi(
         );
       }
 
-      const countsQuery = db
-        .select({ count: count() })
+      const yearsQuery = db
+        .selectDistinct({
+          year: sql<number>`EXTRACT(YEAR FROM ${transactionTable.dueDate})`,
+        })
         .from(transactionTable)
-        .innerJoin(
-          accountOtaDetailTable,
-          eq(transactionTable.otaId, accountOtaDetailTable.accountId),
-        )
-        .innerJoin(accountTable, eq(transactionTable.otaId, accountTable.id))
-        .where(and(...conditions));
+        .orderBy(sql`EXTRACT(YEAR FROM ${transactionTable.dueDate}) DESC`);
 
-      // Group transactions by OTA to get aggregate data
-      const transactionVerificationAdminListQuery = db
+      // Get all transactions with OTA and mahasiswa details
+      const allTransactionsQuery = db
         .select({
+          id: transactionTable.id,
           ota_id: transactionTable.otaId,
           name_ota: accountOtaDetailTable.name,
           number_ota: accountTable.phoneNumber,
+          mahasiswa_id: transactionTable.mahasiswaId,
+          name_ma: accountMahasiswaDetailTable.name,
+          nim_ma: accountMahasiswaDetailTable.nim,
           paidAt: transactionTable.paidAt,
           dueDate: transactionTable.dueDate,
-          totalBill: sql<number>`SUM(${transactionTable.bill})`,
+          bill: transactionTable.bill,
           receipt: transactionTable.transactionReceipt,
           rejectionNote: transactionTable.rejectionNote,
           transactionStatus: transactionTable.transactionStatus,
@@ -374,43 +375,68 @@ transactionProtectedRouter.openapi(
           accountOtaDetailTable,
           eq(transactionTable.otaId, accountOtaDetailTable.accountId),
         )
-        .innerJoin(accountTable, eq(transactionTable.otaId, accountTable.id))
-        .where(and(...conditions))
-        .groupBy(
-          transactionTable.otaId,
-          accountOtaDetailTable.name,
-          accountTable.phoneNumber,
-          transactionTable.paidAt,
-          transactionTable.dueDate,
-          transactionTable.transactionReceipt,
-          transactionTable.rejectionNote,
-          transactionTable.transactionStatus,
+        .innerJoin(
+          accountMahasiswaDetailTable,
+          eq(
+            transactionTable.mahasiswaId,
+            accountMahasiswaDetailTable.accountId,
+          ),
         )
-        .limit(LIST_PAGE_SIZE)
-        .offset(offset);
+        .innerJoin(accountTable, eq(transactionTable.otaId, accountTable.id))
+        .where(and(...conditions));
 
-      const [transactionVerificationAdminList, counts] = await Promise.all([
-        transactionVerificationAdminListQuery,
-        countsQuery,
+      const [allTransactions, years] = await Promise.all([
+        allTransactionsQuery,
+        yearsQuery,
       ]);
+
+      // Group transactions by OTA
+      const groupedByOta = allTransactions.reduce(
+        (acc: { [key: string]: any }, transaction) => {
+          const otaId = transaction.ota_id;
+
+          if (!acc[otaId]) {
+            acc[otaId] = {
+              ota_id: otaId,
+              name_ota: transaction.name_ota,
+              number_ota: transaction.number_ota ?? "",
+              totalBill: 0,
+              transactions: [],
+            };
+          }
+
+          acc[otaId].totalBill += transaction.bill;
+          acc[otaId].transactions.push({
+            id: transaction.id,
+            mahasiswa_id: transaction.mahasiswa_id,
+            name_ma: transaction.name_ma ?? "",
+            nim_ma: transaction.nim_ma,
+            paidAt: transaction.paidAt?.toISOString() ?? "",
+            dueDate: transaction.dueDate.toISOString(),
+            bill: transaction.bill,
+            receipt: transaction.receipt ?? "",
+            rejectionNote: transaction.rejectionNote ?? "",
+            transactionStatus: transaction.transactionStatus,
+          });
+
+          return acc;
+        },
+        {} as { [key: string]: any },
+      );
+
+      // Convert to array and apply pagination
+      const otaGroups = Object.values(groupedByOta);
+      const totalData = otaGroups.length;
+      const paginatedData = otaGroups.slice(offset, offset + LIST_PAGE_SIZE);
 
       return c.json(
         {
           success: true,
           message: "Daftar transaction untuk verifikasi Admin berhasil diambil",
           body: {
-            data: transactionVerificationAdminList.map((transaction) => ({
-              ota_id: transaction.ota_id,
-              name_ota: transaction.name_ota,
-              number_ota: transaction.number_ota ?? "",
-              paidAt: transaction.paidAt?.toISOString() ?? "",
-              dueDate: transaction.dueDate.toISOString(),
-              totalBill: transaction.totalBill,
-              receipt: transaction.receipt ?? "",
-              rejectionNote: transaction.rejectionNote ?? "",
-              transactionStatus: transaction.transactionStatus,
-            })),
-            totalData: counts[0]?.count ?? 0,
+            data: paginatedData,
+            totalData,
+            years: years.map((year) => year.year),
           },
         },
         200,
@@ -621,7 +647,7 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
   const zodParseResult = VerifyTransactionAcceptSchema.parse(data);
-  const { ids, mahasiswaId, otaId } = zodParseResult;
+  const { ids, otaId } = zodParseResult;
 
   if (user.type !== "bankes" && user.type !== "admin") {
     return c.json(
@@ -646,6 +672,8 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
         .from(transactionTable)
         .where(inArray(transactionTable.id, ids));
 
+      const currentDate = new Date();
+
       await Promise.all(
         updatedRows.map(async (updatedRow) => {
           return tx
@@ -654,17 +682,20 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
               transactionStatus: "paid",
               transactionReceipt: "",
               amountPaid: updatedRow.bill,
+              paidAt: currentDate,
             })
             .where(eq(transactionTable.id, updatedRow.id));
         }),
       );
+
+      const mahasiswaIds = updatedRows.map((row) => row.mahasiswaId);
 
       const connectionRows = await tx
         .update(connectionTable)
         .set({ paidFor: sql`${connectionTable.paidFor} - 1` })
         .where(
           and(
-            eq(connectionTable.mahasiswaId, mahasiswaId),
+            inArray(connectionTable.mahasiswaId, mahasiswaIds),
             eq(connectionTable.otaId, otaId),
           ),
         )
@@ -695,6 +726,7 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
                 ),
                 transactionStatus: "paid" as const,
                 transactionReceipt: "",
+                paidAt: currentDate,
               });
             }
           }
@@ -715,7 +747,6 @@ transactionProtectedRouter.openapi(verifyTransactionAccRoute, async (c) => {
         message: "Berhasil melakukan penerimaan verifikasi pembayaran",
         body: {
           ids: ids,
-          mahasiswaId: mahasiswaId,
           otaId: otaId,
           amountPaid: result,
         },
@@ -740,7 +771,7 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
   const body = await c.req.formData();
   const data = Object.fromEntries(body.entries());
   const zodParseResult = VerifyTransactionRejectSchema.parse(data);
-  const { id, otaId, mahasiswaId, amountPaid, rejectionNote } = zodParseResult;
+  const { ids, otaId, amountPaid, rejectionNote } = zodParseResult;
 
   if (user.type !== "bankes" && user.type !== "admin") {
     return c.json(
@@ -760,45 +791,45 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
   try {
     await db.transaction(async (tx) => {
       const existingTransaction = await tx
-        .select({
-          amountPaid: transactionTable.amountPaid,
-        })
+        .select()
         .from(transactionTable)
-        .where(eq(transactionTable.id, id))
-        .limit(1);
+        .where(inArray(transactionTable.id, ids));
 
-      const currentAmountPaid = existingTransaction[0]?.amountPaid ?? 0;
-      const newAmountPaid = currentAmountPaid + amountPaid;
+      let amountAvailable = amountPaid;
 
-      await tx
-        .update(transactionTable)
-        .set({
-          transactionStatus: "unpaid",
-          transactionReceipt: "",
-          rejectionNote: rejectionNote,
-          amountPaid: newAmountPaid,
-        })
-        .where(eq(transactionTable.id, id));
+      for (const transaction of existingTransaction) {
+        await tx
+          .update(transactionTable)
+          .set({
+            transactionStatus: "unpaid",
+            transactionReceipt: "",
+            rejectionNote: rejectionNote,
+            amountPaid: amountAvailable > 0 ? transaction.bill : 0,
+          })
+          .where(eq(transactionTable.id, transaction.id));
 
-      await tx
-        .update(connectionTable)
-        .set({ paidFor: 0 })
-        .where(
-          and(
-            eq(connectionTable.mahasiswaId, mahasiswaId),
-            eq(connectionTable.otaId, otaId),
-          ),
-        );
+        await tx
+          .update(connectionTable)
+          .set({ paidFor: 0 })
+          .where(
+            and(
+              eq(connectionTable.mahasiswaId, transaction.mahasiswaId),
+              eq(connectionTable.otaId, otaId),
+            ),
+          );
 
-      await tx
-        .update(transactionTable)
-        .set({ paidFor: 0 })
-        .where(
-          and(
-            eq(transactionTable.mahasiswaId, mahasiswaId),
-            eq(transactionTable.otaId, otaId),
-          ),
-        );
+        await tx
+          .update(transactionTable)
+          .set({ paidFor: 0 })
+          .where(
+            and(
+              eq(transactionTable.mahasiswaId, transaction.mahasiswaId),
+              eq(transactionTable.otaId, otaId),
+            ),
+          );
+
+        amountAvailable -= transaction.bill;
+      }
     });
 
     return c.json(
@@ -806,8 +837,7 @@ transactionProtectedRouter.openapi(verifyTransactionRejectRoute, async (c) => {
         success: true,
         message: "Berhasil melakukan penolakan verifikasi pembayaran",
         body: {
-          id: id,
-          mahasiswaId: mahasiswaId,
+          ids: ids,
           otaId: otaId,
           rejectionNote: rejectionNote,
           amountPaid: amountPaid,

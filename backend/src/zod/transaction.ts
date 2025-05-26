@@ -18,8 +18,6 @@ export const TransactionListOTAQuerySchema = z.object({
       required_error: "Month is required",
       invalid_type_error: "Month must be a number",
     })
-    .min(1, { message: "Month must be between 1 and 12" })
-    .max(12, { message: "Month must be between 1 and 12" })
     .optional()
     .openapi({
       description: "Month filter",
@@ -197,8 +195,6 @@ export const TransactionListVerificationAdminQuerySchema = z.object({
       required_error: "Month is required",
       invalid_type_error: "Month must be a number",
     })
-    .min(1, { message: "Month must be between 1 and 12" })
-    .max(12, { message: "Month must be between 1 and 12" })
     .optional()
     .openapi({
       description: "Month filter",
@@ -213,32 +209,54 @@ export const TransactionListVerificationAdminQueryResponse = z.object({
     .openapi({ example: "Daftar transaction untuk Admin berhasil diambil" }),
   body: z.object({
     data: z.array(
-      z.object({
-        ota_id: z.string().uuid().openapi({
-          description: "ID orang tua asuh",
-          example: "123e4567-e89b-12d3-a456-426614174000",
-        }),
-        name_ota: z.string().openapi({ example: "Jane Doe" }),
-        number_ota: PhoneNumberSchema,
-        paidAt: z.string().openapi({
-          example: "2023-10-01T00:00:00.000Z",
-        }),
-        dueDate: z.string().openapi({
-          example: "2023-10-01T00:00:00.000Z",
-        }),
-        totalBill: z.number().openapi({ example: 300000 }),
-        receipt: z.string().openapi({
-          example: "https://example.com/file.pdf",
-        }),
-        rejectionNote: z.string().openapi({
-          description: "Alasan penolakan verifikasi pembayaran",
-          example: "Nominal yang ditransfer tidak sesuai dengan tagihan",
-        }),
-        transactionStatus: z.enum(["unpaid", "pending", "paid"]).openapi({
-          example: "pending",
-        }),
-      }),
+      z
+        .object({
+          ota_id: z.string().uuid().openapi({
+            description: "ID orang tua asuh",
+            example: "123e4567-e89b-12d3-a456-426614174000",
+          }),
+          name_ota: z.string().openapi({ example: "Jane Doe" }),
+          number_ota: PhoneNumberSchema,
+          totalBill: z.number().openapi({ example: 300000 }),
+          transactions: z.array(
+            z.object({
+              id: z.string().uuid().openapi({
+                description: "ID transaksi",
+                example: "123e4567-e89b-12d3-a456-426614174000",
+              }),
+              mahasiswa_id: z.string().uuid().openapi({
+                description: "ID mahasiswa asuh",
+                example: "123e4567-e89b-12d3-a456-426614174000",
+              }),
+              name_ma: z.string().openapi({ example: "John Doe" }),
+              nim_ma: NIMSchema,
+              paidAt: z.string().openapi({
+                example: "2023-10-01T00:00:00.000Z",
+              }),
+              dueDate: z.string().openapi({
+                example: "2023-10-01T00:00:00.000Z",
+              }),
+              bill: z.number().openapi({ example: 300000 }),
+              receipt: z.string().openapi({
+                example: "https://example.com/file.pdf",
+              }),
+              rejectionNote: z.string().openapi({
+                description: "Alasan penolakan verifikasi pembayaran",
+                example: "Nominal yang ditransfer tidak sesuai dengan tagihan",
+              }),
+              transactionStatus: z.enum(["unpaid", "pending", "paid"]).openapi({
+                example: "pending",
+              }),
+            }),
+          ),
+        })
+        .openapi("TransactionListVerificationAdminData"),
     ),
+    years: z.array(z.number()).openapi({
+      description: "Tahun yang tersedia",
+      example: [2024, 2025],
+    }),
+    totalData: z.number().openapi({ example: 100 }),
   }),
 });
 
@@ -375,32 +393,33 @@ export const VerifyTransactionAcceptSchema = z.object({
       description: "ID orang tua asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
-  mahasiswaId: z
-    .string({
-      required_error: "ID mahasiswa asuh harus diisi",
-      invalid_type_error: "ID mahasiswa asuh harus berupa string",
-    })
-    .uuid({
-      message: "ID mahasiswa asuh tidak valid",
-    })
-    .openapi({
-      description: "ID mahasiswa asuh",
-      example: "123e4567-e89b-12d3-a456-426614174000",
-    }),
 });
 
 export const VerifyTransactionRejectSchema = z.object({
-  id: z
+  ids: z
     .string({
       required_error: "ID transaksi harus diisi",
       invalid_type_error: "ID transaksi harus berupa string",
     })
-    .uuid({
-      message: "ID transaksi tidak valid",
+    .transform((val) => {
+      try {
+        const parsed = JSON.parse(val);
+        return Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        return [val];
+      }
     })
+    .pipe(
+      z.array(
+        z.string().uuid({
+          message: "ID transaksi tidak valid",
+        }),
+      ),
+    )
     .openapi({
       description: "ID transaksi",
-      example: "123e4567-e89b-12d3-a456-426614174000",
+      example:
+        '["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174000"]',
     }),
   otaId: z
     .string({
@@ -412,18 +431,6 @@ export const VerifyTransactionRejectSchema = z.object({
     })
     .openapi({
       description: "ID orang tua asuh",
-      example: "123e4567-e89b-12d3-a456-426614174000",
-    }),
-  mahasiswaId: z
-    .string({
-      required_error: "ID mahasiswa asuh harus diisi",
-      invalid_type_error: "ID mahasiswa asuh harus berupa string",
-    })
-    .uuid({
-      message: "ID mahasiswa asuh tidak valid",
-    })
-    .openapi({
-      description: "ID mahasiswa asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
     }),
   rejectionNote: z.string().openapi({
@@ -471,10 +478,6 @@ export const VerifyTransactionAccResponse = z.object({
         example:
           '["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174000"]',
       }),
-    mahasiswaId: z.string().uuid().openapi({
-      description: "ID mahasiswa asuh",
-      example: "123e4567-e89b-12d3-a456-426614174000",
-    }),
     otaId: z.string().uuid().openapi({
       description: "ID orang tua asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",
@@ -495,22 +498,31 @@ export const VerifyTransactionRejectResponse = z.object({
     example: "Berhasil melakukan accept verifikasi pembayaran",
   }),
   body: z.object({
-    id: z
+    ids: z
       .string({
         required_error: "ID transaksi harus diisi",
         invalid_type_error: "ID transaksi harus berupa string",
       })
-      .uuid({
-        message: "ID transaksi tidak valid",
+      .transform((val) => {
+        try {
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) ? parsed : [parsed];
+        } catch {
+          return [val];
+        }
       })
+      .pipe(
+        z.array(
+          z.string().uuid({
+            message: "ID transaksi tidak valid",
+          }),
+        ),
+      )
       .openapi({
         description: "ID transaksi",
-        example: "123e4567-e89b-12d3-a456-426614174000",
+        example:
+          '["123e4567-e89b-12d3-a456-426614174000", "123e4567-e89b-12d3-a456-426614174000"]',
       }),
-    mahasiswaId: z.string().uuid().openapi({
-      description: "ID mahasiswa asuh",
-      example: "123e4567-e89b-12d3-a456-426614174000",
-    }),
     otaId: z.string().uuid().openapi({
       description: "ID orang tua asuh",
       example: "123e4567-e89b-12d3-a456-426614174000",

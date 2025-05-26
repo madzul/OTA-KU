@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { TransactionDetailSchema } from '../models/TransactionDetailSchema';
 import type { TransactionListAdminSchema } from '../models/TransactionListAdminSchema';
+import type { TransactionListVerificationAdminData } from '../models/TransactionListVerificationAdminData';
 import type { TransactionOTA } from '../models/TransactionOTA';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
@@ -19,7 +20,7 @@ export class TransactionService {
     month,
   }: {
     year?: number | null,
-    month?: number,
+    month?: number | null,
   }): CancelablePromise<{
     success: boolean;
     message: string;
@@ -99,31 +100,17 @@ export class TransactionService {
     q?: string,
     page?: number | null,
     year?: number | null,
-    month?: number,
+    month?: number | null,
   }): CancelablePromise<{
     success: boolean;
     message: string;
     body: {
-      data: Array<{
-        /**
-         * ID orang tua asuh
-         */
-        ota_id: string;
-        name_ota: string;
-        /**
-         * Nomor telepon pengguna yang dimulai dengan 62.
-         */
-        number_ota: string;
-        paidAt: string;
-        dueDate: string;
-        totalBill: number;
-        receipt: string;
-        /**
-         * Alasan penolakan verifikasi pembayaran
-         */
-        rejectionNote: string;
-        transactionStatus: 'unpaid' | 'pending' | 'paid';
-      }>;
+      data: Array<TransactionListVerificationAdminData>;
+      /**
+       * Tahun yang tersedia
+       */
+      years: Array<number>;
+      totalData: number;
     };
   }> {
     return this.httpRequest.request({
@@ -228,10 +215,6 @@ export class TransactionService {
        * ID orang tua asuh
        */
       otaId: string;
-      /**
-       * ID mahasiswa asuh
-       */
-      mahasiswaId: string;
     },
   }): CancelablePromise<{
     success: boolean;
@@ -241,10 +224,6 @@ export class TransactionService {
        * ID transaksi
        */
       ids: string;
-      /**
-       * ID mahasiswa asuh
-       */
-      mahasiswaId: string;
       /**
        * ID orang tua asuh
        */
@@ -279,15 +258,11 @@ export class TransactionService {
       /**
        * ID transaksi
        */
-      id: string;
+      ids: string;
       /**
        * ID orang tua asuh
        */
       otaId: string;
-      /**
-       * ID mahasiswa asuh
-       */
-      mahasiswaId: string;
       /**
        * Notes untuk menjelaskan alasan penolakan verifikasi transaction
        */
@@ -304,11 +279,7 @@ export class TransactionService {
       /**
        * ID transaksi
        */
-      id: string;
-      /**
-       * ID mahasiswa asuh
-       */
-      mahasiswaId: string;
+      ids: string;
       /**
        * ID orang tua asuh
        */
