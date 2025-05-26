@@ -47,9 +47,15 @@ const adminRoutes = [
     path: "/data-hubungan-asuh",
   },
   {
+    id: "daftar-transfer-mahasiswa",
+    label: "Daftar Transfer",
+    icon: "/icon/Type=transaction.svg",
+    path: "/daftar-transfer-mahasiswa",
+  },
+  {
     id: "transaction",
     label: "Daftar Tagihan",
-    icon: "/icon/Type=transaction.svg",
+    icon: "/icon/Type=receipt.svg",
     path: "/daftar-tagihan",
   },
   {

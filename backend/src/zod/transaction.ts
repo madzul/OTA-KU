@@ -3,14 +3,28 @@ import { z } from "@hono/zod-openapi";
 import { NIMSchema, PhoneNumberSchema } from "./atomic.js";
 
 export const TransactionListOTAQuerySchema = z.object({
-  year: z.coerce.number().optional().openapi({
-    description: "Year filter",
-    example: 2024,
-  }),
-  month: z.coerce.number().optional().openapi({
-    description: "Month filter",
-    example: 1,
-  }),
+  year: z.coerce
+    .number({
+      required_error: "Year is required",
+      invalid_type_error: "Year must be a number",
+    })
+    .optional()
+    .openapi({
+      description: "Year filter",
+      example: 2024,
+    }),
+  month: z.coerce
+    .number({
+      required_error: "Month is required",
+      invalid_type_error: "Month must be a number",
+    })
+    .min(1, { message: "Month must be between 1 and 12" })
+    .max(12, { message: "Month must be between 1 and 12" })
+    .optional()
+    .openapi({
+      description: "Month filter",
+      example: 1,
+    }),
 });
 
 export const TransactionListOTAQueryResponse = z.object({
@@ -85,7 +99,6 @@ export const TransactionListAdminQuerySchema = z.object({
       description: "Month filter",
       example: "June",
     }),
-
   year: z.coerce
     .number()
     .min(2024, { message: "Year must be 2024 or later." })
@@ -95,12 +108,10 @@ export const TransactionListAdminQuerySchema = z.object({
       description: "Year filter",
       example: 2024,
     }),
-
   page: z.coerce.number().optional().openapi({
     description: "Page number for pagination.",
     example: 1,
   }),
-
   status: z.enum(["unpaid", "pending", "paid"]).optional().openapi({
     description: "Status of transaction.",
     example: "pending",
@@ -160,6 +171,75 @@ export const TransactionListAdminQueryResponse = z.object({
       totalData: z.number().openapi({ example: 100 }),
     })
     .openapi("TransactionListAdminSchema"),
+});
+
+export const TransactionListVerificationAdminQuerySchema = z.object({
+  q: z.string().optional().openapi({
+    description: "Query string for searching mahasiswa.",
+    example: "John Doe",
+  }),
+  page: z.coerce.number().optional().openapi({
+    description: "Page number for pagination.",
+    example: 1,
+  }),
+  year: z.coerce
+    .number({
+      required_error: "Year is required",
+      invalid_type_error: "Year must be a number",
+    })
+    .optional()
+    .openapi({
+      description: "Year filter",
+      example: 2024,
+    }),
+  month: z.coerce
+    .number({
+      required_error: "Month is required",
+      invalid_type_error: "Month must be a number",
+    })
+    .min(1, { message: "Month must be between 1 and 12" })
+    .max(12, { message: "Month must be between 1 and 12" })
+    .optional()
+    .openapi({
+      description: "Month filter",
+      example: 1,
+    }),
+});
+
+export const TransactionListVerificationAdminQueryResponse = z.object({
+  success: z.boolean().openapi({ example: true }),
+  message: z
+    .string()
+    .openapi({ example: "Daftar transaction untuk Admin berhasil diambil" }),
+  body: z.object({
+    data: z.array(
+      z.object({
+        ota_id: z.string().uuid().openapi({
+          description: "ID orang tua asuh",
+          example: "123e4567-e89b-12d3-a456-426614174000",
+        }),
+        name_ota: z.string().openapi({ example: "Jane Doe" }),
+        number_ota: PhoneNumberSchema,
+        paidAt: z.string().openapi({
+          example: "2023-10-01T00:00:00.000Z",
+        }),
+        dueDate: z.string().openapi({
+          example: "2023-10-01T00:00:00.000Z",
+        }),
+        totalBill: z.number().openapi({ example: 300000 }),
+        receipt: z.string().openapi({
+          example: "https://example.com/file.pdf",
+        }),
+        rejectionNote: z.string().openapi({
+          description: "Alasan penolakan verifikasi pembayaran",
+          example: "Nominal yang ditransfer tidak sesuai dengan tagihan",
+        }),
+        transactionStatus: z.enum(["unpaid", "pending", "paid"]).openapi({
+          example: "pending",
+        }),
+      }),
+    ),
+  }),
 });
 
 export const TransactionDetailQueryResponse = z.object({

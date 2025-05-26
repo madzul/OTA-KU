@@ -15,6 +15,7 @@ import {
   detailTransactionRoute,
   listTransactionAdminRoute,
   listTransactionOTARoute,
+  listTransactionVerificationAdminRoute,
   uploadReceiptRoute,
   verifyTransactionAccRoute,
   verifyTransactionRejectRoute,
@@ -24,6 +25,7 @@ import {
   DetailTransactionParams,
   TransactionListAdminQuerySchema,
   TransactionListOTAQuerySchema,
+  TransactionListVerificationAdminQuerySchema,
   UploadReceiptSchema,
   VerifyTransactionAcceptSchema,
   VerifyTransactionRejectSchema,
@@ -288,6 +290,70 @@ transactionProtectedRouter.openapi(listTransactionAdminRoute, async (c) => {
     );
   }
 });
+
+transactionProtectedRouter.openapi(
+  listTransactionVerificationAdminRoute,
+  async (c) => {
+    const user = c.var.user;
+    const zodParseResult = TransactionListVerificationAdminQuerySchema.parse(
+      c.req.query(),
+    );
+    const { month, q, year, page } = zodParseResult;
+
+    if (
+      user.type !== "admin" &&
+      user.type !== "pengurus" &&
+      user.type !== "bankes"
+    ) {
+      return c.json(
+        {
+          success: false,
+          message: "Forbidden",
+          error: {
+            code: "Forbidden",
+            message:
+              "Hanya admin, bankes, atau pengurus yang dapat mengakses list ini",
+          },
+        },
+        403,
+      );
+    }
+
+    // Validate page to be a positive integer
+    let pageNumber = Number(page);
+    if (isNaN(pageNumber) || pageNumber < 1) {
+      pageNumber = 1;
+    }
+
+    try {
+      const offset = (pageNumber - 1) * LIST_PAGE_SIZE;
+
+      const conditions = [];
+
+      if (year) {
+        conditions.push(
+          sql`EXTRACT(YEAR FROM ${transactionTable.dueDate}) = ${year}`,
+        );
+      }
+
+      if (month) {
+        conditions.push(
+          sql`EXTRACT(MONTH FROM ${transactionTable.dueDate}) = ${month}`,
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching mahasiswa list:", error);
+      return c.json(
+        {
+          success: false,
+          message: "Internal server error",
+          error: error,
+        },
+        500,
+      );
+    }
+  },
+);
 
 transactionProtectedRouter.openapi(detailTransactionRoute, async (c) => {
   const user = c.var.user;
