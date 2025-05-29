@@ -91,10 +91,15 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
       setIsModalOpen(false);
       onTerminateSuccess(student.mahasiswaId);
       try {
-        toast.success(`Hubungan dengan ${student.maName} berhasil diterminasi`);
+        toast.success(
+          `Permintaan pemutusan hubungan asuh dengan mahasiswa ${student.maName} berhasil diproses`,
+          {
+            description: "Permintaan terminasi telah dikirim dan menunggu persetujuan Admin.",
+          }
+        );
       } catch (e: Error | unknown) {
         toast.error(
-          `Gagal mengakhiri hubungan dengan ${student.maName}. Silakan coba lagi.`,
+          `Gagal memproses pemutusan hubungan asuh dengan mahasiswa ${student.maName}. Silakan coba kembali.`,
           {
             description: e instanceof Error ? e.message : String(e),
           },
@@ -103,7 +108,7 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
     },
     onError: () => {
       toast.error(
-        `Gagal mengakhiri hubungan dengan ${student.maName}. Silakan coba lagi.`,
+        `Gagal memproses pemutusan hubungan asuh dengan mahasiswa ${student.maName}. Silakan coba kembali.`,
       );
     },
   });
