@@ -119,6 +119,9 @@ function RouteComponent() {
                     <FormControl>
                       <Input
                         placeholder="Masukkan email atau nomor WA Anda"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        inputMode="email"
                         {...field}
                       />
                     </FormControl>

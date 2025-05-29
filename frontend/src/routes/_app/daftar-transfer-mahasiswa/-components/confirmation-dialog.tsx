@@ -124,11 +124,11 @@ export function PaymentDetailsModal({
               </>
             )}
 
-            <DialogFooter className="pt-4">
-              <Button type="button" variant="outline" onClick={handleClose}>
+            <DialogFooter className="flex flex-row space-x-2">
+              <Button type="button" variant="outline" onClick={handleClose} className="flex-1">
                 Batal
               </Button>
-              <Button type="submit">Konfirmasi</Button>
+              <Button className="flex-1" type="submit">Konfirmasi</Button>
             </DialogFooter>
           </form>
         </Form>

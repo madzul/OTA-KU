@@ -89,15 +89,21 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
       toast.dismiss(context);
       setIsModalOpen(false);
       onTerminateSuccess(student.mahasiswaId);
-      toast.success("Berhasil mengakhiri hubungan dengan mahasiswa asuh", {
-        description: "Permintaan akan segera diproses oleh IOM ITB",
-      });
+      toast.success(
+        "Berhasil melakukan permintaan pemutusan hubungan dengan mahasiswa asuh",
+        {
+          description: "Permintaan akan segera diproses oleh IOM ITB",
+        },
+      );
     },
     onError: (error, _variables, context) => {
       toast.dismiss(context);
-      toast.warning("Gagal mengakhiri hubungan dengan mahasiswa asuh", {
-        description: error.message,
-      });
+      toast.warning(
+        "Gagal melakukan permintaan pemutusan hubungan dengan mahasiswa asuh",
+        {
+          description: error.message,
+        },
+      );
     },
     onMutate: () => {
       const loading = toast.loading("Sedang memproses permintaan...", {
@@ -186,12 +192,12 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               />
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-end gap-2 sm:justify-end">
+          <DialogFooter className="flex flex-row space-x-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsModalOpen(false)}
-              className="border-gray-300 hover:bg-gray-50 active:bg-gray-100"
+              className="flex-1"
             >
               Batal
             </Button>
@@ -199,7 +205,7 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               type="button"
               variant="destructive"
               onClick={() => handleTerminate(note)}
-              className="bg-red-500 hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
+              className="flex-1"
             >
               {"Ya, Terminasi"}
             </Button>
