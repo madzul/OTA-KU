@@ -783,6 +783,17 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
     )
     .limit(1);
 
+  if (connection.length === 0) {
+    return c.json(
+      {
+        success: false,
+        message: "Connection not found.",
+        error: {},
+      },
+      404,
+    );
+  }
+
   const otaData = await db
     .select({
       id: accountOtaDetailTable.accountId,
@@ -797,6 +808,17 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
     .where(eq(accountOtaDetailTable.accountId, otaId))
     .limit(1);
 
+  if (otaData.length === 0) {
+    return c.json(
+      {
+        success: false,
+        message: "OTA data not found.",
+        error: {},
+      },
+      404,
+    );
+  }
+
   const maData = await db
     .select({
       id: accountMahasiswaDetailTable.accountId,
@@ -810,6 +832,17 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
     )
     .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
     .limit(1);
+
+  if (maData.length === 0) {
+    return c.json(
+      {
+        success: false,
+        message: "Mahasiswa data not found.",
+        error: {},
+      },
+      404,
+    );
+  }
 
   try {
     await db.transaction(async (tx) => {

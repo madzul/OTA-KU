@@ -1,6 +1,6 @@
 import { createRoute } from "@hono/zod-openapi";
 import { AuthorizationErrorResponse } from "../types/response.js";
-import { InternalServerErrorResponse } from "../zod/response.js";
+import { InternalServerErrorResponse, NotFoundResponse } from "../zod/response.js";
 import { UnverifiedResponse } from "../zod/profile.js";
 import { AdminUnverifiedResponse, listTerminateForAdminResponse, listTerminateForOTAResponse, listTerminateQuerySchema, requestTerminateMAFailedResponse, requestTerminateMASuccessResponse, requestTerminateOTAFailedResponse, requestTerminateOTASuccessResponse, TerminateRequestSchema, terminationStatusMA, validateTerminateFailedResponse, validateTerminateSuccessResponse, verifTerminateRequestSchema } from "../zod/terminate.js";
 import { OrangTuaUnverifiedResponse } from "../zod/connect.js";
@@ -213,6 +213,12 @@ export const validateTerminateRoute = createRoute({
             description: "Akun admin belum terverifikasi.",
             content: {
                 "application/json": { schema: AdminUnverifiedResponse },
+            }
+        },
+        404: {
+            description: "Connection not found.",
+            content: {
+                "application/json": { schema: NotFoundResponse },
             }
         },
         500: {

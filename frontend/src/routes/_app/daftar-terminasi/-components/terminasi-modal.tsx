@@ -38,7 +38,9 @@ export default function TerminasiModal({
     },
     onSuccess: (_, _variables, context) => {
       toast.dismiss(context);
-      // Call onConfirm to refresh the data after successful termination
+      toast.success("Permintaan terminasi berhasil diproses", {
+        description: "Hubungan asuh antara OTA dan Mahasiswa telah berakhir",
+      });
       onConfirm();
       onClose();
     },
@@ -68,7 +70,9 @@ export default function TerminasiModal({
     },
     onSuccess: (_, _variables, context) => {
       toast.dismiss(context);
-      // Call onConfirm to refresh the data after successful termination
+      toast.success("Permintaan terminasi berhasil ditolak", {
+        description: "Hubungan asuh antara OTA dan Mahasiswa tetap aktif",
+      });
       onConfirm();
       onClose();
     },
@@ -133,7 +137,7 @@ export default function TerminasiModal({
             <Button
               variant="destructive"
               onClick={() => {
-                cancelTerminateConnection.mutate({
+                terminateConnection.mutate({
                   maId: item.mahasiswaId,
                   otaId: item.otaId,
                 });
@@ -152,9 +156,9 @@ export default function TerminasiModal({
                   otaId: item.otaId,
                 });
               }}
-              disabled={terminateConnection.isPending}
+              disabled={cancelTerminateConnection.isPending}
             >
-              {terminateConnection.isPending
+              {cancelTerminateConnection.isPending
                 ? "Memproses..."
                 : "Tolak Terminasi"}
             </Button>
