@@ -173,11 +173,12 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
             placeholder="Masukkan alasan terminasi (wajib)"
           />
 
-          <DialogFooter className="grid grid-cols-2 gap-2 sm:gap-4">
+          <DialogFooter className="flex flex-row space-x-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsModalOpen(false)}
+              className="flex-1"
             >
               Batal
             </Button>
@@ -185,6 +186,7 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
               type="button"
               variant="destructive"
               onClick={handleTerminate}
+              className="flex-1"
             >
               Akhiri Hubungan
             </Button>

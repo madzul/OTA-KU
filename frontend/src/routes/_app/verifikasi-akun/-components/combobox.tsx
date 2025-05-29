@@ -224,7 +224,17 @@ function Combobox({
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-row space-x-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setOpenAccept(false);
+                        form.reset();
+                      }}
+                      className="flex-1"
+                    >
+                      Batal
+                    </Button>
                     <Button
                       onClick={(e) => {
                         e.preventDefault();
@@ -235,17 +245,9 @@ function Combobox({
                         }
                         form.handleSubmit(onSubmit)();
                       }}
+                      className="flex-1"
                     >
                       Lanjutkan
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setOpenAccept(false);
-                        form.reset();
-                      }}
-                    >
-                      Batal
                     </Button>
                   </div>
                 </form>
@@ -317,7 +319,18 @@ function Combobox({
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-row space-x-2">
+                    <Button
+                      variant="outline"
+                      type="button"
+                      onClick={() => {
+                        setOpenReject(false);
+                        form.reset();
+                      }}
+                      className="flex-1"
+                    >
+                      Batal
+                    </Button>
                     <Button
                       type="submit"
                       onClick={(e) => {
@@ -329,18 +342,9 @@ function Combobox({
                         }
                         form.handleSubmit(onSubmit)();
                       }}
+                      className="flex-1"
                     >
                       Lanjutkan
-                    </Button>
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => {
-                        setOpenReject(false);
-                        form.reset();
-                      }}
-                    >
-                      Batal
                     </Button>
                   </div>
                 </form>

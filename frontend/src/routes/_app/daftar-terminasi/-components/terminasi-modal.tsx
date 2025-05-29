@@ -94,11 +94,11 @@ export default function TerminasiModal({
             <div className="text-gray-800">{item.maNIM}</div>
           </div>
         </div>
-        <DialogFooter className="sm:justify-end">
+        <DialogFooter className="flex flex-row space-x-2">
           <Button
             variant="outline"
             onClick={onClose}
-            className="border-gray-300 text-gray-700"
+            className="flex-1"
           >
             Batal
           </Button>
@@ -111,7 +111,7 @@ export default function TerminasiModal({
                   otaId: item.otaId,
                 });
               }}
-              className="border border-red-300 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+              className="flex-1"
               disabled={terminateConnection.isPending}
             >
               {terminateConnection.isPending ? "Memproses..." : "Terminasi"}
@@ -126,6 +126,7 @@ export default function TerminasiModal({
                 });
               }}
               disabled={terminateConnection.isPending}
+              className="sm:flex-1"
             >
               {terminateConnection.isPending
                 ? "Memproses..."
