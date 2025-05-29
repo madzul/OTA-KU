@@ -295,6 +295,13 @@
       "when": 1748226950232,
       "tag": "0041_shiny_giant_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1748490845906,
+      "tag": "0042_mighty_amazoness",
+      "breakpoints": true
     }
   ]
 }
