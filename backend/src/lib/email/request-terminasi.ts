@@ -249,8 +249,8 @@ export function requestTerminasiEmail(
 
                                             <div
                                               style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:16px;text-align:left;color:#003A6E;">
-                                              Halo <b>${nama}</b>,<br/><br/>
-                                              <div>${role == "ota" ? "Orang Tua Asuh" : "Mahasiswa Asuh"} Anda<b>, ${nama_lawan_asuh}, </b>telah mengajukan permintaan
+                                              Halo <b>${nama_lawan_asuh}</b>,<br/><br/>
+                                              <div>${role == "ota" ? "Orang Tua Asuh" : "Mahasiswa Asuh"} Anda<b>, ${nama}, </b>telah mengajukan permintaan
                                                 untuk menghentikan Bantuan Asuh. </div><br/>
                                               <div>Silahkan hubungi pengurus IOM ITB untuk informasi lebih lanjut atau
                                                 tindak lanjut dari informasi ini</div>
