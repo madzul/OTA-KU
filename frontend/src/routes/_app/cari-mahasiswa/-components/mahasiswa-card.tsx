@@ -131,23 +131,23 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
                 <span className="text-dark font-bold">{mahasiswa.name}</span>?
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-              <Button
-                type="button"
-                onClick={handleBantuConfirm}
-                disabled={bantuHandler.isPending}
-                className="sm:flex-1"
-              >
-                {bantuHandler.isPending ? "Memproses..." : "Bantu"}
-              </Button>
+            <DialogFooter className="flex flex-row space-x-2">
               <Button
                 type="button"
                 variant="outline"
-                className="sm:flex-1"
+                className="flex-1"
                 onClick={() => setIsDialogOpen(false)}
                 disabled={bantuHandler.isPending}
               >
                 Batal
+              </Button>
+              <Button
+                type="button"
+                onClick={handleBantuConfirm}
+                disabled={bantuHandler.isPending}
+                className="flex-1"
+              >
+                {bantuHandler.isPending ? "Memproses..." : "Bantu"}
               </Button>
             </DialogFooter>
           </DialogContent>
