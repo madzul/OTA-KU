@@ -303,7 +303,7 @@ connectProtectedRouter.openapi(connectOtaMahasiswaByAdminRoute, async (c) => {
           maData[0].name ?? "",
           otaData[0].name,
           "ma",
-          "/orang-tua-asuh-saya",
+          env.VITE_PUBLIC_URL + "/orang-tua-asuh-saya",
         ),
       })
       .catch((error) => {
@@ -573,7 +573,7 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async (c) => {
           otaData[0].name,
           maData[0].name ?? "",
           "ota",
-          `/detail/mahasiswa/${maData[0].id}`,
+          env.VITE_PUBLIC_URL + `/detail/mahasiswa/${maData[0].id}`,
         ),
       })
       .catch((error) => {
