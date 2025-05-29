@@ -88,11 +88,11 @@ function ConfirmationDialog({
           OTA <span className="font-bold">{otaName}</span>? Aksi ini tidak dapat
           dibatalkan.
         </p>
-        <div className="mt-4 flex justify-end gap-2">
-          <Button variant="default" onClick={handleConfirm}>Yakin</Button>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+        <div className="mt-4 flex flex-row space-x-2">
+          <Button className="flex-1" variant="outline" onClick={() => setOpen(false)}>
             Batal
           </Button>
+          <Button variant="default" className="flex-1" onClick={handleConfirm}>Yakin</Button>
         </div>
       </DialogContent>
     </Dialog>

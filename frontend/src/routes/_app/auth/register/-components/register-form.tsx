@@ -113,7 +113,13 @@ export default function RegisterForm({
                 <FormItem>
                   <FormLabel className="text-primary text-sm">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan email Anda" {...field} />
+                    <Input
+                      placeholder="Masukkan email Anda"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      inputMode="email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

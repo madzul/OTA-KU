@@ -91,10 +91,15 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
       setIsModalOpen(false);
       onTerminateSuccess(student.mahasiswaId);
       try {
-        toast.success(`Hubungan dengan ${student.maName} berhasil diterminasi`);
+        toast.success(
+          `Permintaan pemutusan hubungan asuh dengan mahasiswa ${student.maName} berhasil diproses`,
+          {
+            description: "Permintaan terminasi telah dikirim dan menunggu persetujuan Admin.",
+          }
+        );
       } catch (e: Error | unknown) {
         toast.error(
-          `Gagal mengakhiri hubungan dengan ${student.maName}. Silakan coba lagi.`,
+          `Gagal memproses pemutusan hubungan asuh dengan mahasiswa ${student.maName}. Silakan coba kembali.`,
           {
             description: e instanceof Error ? e.message : String(e),
           },
@@ -103,7 +108,7 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
     },
     onError: () => {
       toast.error(
-        `Gagal mengakhiri hubungan dengan ${student.maName}. Silakan coba lagi.`,
+        `Gagal memproses pemutusan hubungan asuh dengan mahasiswa ${student.maName}. Silakan coba kembali.`,
       );
     },
   });
@@ -186,12 +191,12 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               />
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-end gap-2 sm:justify-end">
+          <DialogFooter className="flex flex-row space-x-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsModalOpen(false)}
-              className="border-gray-300 hover:bg-gray-50 active:bg-gray-100"
+              className="flex-1"
             >
               Batal
             </Button>
@@ -199,7 +204,7 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               type="button"
               variant="destructive"
               onClick={() => handleTerminate(note)}
-              className="bg-red-500 hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
+              className="flex-1"
             >
               {"Ya, Terminasi"}
             </Button>

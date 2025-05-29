@@ -510,6 +510,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                           <FormLabel className="text-primary">
                             {uploadFieldLabels.gpa}
                           </FormLabel>
+                          <p className="text-muted-foreground text-xs">
+                            Gunakan tanda titik (.) untuk desimal
+                          </p>
                           <FormControl>
                             <Input
                               placeholder="Masukkan IPK Anda"
