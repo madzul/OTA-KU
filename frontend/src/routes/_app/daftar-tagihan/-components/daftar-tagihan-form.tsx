@@ -42,7 +42,7 @@ const getStatusBadge = (status: TransactionStatus) => {
     },
     pending: {
       variant: "secondary" as const,
-      label: "Belum Dibayar",
+      label: "Menunggu Verifikasi",
       className: "bg-yellow-100 text-yellow-800",
     },
     unpaid: {

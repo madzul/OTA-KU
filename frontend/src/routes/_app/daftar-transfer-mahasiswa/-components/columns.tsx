@@ -121,17 +121,17 @@ export const tagihanColumns: ColumnDef<TransactionListAdminData>[] = [
       let statusClass = "";
       switch (status) {
         case "paid":
-          statusText = "Dibayar";
+          statusText = "Telah Dibayar";
           statusClass =
             "bg-green-50 text-green-600 border border-green-300 rounded-full px-3 py-1 text-xs font-semibold";
           break;
         case "pending":
-          statusText = "Pending";
+          statusText = "Menunggu Verifikasi";
           statusClass =
             "bg-yellow-50 text-yellow-600 border border-yellow-300 rounded-full px-3 py-1 text-xs font-semibold";
           break;
         case "unpaid":
-          statusText = "Ditolak";
+          statusText = "Belum Dibayar";
           statusClass =
             "bg-red-50 text-red-600 border border-red-300 rounded-full px-3 py-1 text-xs font-semibold";
           break;

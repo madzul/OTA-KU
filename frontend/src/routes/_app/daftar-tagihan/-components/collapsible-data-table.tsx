@@ -135,7 +135,7 @@ export function CollapsibleDataTable({ data }: CollapsibleDataTableProps) {
                 variant="secondary"
                 className="bg-yellow-100 text-xs text-yellow-800"
               >
-                {statusSummary.pending} Belum Dibayar
+                {statusSummary.pending} Menunggu Verifikasi
               </Badge>
             )}
             {statusSummary.unpaid > 0 && (

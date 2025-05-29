@@ -50,8 +50,9 @@ export function SearchFilterBar({
   // Status options
   const statusOptions = [
     { value: "all", label: "Semua Status" },
-    { value: "unpaid", label: "Belum Bayar" },
-    { value: "pending", label: "Pending" },
+    { value: "paid", label: "Telah Dibayar" },
+    { value: "unpaid", label: "Belum Dibayar" },
+    { value: "pending", label: "Menunggu Verifikasi" },
   ];
 
   return (
