@@ -12,8 +12,10 @@ import {
   getMahasiswaSayaDetailRoute,
   getMyOtaDetailRoute,
   getOtaDetailRoute,
+  getMahasiswaDetailForOTARoute,
 } from "../routes/detail.route.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
+import { create } from "domain";
 
 export const detailRouter = createRouter();
 export const detailProtectedRouter = createAuthRouter();
@@ -203,6 +205,88 @@ detailProtectedRouter.openapi(getMahasiswaSayaDetailRoute, async (c) => {
           gpa: mahasiswa.gpa!,
           notes: mahasiswa.notes!,
           createdAt: mahasiswa.createdAt.toISOString(),
+        },
+      },
+      200,
+    );
+  } catch (error) {
+    console.error("Error fetching mahasiswa detail:", error);
+    return c.json(
+      {
+        success: false,
+        message: "Internal server error",
+        error: error,
+      },
+      500,
+    );
+  }
+});
+
+detailProtectedRouter.openapi(getMahasiswaDetailForOTARoute, async (c) => {
+  const user = c.var.user;
+  const { id } = c.req.param();
+
+  if (user.type !== "ota") {
+    return c.json(
+      {
+        success: false,
+        message: "Forbidden",
+        error: {
+          code: "Forbidden",
+          message: "Hanya OTA yang bisa mengakses detail ini",
+        },
+      },
+      403,
+    );
+  }
+
+  try {
+    const mahasiswaDetail = await db
+      .select()
+      .from(accountTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(accountTable.id, accountMahasiswaDetailTable.accountId),
+      )
+      .where(eq(accountTable.id, id))
+      .limit(1);
+
+    if (mahasiswaDetail.length === 0) {
+      return c.json(
+        {
+          success: false,
+          message: "Mahasiswa tidak ditemukan",
+          error: {
+            code: "NOT_FOUND",
+            message: "Mahasiswa dengan ID tersebut tidak ditemukan",
+          },
+        },
+        404,
+      );
+    }
+
+    const mahasiswa = mahasiswaDetail[0];
+
+    return c.json(
+      {
+        success: true,
+        message: "Detail mahasiswa berhasil diambil",
+        body: {
+          id: mahasiswa.account.id,
+          email: mahasiswa.account.email,
+          phoneNumber: mahasiswa.account.phoneNumber!,
+          name: mahasiswa.account_mahasiswa_detail.name!,
+          nim: mahasiswa.account_mahasiswa_detail.nim!,
+          major: mahasiswa.account_mahasiswa_detail.major!,
+          faculty: mahasiswa.account_mahasiswa_detail.faculty!,
+          cityOfOrigin: mahasiswa.account_mahasiswa_detail.cityOfOrigin!,
+          highschoolAlumni:
+            mahasiswa.account_mahasiswa_detail.highschoolAlumni!,
+          religion: mahasiswa.account_mahasiswa_detail.religion!,
+          gender: mahasiswa.account_mahasiswa_detail.gender!,
+          gpa: mahasiswa.account_mahasiswa_detail.gpa!,
+          notes: mahasiswa.account_mahasiswa_detail.notes!,
+          createdAt: mahasiswa.account_mahasiswa_detail.createdAt.toISOString(),
         },
       },
       200,

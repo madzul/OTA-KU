@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { useState } from "react";
-
 import TransactionForm from "./transaction-form";
 
 interface TransactionCardProps {
@@ -45,7 +44,7 @@ function TransactionCard({ data, year, month }: TransactionCardProps) {
   return (
     <Card
       className={cn(
-        "mt-8 w-full max-w-[1000px] self-end",
+        "mt-8 w-full max-w-[1000px] self-center",
         status === "pending" && "max-w-[600px]",
       )}
     >
@@ -58,8 +57,9 @@ function TransactionCard({ data, year, month }: TransactionCardProps) {
       </CardHeader>
       <CardContent
         className={cn(
-          "grid grid-cols-2 gap-12",
-          status === "pending" && "grid-cols-1",
+          // Mobile: single column (flex-col), Desktop: grid with 2 columns
+          "flex flex-col gap-6 md:grid md:grid-cols-2 md:gap-12",
+          status === "pending" && "md:grid-cols-1",
         )}
       >
         <div
@@ -81,7 +81,7 @@ function TransactionCard({ data, year, month }: TransactionCardProps) {
               </p>
             </div>
           </div>
-
+          
           {/* Tenggat Waktu */}
           <div
             className={cn(status !== "pending" ? "flex flex-col" : "hidden")}
@@ -96,19 +96,18 @@ function TransactionCard({ data, year, month }: TransactionCardProps) {
               </p>
             </div>
           </div>
-
+          
           {/* Status */}
           <div
             className={cn(status !== "pending" ? "flex flex-col" : "hidden")}
           >
             <p className="text-dark text-sm font-medium">Status Pembayaran</p>
-
             <div className="flex items-center justify-between rounded-md p-2">
               {getStatusBadge(status)}
             </div>
           </div>
         </div>
-
+        
         <TransactionForm
           data={data}
           setPaidFor={setPaidFor}

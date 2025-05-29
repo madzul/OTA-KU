@@ -92,6 +92,48 @@ export const getMahasiswaSayaDetailRoute = createRoute({
   },
 });
 
+export const getMahasiswaDetailForOTARoute = createRoute({
+  operationId: "getMahasiswaDetailForOTA",
+  tags: ["Detail"],
+  method: "get",
+  path: "/mahasiswa-asuh/{id}",
+  description: "Get detailed information of a specific mahasiswa asuh for orang tua asuh.",
+  request: {
+    params: MahasiswaDetailParamsSchema,
+  },
+  responses: {
+    200: {
+      description: "Berhasil mendapatkan detail mahasiswa asuh.",
+      content: {
+        "application/json": {
+          schema: MahasiswaSayaDetailResponse,
+        },
+      },
+    },
+    401: AuthorizationErrorResponse,
+    403: {
+      description: "Forbidden",
+      content: {
+        "application/json": {
+          schema: ForbiddenResponse,
+        },
+      },
+    },
+    404: {
+      description: "Mahasiswa asuh tidak ditemukan",
+      content: {
+        "application/json": { schema: NotFoundResponse },
+      },
+    },
+    500: {
+      description: "Internal server error",
+      content: {
+        "application/json": { schema: InternalServerErrorResponse },
+      },
+    },
+  },
+});
+
 export const getOtaDetailRoute = createRoute({
     operationId: "getOtaDetail",
     tags: ["Detail"],

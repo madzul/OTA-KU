@@ -134,20 +134,20 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
             <DialogFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
               <Button
                 type="button"
+                onClick={handleBantuConfirm}
+                disabled={bantuHandler.isPending}
+                className="sm:flex-1"
+              >
+                {bantuHandler.isPending ? "Memproses..." : "Bantu"}
+              </Button>
+              <Button
+                type="button"
                 variant="outline"
                 className="sm:flex-1"
                 onClick={() => setIsDialogOpen(false)}
                 disabled={bantuHandler.isPending}
               >
                 Batal
-              </Button>
-              <Button
-                type="button"
-                onClick={handleBantuConfirm}
-                disabled={bantuHandler.isPending}
-                className="sm:flex-1"
-              >
-                {bantuHandler.isPending ? "Memproses..." : "Bantu"}
               </Button>
             </DialogFooter>
           </DialogContent>
