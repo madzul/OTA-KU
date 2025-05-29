@@ -178,6 +178,7 @@ function RouteComponent() {
                         {...field}
                         pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                         inputMode="text"
+                        autoCapitalize="on"
                       >
                         <InputOTPGroup>
                           <InputOTPSlot index={0} />
