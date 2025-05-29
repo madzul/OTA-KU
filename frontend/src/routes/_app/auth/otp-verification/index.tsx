@@ -173,7 +173,7 @@ function RouteComponent() {
                   <FormItem className="flex flex-col items-center">
                     <FormControl>
                       <InputOTP maxLength={6} {...field}>
-                        <InputOTPGroup>
+                        <InputOTPGroup inputMode="text" autoCapitalize="on">
                           <InputOTPSlot index={0} />
                           <InputOTPSlot index={1} />
                           <InputOTPSlot index={2} />
