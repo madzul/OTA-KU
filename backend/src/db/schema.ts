@@ -150,7 +150,7 @@ export const transferStatus = pgEnum("transfer_status", ["paid", "unpaid"]);
 export const accountTable = pgTable("account", {
   id: uuid("id").defaultRandom().primaryKey().unique().notNull(),
   email: varchar({ length: 255 }).unique().notNull(),
-  phoneNumber: varchar({ length: 32 }),
+  phoneNumber: varchar({ length: 32 }).unique(),
   password: varchar({ length: 255 }).notNull(),
   type: accountTypeEnum("type").notNull(),
   provider: providerEnum("provider").notNull().default("credentials"),

@@ -1,1 +1,0 @@
-ALTER TABLE "account" DROP CONSTRAINT "account_phoneNumber_unique";
