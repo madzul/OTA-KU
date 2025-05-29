@@ -432,7 +432,11 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
               )}
             />
 
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
               Selesai
             </Button>
 
@@ -441,6 +445,7 @@ export default function OTAPageTwo({ setPage, mainForm }: OTAPageTwoProps) {
               className="w-full"
               variant="outline"
               onClick={() => setPage(1)}
+              disabled={form.formState.isSubmitting}
             >
               Kembali
             </Button>

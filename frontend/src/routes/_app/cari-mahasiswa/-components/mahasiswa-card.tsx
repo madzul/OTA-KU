@@ -137,6 +137,7 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
                 variant="outline"
                 className="sm:flex-1"
                 onClick={() => setIsDialogOpen(false)}
+                disabled={bantuHandler.isPending}
               >
                 Batal
               </Button>

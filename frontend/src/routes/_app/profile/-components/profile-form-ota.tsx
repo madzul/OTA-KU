@@ -463,15 +463,16 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                   className="w-24 xl:w-40"
                   variant="outline"
                   onClick={() => setIsEditingEnabled(false)}
+                  disabled={form.formState.isSubmitting}
                 >
                   Batal
                 </Button>
                 <Button
                   type="submit"
                   className="w-24 xl:w-40"
-                  disabled={updateProfileMutation.isPending}
+                  disabled={form.formState.isSubmitting}
                 >
-                  {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
+                  {form.formState.isSubmitting ? "Menyimpan..." : "Simpan"}
                 </Button>
               </>
             ) : (

@@ -188,14 +188,11 @@ export default function RegisterForm({
                   setIsClicked(false);
                   setRole("");
                 }}
-                disabled={registerCallbackMutation.isPending}
+                disabled={form.formState.isSubmitting}
               >
                 Kembali
               </Button>
-              <Button
-                type="submit"
-                disabled={registerCallbackMutation.isPending}
-              >
+              <Button type="submit" disabled={form.formState.isSubmitting}>
                 Buat Akun
               </Button>
             </div>
@@ -205,7 +202,7 @@ export default function RegisterForm({
                 <p className="text-primary text-center">atau</p>
                 <Button
                   type="button"
-                  disabled={registerCallbackMutation.isPending}
+                  disabled={form.formState.isSubmitting}
                   asChild
                   variant={"outline"}
                 >

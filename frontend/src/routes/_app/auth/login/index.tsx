@@ -156,7 +156,7 @@ function RouteComponent() {
                 Lupa kata sandi?
               </Link>
 
-              <Button type="submit" disabled={loginCallbackMutation.isPending}>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
                 Masuk
               </Button>
 

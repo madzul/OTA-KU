@@ -258,7 +258,7 @@ function DetailDialogMahasiswa({
                     !isDisabled && "hover:cursor-pointer",
                   )}
                   onClick={() => {
-                    if (isDisabled) return;
+                    if (isDisabled || form.formState.isSubmitting) return;
                     form.setValue("status", "accepted");
                     form.handleSubmit(onSubmit)();
                   }}
@@ -271,7 +271,7 @@ function DetailDialogMahasiswa({
                     !isDisabled && "hover:cursor-pointer",
                   )}
                   onClick={async () => {
-                    if (isDisabled) return;
+                    if (isDisabled || form.formState.isSubmitting) return;
                     form.setValue("status", "rejected");
                     form.handleSubmit(onSubmit)();
                   }}

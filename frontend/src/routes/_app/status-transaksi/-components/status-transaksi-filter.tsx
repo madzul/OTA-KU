@@ -46,7 +46,6 @@ export default function StatusTransaksiFilter({
 
   // Use the state directly in the handlers
   const handleYearChange = (value: string) => {
-    console.log("Year changed to:", value);
     setSelectedYear(value);
     onFilterChange({
       year: value,
@@ -55,7 +54,6 @@ export default function StatusTransaksiFilter({
   };
 
   const handleMonthChange = (value: string) => {
-    console.log("Month changed to:", value);
     setSelectedMonth(value);
     onFilterChange({
       year: selectedYear,
@@ -65,10 +63,6 @@ export default function StatusTransaksiFilter({
 
   // Call onFilterChange once on initial render to set initial filters
   useEffect(() => {
-    console.log("Initial filter set:", {
-      year: selectedYear,
-      month: selectedMonth,
-    });
     onFilterChange({
       year: selectedYear,
       month: selectedMonth,

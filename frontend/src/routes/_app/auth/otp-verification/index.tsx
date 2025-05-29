@@ -198,7 +198,7 @@ function RouteComponent() {
               <Button
                 type="submit"
                 className="w-full max-w-[300px]"
-                disabled={otpCallbackMutation.isPending}
+                disabled={form.formState.isSubmitting}
               >
                 Lanjutkan
               </Button>
@@ -211,6 +211,7 @@ function RouteComponent() {
             <span>Belum menerima kode? </span>
             <button
               onClick={handleResend}
+              disabled={otpResendCallbackMutation.isPending}
               className="ml-1 underline hover:cursor-pointer"
             >
               Kirim ulang

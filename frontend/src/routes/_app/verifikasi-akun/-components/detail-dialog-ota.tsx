@@ -167,7 +167,7 @@ function DetailDialogOta({
                   !isDisabled && "hover:cursor-pointer",
                 )}
                 onClick={() => {
-                  if (isDisabled) return;
+                  if (isDisabled || form.formState.isSubmitting) return;
                   form.setValue("status", "accepted");
                   form.setValue("notes", "-");
                   form.setValue("adminOnlyNotes", "-");
@@ -182,7 +182,7 @@ function DetailDialogOta({
                   !isDisabled && "hover:cursor-pointer",
                 )}
                 onClick={async () => {
-                  if (isDisabled) return;
+                  if (isDisabled || form.formState.isSubmitting) return;
                   form.setValue("status", "rejected");
                   form.setValue("notes", "-");
                   form.setValue("adminOnlyNotes", "-");

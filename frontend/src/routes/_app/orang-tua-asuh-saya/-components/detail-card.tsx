@@ -186,6 +186,7 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Masukkan alasan terminasi (wajib)"
+            disabled={reqTerminateOTA.isPending}
           />
 
           <DialogFooter className="flex flex-row space-x-2">
@@ -194,6 +195,7 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
               variant="outline"
               onClick={() => setIsModalOpen(false)}
               className="flex-1"
+              disabled={reqTerminateOTA.isPending}
             >
               Batal
             </Button>
@@ -202,6 +204,7 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
               variant="destructive"
               onClick={handleTerminate}
               className="flex-1"
+              disabled={reqTerminateOTA.isPending}
             >
               Akhiri Hubungan
             </Button>

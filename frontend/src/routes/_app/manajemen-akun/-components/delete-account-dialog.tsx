@@ -76,6 +76,7 @@ function DeleteAccountDialog({
             setOpen(false);
           }}
           className="flex-1"
+          disabled={deleteAccountCallbackMutation.isPending}
         >
           Batal
         </Button>
@@ -86,6 +87,7 @@ function DeleteAccountDialog({
             setOpen(false);
           }}
           className="flex-1"
+          disabled={deleteAccountCallbackMutation.isPending}
         >
           Lanjutkan
         </Button>

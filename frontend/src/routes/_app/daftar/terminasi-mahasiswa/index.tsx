@@ -198,6 +198,7 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               variant="outline"
               onClick={() => setIsModalOpen(false)}
               className="flex-1"
+              disabled={deleteConnection.isPending}
             >
               Batal
             </Button>
@@ -205,9 +206,10 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               type="button"
               variant="destructive"
               onClick={() => handleTerminate(note)}
+              disabled={deleteConnection.isPending}
               className="flex-1"
             >
-              {"Ya, Terminasi"}
+              Ya, Terminasi
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -300,8 +300,6 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
         MahasiswaProfileFormSchema.shape.nim.safeParse(watchedNim).success;
 
       if (isValidNim) {
-        console.log("NIM valid, setting jurusan and fakultas");
-
         const jurusanCode = watchedNim.slice(0, 3);
         const jurusan = getNimJurusanCodeMap()[jurusanCode] || "TPB";
         const fakultasCode =
@@ -793,15 +791,16 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                 onClick={() => {
                   setIsEditingEnabled(false);
                 }}
+                disabled={form.formState.isSubmitting}
               >
                 Batal
               </Button>
               <Button
                 type="submit"
                 className="w-24 xl:w-40"
-                disabled={updateProfileMutation.isPending}
+                disabled={form.formState.isSubmitting}
               >
-                {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
+                {form.formState.isSubmitting ? "Menyimpan..." : "Simpan"}
               </Button>
             </div>
           )}

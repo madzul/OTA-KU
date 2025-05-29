@@ -232,6 +232,7 @@ function Combobox({
                         form.reset();
                       }}
                       className="flex-1"
+                      disabled={form.formState.isSubmitting}
                     >
                       Batal
                     </Button>
@@ -246,6 +247,7 @@ function Combobox({
                         form.handleSubmit(onSubmit)();
                       }}
                       className="flex-1"
+                      disabled={form.formState.isSubmitting}
                     >
                       Lanjutkan
                     </Button>
@@ -328,6 +330,7 @@ function Combobox({
                         form.reset();
                       }}
                       className="flex-1"
+                      disabled={form.formState.isSubmitting}
                     >
                       Batal
                     </Button>
@@ -343,6 +346,7 @@ function Combobox({
                         form.handleSubmit(onSubmit)();
                       }}
                       className="flex-1"
+                      disabled={form.formState.isSubmitting}
                     >
                       Lanjutkan
                     </Button>

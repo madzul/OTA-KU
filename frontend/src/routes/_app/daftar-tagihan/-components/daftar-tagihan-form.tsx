@@ -369,7 +369,12 @@ function DaftarTagihanForm({ row }: DaftarTagihanFormProps) {
               <Button
                 variant="outline"
                 className="rounded-md"
-                disabled={value === null || isDisabled}
+                disabled={
+                  value === null ||
+                  isDisabled ||
+                  verifyTransactionAccCallbackMutation.isPending ||
+                  verifyTransactionRejectCallbackMutation.isPending
+                }
                 onClick={() => {
                   return value === "paid"
                     ? verifyTransactionAccCallbackMutation.mutate({

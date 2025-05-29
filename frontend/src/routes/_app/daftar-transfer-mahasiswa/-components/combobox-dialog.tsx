@@ -167,6 +167,7 @@ function ComboboxDialog({ row }: ComboboxDialogProps) {
                   });
                   setIsDialogOpen(false);
                 }}
+                disabled={acceptTransferStatusMutation.isPending}
               >
                 Lanjutkan
               </Button>
@@ -176,6 +177,7 @@ function ComboboxDialog({ row }: ComboboxDialogProps) {
                 onClick={() => {
                   setIsDialogOpen(false);
                 }}
+                disabled={acceptTransferStatusMutation.isPending}
               >
                 Batal
               </Button>

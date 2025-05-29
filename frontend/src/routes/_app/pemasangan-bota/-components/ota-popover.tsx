@@ -64,11 +64,6 @@ export function OTAPopover({
     fetchOTAs();
   }, []);
 
-  // JUST FOR DEBUGGING
-  // useEffect(() => {
-  //   console.log("Current OTAs:", otas);
-  // }, [otas]);
-
   const isDisabled = session?.type !== "admin" && session?.type !== "bankes";
 
   return (

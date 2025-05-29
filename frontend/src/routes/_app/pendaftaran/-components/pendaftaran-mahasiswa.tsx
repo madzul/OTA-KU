@@ -520,7 +520,11 @@ export default function PendaftaranMahasiswa({
               ))}
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
               Kirim
             </Button>
           </form>

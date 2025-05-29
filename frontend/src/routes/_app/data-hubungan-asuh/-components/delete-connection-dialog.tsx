@@ -92,6 +92,7 @@ function DeleteConnectionDialog({
               setOpen(false);
             }}
             className="flex-1"
+            disabled={deleteConnectionCallbackMutation.isPending}
           >
             Batal
           </Button>
@@ -101,6 +102,7 @@ function DeleteConnectionDialog({
               deleteConnectionCallbackMutation.mutate();
             }}
             className="flex-1"
+            disabled={deleteConnectionCallbackMutation.isPending}
           >
             Lanjutkan
           </Button>

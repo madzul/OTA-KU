@@ -130,6 +130,10 @@ export default function TerminasiModal({
             variant="outline"
             onClick={onClose}
             className="flex-1"
+            disabled={
+              terminateConnection.isPending ||
+              cancelTerminateConnection.isPending
+            }
           >
             Batal
           </Button>

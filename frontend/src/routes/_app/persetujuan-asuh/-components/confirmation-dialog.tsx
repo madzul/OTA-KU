@@ -121,10 +121,21 @@ function ConfirmationDialog({
             akan bisa diulang.
           </p>
           <div className="mt-4 flex flex-row space-x-2">
-            <Button className="flex-1" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              className="flex-1"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={connectionStatusCallbackMutation.isPending}
+            >
               Batal
             </Button>
-            <Button className="flex-1" onClick={handleConfirm}>Yakin</Button>
+            <Button
+              className="flex-1"
+              onClick={handleConfirm}
+              disabled={connectionStatusCallbackMutation.isPending}
+            >
+              Yakin
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
