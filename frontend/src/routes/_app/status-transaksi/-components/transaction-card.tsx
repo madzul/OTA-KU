@@ -45,7 +45,7 @@ function TransactionCard({ data, year, month }: TransactionCardProps) {
   return (
     <Card
       className={cn(
-        "mt-8 w-full max-w-[1000px] self-end",
+        "mt-8 w-full max-w-[1000px] self-center",
         status === "pending" && "max-w-[600px]",
       )}
     >
