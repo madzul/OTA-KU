@@ -9,6 +9,7 @@ import {
   accountTable,
   connectionTable,
   pushSubscriptionTable,
+  transactionTable,
 } from "../db/schema.js";
 import { requestTerminasiEmail } from "../lib/email/request-terminasi.js";
 import { terminasiAcceptedMAEmail } from "../lib/email/terminasi-accepted-ma.js";
@@ -783,6 +784,17 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
     )
     .limit(1);
 
+  if (connection.length === 0) {
+    return c.json(
+      {
+        success: false,
+        message: "Connection not found.",
+        error: {},
+      },
+      404,
+    );
+  }
+
   const otaData = await db
     .select({
       id: accountOtaDetailTable.accountId,
@@ -796,6 +808,17 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
     )
     .where(eq(accountOtaDetailTable.accountId, otaId))
     .limit(1);
+
+  if (otaData.length === 0) {
+    return c.json(
+      {
+        success: false,
+        message: "OTA data not found.",
+        error: {},
+      },
+      404,
+    );
+  }
 
   const maData = await db
     .select({
@@ -811,8 +834,35 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
     .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
     .limit(1);
 
+  if (maData.length === 0) {
+    return c.json(
+      {
+        success: false,
+        message: "Mahasiswa data not found.",
+        error: {},
+      },
+      404,
+    );
+  }
+
   try {
     await db.transaction(async (tx) => {
+      await tx
+        .update(accountMahasiswaDetailTable)
+        .set({ mahasiswaStatus: "inactive" })
+        .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId));
+
+      await tx
+        .update(transactionTable)
+        .set({ transactionStatus: "paid", transferStatus: "paid" })
+        .where(
+          and(
+            eq(transactionTable.mahasiswaId, mahasiswaId),
+            eq(transactionTable.otaId, otaId),
+            eq(transactionTable.transactionStatus, "unpaid"),
+          ),
+        );
+
       await tx
         .delete(connectionTable)
         .where(
@@ -826,11 +876,6 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
             ),
           ),
         );
-
-      await tx
-        .update(accountMahasiswaDetailTable)
-        .set({ mahasiswaStatus: "inactive" })
-        .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId));
     });
 
     const transporter = nodemailer.createTransport({

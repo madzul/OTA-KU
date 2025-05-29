@@ -491,13 +491,31 @@ connectProtectedRouter.openapi(verifyConnectionAccRoute, async (c) => {
 
       const dueDate = setDate(addMonths(new Date(), 1), transfer_date);
 
-      await tx.insert(transactionTable).values({
-        transferStatus: "unpaid",
-        mahasiswaId: mahasiswaId,
-        otaId: otaId,
-        bill: bill_mahasiswa,
-        dueDate: dueDate,
-      });
+      // Check for existing transaction with same mahasiswaId, otaId, and dueDate (year, month, date)
+      const existingTransaction = await tx
+        .select()
+        .from(transactionTable)
+        .where(
+          and(
+            eq(transactionTable.mahasiswaId, mahasiswaId),
+            eq(transactionTable.otaId, otaId),
+            // Compare year, month, and date
+            sql`EXTRACT(YEAR FROM ${transactionTable.dueDate}) = ${dueDate.getFullYear()}`,
+            sql`EXTRACT(MONTH FROM ${transactionTable.dueDate}) = ${dueDate.getMonth() + 1}`,
+            sql`EXTRACT(DAY FROM ${transactionTable.dueDate}) = ${dueDate.getDate()}`,
+          ),
+        )
+        .limit(1);
+
+      if (existingTransaction.length === 0) {
+        await tx.insert(transactionTable).values({
+          transferStatus: "unpaid",
+          mahasiswaId: mahasiswaId,
+          otaId: otaId,
+          bill: bill_mahasiswa,
+          dueDate: dueDate,
+        });
+      }
     });
 
     const otaData = await db
@@ -1236,14 +1254,34 @@ connectProtectedRouter.openapi(deleteConnectionRoute, async (c) => {
   }
 
   try {
-    await db
-      .delete(connectionTable)
-      .where(
-        and(
-          eq(connectionTable.mahasiswaId, mahasiswaId),
-          eq(connectionTable.otaId, otaId),
-        ),
-      );
+    await db.transaction(async (tx) => {
+      await tx
+        .update(accountMahasiswaDetailTable)
+        .set({ mahasiswaStatus: "inactive" })
+        .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId))
+        .returning();
+
+      await tx
+        .update(transactionTable)
+        .set({ transactionStatus: "paid", transferStatus: "paid" })
+        .where(
+          and(
+            eq(transactionTable.mahasiswaId, mahasiswaId),
+            eq(transactionTable.otaId, otaId),
+            eq(transactionTable.transactionStatus, "unpaid"),
+          ),
+        );
+
+      await tx
+        .delete(connectionTable)
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+            eq(connectionTable.connectionStatus, "accepted"),
+          ),
+        );
+    });
 
     return c.json(
       {

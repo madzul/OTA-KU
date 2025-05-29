@@ -1,5 +1,3 @@
-"use client";
-
 import { api } from "@/api/client";
 import type { ListTerminateForOTA } from "@/api/generated";
 import Metadata from "@/components/metadata";
@@ -87,29 +85,32 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
       setIsModalOpen(false);
       onTerminateSuccess(student.mahasiswaId);
-      try {
-        toast.success(
-          `Permintaan pemutusan hubungan asuh dengan mahasiswa ${student.maName} berhasil diproses`,
-          {
-            description: "Permintaan terminasi telah dikirim dan menunggu persetujuan Admin.",
-          }
-        );
-      } catch (e: Error | unknown) {
-        toast.error(
-          `Gagal memproses pemutusan hubungan asuh dengan mahasiswa ${student.maName}. Silakan coba kembali.`,
-          {
-            description: e instanceof Error ? e.message : String(e),
-          },
-        );
-      }
-    },
-    onError: () => {
-      toast.error(
-        `Gagal memproses pemutusan hubungan asuh dengan mahasiswa ${student.maName}. Silakan coba kembali.`,
+      toast.success(
+        "Berhasil melakukan permintaan pemutusan hubungan dengan mahasiswa asuh",
+        {
+          description: "Permintaan akan segera diproses oleh IOM ITB",
+        },
       );
+    },
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning(
+        "Gagal melakukan permintaan pemutusan hubungan dengan mahasiswa asuh",
+        {
+          description: error.message,
+        },
+      );
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memproses permintaan...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 

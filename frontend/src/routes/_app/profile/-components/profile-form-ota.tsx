@@ -134,15 +134,24 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
         formData: data,
         id: session?.id ?? "",
       }),
-    onSuccess: () => {
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
       toast.success("Profil berhasil diperbarui", {
         description: "Data profil Anda telah disimpan",
       });
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
       toast.warning("Gagal memperbarui profil", {
         description: error.message,
       });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memperbarui profil...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 

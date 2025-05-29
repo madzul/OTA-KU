@@ -1,5 +1,3 @@
-"use client";
-
 import type { ListTerminateForAdmin } from "@/api/generated";
 import { Button } from "@/components/ui/button";
 import {

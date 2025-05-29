@@ -1,5 +1,3 @@
-"use client";
-
 import { api } from "@/api/client";
 import { ListTerminateForAdmin } from "@/api/generated";
 import { Button } from "@/components/ui/button";
@@ -12,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface TerminasiModalProps {
   mode: "accept" | "reject";
@@ -37,14 +36,30 @@ export default function TerminasiModal({
         },
       });
     },
-    onSuccess: () => {
-      // Call onConfirm to refresh the data after successful termination
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
+      toast.success("Permintaan terminasi berhasil diproses", {
+        description: "Hubungan asuh antara OTA dan Mahasiswa telah berakhir",
+      });
       onConfirm();
       onClose();
     },
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal memproses permintaan terminasi", {
+        description: error.message,
+      });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memproses permintaan...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
+    },
   });
 
-  const cancleTerminateConnection = useMutation({
+  const cancelTerminateConnection = useMutation({
     mutationFn: (data: { maId: string; otaId: string }) => {
       return api.terminate.rejectTerminate({
         formData: {
@@ -53,10 +68,26 @@ export default function TerminasiModal({
         },
       });
     },
-    onSuccess: () => {
-      // Call onConfirm to refresh the data after successful termination
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
+      toast.success("Permintaan terminasi berhasil ditolak", {
+        description: "Hubungan asuh antara OTA dan Mahasiswa tetap aktif",
+      });
       onConfirm();
       onClose();
+    },
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal memproses permintaan terminasi", {
+        description: error.message,
+      });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memproses permintaan...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 
@@ -73,7 +104,7 @@ export default function TerminasiModal({
               Konfirmasi Tolak Terminasi
             </DialogTitle>
           )}
-          <DialogDescription className="text-gray-600 text-justify">
+          <DialogDescription className="text-justify text-gray-600">
             {mode === "accept"
               ? "Apakah Anda yakin ingin melakukan terminasi hubungan asuh antara OTA dan Mahasiswa berikut?"
               : "Apakah Anda yakin ingin menolak permintaan terminasi hubungan asuh antara OTA dan Mahasiswa berikut?"}
@@ -106,7 +137,7 @@ export default function TerminasiModal({
             <Button
               variant="destructive"
               onClick={() => {
-                cancleTerminateConnection.mutate({
+                terminateConnection.mutate({
                   maId: item.mahasiswaId,
                   otaId: item.otaId,
                 });
@@ -120,15 +151,15 @@ export default function TerminasiModal({
             <Button
               variant="default"
               onClick={() => {
-                cancleTerminateConnection.mutate({
+                cancelTerminateConnection.mutate({
                   maId: item.mahasiswaId,
                   otaId: item.otaId,
                 });
               }}
-              disabled={terminateConnection.isPending}
+              disabled={cancelTerminateConnection.isPending}
               className="sm:flex-1"
             >
-              {terminateConnection.isPending
+              {cancelTerminateConnection.isPending
                 ? "Memproses..."
                 : "Tolak Terminasi"}
             </Button>

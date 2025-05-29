@@ -242,6 +242,7 @@ export class TerminateService {
         400: `Gagal memvalidasi terminasi hubungan`,
         401: `Bad request: authorization (not logged in) error`,
         403: `Akun admin belum terverifikasi.`,
+        404: `Connection not found.`,
         500: `Internal server error`,
       },
     });

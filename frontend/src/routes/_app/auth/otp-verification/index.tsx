@@ -18,6 +18,7 @@ import { OTPVerificationRequestSchema } from "@/lib/zod/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -172,8 +173,14 @@ function RouteComponent() {
                 render={({ field }) => (
                   <FormItem className="flex flex-col items-center">
                     <FormControl>
-                      <InputOTP maxLength={6} {...field}>
-                        <InputOTPGroup inputMode="text" autoCapitalize="on">
+                      <InputOTP
+                        maxLength={6}
+                        {...field}
+                        pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                        inputMode="text"
+                        autoCapitalize="on"
+                      >
+                        <InputOTPGroup>
                           <InputOTPSlot index={0} />
                           <InputOTPSlot index={1} />
                           <InputOTPSlot index={2} />

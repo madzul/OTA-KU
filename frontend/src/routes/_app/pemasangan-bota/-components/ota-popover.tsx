@@ -1,5 +1,3 @@
-"use client";
-
 import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import {
