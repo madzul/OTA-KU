@@ -102,6 +102,9 @@ function RouteComponent() {
                       <div className="relative w-full max-w-[300px]">
                         <Input
                           placeholder="Email"
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          inputMode="email"
                           type="email"
                           className="pl-10 text-black"
                           {...field}
