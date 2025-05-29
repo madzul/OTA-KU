@@ -9,6 +9,7 @@ import {
   accountTable,
   connectionTable,
   pushSubscriptionTable,
+  transactionTable,
 } from "../db/schema.js";
 import { requestTerminasiEmail } from "../lib/email/request-terminasi.js";
 import { terminasiAcceptedMAEmail } from "../lib/email/terminasi-accepted-ma.js";
@@ -847,6 +848,22 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
   try {
     await db.transaction(async (tx) => {
       await tx
+        .update(accountMahasiswaDetailTable)
+        .set({ mahasiswaStatus: "inactive" })
+        .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId));
+
+      await tx
+        .update(transactionTable)
+        .set({ transactionStatus: "paid", transferStatus: "paid" })
+        .where(
+          and(
+            eq(transactionTable.mahasiswaId, mahasiswaId),
+            eq(transactionTable.otaId, otaId),
+            eq(transactionTable.transactionStatus, "unpaid"),
+          ),
+        );
+
+      await tx
         .delete(connectionTable)
         .where(
           and(
@@ -859,11 +876,6 @@ terminateProtectedRouter.openapi(validateTerminateRoute, async (c) => {
             ),
           ),
         );
-
-      await tx
-        .update(accountMahasiswaDetailTable)
-        .set({ mahasiswaStatus: "inactive" })
-        .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId));
     });
 
     const transporter = nodemailer.createTransport({

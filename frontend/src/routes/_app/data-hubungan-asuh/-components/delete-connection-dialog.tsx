@@ -42,10 +42,10 @@ function DeleteConnectionDialog({
       });
       setOpen(false);
     },
-    onError: (_error, _variables, context) => {
+    onError: (error, _variables, context) => {
       toast.dismiss(context);
       toast.warning("Gagal menghapus hubungan asuh", {
-        description: "Silakan coba lagi",
+        description: error.message,
       });
     },
     onMutate: () => {

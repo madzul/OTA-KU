@@ -79,24 +79,6 @@ function DaftarTagihanContent() {
         </div>
       </div>
 
-      {/* Search and Filters */}
-      {/* {isLoading ? (
-        <div className="rounded-md bg-white">
-          <Skeleton className="h-10 w-full" />
-        </div>
-      ) : (
-        <SearchFilterBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          yearFilter={yearFilter}
-          onYearChange={setYearFilter}
-          monthFilter={monthFilter}
-          onMonthChange={setMonthFilter}
-          statusFilter={selectedStatus}
-          onStatusChange={setSelectedStatus}
-        />
-      )} */}
-
       {/* Table */}
       {isLoading ? (
         <div className="rounded-md bg-white">
