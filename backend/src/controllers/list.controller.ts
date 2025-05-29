@@ -6,10 +6,10 @@ import {
   ilike,
   isNotNull,
   lt,
-  not,
   or,
   sql,
 } from "drizzle-orm";
+import { connect } from "http2";
 
 import { db } from "../db/drizzle.js";
 import {
@@ -35,7 +35,6 @@ import {
   VerifiedMahasiswaListQuerySchema,
 } from "../zod/list.js";
 import { createAuthRouter, createRouter } from "./router-factory.js";
-import { connect } from "http2";
 
 export const listRouter = createRouter();
 export const listProtectedRouter = createAuthRouter();
@@ -48,14 +47,14 @@ listProtectedRouter.openapi(listMahasiswaOtaRoute, async (c) => {
   const zodParseResult = VerifiedMahasiswaListQuerySchema.parse(c.req.query());
   const { q, page, major, faculty, religion, gender } = zodParseResult;
 
-  if (user.type !== "ota") {
+  if (user.type === "mahasiswa") {
     return c.json(
       {
         success: false,
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya OTA yang bisa mengakses list ini",
+          message: "Mahasiswa tidak bisa mengakses list ini",
         },
       },
       403,
@@ -176,14 +175,19 @@ listProtectedRouter.openapi(listMahasiswaAdminRoute, async (c) => {
   const user = c.var.user;
   const { q, page, jurusan, status } = c.req.query();
 
-  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+  if (
+    user.type !== "admin" &&
+    user.type !== "bankes" &&
+    user.type !== "pengurus"
+  ) {
     return c.json(
       {
         success: false,
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
+          message:
+            "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
         },
       },
       403,
@@ -371,14 +375,19 @@ listProtectedRouter.openapi(listOrangTuaAdminRoute, async (c) => {
   const user = c.var.user;
   const { q, page, status } = c.req.query();
 
-  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+  if (
+    user.type !== "admin" &&
+    user.type !== "bankes" &&
+    user.type !== "pengurus"
+  ) {
     return c.json(
       {
         success: false,
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
+          message:
+            "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
         },
       },
       403,
@@ -916,7 +925,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
         gpa: accountMahasiswaDetailTable.gpa,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
         request_term_ota: connectionTable.requestTerminateOta,
-        request_term_ma: connectionTable.requestTerminateMahasiswa
+        request_term_ma: connectionTable.requestTerminateMahasiswa,
       })
       .from(connectionTable)
       .innerJoin(
@@ -963,7 +972,7 @@ listProtectedRouter.openapi(listMAActiveRoute, async (c) => {
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
             gpa: mahasiswa.gpa!,
             request_term_ota: mahasiswa.request_term_ota,
-            request_term_ma: mahasiswa.request_term_ma
+            request_term_ma: mahasiswa.request_term_ma,
           })),
           totalData: counts[0].count,
         },
@@ -1049,7 +1058,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
         gpa: accountMahasiswaDetailTable.gpa,
         mahasiswaStatus: accountMahasiswaDetailTable.mahasiswaStatus,
         request_term_ota: connectionTable.requestTerminateOta,
-        request_term_ma: connectionTable.requestTerminateMahasiswa
+        request_term_ma: connectionTable.requestTerminateMahasiswa,
       })
       .from(connectionTable)
       .innerJoin(
@@ -1098,7 +1107,7 @@ listProtectedRouter.openapi(listMAPendingRoute, async (c) => {
             gpa: mahasiswa.gpa!,
             mahasiswaStatus: mahasiswa.mahasiswaStatus,
             request_term_ota: mahasiswa.request_term_ota,
-            request_term_ma: mahasiswa.request_term_ma
+            request_term_ma: mahasiswa.request_term_ma,
           })),
           totalData: counts[0].count,
         },
@@ -1129,14 +1138,19 @@ listProtectedRouter.openapi(listAvailableOTARoute, async (c) => {
     pageNumber = 1;
   }
 
-  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+  if (
+    user.type !== "admin" &&
+    user.type !== "bankes" &&
+    user.type !== "pengurus"
+  ) {
     return c.json(
       {
         success: false,
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
+          message:
+            "Hanya admin, bankes, atau pengurus yang bisa mengakses list ini",
         },
       },
       403,
