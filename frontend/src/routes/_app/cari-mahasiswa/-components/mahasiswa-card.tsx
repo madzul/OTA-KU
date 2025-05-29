@@ -49,7 +49,8 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
       toast.success("Berhasil melakukan permintaan Bantuan Orang Tua Asuh", {
         description: "Permintaan akan segera diproses oleh IOM ITB",
       });
@@ -65,10 +66,18 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
         ],
       });
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
       toast.warning("Gagal melakukan permintaan Bantuan Orang Tua Asuh", {
         description: error.message,
       });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memproses permintaan...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 

@@ -22,6 +22,7 @@ import {
   Phone,
 } from "lucide-react";
 import React, { useContext, useState } from "react";
+import { toast } from "sonner";
 
 const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
   id,
@@ -47,9 +48,23 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
       setIsModalOpen(false);
       setIsRequested(true);
+    },
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal memproses permintaan terminasi", {
+        description: error.message,
+      });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memproses permintaan...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 

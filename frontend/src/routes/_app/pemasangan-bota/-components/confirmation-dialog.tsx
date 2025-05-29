@@ -51,7 +51,7 @@ function ConfirmationDialog({
     onError: (_error, __, context) => {
         console.error("Error:", _error);
       toast.dismiss(context); // Dismiss the loading toast
-      toast.error("Gagal memasangkan mahasiswa dengan OTA.");
+      toast.warning("Gagal memasangkan mahasiswa dengan OTA.");
     },
     onMutate: () => {
       const loading = toast.loading("Memasangkan mahasiswa dengan OTA...", {
