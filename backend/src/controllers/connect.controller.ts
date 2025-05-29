@@ -1236,14 +1236,22 @@ connectProtectedRouter.openapi(deleteConnectionRoute, async (c) => {
   }
 
   try {
-    await db
-      .delete(connectionTable)
-      .where(
-        and(
-          eq(connectionTable.mahasiswaId, mahasiswaId),
-          eq(connectionTable.otaId, otaId),
-        ),
-      );
+    await db.transaction(async (tx) => {
+      await tx
+        .delete(connectionTable)
+        .where(
+          and(
+            eq(connectionTable.mahasiswaId, mahasiswaId),
+            eq(connectionTable.otaId, otaId),
+            eq(connectionTable.connectionStatus, "accepted"),
+          ),
+        );
+
+      await tx
+        .update(accountMahasiswaDetailTable)
+        .set({ mahasiswaStatus: "inactive" })
+        .where(eq(accountMahasiswaDetailTable.accountId, mahasiswaId));
+    });
 
     return c.json(
       {
