@@ -36,15 +36,6 @@ export default function Footer() {
             >
               <img src="/ig.svg" alt="Instagram" className="w-8" />
             </a>
-            <a href="#" className="text-primary">
-              <img src="/fb.svg" alt="Facebook" className="w-8" />
-            </a>
-            <a href="#" className="text-primary">
-              <img src="/twitter.svg" alt="Twitter" className="w-8" />
-            </a>
-            <a href="#" className="text-primary">
-              <img src="/line.svg" alt="LINE" className="w-8" />
-            </a>
             <a
               href="https://www.youtube.com/@iom-itb"
               target="_blank"
