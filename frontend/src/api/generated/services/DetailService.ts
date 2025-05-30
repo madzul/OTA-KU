@@ -98,6 +98,34 @@ export class DetailService {
     });
   }
   /**
+   * Get detailed information of a specific mahasiswa asuh for orang tua asuh.
+   * @returns any Berhasil mendapatkan detail mahasiswa asuh.
+   * @throws ApiError
+   */
+  public getMahasiswaDetailForOta({
+    id,
+  }: {
+    id: string,
+  }): CancelablePromise<{
+    success: boolean;
+    message: string;
+    body: MahasiswaSayaDetailResponse;
+  }> {
+    return this.httpRequest.request({
+      method: 'GET',
+      url: '/api/detail/mahasiswa-asuh/{id}',
+      path: {
+        'id': id,
+      },
+      errors: {
+        401: `Bad request: authorization (not logged in) error`,
+        403: `Forbidden`,
+        404: `Mahasiswa asuh tidak ditemukan`,
+        500: `Internal server error`,
+      },
+    });
+  }
+  /**
    * Get detailed information of a specific orang tua asuh.
    * @returns any Berhasil mendapatkan detail orang tua asuh.
    * @throws ApiError

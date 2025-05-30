@@ -1,5 +1,6 @@
 import { MahasiswaSayaDetailResponse } from "@/api/generated";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { censorNim } from "@/lib/nim";
 import { Calendar, Mail, Phone } from "lucide-react";
 import React from "react";
 
@@ -34,10 +35,14 @@ const DetailCardsMahasiswaAsuh: React.FC<MahasiswaSayaDetailResponse> = ({
         <CardContent>
           <div className="text-primary space-y-3 text-sm xl:text-base">
             <div className="flex items-center space-x-3">
+              {/* Di sensor karena ota ga bole tau nim mahasiswa, tapi cuman di handle di FE */}
               <Mail className="text-muted-foreground h-5 w-5" />
-              <a href={`mailto:${email}`} target="_blank" className="text-sm">
-                {email}
-              </a>
+                <a target="_blank" className="text-sm">
+                {email.replace(
+                  /^(\d+)(\d{3})(@mahasiswa\.itb\.ac\.id)$/,
+                  (_match, p1, _p2, p3) => `${p1}XXX${p3}`
+                )}
+                </a>
             </div>
             <div className="flex items-center space-x-3">
               <Phone className="text-muted-foreground h-5 w-5" />
@@ -69,7 +74,7 @@ const DetailCardsMahasiswaAsuh: React.FC<MahasiswaSayaDetailResponse> = ({
           <div className="xl:text-md space-y-2">
             <div className="flex items-center space-x-3">
               <span className="font-semibold">NIM:</span>
-              <span>{nim}</span>
+              <span>{censorNim(nim)}</span>
             </div>
             <div className="flex items-center space-x-3">
               <span className="font-semibold">Jurusan:</span>

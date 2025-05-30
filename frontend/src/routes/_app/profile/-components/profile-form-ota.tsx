@@ -134,15 +134,24 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
         formData: data,
         id: session?.id ?? "",
       }),
-    onSuccess: () => {
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
       toast.success("Profil berhasil diperbarui", {
         description: "Data profil Anda telah disimpan",
       });
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
       toast.warning("Gagal memperbarui profil", {
         description: error.message,
       });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memperbarui profil...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 
@@ -454,15 +463,16 @@ const ProfileFormOTA: React.FC<ProfileFormProps> = ({ session }) => {
                   className="w-24 xl:w-40"
                   variant="outline"
                   onClick={() => setIsEditingEnabled(false)}
+                  disabled={form.formState.isSubmitting}
                 >
                   Batal
                 </Button>
                 <Button
                   type="submit"
                   className="w-24 xl:w-40"
-                  disabled={updateProfileMutation.isPending}
+                  disabled={form.formState.isSubmitting}
                 >
-                  {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
+                  {form.formState.isSubmitting ? "Menyimpan..." : "Simpan"}
                 </Button>
               </>
             ) : (

@@ -203,7 +203,8 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
         formData: formDataWithAllFiles,
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
       toast.success("Profil berhasil diperbarui", {
         description: "Data profil Anda telah disimpan",
       });
@@ -215,10 +216,18 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
         queryKey: ["getReapplicationStatus"],
       });
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
       toast.warning("Gagal memperbarui profil", {
         description: error.message,
       });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memperbarui profil...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 
@@ -258,7 +267,7 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
 
     // Tambahkan validasi untuk transkrip nilai
     if (!values.transcript || !(values.transcript instanceof File)) {
-      toast.error("Validasi gagal", {
+      toast.warning("Validasi gagal", {
         description:
           "Transkrip nilai harus diupload ulang saat mengedit profil",
       });
@@ -291,8 +300,6 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
         MahasiswaProfileFormSchema.shape.nim.safeParse(watchedNim).success;
 
       if (isValidNim) {
-        console.log("NIM valid, setting jurusan and fakultas");
-
         const jurusanCode = watchedNim.slice(0, 3);
         const jurusan = getNimJurusanCodeMap()[jurusanCode] || "TPB";
         const fakultasCode =
@@ -510,6 +517,9 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                           <FormLabel className="text-primary">
                             {uploadFieldLabels.gpa}
                           </FormLabel>
+                          <p className="text-muted-foreground text-xs">
+                            Gunakan tanda titik (.) untuk desimal
+                          </p>
                           <FormControl>
                             <Input
                               placeholder="Masukkan IPK Anda"
@@ -781,15 +791,16 @@ const ProfileFormMA: React.FC<ProfileFormProps> = ({
                 onClick={() => {
                   setIsEditingEnabled(false);
                 }}
+                disabled={form.formState.isSubmitting}
               >
                 Batal
               </Button>
               <Button
                 type="submit"
                 className="w-24 xl:w-40"
-                disabled={updateProfileMutation.isPending}
+                disabled={form.formState.isSubmitting}
               >
-                {updateProfileMutation.isPending ? "Menyimpan..." : "Simpan"}
+                {form.formState.isSubmitting ? "Menyimpan..." : "Simpan"}
               </Button>
             </div>
           )}

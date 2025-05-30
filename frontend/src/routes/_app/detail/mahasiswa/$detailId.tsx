@@ -55,8 +55,8 @@ function RouteComponent() {
   const { detailId } = Route.useParams();
 
   const { data } = useQuery({
-    queryKey: ["getMahasiswaDetail", detailId],
-    queryFn: () => api.detail.getMahasiswaSayaDetail({ id: detailId }),
+    queryKey: ["getMahasiswaDetailForOta", detailId],
+    queryFn: () => api.detail.getMahasiswaDetailForOta({ id: detailId }),
   });
 
   return (

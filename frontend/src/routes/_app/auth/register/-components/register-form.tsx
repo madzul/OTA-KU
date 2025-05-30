@@ -88,7 +88,7 @@ export default function RegisterForm({
   }, [azureClientId]);
 
   return (
-    <main className="flex min-h-[calc(100vh-70px)] flex-col items-center justify-center gap-9 p-2 px-4 py-8 md:px-12 lg:min-h-[calc(100vh-96px)]">
+    <section className="flex w-full flex-col items-center justify-center gap-9 py-8 md:px-12">
       <img
         src="/icon/logo-basic.png"
         alt="logo"
@@ -100,7 +100,7 @@ export default function RegisterForm({
       <h2 className="text-primary text-center text-2xl md:text-[26px]">
         Silahkan isi kolom yang tersedia
       </h2>
-      <section className="md:w-[400px]">
+      <section className="w-full max-w-[400px]">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -113,7 +113,13 @@ export default function RegisterForm({
                 <FormItem>
                   <FormLabel className="text-primary text-sm">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan email Anda" {...field} />
+                    <Input
+                      placeholder="Masukkan email Anda"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      inputMode="email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -182,14 +188,11 @@ export default function RegisterForm({
                   setIsClicked(false);
                   setRole("");
                 }}
-                disabled={registerCallbackMutation.isPending}
+                disabled={form.formState.isSubmitting}
               >
                 Kembali
               </Button>
-              <Button
-                type="submit"
-                disabled={registerCallbackMutation.isPending}
-              >
+              <Button type="submit" disabled={form.formState.isSubmitting}>
                 Buat Akun
               </Button>
             </div>
@@ -199,7 +202,7 @@ export default function RegisterForm({
                 <p className="text-primary text-center">atau</p>
                 <Button
                   type="button"
-                  disabled={registerCallbackMutation.isPending}
+                  disabled={form.formState.isSubmitting}
                   asChild
                   variant={"outline"}
                 >
@@ -219,6 +222,6 @@ export default function RegisterForm({
           </form>
         </Form>
       </section>
-    </main>
+    </section>
   );
 }

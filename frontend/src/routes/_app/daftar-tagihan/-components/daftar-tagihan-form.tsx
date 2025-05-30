@@ -42,7 +42,7 @@ const getStatusBadge = (status: TransactionStatus) => {
     },
     pending: {
       variant: "secondary" as const,
-      label: "Belum Dibayar",
+      label: "Menunggu Verifikasi",
       className: "bg-yellow-100 text-yellow-800",
     },
     unpaid: {
@@ -369,7 +369,12 @@ function DaftarTagihanForm({ row }: DaftarTagihanFormProps) {
               <Button
                 variant="outline"
                 className="rounded-md"
-                disabled={value === null || isDisabled}
+                disabled={
+                  value === null ||
+                  isDisabled ||
+                  verifyTransactionAccCallbackMutation.isPending ||
+                  verifyTransactionRejectCallbackMutation.isPending
+                }
                 onClick={() => {
                   return value === "paid"
                     ? verifyTransactionAccCallbackMutation.mutate({

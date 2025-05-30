@@ -18,6 +18,7 @@ import { OTPVerificationRequestSchema } from "@/lib/zod/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -172,7 +173,13 @@ function RouteComponent() {
                 render={({ field }) => (
                   <FormItem className="flex flex-col items-center">
                     <FormControl>
-                      <InputOTP maxLength={6} {...field}>
+                      <InputOTP
+                        maxLength={6}
+                        {...field}
+                        pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                        inputMode="text"
+                        autoCapitalize="on"
+                      >
                         <InputOTPGroup>
                           <InputOTPSlot index={0} />
                           <InputOTPSlot index={1} />
@@ -191,7 +198,7 @@ function RouteComponent() {
               <Button
                 type="submit"
                 className="w-full max-w-[300px]"
-                disabled={otpCallbackMutation.isPending}
+                disabled={form.formState.isSubmitting}
               >
                 Lanjutkan
               </Button>
@@ -204,6 +211,7 @@ function RouteComponent() {
             <span>Belum menerima kode? </span>
             <button
               onClick={handleResend}
+              disabled={otpResendCallbackMutation.isPending}
               className="ml-1 underline hover:cursor-pointer"
             >
               Kirim ulang

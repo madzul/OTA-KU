@@ -258,14 +258,24 @@ export default function NavBar() {
                 <MenubarMenu>
                   <MenubarTrigger className="cursor-pointer border-none bg-transparent p-0 shadow-none outline-none hover:bg-transparent focus:bg-transparent">
                     <div className="relative">
-                      <img
-                        src="/icon/Type=profile-icon.svg"
-                        alt="Profile"
-                        className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
-                      />
-                      {/* Red dot indicator above profile icon */}
-                      {profileData?.body.status && (
-                        <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-600"></div>
+                      {(session.type === "mahasiswa" || session.type === "ota") ? (
+                        <>
+                          <img
+                            src="/icon/Type=profile-icon.svg"
+                            alt="Profile"
+                            className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
+                          />
+                          {/* Red dot indicator above profile icon */}
+                          {profileData?.body.status && (
+                            <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-600"></div>
+                          )}
+                        </>
+                      ) : (
+                        <img
+                          src="/icon/Type=log-out.svg"
+                          alt="Log out"
+                          className="h-6 w-6 transform transition-transform duration-200 ease-in-out hover:scale-125"
+                        />
                       )}
                     </div>
                   </MenubarTrigger>

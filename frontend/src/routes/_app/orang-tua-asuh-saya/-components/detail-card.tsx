@@ -22,6 +22,7 @@ import {
   Phone,
 } from "lucide-react";
 import React, { useContext, useState } from "react";
+import { toast } from "sonner";
 
 const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
   id,
@@ -47,9 +48,23 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
       setIsModalOpen(false);
       setIsRequested(true);
+    },
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal memproses permintaan terminasi", {
+        description: error.message,
+      });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memproses permintaan...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 
@@ -171,13 +186,16 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Masukkan alasan terminasi (wajib)"
+            disabled={reqTerminateOTA.isPending}
           />
 
-          <DialogFooter className="grid grid-cols-2 gap-2 sm:gap-4">
+          <DialogFooter className="flex flex-row space-x-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsModalOpen(false)}
+              className="flex-1"
+              disabled={reqTerminateOTA.isPending}
             >
               Batal
             </Button>
@@ -185,6 +203,8 @@ const DetailCardsOrangTuaAsuh: React.FC<MyOtaDetailResponse> = ({
               type="button"
               variant="destructive"
               onClick={handleTerminate}
+              className="flex-1"
+              disabled={reqTerminateOTA.isPending}
             >
               Akhiri Hubungan
             </Button>

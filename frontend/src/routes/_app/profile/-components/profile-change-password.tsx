@@ -105,10 +105,12 @@ export default function ChangePasswordForm({
           />
           <Button
             type="submit"
-            disabled={mutation.isPending}
+            disabled={form.formState.isSubmitting}
             className="w-full"
           >
-            {mutation.isPending ? "Mengubah Kata Sandi..." : "Ubah Kata Sandi"}
+            {form.formState.isSubmitting
+              ? "Mengubah Kata Sandi..."
+              : "Ubah Kata Sandi"}
           </Button>
         </form>
       </Form>

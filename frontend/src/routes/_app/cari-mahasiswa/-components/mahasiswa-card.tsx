@@ -49,7 +49,8 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
       toast.success("Berhasil melakukan permintaan Bantuan Orang Tua Asuh", {
         description: "Permintaan akan segera diproses oleh IOM ITB",
       });
@@ -65,10 +66,18 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
         ],
       });
     },
-    onError: (error) => {
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
       toast.warning("Gagal melakukan permintaan Bantuan Orang Tua Asuh", {
         description: error.message,
       });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memproses permintaan...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 
@@ -122,12 +131,13 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
                 <span className="text-dark font-bold">{mahasiswa.name}</span>?
               </DialogDescription>
             </DialogHeader>
-            <DialogFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+            <DialogFooter className="flex flex-row space-x-2">
               <Button
                 type="button"
                 variant="outline"
-                className="sm:flex-1"
+                className="flex-1"
                 onClick={() => setIsDialogOpen(false)}
+                disabled={bantuHandler.isPending}
               >
                 Batal
               </Button>
@@ -135,7 +145,7 @@ function MahasiswaCard({ mahasiswa, session, queries }: MahasiswaCardProps) {
                 type="button"
                 onClick={handleBantuConfirm}
                 disabled={bantuHandler.isPending}
-                className="sm:flex-1"
+                className="flex-1"
               >
                 {bantuHandler.isPending ? "Memproses..." : "Bantu"}
               </Button>

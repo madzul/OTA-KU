@@ -2,28 +2,32 @@ import { createRoute } from "@hono/zod-openapi";
 
 import { AuthorizationErrorResponse } from "../types/response.js";
 import {
+  DeleteConnectionSuccessfulResponseSchema,
+  MahasiwaConnectSchema,
+  OrangTuaFailedResponse,
+  OrangTuaSuccessResponse,
+  OrangTuaUnverifiedResponse,
   checkConnectParamsSchema,
   connectionListAllQueryResponse,
   connectionListAllQuerySchema,
   connectionListQueryResponse,
   connectionListQuerySchema,
   connectionListTerminateQueryResponse,
-  DeleteConnectionSuccessfulResponseSchema,
   isConnectedResponse,
-  MahasiwaConnectSchema,
-  OrangTuaFailedResponse,
-  OrangTuaSuccessResponse,
-  OrangTuaUnverifiedResponse,
   verifyConnectionResponse,
 } from "../zod/connect.js";
-import { ForbiddenResponse, InternalServerErrorResponse } from "../zod/response.js";
+import {
+  ForbiddenResponse,
+  InternalServerErrorResponse,
+} from "../zod/response.js";
 
 export const connectOtaMahasiswaRoute = createRoute({
   operationId: "connectOtaMahasiswa",
   tags: ["Connect"],
   method: "post",
   path: "/by-ota",
-  description: "Menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA",
+  description:
+    "Menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA",
   request: {
     body: {
       content: {
@@ -44,7 +48,8 @@ export const connectOtaMahasiswaRoute = createRoute({
       },
     },
     400: {
-      description: "Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA",
+      description:
+        "Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via pilihan mandiri OTA",
       content: {
         "application/json": {
           schema: OrangTuaFailedResponse,
@@ -95,7 +100,8 @@ export const connectOtaMahasiswaByAdminRoute = createRoute({
       },
     },
     400: {
-      description: "Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via Admin",
+      description:
+        "Gagal menghubungkan orang tua asuh dengan mahasiswa asuh via Admin",
       content: {
         "application/json": {
           schema: OrangTuaFailedResponse,
@@ -160,8 +166,8 @@ export const verifyConnectionAccRoute = createRoute({
         "application/json": { schema: InternalServerErrorResponse },
       },
     },
-  }
-})
+  },
+});
 
 export const verifyConnectionRejectRoute = createRoute({
   operationId: "verifyConnectionReject",
@@ -203,8 +209,8 @@ export const verifyConnectionRejectRoute = createRoute({
         "application/json": { schema: InternalServerErrorResponse },
       },
     },
-  }
-})
+  },
+});
 
 export const listPendingConnectionRoute = createRoute({
   operationId: "listPendingConnection",
@@ -213,7 +219,7 @@ export const listPendingConnectionRoute = createRoute({
   path: "/list/pending",
   description: "List seluruh connection yang pending beserta detailnya",
   request: {
-    query: connectionListQuerySchema
+    query: connectionListQuerySchema,
   },
   responses: {
     200: {
@@ -240,16 +246,17 @@ export const listPendingConnectionRoute = createRoute({
       },
     },
   },
-})
+});
 
 export const listPendingTerminationConnectionRoute = createRoute({
   operationId: "listPendingTerminationConnection",
   tags: ["Connect"],
   method: "get",
   path: "/list/pending-terminate",
-  description: "List seluruh connection yang pending terminasi beserta detailnya",
+  description:
+    "List seluruh connection yang pending terminasi beserta detailnya",
   request: {
-    query: connectionListQuerySchema
+    query: connectionListQuerySchema,
   },
   responses: {
     200: {
@@ -276,7 +283,7 @@ export const listPendingTerminationConnectionRoute = createRoute({
       },
     },
   },
-})
+});
 
 export const listAllConnectionRoute = createRoute({
   operationId: "listAllConnection",
@@ -285,7 +292,7 @@ export const listAllConnectionRoute = createRoute({
   path: "/list/all",
   description: "List seluruh connection yang ada beserta detailnya",
   request: {
-    query: connectionListAllQuerySchema
+    query: connectionListAllQuerySchema,
   },
   responses: {
     200: {
@@ -312,14 +319,15 @@ export const listAllConnectionRoute = createRoute({
       },
     },
   },
-})
+});
 
 export const isConnectedRoute = createRoute({
   operationId: "isConnected",
   tags: ["Connect"],
   method: "get",
   path: "/is-connected/{id}",
-  description: "Memeriksa apakah OTA dan MA tertentu sudah memiliki hubungan asuh",
+  description:
+    "Memeriksa apakah OTA dan MA tertentu sudah memiliki hubungan asuh",
   request: {
     params: checkConnectParamsSchema,
   },
@@ -356,7 +364,7 @@ export const isConnectedRoute = createRoute({
       },
     },
   },
-})
+});
 
 export const deleteConnectionRoute = createRoute({
   operationId: "deleteConnection",
@@ -371,7 +379,9 @@ export const deleteConnectionRoute = createRoute({
     200: {
       description: "Successfully deleted a connection",
       content: {
-        "application/json": { schema: DeleteConnectionSuccessfulResponseSchema },
+        "application/json": {
+          schema: DeleteConnectionSuccessfulResponseSchema,
+        },
       },
     },
     401: AuthorizationErrorResponse,

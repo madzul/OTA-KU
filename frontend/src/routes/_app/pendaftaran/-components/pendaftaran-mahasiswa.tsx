@@ -358,6 +358,9 @@ export default function PendaftaranMahasiswa({
                     <FormLabel className="text-primary text-sm after:text-red-500 after:content-['*']">
                       IPK
                     </FormLabel>
+                    <p className="text-muted-foreground text-xs">
+                      Gunakan tanda titik (.) untuk desimal
+                    </p>
                     <FormControl>
                       <Input
                         placeholder="Masukkan IPK"
@@ -517,7 +520,11 @@ export default function PendaftaranMahasiswa({
               ))}
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
               Kirim
             </Button>
           </form>

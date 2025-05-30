@@ -14,7 +14,7 @@ export const NotesVerificationRequestSchema = z.object({
         invalid_type_error: "Dana kebutuhan harus berupa angka",
         required_error: "Dana kebutuhan harus diisi",
       })
-      .min(0, {
+      .gt(0, {
         message: "Dana kebutuhan tidak boleh kurang dari 0",
       }),
   ),

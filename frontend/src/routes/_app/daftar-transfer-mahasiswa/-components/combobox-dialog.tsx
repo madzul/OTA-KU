@@ -54,7 +54,8 @@ function ComboboxDialog({ row }: ComboboxDialogProps) {
         formData: { id: id },
       }),
 
-    onSuccess: () => {
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
       toast.success("Status transfer diubah menjadi Ditransfer", {
         description: "Perubahan berhasil disimpan.",
       });
@@ -62,10 +63,18 @@ function ComboboxDialog({ row }: ComboboxDialogProps) {
         queryKey: ["listTransactionAdmin"],
       });
     },
-    onError: () => {
-      toast.error("Gagal mengubah status transfer", {
-        description: "Terjadi kesalahan saat mengubah status transfer.",
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning("Gagal mengubah status transfer", {
+        description: error.message,
       });
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memperbarui status transfer...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 
@@ -158,6 +167,7 @@ function ComboboxDialog({ row }: ComboboxDialogProps) {
                   });
                   setIsDialogOpen(false);
                 }}
+                disabled={acceptTransferStatusMutation.isPending}
               >
                 Lanjutkan
               </Button>
@@ -167,6 +177,7 @@ function ComboboxDialog({ row }: ComboboxDialogProps) {
                 onClick={() => {
                   setIsDialogOpen(false);
                 }}
+                disabled={acceptTransferStatusMutation.isPending}
               >
                 Batal
               </Button>

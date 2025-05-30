@@ -145,7 +145,13 @@ function CreateAccountDialog() {
                 <FormItem>
                   <FormLabel className="text-primary text-sm">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Masukkan email" {...field} />
+                    <Input
+                      placeholder="Masukkan email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      inputMode="email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -243,7 +249,6 @@ function CreateAccountDialog() {
                                 key={role.value}
                                 onSelect={(currentValue) => {
                                   if (currentValue === value) {
-                                    console.log("reset");
                                     form.resetField("type");
                                   } else {
                                     form.setValue("type", role.value);
@@ -273,13 +278,19 @@ function CreateAccountDialog() {
             />
 
             <div className="grid grid-cols-2 gap-4">
-              <Button type="submit">Buat Akun</Button>
+              <Button
+                type="submit"
+                disabled={pembuatanAkunBankesPengurusCallbackMutation.isPending}
+              >
+                Buat Akun
+              </Button>
               <Button
                 variant="outline"
                 type="button"
                 onClick={() => {
                   setOpen(false);
                 }}
+                disabled={pembuatanAkunBankesPengurusCallbackMutation.isPending}
               >
                 Batal
               </Button>

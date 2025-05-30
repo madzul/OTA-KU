@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -12,7 +13,7 @@ import { SessionContext } from "@/context/session";
 import { cn } from "@/lib/utils";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation } from "@tanstack/react-query";
-import { Trash } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useContext, useState } from "react";
 import { toast } from "sonner";
 
@@ -42,10 +43,10 @@ function DeleteConnectionDialog({
       });
       setOpen(false);
     },
-    onError: (_error, _variables, context) => {
+    onError: (error, _variables, context) => {
       toast.dismiss(context);
       toast.warning("Gagal menghapus hubungan asuh", {
-        description: "Silakan coba lagi",
+        description: error.message,
       });
     },
     onMutate: () => {
@@ -62,7 +63,7 @@ function DeleteConnectionDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger disabled={isDisabled}>
-        <Trash
+        <Trash2
           className={cn(
             "text-destructive h-5 w-5",
             !isDisabled && "hover:cursor-pointer",
@@ -83,25 +84,29 @@ function DeleteConnectionDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Button
-            type="submit"
-            onClick={() => {
-              deleteConnectionCallbackMutation.mutate();
-            }}
-          >
-            Lanjutkan
-          </Button>
+        <DialogFooter className="flex flex-row space-x-2">
           <Button
             variant="outline"
             type="button"
             onClick={() => {
               setOpen(false);
             }}
+            className="flex-1"
+            disabled={deleteConnectionCallbackMutation.isPending}
           >
             Batal
           </Button>
-        </div>
+          <Button
+            type="submit"
+            onClick={() => {
+              deleteConnectionCallbackMutation.mutate();
+            }}
+            className="flex-1"
+            disabled={deleteConnectionCallbackMutation.isPending}
+          >
+            Lanjutkan
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

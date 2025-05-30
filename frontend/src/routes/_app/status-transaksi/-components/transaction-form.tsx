@@ -348,7 +348,7 @@ function TransactionForm({
         <Button
           type="submit"
           className="self-end"
-          disabled={data[0].status !== "unpaid"}
+          disabled={data[0].status !== "unpaid" || form.formState.isSubmitting}
         >
           Kirim Pembayaran
         </Button>

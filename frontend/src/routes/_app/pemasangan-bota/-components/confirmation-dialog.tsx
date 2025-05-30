@@ -26,9 +26,6 @@ function ConfirmationDialog({
 }) {
   const [isOpen, setOpen] = useState(false);
 
-  console.log("otaId", otaId);
-  console.log("selectedMahasiswa", selectedMahasiswa);
-
   const connectMutation = useMutation({
     mutationFn: async () => {
       const promises = [...selectedMahasiswa].map((mahasiswaId) =>
@@ -48,10 +45,11 @@ function ConfirmationDialog({
       onConfirmSuccess();
       setOpen(false);
     },
-    onError: (_error, __, context) => {
-        console.error("Error:", _error);
+    onError: (error, __, context) => {
       toast.dismiss(context); // Dismiss the loading toast
-      toast.error("Gagal memasangkan mahasiswa dengan OTA.");
+      toast.warning("Gagal memasangkan mahasiswa dengan OTA.", {
+        description: error.message,
+      });
     },
     onMutate: () => {
       const loading = toast.loading("Memasangkan mahasiswa dengan OTA...", {
@@ -88,10 +86,22 @@ function ConfirmationDialog({
           OTA <span className="font-bold">{otaName}</span>? Aksi ini tidak dapat
           dibatalkan.
         </p>
-        <div className="mt-4 flex justify-end gap-2">
-          <Button variant="default" onClick={handleConfirm}>Yakin</Button>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+        <div className="mt-4 flex flex-row space-x-2">
+          <Button
+            className="flex-1"
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={connectMutation.isPending}
+          >
             Batal
+          </Button>
+          <Button
+            variant="default"
+            className="flex-1"
+            onClick={handleConfirm}
+            disabled={connectMutation.isPending}
+          >
+            Yakin
           </Button>
         </div>
       </DialogContent>

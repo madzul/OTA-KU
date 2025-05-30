@@ -1,5 +1,3 @@
-"use client";
-
 import { api } from "@/api/client";
 import type { ListTerminateForOTA } from "@/api/generated";
 import Metadata from "@/components/metadata";
@@ -87,24 +85,32 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, _variables, context) => {
+      toast.dismiss(context);
       setIsModalOpen(false);
       onTerminateSuccess(student.mahasiswaId);
-      try {
-        toast.success(`Hubungan dengan ${student.maName} berhasil diterminasi`);
-      } catch (e: Error | unknown) {
-        toast.error(
-          `Gagal mengakhiri hubungan dengan ${student.maName}. Silakan coba lagi.`,
-          {
-            description: e instanceof Error ? e.message : String(e),
-          },
-        );
-      }
-    },
-    onError: () => {
-      toast.error(
-        `Gagal mengakhiri hubungan dengan ${student.maName}. Silakan coba lagi.`,
+      toast.success(
+        "Berhasil melakukan permintaan pemutusan hubungan dengan mahasiswa asuh",
+        {
+          description: "Permintaan akan segera diproses oleh IOM ITB",
+        },
       );
+    },
+    onError: (error, _variables, context) => {
+      toast.dismiss(context);
+      toast.warning(
+        "Gagal melakukan permintaan pemutusan hubungan dengan mahasiswa asuh",
+        {
+          description: error.message,
+        },
+      );
+    },
+    onMutate: () => {
+      const loading = toast.loading("Sedang memproses permintaan...", {
+        description: "Mohon tunggu sebentar",
+        duration: Infinity,
+      });
+      return loading;
     },
   });
 
@@ -186,12 +192,13 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               />
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-end gap-2 sm:justify-end">
+          <DialogFooter className="flex flex-row space-x-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsModalOpen(false)}
-              className="border-gray-300 hover:bg-gray-50 active:bg-gray-100"
+              className="flex-1"
+              disabled={deleteConnection.isPending}
             >
               Batal
             </Button>
@@ -199,9 +206,10 @@ function StudentCard({ student, onTerminateSuccess }: StudentCardProps) {
               type="button"
               variant="destructive"
               onClick={() => handleTerminate(note)}
-              className="bg-red-500 hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none active:bg-red-700"
+              disabled={deleteConnection.isPending}
+              className="flex-1"
             >
-              {"Ya, Terminasi"}
+              Ya, Terminasi
             </Button>
           </DialogFooter>
         </DialogContent>

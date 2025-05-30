@@ -3,6 +3,7 @@ import { AllAccountListElement } from "@/api/generated";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -67,26 +68,30 @@ function DeleteAccountDialog({
         dipulihkan.
       </p>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Button
-          type="submit"
-          onClick={() => {
-            deleteAccountCallbackMutation.mutate();
-            setOpen(false);
-          }}
-        >
-          Lanjutkan
-        </Button>
+      <DialogFooter className="flex flex-row space-x-2">
         <Button
           variant="outline"
           type="button"
           onClick={() => {
             setOpen(false);
           }}
+          className="flex-1"
+          disabled={deleteAccountCallbackMutation.isPending}
         >
           Batal
         </Button>
-      </div>
+        <Button
+          type="submit"
+          onClick={() => {
+            deleteAccountCallbackMutation.mutate();
+            setOpen(false);
+          }}
+          className="flex-1"
+          disabled={deleteAccountCallbackMutation.isPending}
+        >
+          Lanjutkan
+        </Button>
+      </DialogFooter>
     </DialogContent>
   );
 }

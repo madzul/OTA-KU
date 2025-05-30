@@ -119,6 +119,9 @@ function RouteComponent() {
                     <FormControl>
                       <Input
                         placeholder="Masukkan email atau nomor WA Anda"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        inputMode="email"
                         {...field}
                       />
                     </FormControl>
@@ -153,7 +156,7 @@ function RouteComponent() {
                 Lupa kata sandi?
               </Link>
 
-              <Button type="submit" disabled={loginCallbackMutation.isPending}>
+              <Button type="submit" disabled={form.formState.isSubmitting}>
                 Masuk
               </Button>
 
