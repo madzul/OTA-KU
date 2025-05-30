@@ -1,15 +1,20 @@
 import { addMonths, setDate } from "date-fns";
 import { and, count, eq, gte, ilike, inArray, lte, or, sql } from "drizzle-orm";
+import nodemailer from "nodemailer";
 
+import { env } from "../config/env.config.js";
 import { db } from "../db/drizzle.js";
 import {
   accountMahasiswaDetailTable,
   accountOtaDetailTable,
   accountTable,
   connectionTable,
+  pushSubscriptionTable,
   transactionTable,
 } from "../db/schema.js";
+import { transferMahasiswaEmail } from "../lib/email/transfer-mahasiswa.js";
 import { uploadFileToCloudinary } from "../lib/file-upload.js";
+import { sendNotification } from "../lib/web-push.js";
 import {
   acceptTransferStatusRoute,
   detailTransactionRoute,
@@ -20,6 +25,7 @@ import {
   verifyTransactionAccRoute,
   verifyTransactionRejectRoute,
 } from "../routes/transaction.route.js";
+import { SubscriptionSchema } from "../zod/push.js";
 import {
   AcceptTransferStatusSchema,
   DetailTransactionParams,
@@ -880,6 +886,7 @@ transactionProtectedRouter.openapi(acceptTransferStatusRoute, async (c) => {
     );
   }
 
+  //   Get Data
   try {
     await db.transaction(async (tx) => {
       await tx
@@ -888,6 +895,117 @@ transactionProtectedRouter.openapi(acceptTransferStatusRoute, async (c) => {
         .where(eq(transactionTable.id, id));
     });
 
+    const transferData = await db
+      .select({
+        namaMA: accountMahasiswaDetailTable.name,
+        namaOTA: accountOtaDetailTable.name,
+        nominal: transactionTable.bill,
+        emailMA: accountTable.email,
+        idMA: transactionTable.mahasiswaId,
+      })
+      .from(transactionTable)
+      .innerJoin(
+        accountMahasiswaDetailTable,
+        eq(transactionTable.mahasiswaId, accountMahasiswaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountOtaDetailTable,
+        eq(transactionTable.otaId, accountOtaDetailTable.accountId),
+      )
+      .innerJoin(
+        accountTable,
+        eq(accountTable.id, transactionTable.mahasiswaId),
+      )
+      .where(eq(transactionTable.id, id))
+      .limit(1);
+
+    // Send Mail
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      secure: true,
+      port: 465,
+      auth: {
+        user: env.EMAIL,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error("SMTP Server verification failed:", error);
+      } else {
+        console.log("SMTP Server is ready:", success);
+      }
+    });
+
+    transferData.map(async (data) => {
+      await transporter
+        .sendMail({
+          from: env.EMAIL,
+          to: env.NODE_ENV !== "production" ? env.TEST_EMAIL : data.emailMA,
+          subject: "Transfer Bantuan Asuh",
+          html: transferMahasiswaEmail(
+            data.namaMA ?? "",
+            data.namaOTA ?? "",
+            data.nominal.toLocaleString("id-ID"),
+            new Date()
+              .toLocaleString("id-ID", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })
+              .replace(".", ":"),
+          ),
+        })
+        .catch((error) => {
+          console.error("Error sending email:", error);
+        });
+    });
+
+    // Send Push Notif
+    const subscription = await db
+      .select()
+      .from(pushSubscriptionTable)
+      .where(eq(pushSubscriptionTable.accountId, transferData[0].idMA));
+
+    if (subscription.length > 0) {
+      const { endpoint, keys } = subscription[0];
+      const { p256dh, auth } = keys as { p256dh: string; auth: string };
+
+      const validatedData = SubscriptionSchema.parse({
+        endpoint,
+        p256dh,
+        auth,
+      });
+
+      const pushSubscription = {
+        endpoint: validatedData.endpoint,
+        keys: {
+          p256dh: validatedData.p256dh,
+          auth: validatedData.auth,
+        },
+      };
+
+      const notificationData = {
+        title: "Transfer Bantuan Asuh",
+        body: `Pemberitahuan transfer bantuan asuh telah dikirim`,
+        icon: "/icon/logo-iom-white.png",
+        actions: [
+          {
+            action: "open_url",
+            title: "Buka Aplikasi",
+            icon: "/icon/logo-iom-white.png",
+          },
+        ],
+      };
+
+      await sendNotification(pushSubscription, notificationData);
+    }
+
+    // JSON return
     return c.json(
       {
         success: true,

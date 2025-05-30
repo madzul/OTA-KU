@@ -48,13 +48,13 @@ const adminRoutes = [
   },
   {
     id: "daftar-transfer-mahasiswa",
-    label: "Daftar Transfer",
+    label: "Daftar Transfer Mahasiswa",
     icon: "/icon/Type=transaction.svg",
     path: "/daftar-transfer-mahasiswa",
   },
   {
     id: "transaction",
-    label: "Daftar Tagihan",
+    label: "Daftar Tagihan OTA",
     icon: "/icon/Type=receipt.svg",
     path: "/daftar-tagihan",
   },

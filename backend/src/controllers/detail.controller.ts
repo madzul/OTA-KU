@@ -24,14 +24,19 @@ detailProtectedRouter.openapi(getMahasiswaDetailRoute, async (c) => {
   const user = c.var.user;
   const { id } = c.req.param();
 
-  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+  if (
+    user.type !== "admin" &&
+    user.type !== "bankes" &&
+    user.type !== "pengurus"
+  ) {
     return c.json(
       {
         success: false,
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses detail ini",
+          message:
+            "Hanya admin, bankes, atau pengurus yang bisa mengakses detail ini",
         },
       },
       403,
@@ -307,15 +312,20 @@ detailProtectedRouter.openapi(getMahasiswaDetailForOTARoute, async (c) => {
 detailProtectedRouter.openapi(getOtaDetailRoute, async (c) => {
   const user = c.var.user;
   const { id } = c.req.param();
-  
-  if (user.type !== "admin" && user.type !== "bankes" && user.type !== "pengurus") {
+
+  if (
+    user.type !== "admin" &&
+    user.type !== "bankes" &&
+    user.type !== "pengurus"
+  ) {
     return c.json(
       {
         success: false,
         message: "Forbidden",
         error: {
           code: "Forbidden",
-          message: "Hanya admin, bankes, atau pengurus yang bisa mengakses detail ini",
+          message:
+            "Hanya admin, bankes, atau pengurus yang bisa mengakses detail ini",
         },
       },
       403,
@@ -422,8 +432,12 @@ detailProtectedRouter.openapi(getMyOtaDetailRoute, async (c) => {
         eq(accountTable.id, accountOtaDetailTable.accountId),
       )
       .innerJoin(connectionTable, eq(connectionTable.mahasiswaId, user.id))
-      .where(eq(connectionTable.connectionStatus, "accepted"))
-      .limit(1);
+      .where(
+        and(
+          eq(connectionTable.connectionStatus, "accepted"),
+          eq(connectionTable.otaId, accountTable.id),
+        ),
+      );
 
     if (otaDetail.length === 0) {
       return c.json(
