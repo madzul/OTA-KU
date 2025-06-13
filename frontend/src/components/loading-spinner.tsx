@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 const spinTransition = {
   repeat: Infinity,
-  ease: "easeInOut",
+  ease: "easeInOut" as const,
   // width: ['100%', '50%'],
   duration: 1,
 };
