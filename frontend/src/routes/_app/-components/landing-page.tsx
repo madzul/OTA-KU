@@ -18,10 +18,10 @@ function LandingPage({ session }: { session: UserSchema | null | undefined }) {
         {/* Text */}
         <div className="text-dark flex flex-col gap-2">
           <h1 className="text-center text-[32px] font-bold lg:text-justify lg:text-[50px]">
-            Bantuan Orang Tua Asuh (BOTA)
+            Orang Tua Asuh Ku (OTA-KU)
           </h1>
           <p className="w-full max-w-[700px] text-justify text-sm opacity-80 lg:max-w-[845px] lg:text-2xl">
-            BOTA adalah program bantuan pendidikan bagi mahasiswa ITB yang
+            OTA-KU adalah program bantuan pendidikan bagi mahasiswa ITB yang
             mengalami kendala finansial. Melalui kolaborasi bersama IOM ITB,
             Anda bisa berperan sebagai Orang Tua Asuh—baik secara individu
             maupun lembaga—untuk memberikan dukungan berupa dana UKT, biaya

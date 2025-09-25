@@ -2,10 +2,9 @@
 
 ## Deskripsi
 
-BOTA adalah sistem berbasis web yang dirancang untuk mengelola program Orang Tua Asuh (OTA) di Institut Teknologi Bandung (ITB), yang merupakan salah satu bentuk bantuan dari Ikatan Orang Tua Mahasiswa ITB (IOM-ITB). Sistem ini memfasilitasi proses pencocokan antara Orang Tua Mahasiswa (OTM) yang ingin menjadi donatur dengan mahasiswa ITB yang membutuhkan dukungan finansial. Mahasiswa yang membutuhkan bantuan dapat mendaftar dengan mengisi formulir pengajuan, sementara OTM yang ingin menjadi Orang Tua Asuh dapat mendaftar melalui formulir khusus dan mendapatkan akses ke dashboard untuk memilih mahasiswa yang akan diasuh. Sistem ini memiliki tiga jenis pengguna utama, yaitu Mahasiswa, Orang Tua Asuh, dan Pengurus. Aplikasi ini bekerja secara online sehingga pengguna perlu melakukan login untuk melakukan autentikasi terlebih dahulu untuk menjalankan website.
+OTA-KU adalah sistem berbasis web yang dirancang untuk mengelola program Orang Tua Asuh (OTA) di Institut Teknologi Bandung (ITB), yang merupakan salah satu bentuk bantuan dari Ikatan Orang Tua Mahasiswa ITB (IOM-ITB). Sistem ini memfasilitasi proses pencocokan antara Orang Tua Mahasiswa (OTM) yang ingin menjadi donatur dengan mahasiswa ITB yang membutuhkan dukungan finansial. Mahasiswa yang membutuhkan bantuan dapat mendaftar dengan mengisi formulir pengajuan, sementara OTM yang ingin menjadi Orang Tua Asuh dapat mendaftar melalui formulir khusus dan mendapatkan akses ke dashboard untuk memilih mahasiswa yang akan diasuh. Sistem ini memiliki tiga jenis pengguna utama, yaitu Mahasiswa, Orang Tua Asuh, dan Pengurus. Aplikasi ini bekerja secara online sehingga pengguna perlu melakukan login untuk melakukan autentikasi terlebih dahulu untuk menjalankan website.
 
 ## Instalasi dan Cara Menjalankan Program
-
 1. Tambahkan file `.env` dan `.env.local` pada folder backend dengan isi seperti pada `.env.example`. Tambahkan juga file `.env` pada folder frontend dengan isi seperti pada `.env.example`.
 
 2. Jalankan command berikut pada terminal:
@@ -26,7 +25,7 @@ BOTA adalah sistem berbasis web yang dirancang untuk mengelola program Orang Tua
     Selain itu, akun admin harus ditambahkan ke database secara manual.
 
     ```sql
-    INSERT INTO account (email, phone_number, password, type, provider, status, application_status) VALUES ('admin@example.com', '081234567890', 'password', 'type', 'credentials', 'verified', 'accepted');
+    INSERT INTO account (email, phoneNumber, password, type, provider, status, application_status) VALUES ('admin@example.com', '081234567890', 'password', 'type', 'credentials', 'verified', 'accepted');
 
     INSERT INTO account_admin_detail (account_id, name) VALUES ('admin_id', 'Admin');
     ```
@@ -75,14 +74,16 @@ BOTA adalah sistem berbasis web yang dirancang untuk mengelola program Orang Tua
 
 2. Tambahkan file `.env` dan `.env.local` pada folder backend dengan isi seperti pada `.env.example`. Tambahkan juga file `.env` pada folder frontend dengan isi seperti pada `.env.example`.
 
-3. Jalankan command berikut pada terminal:
+3. Untuk migration awal, expose sementara port 54342 pada docker-compose-production.yaml
+
+4. Jalankan command berikut pada terminal:
 
     ```bash
     docker compose -f docker-compose.production.yml build
     docker compose -f docker-compose.production.yml up -d
     ```
 
-4. Konfigurasi Database & Admin
+5. Konfigurasi Database & Admin
 
     - Lakukan migrasi database.
 
@@ -100,7 +101,12 @@ BOTA adalah sistem berbasis web yang dirancang untuk mengelola program Orang Tua
     INSERT INTO account_admin_detail (account_id, name) VALUES ('admin_id', 'Admin');
     ```
 
-5. Akses website melalui `https://<domain>`
+6. Tutup kembali port 54342 pada docker-compose-production.yaml
+
+7. Akses website melalui `https://<domain>`
+
+### Deployment Menggunakan Docker
+Login menggunakan Microsoft Azure untuk saat ini masih mengalami kendala 401 (unauthorized) karena domain ota.iom-itb.id masih belum diizinkan untuk mengakses SSO oleh authenticator ITB
 
 ## Anggota
 
