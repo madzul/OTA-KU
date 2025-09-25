@@ -74,7 +74,7 @@ OTA-KU adalah sistem berbasis web yang dirancang untuk mengelola program Orang T
 
 2. Tambahkan file `.env` dan `.env.local` pada folder backend dengan isi seperti pada `.env.example`. Tambahkan juga file `.env` pada folder frontend dengan isi seperti pada `.env.example`.
 
-3. Untuk migration awal, expose sementara port 54342 pada docker-compose-production.yaml
+3. Untuk migration awal, expose sementara port 54342 pada docker-compose.production.yaml
 
 4. Jalankan command berikut pada terminal:
 
@@ -101,11 +101,11 @@ OTA-KU adalah sistem berbasis web yang dirancang untuk mengelola program Orang T
     INSERT INTO account_admin_detail (account_id, name) VALUES ('admin_id', 'Admin');
     ```
 
-6. Tutup kembali port 54342 pada docker-compose-production.yaml
+6. Tutup kembali port 54342 pada docker-compose.production.yaml
 
 7. Akses website melalui `https://<domain>`
 
-### Deployment Menggunakan Docker
+### Catatan
 Login menggunakan Microsoft Azure untuk saat ini masih mengalami kendala 401 (unauthorized) karena domain ota.iom-itb.id masih belum diizinkan untuk mengakses SSO oleh authenticator ITB
 
 ## Anggota
