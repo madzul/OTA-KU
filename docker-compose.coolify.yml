@@ -23,9 +23,11 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.coolify  # Gunakan versi coolify
+      dockerfile: Dockerfile.coolify
       args:
-        NODE_ENV: development  # Pass ke ARG di builder
+        - NODE_ENV=development  # Build-time: install devDeps
+        - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}  # Jika diperlukan build
+        # Tambah ARG lain jika build backend butuh env spesifik
     expose:
       - "3000"
     environment:
@@ -55,7 +57,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`ota-api.iom-itb.id`)"
+      - "traefik.http.routers.backend.rule=Host(`${COOLIFY_FQDN_BACKEND:-ota-api.iom-itb.id}`)"  # Magic var Coolify
       - "traefik.http.routers.backend.entrypoints=websecure"
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
       - "traefik.http.services.backend.loadbalancer.server.port=3000"
@@ -63,14 +65,14 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile.production.coolify
       args:
-        NODE_ENV: development  # Juga untuk frontend build
-        VITE_API_URL: https://ota-api.iom-itb.id
-        VITE_APP_URL: https://ota.iom-itb.id
-        VITE_PUBLIC_URL: https://ota.iom-itb.id
-        VITE_AZURE_CLIENT_ID: ${VITE_AZURE_CLIENT_ID}
-        VITE_VAPID_PUBLIC_KEY: ${VITE_VAPID_PUBLIC_KEY}
+        - NODE_ENV=development
+        - VITE_API_URL=https://ota-api.iom-itb.id
+        - VITE_APP_URL=https://ota.iom-itb.id
+        - VITE_PUBLIC_URL=https://ota.iom-itb.id
+        - VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID}
+        - VITE_VAPID_PUBLIC_KEY=${VITE_VAPID_PUBLIC_KEY}
     expose:
       - "3000"
     environment:
@@ -86,7 +88,7 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`ota.iom-itb.id`)"
+      - "traefik.http.routers.frontend.rule=Host(`${COOLIFY_FQDN_FRONTEND:-ota.iom-itb.id}`)"
       - "traefik.http.routers.frontend.entrypoints=websecure"
       - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
