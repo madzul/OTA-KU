@@ -24,9 +24,9 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.coolify
-      args:
-        - NODE_ENV=development  # Build-time: install devDeps
-        - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}  # Jika diperlukan build
+      args: []
+        #- NODE_ENV=development  # Build-time: install devDeps
+        #- AZURE_CLIENT_ID=${AZURE_CLIENT_ID}  # Jika diperlukan build
         # Tambah ARG lain jika build backend butuh env spesifik
     expose:
       - "3000"
