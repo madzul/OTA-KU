@@ -1,8 +1,8 @@
 FROM node:22-alpine AS base
 
 FROM base AS builder
-ARG NODE_ENV=development
-ENV NODE_ENV=${NODE_ENV}
+# Hardcode untuk build: pastikan devDeps terinstall meskipun arg override
+ENV NODE_ENV=development
 
 RUN apk add --no-cache gcompat
 WORKDIR /app
